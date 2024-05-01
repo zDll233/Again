@@ -3,9 +3,10 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 import 'left_side.dart';
 import 'right_side.dart';
+import 'window_buttons.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const TestApp());
   doWhenWindowReady(() {
     final win = appWindow;
     const initialSize = Size(600, 450);
@@ -15,6 +16,28 @@ void main() {
     win.title = "Again";
     win.show();
   });
+}
+
+class TestApp extends StatelessWidget {
+  const TestApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Column(children: [
+          WindowTitleBarBox(
+            child: Row(
+              children: [Expanded(child: MoveWindow()), const WindowButtons()],
+            ),
+          ),
+          Image.asset('assets/images/test01.jpg'),
+          
+        ]),
+      ),
+    );
+  }
 }
 
 const borderColor = Color(0xFF805306);
@@ -27,9 +50,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        // appBar: AppBar(
-        //   title: const Text('123'),
-        // ),
         body: WindowBorder(
           color: borderColor,
           width: 1,
@@ -59,17 +79,3 @@ final closeButtonColors = WindowButtonColors(
     mouseDown: const Color(0xFFB71C1C),
     iconNormal: const Color(0xFF805306),
     iconMouseOver: Colors.white);
-
-class WindowButtons extends StatelessWidget {
-  const WindowButtons({super.key});
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        MinimizeWindowButton(colors: buttonColors),
-        MaximizeWindowButton(colors: buttonColors),
-        CloseWindowButton(colors: closeButtonColors),
-      ],
-    );
-  }
-}

@@ -2,6 +2,8 @@ import 'package:again/main.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 
+import 'window_buttons.dart';
+
 class RightSide extends StatelessWidget {
   const RightSide({super.key});
   @override

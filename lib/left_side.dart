@@ -13,7 +13,7 @@ class LeftSide extends StatelessWidget {
             child: Column(
               children: [
                 WindowTitleBarBox(child: MoveWindow()),
-                Expanded(child: Container())
+                Expanded(child: Container()),
               ],
             )));
   }
