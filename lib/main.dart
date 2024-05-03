@@ -9,8 +9,9 @@ void main() {
   runApp(const TestApp());
   doWhenWindowReady(() {
     final win = appWindow;
-    const initialSize = Size(600, 450);
+    const initialSize = Size(960, 540);
     win.minSize = initialSize;
+    // win.maxSize = initialSize;
     win.size = initialSize;
     win.alignment = Alignment.center;
     win.title = "Again";
@@ -26,15 +27,25 @@ class TestApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        body: Column(children: [
-          WindowTitleBarBox(
-            child: Row(
-              children: [Expanded(child: MoveWindow()), const WindowButtons()],
-            ),
+        body: Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+                image: AssetImage("assets/images/test01.jpg"),
+                fit: BoxFit.cover,
+                opacity: 1.0),
           ),
-          Image.asset('assets/images/test01.jpg'),
-          
-        ]),
+          child: Column(children: [
+            WindowTitleBarBox(
+              child: Row(
+                children: [
+                  Expanded(child: MoveWindow()),
+                  const WindowButtons()
+                ],
+              ),
+            ),
+            // Image.asset('assets/images/test01.jpg'),
+          ]),
+        ),
       ),
     );
   }
