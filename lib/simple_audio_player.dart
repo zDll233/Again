@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -13,6 +14,26 @@ class SimpleAudioPlayer extends StatefulWidget {
 class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
   late AudioPlayer player = AudioPlayer();
 
+  List<FileSystemEntity> entities = [];
+
+  Future<List<File>> getWavList() async {
+    List<File> wavList = [];
+
+    // Get the system temp directory.
+    var systemTempDir = Directory(
+        'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【両耳ねっとり耳舐め♪】双子の彼女といけない関係～二人と付き合うのって罪ですか～');
+
+    // List directory contents, recursing into sub-directories,
+    // but not following symbolic links.
+    await for (var entity
+        in systemTempDir.list(recursive: true, followLinks: true)) {
+      if (entity is File && entity.path.endsWith('.wav')) {
+        wavList.add(entity);
+      }
+    }
+    return wavList;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -25,7 +46,9 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
 
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await player.setSource(AssetSource('songs/song01.flac'));
+      // await player.setSource(AssetSource('songs/song01.flac'));
+      await player.setSource(DeviceFileSource(
+          await getWavList().then((List<File> wavList) => wavList[0].path)));
       await player.resume();
     });
   }
