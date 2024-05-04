@@ -14,8 +14,6 @@ class SimpleAudioPlayer extends StatefulWidget {
 class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
   late AudioPlayer player = AudioPlayer();
 
-  List<FileSystemEntity> entities = [];
-
   Future<List<File>> getWavList() async {
     List<File> wavList = [];
 
