@@ -5,6 +5,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 
 import 'window_buttons.dart';
+import 'simple_audio_player.dart';
 
 void main() async {
   // window acrylic, mica or transparency effects
@@ -12,6 +13,7 @@ void main() async {
   await Window.initialize();
 
   runApp(const MyApp());
+  // runApp(const MaterialApp(home: SimpleAudioPlayer()));
 
   // custom titlebar/buttons
   if (Platform.isWindows) {
@@ -60,21 +62,26 @@ class _MyAppBodyState extends State<MyAppBody> {
     Window.setEffect(
       effect: value!,
       color: color,
-      // dark: brightness == InterfaceBrightness.dark,
     );
     setState(() => effect = value);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        WindowTitleBarBox(
-          child: Row(
-            children: [Expanded(child: MoveWindow()), const WindowButtons()],
-          ),
-        ),
-      ],
-    );
+    return Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Column(
+          children: [
+            WindowTitleBarBox(
+              child: Row(
+                children: [
+                  Expanded(child: MoveWindow()),
+                  const WindowButtons()
+                ],
+              ),
+            ),
+            const SimpleAudioPlayer()
+          ],
+        ));
   }
 }

@@ -37,6 +37,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   bitsdojo_window: ^0.1.6
   flutter_acrylic: ^1.1.0
+  audioplayers: ^6.0.0
 
 dev_dependencies:
   flutter_test:
@@ -63,6 +64,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/songs/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
