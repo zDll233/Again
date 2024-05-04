@@ -1,92 +1,80 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 
-import 'left_side.dart';
-import 'right_side.dart';
 import 'window_buttons.dart';
 
-void main() {
-  runApp(const TestApp());
-  doWhenWindowReady(() {
-    final win = appWindow;
-    const initialSize = Size(960, 540);
-    win.minSize = initialSize;
-    // win.maxSize = initialSize;
-    win.size = initialSize;
-    win.alignment = Alignment.center;
-    win.title = "Again";
-    win.show();
-  });
-}
+void main() async {
+  // window acrylic, mica or transparency effects
+  WidgetsFlutterBinding.ensureInitialized();
+  await Window.initialize();
 
-class TestApp extends StatelessWidget {
-  const TestApp({super.key});
+  runApp(const MyApp());
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Container(
-          decoration: const BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage("assets/images/test01.jpg"),
-                fit: BoxFit.cover,
-                opacity: 1.0),
-          ),
-          child: Column(children: [
-            WindowTitleBarBox(
-              child: Row(
-                children: [
-                  Expanded(child: MoveWindow()),
-                  const WindowButtons()
-                ],
-              ),
-            ),
-            // Image.asset('assets/images/test01.jpg'),
-          ]),
-        ),
-      ),
-    );
+  // custom titlebar/buttons
+  if (Platform.isWindows) {
+    doWhenWindowReady(() {
+      const initialSize = Size(960, 540);
+      appWindow
+        ..minSize = initialSize
+        ..size = initialSize
+        ..alignment = Alignment.center
+        ..title = "Again"
+        ..show();
+    });
   }
 }
-
-const borderColor = Color(0xFF805306);
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: WindowBorder(
-          color: borderColor,
-          width: 1,
-          child: const Row(
-            children: [LeftSide(), RightSide()],
-          ),
-        ),
-      ),
+      home: MyAppBody(),
     );
   }
 }
 
-const sidebarColor = Color(0xFFF6A00C);
+class MyAppBody extends StatefulWidget {
+  const MyAppBody({super.key});
 
-const backgroundStartColor = Color(0xFFFFD500);
-const backgroundEndColor = Color(0xFFF6A00C);
+  @override
+  State<MyAppBody> createState() => _MyAppBodyState();
+}
 
-final buttonColors = WindowButtonColors(
-    iconNormal: const Color(0xFF805306),
-    mouseOver: const Color(0xFFF6A00C),
-    mouseDown: const Color(0xFF805306),
-    iconMouseOver: const Color(0xFF805306),
-    iconMouseDown: const Color(0xFFFFD500));
+class _MyAppBodyState extends State<MyAppBody> {
+  WindowEffect effect = WindowEffect.transparent;
+  Color color = const Color(0xCC222222);
 
-final closeButtonColors = WindowButtonColors(
-    mouseOver: const Color(0xFFD32F2F),
-    mouseDown: const Color(0xFFB71C1C),
-    iconNormal: const Color(0xFF805306),
-    iconMouseOver: Colors.white);
+  @override
+  void initState() {
+    super.initState();
+    setWindowEffect(effect);
+  }
+
+  void setWindowEffect(WindowEffect? value) {
+    Window.setEffect(
+      effect: value!,
+      color: color,
+      // dark: brightness == InterfaceBrightness.dark,
+    );
+    setState(() => effect = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        WindowTitleBarBox(
+          child: Row(
+            children: [Expanded(child: MoveWindow()), const WindowButtons()],
+          ),
+        ),
+      ],
+    );
+  }
+}
