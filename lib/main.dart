@@ -12,6 +12,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // for window acrylic, mica or transparency effects
   await Window.initialize();
+  Window.setEffect(
+    effect: WindowEffect.transparent,
+    color: const Color(0xCC222222),
+  );
 
   // =============================================
 
@@ -33,30 +37,8 @@ void main() async {
   }
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  WindowEffect effect = WindowEffect.transparent;
-  Color color = const Color(0xCC222222);
-
-  @override
-  void initState() {
-    super.initState();
-    setWindowEffect(effect);
-  }
-
-  void setWindowEffect(WindowEffect? value) {
-    Window.setEffect(
-      effect: value!,
-      color: color,
-    );
-    setState(() => effect = value);
-  }
 
   @override
   Widget build(BuildContext context) {
