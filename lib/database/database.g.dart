@@ -9,15 +9,6 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $VoiceWorkCategoryTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -25,7 +16,7 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
       'description', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, description];
+  List<GeneratedColumn> get $columns => [description];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -37,9 +28,6 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('description')) {
       context.handle(
           _descriptionMeta,
@@ -52,13 +40,11 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {description};
   @override
   VoiceWorkCategoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return VoiceWorkCategoryData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
     );
@@ -72,20 +58,17 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
 
 class VoiceWorkCategoryData extends DataClass
     implements Insertable<VoiceWorkCategoryData> {
-  final int id;
   final String description;
-  const VoiceWorkCategoryData({required this.id, required this.description});
+  const VoiceWorkCategoryData({required this.description});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['description'] = Variable<String>(description);
     return map;
   }
 
   VoiceWorkCategoryCompanion toCompanion(bool nullToAbsent) {
     return VoiceWorkCategoryCompanion(
-      id: Value(id),
       description: Value(description),
     );
   }
@@ -94,7 +77,6 @@ class VoiceWorkCategoryData extends DataClass
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return VoiceWorkCategoryData(
-      id: serializer.fromJson<int>(json['id']),
       description: serializer.fromJson<String>(json['description']),
     );
   }
@@ -102,73 +84,68 @@ class VoiceWorkCategoryData extends DataClass
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'description': serializer.toJson<String>(description),
     };
   }
 
-  VoiceWorkCategoryData copyWith({int? id, String? description}) =>
+  VoiceWorkCategoryData copyWith({String? description}) =>
       VoiceWorkCategoryData(
-        id: id ?? this.id,
         description: description ?? this.description,
       );
   @override
   String toString() {
     return (StringBuffer('VoiceWorkCategoryData(')
-          ..write('id: $id, ')
           ..write('description: $description')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, description);
+  int get hashCode => description.hashCode;
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is VoiceWorkCategoryData &&
-          other.id == this.id &&
-          other.description == this.description);
+      (other is VoiceWorkCategoryData && other.description == this.description);
 }
 
 class VoiceWorkCategoryCompanion
     extends UpdateCompanion<VoiceWorkCategoryData> {
-  final Value<int> id;
   final Value<String> description;
+  final Value<int> rowid;
   const VoiceWorkCategoryCompanion({
-    this.id = const Value.absent(),
     this.description = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   VoiceWorkCategoryCompanion.insert({
-    this.id = const Value.absent(),
     required String description,
+    this.rowid = const Value.absent(),
   }) : description = Value(description);
   static Insertable<VoiceWorkCategoryData> custom({
-    Expression<int>? id,
     Expression<String>? description,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (description != null) 'description': description,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   VoiceWorkCategoryCompanion copyWith(
-      {Value<int>? id, Value<String>? description}) {
+      {Value<String>? description, Value<int>? rowid}) {
     return VoiceWorkCategoryCompanion(
-      id: id ?? this.id,
       description: description ?? this.description,
+      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (description.present) {
       map['description'] = Variable<String>(description.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -176,8 +153,8 @@ class VoiceWorkCategoryCompanion
   @override
   String toString() {
     return (StringBuffer('VoiceWorkCategoryCompanion(')
-          ..write('id: $id, ')
-          ..write('description: $description')
+          ..write('description: $description, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -189,15 +166,6 @@ class $VoiceWorkTable extends VoiceWork
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $VoiceWorkTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -212,12 +180,12 @@ class $VoiceWorkTable extends VoiceWork
   static const VerificationMeta _categoryMeta =
       const VerificationMeta('category');
   @override
-  late final GeneratedColumn<int> category = GeneratedColumn<int>(
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
       'category', aliasedName, false,
-      type: DriftSqlType.int,
+      type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES voice_work_category (id)'));
+          'REFERENCES voice_work_category (description)'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -226,7 +194,7 @@ class $VoiceWorkTable extends VoiceWork
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, title, diretoryPath, category, createdAt];
+      [title, diretoryPath, category, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -237,9 +205,6 @@ class $VoiceWorkTable extends VoiceWork
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
@@ -268,19 +233,17 @@ class $VoiceWorkTable extends VoiceWork
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {title};
   @override
   VoiceWorkData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return VoiceWorkData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       diretoryPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}diretory_path'])!,
       category: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}category'])!,
+          .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
     );
@@ -293,24 +256,21 @@ class $VoiceWorkTable extends VoiceWork
 }
 
 class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
-  final int id;
   final String title;
   final String diretoryPath;
-  final int category;
+  final String category;
   final DateTime? createdAt;
   const VoiceWorkData(
-      {required this.id,
-      required this.title,
+      {required this.title,
       required this.diretoryPath,
       required this.category,
       this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
     map['diretory_path'] = Variable<String>(diretoryPath);
-    map['category'] = Variable<int>(category);
+    map['category'] = Variable<String>(category);
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
     }
@@ -319,7 +279,6 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
 
   VoiceWorkCompanion toCompanion(bool nullToAbsent) {
     return VoiceWorkCompanion(
-      id: Value(id),
       title: Value(title),
       diretoryPath: Value(diretoryPath),
       category: Value(category),
@@ -333,10 +292,9 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return VoiceWorkData(
-      id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       diretoryPath: serializer.fromJson<String>(json['diretoryPath']),
-      category: serializer.fromJson<int>(json['category']),
+      category: serializer.fromJson<String>(json['category']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
     );
   }
@@ -344,22 +302,19 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'diretoryPath': serializer.toJson<String>(diretoryPath),
-      'category': serializer.toJson<int>(category),
+      'category': serializer.toJson<String>(category),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
     };
   }
 
   VoiceWorkData copyWith(
-          {int? id,
-          String? title,
+          {String? title,
           String? diretoryPath,
-          int? category,
+          String? category,
           Value<DateTime?> createdAt = const Value.absent()}) =>
       VoiceWorkData(
-        id: id ?? this.id,
         title: title ?? this.title,
         diretoryPath: diretoryPath ?? this.diretoryPath,
         category: category ?? this.category,
@@ -368,7 +323,6 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
   @override
   String toString() {
     return (StringBuffer('VoiceWorkData(')
-          ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('diretoryPath: $diretoryPath, ')
           ..write('category: $category, ')
@@ -378,12 +332,11 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
   }
 
   @override
-  int get hashCode => Object.hash(id, title, diretoryPath, category, createdAt);
+  int get hashCode => Object.hash(title, diretoryPath, category, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is VoiceWorkData &&
-          other.id == this.id &&
           other.title == this.title &&
           other.diretoryPath == this.diretoryPath &&
           other.category == this.category &&
@@ -391,64 +344,61 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
 }
 
 class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
-  final Value<int> id;
   final Value<String> title;
   final Value<String> diretoryPath;
-  final Value<int> category;
+  final Value<String> category;
   final Value<DateTime?> createdAt;
+  final Value<int> rowid;
   const VoiceWorkCompanion({
-    this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.diretoryPath = const Value.absent(),
     this.category = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   VoiceWorkCompanion.insert({
-    this.id = const Value.absent(),
     required String title,
     required String diretoryPath,
-    required int category,
+    required String category,
     this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
   })  : title = Value(title),
         diretoryPath = Value(diretoryPath),
         category = Value(category);
   static Insertable<VoiceWorkData> custom({
-    Expression<int>? id,
     Expression<String>? title,
     Expression<String>? diretoryPath,
-    Expression<int>? category,
+    Expression<String>? category,
     Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (diretoryPath != null) 'diretory_path': diretoryPath,
       if (category != null) 'category': category,
       if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   VoiceWorkCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? title,
+      {Value<String>? title,
       Value<String>? diretoryPath,
-      Value<int>? category,
-      Value<DateTime?>? createdAt}) {
+      Value<String>? category,
+      Value<DateTime?>? createdAt,
+      Value<int>? rowid}) {
     return VoiceWorkCompanion(
-      id: id ?? this.id,
       title: title ?? this.title,
       diretoryPath: diretoryPath ?? this.diretoryPath,
       category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
@@ -456,10 +406,13 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
       map['diretory_path'] = Variable<String>(diretoryPath.value);
     }
     if (category.present) {
-      map['category'] = Variable<int>(category.value);
+      map['category'] = Variable<String>(category.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -467,11 +420,11 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
   @override
   String toString() {
     return (StringBuffer('VoiceWorkCompanion(')
-          ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('diretoryPath: $diretoryPath, ')
           ..write('category: $category, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -483,15 +436,6 @@ class $VoiceItemTable extends VoiceItem
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $VoiceItemTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -503,17 +447,17 @@ class $VoiceItemTable extends VoiceItem
   late final GeneratedColumn<String> filePath = GeneratedColumn<String>(
       'file_path', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _voiceWorkIdMeta =
-      const VerificationMeta('voiceWorkId');
+  static const VerificationMeta _voiceWorkTitleMeta =
+      const VerificationMeta('voiceWorkTitle');
   @override
-  late final GeneratedColumn<int> voiceWorkId = GeneratedColumn<int>(
-      'voice_work_id', aliasedName, false,
-      type: DriftSqlType.int,
+  late final GeneratedColumn<String> voiceWorkTitle = GeneratedColumn<String>(
+      'voice_work_title', aliasedName, false,
+      type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES voice_work (id)'));
+          GeneratedColumn.constraintIsAlways('REFERENCES voice_work (title)'));
   @override
-  List<GeneratedColumn> get $columns => [id, title, filePath, voiceWorkId];
+  List<GeneratedColumn> get $columns => [title, filePath, voiceWorkTitle];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -524,9 +468,6 @@ class $VoiceItemTable extends VoiceItem
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
     if (data.containsKey('title')) {
       context.handle(
           _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
@@ -539,31 +480,29 @@ class $VoiceItemTable extends VoiceItem
     } else if (isInserting) {
       context.missing(_filePathMeta);
     }
-    if (data.containsKey('voice_work_id')) {
+    if (data.containsKey('voice_work_title')) {
       context.handle(
-          _voiceWorkIdMeta,
-          voiceWorkId.isAcceptableOrUnknown(
-              data['voice_work_id']!, _voiceWorkIdMeta));
+          _voiceWorkTitleMeta,
+          voiceWorkTitle.isAcceptableOrUnknown(
+              data['voice_work_title']!, _voiceWorkTitleMeta));
     } else if (isInserting) {
-      context.missing(_voiceWorkIdMeta);
+      context.missing(_voiceWorkTitleMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {title};
   @override
   VoiceItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return VoiceItemData(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       filePath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}file_path'])!,
-      voiceWorkId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}voice_work_id'])!,
+      voiceWorkTitle: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}voice_work_title'])!,
     );
   }
 
@@ -574,31 +513,27 @@ class $VoiceItemTable extends VoiceItem
 }
 
 class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
-  final int id;
   final String title;
   final String filePath;
-  final int voiceWorkId;
+  final String voiceWorkTitle;
   const VoiceItemData(
-      {required this.id,
-      required this.title,
+      {required this.title,
       required this.filePath,
-      required this.voiceWorkId});
+      required this.voiceWorkTitle});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
     map['title'] = Variable<String>(title);
     map['file_path'] = Variable<String>(filePath);
-    map['voice_work_id'] = Variable<int>(voiceWorkId);
+    map['voice_work_title'] = Variable<String>(voiceWorkTitle);
     return map;
   }
 
   VoiceItemCompanion toCompanion(bool nullToAbsent) {
     return VoiceItemCompanion(
-      id: Value(id),
       title: Value(title),
       filePath: Value(filePath),
-      voiceWorkId: Value(voiceWorkId),
+      voiceWorkTitle: Value(voiceWorkTitle),
     );
   }
 
@@ -606,114 +541,109 @@ class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return VoiceItemData(
-      id: serializer.fromJson<int>(json['id']),
       title: serializer.fromJson<String>(json['title']),
       filePath: serializer.fromJson<String>(json['filePath']),
-      voiceWorkId: serializer.fromJson<int>(json['voiceWorkId']),
+      voiceWorkTitle: serializer.fromJson<String>(json['voiceWorkTitle']),
     );
   }
   @override
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
       'title': serializer.toJson<String>(title),
       'filePath': serializer.toJson<String>(filePath),
-      'voiceWorkId': serializer.toJson<int>(voiceWorkId),
+      'voiceWorkTitle': serializer.toJson<String>(voiceWorkTitle),
     };
   }
 
   VoiceItemData copyWith(
-          {int? id, String? title, String? filePath, int? voiceWorkId}) =>
+          {String? title, String? filePath, String? voiceWorkTitle}) =>
       VoiceItemData(
-        id: id ?? this.id,
         title: title ?? this.title,
         filePath: filePath ?? this.filePath,
-        voiceWorkId: voiceWorkId ?? this.voiceWorkId,
+        voiceWorkTitle: voiceWorkTitle ?? this.voiceWorkTitle,
       );
   @override
   String toString() {
     return (StringBuffer('VoiceItemData(')
-          ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
-          ..write('voiceWorkId: $voiceWorkId')
+          ..write('voiceWorkTitle: $voiceWorkTitle')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, filePath, voiceWorkId);
+  int get hashCode => Object.hash(title, filePath, voiceWorkTitle);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is VoiceItemData &&
-          other.id == this.id &&
           other.title == this.title &&
           other.filePath == this.filePath &&
-          other.voiceWorkId == this.voiceWorkId);
+          other.voiceWorkTitle == this.voiceWorkTitle);
 }
 
 class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
-  final Value<int> id;
   final Value<String> title;
   final Value<String> filePath;
-  final Value<int> voiceWorkId;
+  final Value<String> voiceWorkTitle;
+  final Value<int> rowid;
   const VoiceItemCompanion({
-    this.id = const Value.absent(),
     this.title = const Value.absent(),
     this.filePath = const Value.absent(),
-    this.voiceWorkId = const Value.absent(),
+    this.voiceWorkTitle = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   VoiceItemCompanion.insert({
-    this.id = const Value.absent(),
     required String title,
     required String filePath,
-    required int voiceWorkId,
+    required String voiceWorkTitle,
+    this.rowid = const Value.absent(),
   })  : title = Value(title),
         filePath = Value(filePath),
-        voiceWorkId = Value(voiceWorkId);
+        voiceWorkTitle = Value(voiceWorkTitle);
   static Insertable<VoiceItemData> custom({
-    Expression<int>? id,
     Expression<String>? title,
     Expression<String>? filePath,
-    Expression<int>? voiceWorkId,
+    Expression<String>? voiceWorkTitle,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
       if (title != null) 'title': title,
       if (filePath != null) 'file_path': filePath,
-      if (voiceWorkId != null) 'voice_work_id': voiceWorkId,
+      if (voiceWorkTitle != null) 'voice_work_title': voiceWorkTitle,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   VoiceItemCompanion copyWith(
-      {Value<int>? id,
-      Value<String>? title,
+      {Value<String>? title,
       Value<String>? filePath,
-      Value<int>? voiceWorkId}) {
+      Value<String>? voiceWorkTitle,
+      Value<int>? rowid}) {
     return VoiceItemCompanion(
-      id: id ?? this.id,
       title: title ?? this.title,
       filePath: filePath ?? this.filePath,
-      voiceWorkId: voiceWorkId ?? this.voiceWorkId,
+      voiceWorkTitle: voiceWorkTitle ?? this.voiceWorkTitle,
+      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
     if (filePath.present) {
       map['file_path'] = Variable<String>(filePath.value);
     }
-    if (voiceWorkId.present) {
-      map['voice_work_id'] = Variable<int>(voiceWorkId.value);
+    if (voiceWorkTitle.present) {
+      map['voice_work_title'] = Variable<String>(voiceWorkTitle.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -721,10 +651,10 @@ class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
   @override
   String toString() {
     return (StringBuffer('VoiceItemCompanion(')
-          ..write('id: $id, ')
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
-          ..write('voiceWorkId: $voiceWorkId')
+          ..write('voiceWorkTitle: $voiceWorkTitle, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -747,13 +677,13 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 
 typedef $$VoiceWorkCategoryTableInsertCompanionBuilder
     = VoiceWorkCategoryCompanion Function({
-  Value<int> id,
   required String description,
+  Value<int> rowid,
 });
 typedef $$VoiceWorkCategoryTableUpdateCompanionBuilder
     = VoiceWorkCategoryCompanion Function({
-  Value<int> id,
   Value<String> description,
+  Value<int> rowid,
 });
 
 class $$VoiceWorkCategoryTableTableManager extends RootTableManager<
@@ -777,20 +707,20 @@ class $$VoiceWorkCategoryTableTableManager extends RootTableManager<
           getChildManagerBuilder: (p) =>
               $$VoiceWorkCategoryTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             Value<String> description = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceWorkCategoryCompanion(
-            id: id,
             description: description,
+            rowid: rowid,
           ),
           getInsertCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             required String description,
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceWorkCategoryCompanion.insert(
-            id: id,
             description: description,
+            rowid: rowid,
           ),
         ));
 }
@@ -811,11 +741,6 @@ class $$VoiceWorkCategoryTableProcessedTableManager
 class $$VoiceWorkCategoryTableFilterComposer
     extends FilterComposer<_$AppDatabase, $VoiceWorkCategoryTable> {
   $$VoiceWorkCategoryTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
   ColumnFilters<String> get description => $state.composableBuilder(
       column: $state.table.description,
       builder: (column, joinBuilders) =>
@@ -825,7 +750,7 @@ class $$VoiceWorkCategoryTableFilterComposer
       ComposableFilter Function($$VoiceWorkTableFilterComposer f) f) {
     final $$VoiceWorkTableFilterComposer composer = $state.composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.id,
+        getCurrentColumn: (t) => t.description,
         referencedTable: $state.db.voiceWork,
         getReferencedColumn: (t) => t.category,
         builder: (joinBuilder, parentComposers) =>
@@ -838,11 +763,6 @@ class $$VoiceWorkCategoryTableFilterComposer
 class $$VoiceWorkCategoryTableOrderingComposer
     extends OrderingComposer<_$AppDatabase, $VoiceWorkCategoryTable> {
   $$VoiceWorkCategoryTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
   ColumnOrderings<String> get description => $state.composableBuilder(
       column: $state.table.description,
       builder: (column, joinBuilders) =>
@@ -850,18 +770,18 @@ class $$VoiceWorkCategoryTableOrderingComposer
 }
 
 typedef $$VoiceWorkTableInsertCompanionBuilder = VoiceWorkCompanion Function({
-  Value<int> id,
   required String title,
   required String diretoryPath,
-  required int category,
+  required String category,
   Value<DateTime?> createdAt,
+  Value<int> rowid,
 });
 typedef $$VoiceWorkTableUpdateCompanionBuilder = VoiceWorkCompanion Function({
-  Value<int> id,
   Value<String> title,
   Value<String> diretoryPath,
-  Value<int> category,
+  Value<String> category,
   Value<DateTime?> createdAt,
+  Value<int> rowid,
 });
 
 class $$VoiceWorkTableTableManager extends RootTableManager<
@@ -884,32 +804,32 @@ class $$VoiceWorkTableTableManager extends RootTableManager<
           getChildManagerBuilder: (p) =>
               $$VoiceWorkTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String> diretoryPath = const Value.absent(),
-            Value<int> category = const Value.absent(),
+            Value<String> category = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceWorkCompanion(
-            id: id,
             title: title,
             diretoryPath: diretoryPath,
             category: category,
             createdAt: createdAt,
+            rowid: rowid,
           ),
           getInsertCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             required String title,
             required String diretoryPath,
-            required int category,
+            required String category,
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceWorkCompanion.insert(
-            id: id,
             title: title,
             diretoryPath: diretoryPath,
             category: category,
             createdAt: createdAt,
+            rowid: rowid,
           ),
         ));
 }
@@ -929,11 +849,6 @@ class $$VoiceWorkTableProcessedTableManager extends ProcessedTableManager<
 class $$VoiceWorkTableFilterComposer
     extends FilterComposer<_$AppDatabase, $VoiceWorkTable> {
   $$VoiceWorkTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
   ColumnFilters<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -955,7 +870,7 @@ class $$VoiceWorkTableFilterComposer
             composer: this,
             getCurrentColumn: (t) => t.category,
             referencedTable: $state.db.voiceWorkCategory,
-            getReferencedColumn: (t) => t.id,
+            getReferencedColumn: (t) => t.description,
             builder: (joinBuilder, parentComposers) =>
                 $$VoiceWorkCategoryTableFilterComposer(ComposerState(
                     $state.db,
@@ -969,9 +884,9 @@ class $$VoiceWorkTableFilterComposer
       ComposableFilter Function($$VoiceItemTableFilterComposer f) f) {
     final $$VoiceItemTableFilterComposer composer = $state.composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.id,
+        getCurrentColumn: (t) => t.title,
         referencedTable: $state.db.voiceItem,
-        getReferencedColumn: (t) => t.voiceWorkId,
+        getReferencedColumn: (t) => t.voiceWorkTitle,
         builder: (joinBuilder, parentComposers) =>
             $$VoiceItemTableFilterComposer(ComposerState(
                 $state.db, $state.db.voiceItem, joinBuilder, parentComposers)));
@@ -982,11 +897,6 @@ class $$VoiceWorkTableFilterComposer
 class $$VoiceWorkTableOrderingComposer
     extends OrderingComposer<_$AppDatabase, $VoiceWorkTable> {
   $$VoiceWorkTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
   ColumnOrderings<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -1008,7 +918,7 @@ class $$VoiceWorkTableOrderingComposer
             composer: this,
             getCurrentColumn: (t) => t.category,
             referencedTable: $state.db.voiceWorkCategory,
-            getReferencedColumn: (t) => t.id,
+            getReferencedColumn: (t) => t.description,
             builder: (joinBuilder, parentComposers) =>
                 $$VoiceWorkCategoryTableOrderingComposer(ComposerState(
                     $state.db,
@@ -1020,16 +930,16 @@ class $$VoiceWorkTableOrderingComposer
 }
 
 typedef $$VoiceItemTableInsertCompanionBuilder = VoiceItemCompanion Function({
-  Value<int> id,
   required String title,
   required String filePath,
-  required int voiceWorkId,
+  required String voiceWorkTitle,
+  Value<int> rowid,
 });
 typedef $$VoiceItemTableUpdateCompanionBuilder = VoiceItemCompanion Function({
-  Value<int> id,
   Value<String> title,
   Value<String> filePath,
-  Value<int> voiceWorkId,
+  Value<String> voiceWorkTitle,
+  Value<int> rowid,
 });
 
 class $$VoiceItemTableTableManager extends RootTableManager<
@@ -1052,28 +962,28 @@ class $$VoiceItemTableTableManager extends RootTableManager<
           getChildManagerBuilder: (p) =>
               $$VoiceItemTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             Value<String> title = const Value.absent(),
             Value<String> filePath = const Value.absent(),
-            Value<int> voiceWorkId = const Value.absent(),
+            Value<String> voiceWorkTitle = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceItemCompanion(
-            id: id,
             title: title,
             filePath: filePath,
-            voiceWorkId: voiceWorkId,
+            voiceWorkTitle: voiceWorkTitle,
+            rowid: rowid,
           ),
           getInsertCompanionBuilder: ({
-            Value<int> id = const Value.absent(),
             required String title,
             required String filePath,
-            required int voiceWorkId,
+            required String voiceWorkTitle,
+            Value<int> rowid = const Value.absent(),
           }) =>
               VoiceItemCompanion.insert(
-            id: id,
             title: title,
             filePath: filePath,
-            voiceWorkId: voiceWorkId,
+            voiceWorkTitle: voiceWorkTitle,
+            rowid: rowid,
           ),
         ));
 }
@@ -1093,11 +1003,6 @@ class $$VoiceItemTableProcessedTableManager extends ProcessedTableManager<
 class $$VoiceItemTableFilterComposer
     extends FilterComposer<_$AppDatabase, $VoiceItemTable> {
   $$VoiceItemTableFilterComposer(super.$state);
-  ColumnFilters<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
-
   ColumnFilters<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -1108,12 +1013,12 @@ class $$VoiceItemTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkTableFilterComposer get voiceWorkId {
+  $$VoiceWorkTableFilterComposer get voiceWorkTitle {
     final $$VoiceWorkTableFilterComposer composer = $state.composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.voiceWorkId,
+        getCurrentColumn: (t) => t.voiceWorkTitle,
         referencedTable: $state.db.voiceWork,
-        getReferencedColumn: (t) => t.id,
+        getReferencedColumn: (t) => t.title,
         builder: (joinBuilder, parentComposers) =>
             $$VoiceWorkTableFilterComposer(ComposerState(
                 $state.db, $state.db.voiceWork, joinBuilder, parentComposers)));
@@ -1124,11 +1029,6 @@ class $$VoiceItemTableFilterComposer
 class $$VoiceItemTableOrderingComposer
     extends OrderingComposer<_$AppDatabase, $VoiceItemTable> {
   $$VoiceItemTableOrderingComposer(super.$state);
-  ColumnOrderings<int> get id => $state.composableBuilder(
-      column: $state.table.id,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
   ColumnOrderings<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -1139,12 +1039,12 @@ class $$VoiceItemTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkTableOrderingComposer get voiceWorkId {
+  $$VoiceWorkTableOrderingComposer get voiceWorkTitle {
     final $$VoiceWorkTableOrderingComposer composer = $state.composerBuilder(
         composer: this,
-        getCurrentColumn: (t) => t.voiceWorkId,
+        getCurrentColumn: (t) => t.voiceWorkTitle,
         referencedTable: $state.db.voiceWork,
-        getReferencedColumn: (t) => t.id,
+        getReferencedColumn: (t) => t.title,
         builder: (joinBuilder, parentComposers) =>
             $$VoiceWorkTableOrderingComposer(ComposerState(
                 $state.db, $state.db.voiceWork, joinBuilder, parentComposers)));

@@ -15,27 +15,6 @@ void main() async {
   await Window.initialize();
 
   // =============================================
-  // final database = AppDatabase();
-
-  // await database
-  //     .into(database.voiceWorkCategory)
-  //     .insert(VoiceWorkCategoryCompanion.insert(description: 'Marked'));
-
-  // await database.into(database.voiceWork).insert(VoiceWorkCompanion.insert(
-  //       title: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-  //       diretoryPath:
-  //           'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-  //       category: 1,
-  //     ));
-
-  // await database.into(database.voiceItem).insert(VoiceItemCompanion.insert(
-  //     title: 'とらっく２ りなと添い寝',
-  //     filePath:
-  //         'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～\\RJ01129638\\WAV\\とらっく1 りなと添い寝.wav',
-  //     voiceWorkId: 1));
-
-  // List<VoiceItemData> allItems =
-  //     await database.select(database.voiceItem).get();
 
   // =============================================
 

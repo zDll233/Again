@@ -11,24 +11,31 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 part 'database.g.dart';
 
 class VoiceItem extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text()();
   TextColumn get filePath => text()();
-  IntColumn get voiceWorkId => integer().references(VoiceWork, #id)();
+  TextColumn get voiceWorkTitle => text().references(VoiceWork, #title)();
+
+  @override
+  Set<Column> get primaryKey => {title};
 }
 
 class VoiceWork extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  // IntColumn get voiceCounts => integer()(); TODO：需要一个触发器，每添加一个voiceItem，count++.
   TextColumn get title => text()();
+  // IntColumn get voiceCounts => integer()(); TODO：需要一个触发器，每添加一个voiceItem，count++.
   TextColumn get diretoryPath => text()();
-  IntColumn get category => integer().references(VoiceWorkCategory, #id)();
+  TextColumn get category =>
+      text().references(VoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {title};
 }
 
 class VoiceWorkCategory extends Table {
-  IntColumn get id => integer().autoIncrement()();
   TextColumn get description => text()();
+
+  @override
+  Set<Column> get primaryKey => {description};
 }
 
 @DriftDatabase(tables: [VoiceItem, VoiceWork, VoiceWorkCategory])
@@ -37,6 +44,16 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration {
+    return MigrationStrategy(
+      beforeOpen: (details) async {
+        // Make sure that foreign keys are enabled
+        await customStatement('PRAGMA foreign_keys = ON');
+      },
+    );
+  }
 }
 
 LazyDatabase _openConnection() {
