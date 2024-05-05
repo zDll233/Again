@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:again/database/database.dart';
-import 'package:again/screens/player_widget.dart';
+
 import 'package:audioplayers/audioplayers.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
+
+import 'package:again/database/database.dart';
+import 'package:again/screens/player_widget.dart';
 
 class SimpleAudioPlayer extends StatefulWidget {
   const SimpleAudioPlayer({super.key});
