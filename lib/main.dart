@@ -5,9 +5,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
-import 'database/database.dart';
-import 'window_buttons.dart';
-import 'simple_audio_player.dart';
+import 'controller/simple_audio_player.dart';
+import 'screens/button_colors.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,7 +74,7 @@ class _MyAppState extends State<MyApp> {
                     ],
                   ),
                 ),
-                const SimpleAudioPlayer()
+                  const SimpleAudioPlayer(),
               ],
             )));
   }
