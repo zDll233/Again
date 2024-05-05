@@ -47,8 +47,11 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // await player.setSource(AssetSource('songs/song01.flac'));
-      await player.setSource(DeviceFileSource(
-          await getWavList().then((List<File> wavList) => wavList[0].path)));
+
+      // await player.setSource(DeviceFileSource(
+      //     await getWavList().then((List<File> wavList) => wavList[0].path)));
+      await player.setSource(DeviceFileSource('E:\\Media\\Songs\\sprnova - Mikawa.flac'));
+
       // await player.resume();
     });
   }

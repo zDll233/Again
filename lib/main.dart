@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 
+import 'database/database.dart';
 import 'window_buttons.dart';
 import 'simple_audio_player.dart';
 
@@ -11,6 +12,21 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // for window acrylic, mica or transparency effects
   await Window.initialize();
+
+  // =============================================
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final database = AppDatabase();
+
+  await database.into(database.todoItems).insert(TodoItemsCompanion.insert(
+        title: 'todo: finish drift setup',
+        content: 'We can now write queries and define our own tables.',
+      ));
+  List<TodoItem> allItems = await database.select(database.todoItems).get();
+
+  print('items in database: $allItems');
+
+  // =============================================
 
   runApp(const MyApp());
 
