@@ -1,5 +1,5 @@
 import 'package:again/controller/simple_audio_player.dart';
-import 'package:again/screens/window_buttons.dart';
+import 'package:again/screens/right/window_buttons.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 

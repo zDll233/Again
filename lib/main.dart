@@ -5,8 +5,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
-import 'screens/left_side.dart';
-import 'screens/right_side.dart';
+import 'screens/left/left_side.dart';
+import 'screens/right/right_side.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
