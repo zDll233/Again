@@ -8,12 +8,11 @@ import 'window_buttons.dart';
 import 'simple_audio_player.dart';
 
 void main() async {
-  // window acrylic, mica or transparency effects
   WidgetsFlutterBinding.ensureInitialized();
+  // for window acrylic, mica or transparency effects
   await Window.initialize();
 
   runApp(const MyApp());
-  // runApp(const MaterialApp(home: SimpleAudioPlayer()));
 
   // custom titlebar/buttons
   if (Platform.isWindows) {
@@ -29,26 +28,14 @@ void main() async {
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MyAppBody(),
-    );
-  }
+  State<MyApp> createState() => _MyAppState();
 }
 
-class MyAppBody extends StatefulWidget {
-  const MyAppBody({super.key});
-
-  @override
-  State<MyAppBody> createState() => _MyAppBodyState();
-}
-
-class _MyAppBodyState extends State<MyAppBody> {
+class _MyAppState extends State<MyApp> {
   WindowEffect effect = WindowEffect.transparent;
   Color color = const Color(0xCC222222);
 
@@ -68,20 +55,22 @@ class _MyAppBodyState extends State<MyAppBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Column(
-          children: [
-            WindowTitleBarBox(
-              child: Row(
-                children: [
-                  Expanded(child: MoveWindow()),
-                  const WindowButtons()
-                ],
-              ),
-            ),
-            const SimpleAudioPlayer()
-          ],
-        ));
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Column(
+              children: [
+                WindowTitleBarBox(
+                  child: Row(
+                    children: [
+                      Expanded(child: MoveWindow()),
+                      const WindowButtons()
+                    ],
+                  ),
+                ),
+                const SimpleAudioPlayer()
+              ],
+            )));
   }
 }
