@@ -6,7 +6,7 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
 import 'controller/simple_audio_player.dart';
-import 'screens/button_colors.dart';
+import 'screens/window_buttons.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
