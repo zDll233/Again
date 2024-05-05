@@ -5,8 +5,8 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
-import 'controller/simple_audio_player.dart';
-import 'screens/window_buttons.dart';
+import 'screens/left_side.dart';
+import 'screens/right_side.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -60,22 +60,12 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return const GetMaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             backgroundColor: Colors.transparent,
-            body: Column(
-              children: [
-                WindowTitleBarBox(
-                  child: Row(
-                    children: [
-                      Expanded(child: MoveWindow()),
-                      const WindowButtons()
-                    ],
-                  ),
-                ),
-                  const SimpleAudioPlayer(),
-              ],
+            body: Row(
+              children: [LeftSide(), RightSide()],
             )));
   }
 }
