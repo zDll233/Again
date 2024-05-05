@@ -10,22 +10,28 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
 
-class TodoItems extends Table {
+class VoiceItem extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get title => text().withLength(min: 6, max: 32)();
-  TextColumn get content => text().named('body')();
-  IntColumn get category =>
-      integer().nullable().references(TodoCategory, #id)();
+  TextColumn get title => text()();
+  TextColumn get filePath => text()();
+  IntColumn get voiceWorkId => integer().references(VoiceWork, #id)();
+}
+
+class VoiceWork extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  // IntColumn get voiceCounts => integer()(); TODO：需要一个触发器，每添加一个voiceItem，count++.
+  TextColumn get title => text()();
+  TextColumn get diretoryPath => text()();
+  IntColumn get category => integer().references(VoiceWorkCategory, #id)();
   DateTimeColumn get createdAt => dateTime().nullable()();
 }
 
-class TodoCategory extends Table {
+class VoiceWorkCategory extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get description => text()();
 }
 
-
-@DriftDatabase(tables: [TodoItems, TodoCategory])
+@DriftDatabase(tables: [VoiceItem, VoiceWork, VoiceWorkCategory])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'package:get/get.dart';
 
 import 'database/database.dart';
 import 'window_buttons.dart';
@@ -14,17 +15,27 @@ void main() async {
   await Window.initialize();
 
   // =============================================
-  WidgetsFlutterBinding.ensureInitialized();
+  // final database = AppDatabase();
 
-  final database = AppDatabase();
+  // await database
+  //     .into(database.voiceWorkCategory)
+  //     .insert(VoiceWorkCategoryCompanion.insert(description: 'Marked'));
 
-  await database.into(database.todoItems).insert(TodoItemsCompanion.insert(
-        title: 'todo: finish drift setup',
-        content: 'We can now write queries and define our own tables.',
-      ));
-  List<TodoItem> allItems = await database.select(database.todoItems).get();
+  // await database.into(database.voiceWork).insert(VoiceWorkCompanion.insert(
+  //       title: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
+  //       diretoryPath:
+  //           'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
+  //       category: 1,
+  //     ));
 
-  print('items in database: $allItems');
+  // await database.into(database.voiceItem).insert(VoiceItemCompanion.insert(
+  //     title: 'とらっく２ りなと添い寝',
+  //     filePath:
+  //         'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～\\RJ01129638\\WAV\\とらっく1 りなと添い寝.wav',
+  //     voiceWorkId: 1));
+
+  // List<VoiceItemData> allItems =
+  //     await database.select(database.voiceItem).get();
 
   // =============================================
 
@@ -71,7 +82,7 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(
             backgroundColor: Colors.transparent,
