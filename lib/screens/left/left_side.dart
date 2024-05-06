@@ -7,13 +7,13 @@ class LeftSide extends StatelessWidget {
     return const SizedBox(
         width: 300,
         child: Column(
-                  children: [VoiceWorks()],
-                ));
+          children: [VoiceWorkPanel()],
+        ));
   }
 }
 
-class VoiceWorks extends StatelessWidget {
-  const VoiceWorks({
+class VoiceWorkPanel extends StatelessWidget {
+  const VoiceWorkPanel({
     super.key,
   });
 
