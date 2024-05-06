@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         home: Scaffold(
             backgroundColor: Colors.transparent,
             body: Row(
-              children: [LeftSide(), VerticalDivider(), RightSide()],
+              children: [LeftSide(), VerticalDivider(width: 5.0,color: Color(0x80B3B0F6),), RightSide()],
             )));
   }
 }
