@@ -7,8 +7,6 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
 import 'screens/home.dart';
-import 'screens/left/left_side.dart';
-import 'screens/right/right_side.dart';
 import 'screens/window_title_bar.dart';
 
 void main() async {
