@@ -46,34 +46,6 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
     // Set the release mode to keep the source after playback has completed.
     player.setReleaseMode(ReleaseMode.stop);
 
-    //==============================
-    final database = AppDatabase();
-    Future<List<TVoiceItemData>> allItems = (() async {
-      await database.into(database.tVoiceWorkCategory).insert(
-          TVoiceWorkCategoryCompanion.insert(description: 'Marked'),
-          mode: InsertMode.insertOrIgnore);
-
-      await database.into(database.tVoiceWork).insert(
-          TVoiceWorkCompanion.insert(
-            title: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-            diretoryPath:
-                'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-            category: 'Marked',
-          ),
-          mode: InsertMode.insertOrIgnore);
-
-      await database.into(database.tVoiceItem).insert(
-          TVoiceItemCompanion.insert(
-              title: 'とらっく２ りなと添い寝',
-              filePath:
-                  'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～\\RJ01129638\\WAV\\とらっく２ りなと添い寝.wav',
-              voiceWorkTitle: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～'),
-          mode: InsertMode.insertOrIgnore);
-
-      return await database.select(database.tVoiceItem).get();
-    })();
-    //==============================
-
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // await player.setSource(AssetSource('songs/song01.flac'));
@@ -81,8 +53,14 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
       // await player.setSource(DeviceFileSource(
       //     await getWavList().then((List<File> wavList) => wavList[0].path)));
 
-      await player.setSource(DeviceFileSource(await allItems.then(
-          (List<TVoiceItemData> voiceItemList) => voiceItemList[0].filePath)));
+      // await player.setSource(DeviceFileSource(await allItems.then(
+      //     (List<TVoiceItemData> voiceItemList) => voiceItemList[0].filePath)));
+
+      // await player.setSource(DeviceFileSource(await database.allVoiceItems.then((List<TVoiceItemData> vd) => vd[0].filePath)));
+      await player.setSource(DeviceFileSource(await database
+          .selectSingleWorkVoiceItemsWithString(
+              '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～')
+          .then((List<TVoiceItemData> vd) => vd[0].filePath)));
 
       // await player.setSource(DeviceFileSource(await database
       //     .select(database.voiceItem)

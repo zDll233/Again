@@ -1,3 +1,4 @@
+import 'package:again/model/voice.dart';
 import 'package:drift/drift.dart';
 
 // These additional imports are necessary to open the sqlite3 database
@@ -9,6 +10,8 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
+
+final database = AppDatabase();
 
 class TVoiceItem extends Table {
   TextColumn get title => text()();
@@ -53,6 +56,50 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA foreign_keys = ON');
       },
     );
+  }
+
+  // insert
+  Future<void> insertMultipleVoiceWorks(List<TVoiceWorkCompanion> vkc) async {
+    await batch((batch) {
+      // functions in a batch don't have to be awaited - just
+      // await the whole batch afterwards.
+      batch.insertAll(tVoiceWork, vkc, mode: InsertMode.insertOrIgnore);
+    });
+  }
+
+  Future<void> insertMultipleVoiceItems(List<TVoiceItemCompanion> vic) async {
+    await batch((batch) {
+      batch.insertAll(tVoiceItem, vic, mode: InsertMode.insertOrIgnore);
+    });
+  }
+
+  Future<void> insertMultipleVoiceWorkCategories(
+      List<TVoiceWorkCategoryCompanion> vkcc) async {
+    await batch((batch) {
+      batch.insertAll(tVoiceWorkCategory, vkcc,
+          mode: InsertMode.insertOrIgnore);
+    });
+  }
+
+  // select
+  Future<List<TVoiceWorkData>> get selectAllVoiceWorks =>
+      select(tVoiceWork).get();
+  Future<List<TVoiceItemData>> get selectAllVoiceItems =>
+      select(tVoiceItem).get();
+
+  Future<List<TVoiceItemData>> selectSingleWorkVoiceItems(
+      TVoiceWorkData voiceWorkData) {
+    return (select(tVoiceItem)
+          ..where((voiceItem) =>
+              voiceItem.voiceWorkTitle.equals(voiceWorkData.title)))
+        .get();
+  }
+
+  Future<List<TVoiceItemData>> selectSingleWorkVoiceItemsWithString(
+      String vkTitle) {
+    return (select(tVoiceItem)
+          ..where((voiceItem) => voiceItem.voiceWorkTitle.equals(vkTitle)))
+        .get();
   }
 }
 

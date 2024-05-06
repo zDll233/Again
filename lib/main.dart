@@ -4,10 +4,10 @@ import 'package:again/controller/simple_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:get/get.dart';
 
 import 'screens/home.dart';
 import 'screens/window_title_bar.dart';
+import 'controller/voice_updater.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +19,8 @@ void main() async {
   );
 
   // =============================================
-
+  VoiceUpdater voiceUpdater = VoiceUpdater('E:\\Media\\ACG\\音声');
+  await voiceUpdater.initialize();
   // =============================================
 
   runApp(const MyApp());
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
@@ -53,11 +54,7 @@ class MyApp extends StatelessWidget {
         home: const Scaffold(
             backgroundColor: Colors.transparent,
             body: Column(
-              children: [
-                WindowTitleBar(),
-                Home(),
-                SimpleAudioPlayer()
-              ],
+              children: [WindowTitleBar(), Home(), SimpleAudioPlayer()],
             )));
   }
 }
