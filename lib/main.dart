@@ -13,7 +13,7 @@ void main() async {
   // for window acrylic, mica or transparency effects
   await Window.initialize();
   Window.setEffect(
-    effect: WindowEffect.transparent,
+    effect: WindowEffect.acrylic,
     color: const Color(0xCC222222),
   );
 
@@ -47,7 +47,7 @@ class MyApp extends StatelessWidget {
         home: Scaffold(
             backgroundColor: Colors.transparent,
             body: Row(
-              children: [LeftSide(), RightSide()],
+              children: [LeftSide(), VerticalDivider(), RightSide()],
             )));
   }
 }

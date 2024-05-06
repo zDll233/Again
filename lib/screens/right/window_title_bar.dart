@@ -2,6 +2,19 @@ import 'dart:io';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 
+final buttonColors = WindowButtonColors(
+    iconNormal: const Color.fromARGB(255, 255, 255, 255),
+    mouseOver: const Color(0xFFF6A00C),
+    mouseDown: const Color(0xFF805306),
+    iconMouseOver: const Color(0xFF805306),
+    iconMouseDown: const Color(0xFFFFD500));
+
+final closeButtonColors = WindowButtonColors(
+    mouseOver: const Color(0xFFD32F2F),
+    mouseDown: const Color(0xFFB71C1C),
+    iconNormal: const Color.fromARGB(255, 255, 255, 255),
+    iconMouseOver: Colors.white);
+
 class WindowTitleBar extends StatelessWidget {
   const WindowTitleBar({super.key});
 
@@ -17,39 +30,9 @@ class WindowTitleBar extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Spacer(),
-                  MinimizeWindowButton(
-                    colors: WindowButtonColors(
-                      iconNormal:  Colors.white,
-                      iconMouseDown:  Colors.white,
-                      iconMouseOver:  Colors.white,
-                      normal: Colors.transparent,
-                      mouseOver:  Colors.white.withOpacity(0.04),
-                      mouseDown:  Colors.white.withOpacity(0.08),
-                    ),
-                  ),
-                  MaximizeWindowButton(
-                    colors: WindowButtonColors(
-                      iconNormal:  Colors.white,
-                      iconMouseDown:  Colors.white,
-                      iconMouseOver:  Colors.white,
-                      normal: Colors.transparent,
-                      mouseOver:  Colors.white.withOpacity(0.04),
-                      mouseDown:  Colors.white.withOpacity(0.08),
-                    ),
-                  ),
-                  CloseWindowButton(
-                    onPressed: () {
-                      appWindow.close();
-                    },
-                    colors: WindowButtonColors(
-                      iconNormal:  Colors.white,
-                      iconMouseDown:  Colors.white,
-                      iconMouseOver:  Colors.white,
-                      normal: Colors.transparent,
-                      mouseOver:  Colors.white.withOpacity(0.04),
-                      mouseDown:  Colors.white.withOpacity(0.08),
-                    ),
-                  ),
+                  MinimizeWindowButton(colors: buttonColors),
+                  MaximizeWindowButton(colors: buttonColors),
+                  CloseWindowButton(colors: closeButtonColors),
                 ],
               ),
             ),
