@@ -39,9 +39,11 @@ class WindowTitleBar extends StatelessWidget {
             width: MediaQuery.of(context).size.width,
             height: 50.0,
             color: Colors.transparent,
-            child: Row(
-              crossAxisAlignment:CrossAxisAlignment.start,
-              children: [Expanded(child: MoveWindow()), const WindowButtons()],
+            child: Expanded(
+              child: Row(
+                crossAxisAlignment:CrossAxisAlignment.start,
+                children: [Expanded(child: MoveWindow()), const WindowButtons()],
+              ),
             ),
 
           )

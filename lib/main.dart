@@ -1,12 +1,15 @@
 import 'dart:io';
 
+import 'package:again/controller/simple_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
+import 'screens/home.dart';
 import 'screens/left/left_side.dart';
 import 'screens/right/right_side.dart';
+import 'screens/window_title_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,7 +29,7 @@ void main() async {
   // custom titlebar/buttons
   if (Platform.isWindows) {
     doWhenWindowReady(() {
-      const initialSize = Size(960, 540);
+      const initialSize = Size(1020, 690);
       appWindow
         ..minSize = initialSize
         ..size = initialSize
@@ -42,12 +45,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const GetMaterialApp(
+    return GetMaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.dark,
+        )),
+        home: const Scaffold(
             backgroundColor: Colors.transparent,
-            body: Row(
-              children: [LeftSide(), VerticalDivider(width: 5.0,color: Color(0x80B3B0F6),), RightSide()],
+            body: Column(
+              children: [
+                WindowTitleBar(),
+                Home(),
+                SimpleAudioPlayer()
+              ],
             )));
   }
 }

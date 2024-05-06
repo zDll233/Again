@@ -78,9 +78,35 @@ class _PlayerWidgetState extends State<PlayerWidget> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
+        Slider(
+          onChanged: (value) {
+            final duration = _duration;
+            if (duration == null) {
+              return;
+            }
+            final position = value * duration.inMilliseconds;
+            player.seek(Duration(milliseconds: position.round()));
+          },
+          value: (_position != null &&
+                  _duration != null &&
+                  _position!.inMilliseconds > 0 &&
+                  _position!.inMilliseconds < _duration!.inMilliseconds)
+              ? _position!.inMilliseconds / _duration!.inMilliseconds
+              : 0.0,
+        ),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
+            const Spacer(),
+            Text(
+              _position != null
+                  ? '$_positionText / $_durationText'
+                  : _duration != null
+                      ? _durationText
+                      : '',
+              style: const TextStyle(fontSize: 16.0),
+            ),
+            const Spacer(),
             IconButton(
               key: const Key('play_button'),
               onPressed: _isPlaying ? null : _play,
@@ -102,31 +128,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               icon: const Icon(Icons.stop),
               color: color,
             ),
+            const Spacer(),
           ],
-        ),
-        Slider(
-          onChanged: (value) {
-            final duration = _duration;
-            if (duration == null) {
-              return;
-            }
-            final position = value * duration.inMilliseconds;
-            player.seek(Duration(milliseconds: position.round()));
-          },
-          value: (_position != null &&
-                  _duration != null &&
-                  _position!.inMilliseconds > 0 &&
-                  _position!.inMilliseconds < _duration!.inMilliseconds)
-              ? _position!.inMilliseconds / _duration!.inMilliseconds
-              : 0.0,
-        ),
-        Text(
-          _position != null
-              ? '$_positionText / $_durationText'
-              : _duration != null
-                  ? _durationText
-                  : '',
-          style: const TextStyle(fontSize: 16.0),
         ),
       ],
     );
