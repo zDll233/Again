@@ -10,35 +10,35 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
 
-class VoiceItem extends Table {
+class TVoiceItem extends Table {
   TextColumn get title => text()();
   TextColumn get filePath => text()();
-  TextColumn get voiceWorkTitle => text().references(VoiceWork, #title)();
+  TextColumn get voiceWorkTitle => text().references(TVoiceWork, #title)();
 
   @override
   Set<Column> get primaryKey => {title};
 }
 
-class VoiceWork extends Table {
+class TVoiceWork extends Table {
   TextColumn get title => text()();
   // IntColumn get voiceCounts => integer()(); TODO：需要一个触发器，每添加一个voiceItem，count++.
   TextColumn get diretoryPath => text()();
   TextColumn get category =>
-      text().references(VoiceWorkCategory, #description)();
+      text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {title};
 }
 
-class VoiceWorkCategory extends Table {
+class TVoiceWorkCategory extends Table {
   TextColumn get description => text()();
 
   @override
   Set<Column> get primaryKey => {description};
 }
 
-@DriftDatabase(tables: [VoiceItem, VoiceWork, VoiceWorkCategory])
+@DriftDatabase(tables: [TVoiceItem, TVoiceWork, TVoiceWorkCategory])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 

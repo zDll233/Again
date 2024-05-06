@@ -3,12 +3,12 @@
 part of 'database.dart';
 
 // ignore_for_file: type=lint
-class $VoiceWorkCategoryTable extends VoiceWorkCategory
-    with TableInfo<$VoiceWorkCategoryTable, VoiceWorkCategoryData> {
+class $TVoiceWorkCategoryTable extends TVoiceWorkCategory
+    with TableInfo<$TVoiceWorkCategoryTable, TVoiceWorkCategoryData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $VoiceWorkCategoryTable(this.attachedDatabase, [this._alias]);
+  $TVoiceWorkCategoryTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _descriptionMeta =
       const VerificationMeta('description');
   @override
@@ -21,10 +21,10 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'voice_work_category';
+  static const String $name = 't_voice_work_category';
   @override
   VerificationContext validateIntegrity(
-      Insertable<VoiceWorkCategoryData> instance,
+      Insertable<TVoiceWorkCategoryData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -42,24 +42,24 @@ class $VoiceWorkCategoryTable extends VoiceWorkCategory
   @override
   Set<GeneratedColumn> get $primaryKey => {description};
   @override
-  VoiceWorkCategoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TVoiceWorkCategoryData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return VoiceWorkCategoryData(
+    return TVoiceWorkCategoryData(
       description: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
     );
   }
 
   @override
-  $VoiceWorkCategoryTable createAlias(String alias) {
-    return $VoiceWorkCategoryTable(attachedDatabase, alias);
+  $TVoiceWorkCategoryTable createAlias(String alias) {
+    return $TVoiceWorkCategoryTable(attachedDatabase, alias);
   }
 }
 
-class VoiceWorkCategoryData extends DataClass
-    implements Insertable<VoiceWorkCategoryData> {
+class TVoiceWorkCategoryData extends DataClass
+    implements Insertable<TVoiceWorkCategoryData> {
   final String description;
-  const VoiceWorkCategoryData({required this.description});
+  const TVoiceWorkCategoryData({required this.description});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -67,16 +67,16 @@ class VoiceWorkCategoryData extends DataClass
     return map;
   }
 
-  VoiceWorkCategoryCompanion toCompanion(bool nullToAbsent) {
-    return VoiceWorkCategoryCompanion(
+  TVoiceWorkCategoryCompanion toCompanion(bool nullToAbsent) {
+    return TVoiceWorkCategoryCompanion(
       description: Value(description),
     );
   }
 
-  factory VoiceWorkCategoryData.fromJson(Map<String, dynamic> json,
+  factory TVoiceWorkCategoryData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return VoiceWorkCategoryData(
+    return TVoiceWorkCategoryData(
       description: serializer.fromJson<String>(json['description']),
     );
   }
@@ -88,13 +88,13 @@ class VoiceWorkCategoryData extends DataClass
     };
   }
 
-  VoiceWorkCategoryData copyWith({String? description}) =>
-      VoiceWorkCategoryData(
+  TVoiceWorkCategoryData copyWith({String? description}) =>
+      TVoiceWorkCategoryData(
         description: description ?? this.description,
       );
   @override
   String toString() {
-    return (StringBuffer('VoiceWorkCategoryData(')
+    return (StringBuffer('TVoiceWorkCategoryData(')
           ..write('description: $description')
           ..write(')'))
         .toString();
@@ -105,22 +105,23 @@ class VoiceWorkCategoryData extends DataClass
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is VoiceWorkCategoryData && other.description == this.description);
+      (other is TVoiceWorkCategoryData &&
+          other.description == this.description);
 }
 
-class VoiceWorkCategoryCompanion
-    extends UpdateCompanion<VoiceWorkCategoryData> {
+class TVoiceWorkCategoryCompanion
+    extends UpdateCompanion<TVoiceWorkCategoryData> {
   final Value<String> description;
   final Value<int> rowid;
-  const VoiceWorkCategoryCompanion({
+  const TVoiceWorkCategoryCompanion({
     this.description = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  VoiceWorkCategoryCompanion.insert({
+  TVoiceWorkCategoryCompanion.insert({
     required String description,
     this.rowid = const Value.absent(),
   }) : description = Value(description);
-  static Insertable<VoiceWorkCategoryData> custom({
+  static Insertable<TVoiceWorkCategoryData> custom({
     Expression<String>? description,
     Expression<int>? rowid,
   }) {
@@ -130,9 +131,9 @@ class VoiceWorkCategoryCompanion
     });
   }
 
-  VoiceWorkCategoryCompanion copyWith(
+  TVoiceWorkCategoryCompanion copyWith(
       {Value<String>? description, Value<int>? rowid}) {
-    return VoiceWorkCategoryCompanion(
+    return TVoiceWorkCategoryCompanion(
       description: description ?? this.description,
       rowid: rowid ?? this.rowid,
     );
@@ -152,7 +153,7 @@ class VoiceWorkCategoryCompanion
 
   @override
   String toString() {
-    return (StringBuffer('VoiceWorkCategoryCompanion(')
+    return (StringBuffer('TVoiceWorkCategoryCompanion(')
           ..write('description: $description, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -160,12 +161,12 @@ class VoiceWorkCategoryCompanion
   }
 }
 
-class $VoiceWorkTable extends VoiceWork
-    with TableInfo<$VoiceWorkTable, VoiceWorkData> {
+class $TVoiceWorkTable extends TVoiceWork
+    with TableInfo<$TVoiceWorkTable, TVoiceWorkData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $VoiceWorkTable(this.attachedDatabase, [this._alias]);
+  $TVoiceWorkTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -185,7 +186,7 @@ class $VoiceWorkTable extends VoiceWork
       type: DriftSqlType.string,
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES voice_work_category (description)'));
+          'REFERENCES t_voice_work_category (description)'));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -199,9 +200,9 @@ class $VoiceWorkTable extends VoiceWork
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'voice_work';
+  static const String $name = 't_voice_work';
   @override
-  VerificationContext validateIntegrity(Insertable<VoiceWorkData> instance,
+  VerificationContext validateIntegrity(Insertable<TVoiceWorkData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -235,9 +236,9 @@ class $VoiceWorkTable extends VoiceWork
   @override
   Set<GeneratedColumn> get $primaryKey => {title};
   @override
-  VoiceWorkData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TVoiceWorkData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return VoiceWorkData(
+    return TVoiceWorkData(
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       diretoryPath: attachedDatabase.typeMapping
@@ -250,17 +251,17 @@ class $VoiceWorkTable extends VoiceWork
   }
 
   @override
-  $VoiceWorkTable createAlias(String alias) {
-    return $VoiceWorkTable(attachedDatabase, alias);
+  $TVoiceWorkTable createAlias(String alias) {
+    return $TVoiceWorkTable(attachedDatabase, alias);
   }
 }
 
-class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
+class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   final String title;
   final String diretoryPath;
   final String category;
   final DateTime? createdAt;
-  const VoiceWorkData(
+  const TVoiceWorkData(
       {required this.title,
       required this.diretoryPath,
       required this.category,
@@ -277,8 +278,8 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
     return map;
   }
 
-  VoiceWorkCompanion toCompanion(bool nullToAbsent) {
-    return VoiceWorkCompanion(
+  TVoiceWorkCompanion toCompanion(bool nullToAbsent) {
+    return TVoiceWorkCompanion(
       title: Value(title),
       diretoryPath: Value(diretoryPath),
       category: Value(category),
@@ -288,10 +289,10 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
     );
   }
 
-  factory VoiceWorkData.fromJson(Map<String, dynamic> json,
+  factory TVoiceWorkData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return VoiceWorkData(
+    return TVoiceWorkData(
       title: serializer.fromJson<String>(json['title']),
       diretoryPath: serializer.fromJson<String>(json['diretoryPath']),
       category: serializer.fromJson<String>(json['category']),
@@ -309,12 +310,12 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
     };
   }
 
-  VoiceWorkData copyWith(
+  TVoiceWorkData copyWith(
           {String? title,
           String? diretoryPath,
           String? category,
           Value<DateTime?> createdAt = const Value.absent()}) =>
-      VoiceWorkData(
+      TVoiceWorkData(
         title: title ?? this.title,
         diretoryPath: diretoryPath ?? this.diretoryPath,
         category: category ?? this.category,
@@ -322,7 +323,7 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
       );
   @override
   String toString() {
-    return (StringBuffer('VoiceWorkData(')
+    return (StringBuffer('TVoiceWorkData(')
           ..write('title: $title, ')
           ..write('diretoryPath: $diretoryPath, ')
           ..write('category: $category, ')
@@ -336,27 +337,27 @@ class VoiceWorkData extends DataClass implements Insertable<VoiceWorkData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is VoiceWorkData &&
+      (other is TVoiceWorkData &&
           other.title == this.title &&
           other.diretoryPath == this.diretoryPath &&
           other.category == this.category &&
           other.createdAt == this.createdAt);
 }
 
-class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
+class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   final Value<String> title;
   final Value<String> diretoryPath;
   final Value<String> category;
   final Value<DateTime?> createdAt;
   final Value<int> rowid;
-  const VoiceWorkCompanion({
+  const TVoiceWorkCompanion({
     this.title = const Value.absent(),
     this.diretoryPath = const Value.absent(),
     this.category = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  VoiceWorkCompanion.insert({
+  TVoiceWorkCompanion.insert({
     required String title,
     required String diretoryPath,
     required String category,
@@ -365,7 +366,7 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
   })  : title = Value(title),
         diretoryPath = Value(diretoryPath),
         category = Value(category);
-  static Insertable<VoiceWorkData> custom({
+  static Insertable<TVoiceWorkData> custom({
     Expression<String>? title,
     Expression<String>? diretoryPath,
     Expression<String>? category,
@@ -381,13 +382,13 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
     });
   }
 
-  VoiceWorkCompanion copyWith(
+  TVoiceWorkCompanion copyWith(
       {Value<String>? title,
       Value<String>? diretoryPath,
       Value<String>? category,
       Value<DateTime?>? createdAt,
       Value<int>? rowid}) {
-    return VoiceWorkCompanion(
+    return TVoiceWorkCompanion(
       title: title ?? this.title,
       diretoryPath: diretoryPath ?? this.diretoryPath,
       category: category ?? this.category,
@@ -419,7 +420,7 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
 
   @override
   String toString() {
-    return (StringBuffer('VoiceWorkCompanion(')
+    return (StringBuffer('TVoiceWorkCompanion(')
           ..write('title: $title, ')
           ..write('diretoryPath: $diretoryPath, ')
           ..write('category: $category, ')
@@ -430,12 +431,12 @@ class VoiceWorkCompanion extends UpdateCompanion<VoiceWorkData> {
   }
 }
 
-class $VoiceItemTable extends VoiceItem
-    with TableInfo<$VoiceItemTable, VoiceItemData> {
+class $TVoiceItemTable extends TVoiceItem
+    with TableInfo<$TVoiceItemTable, TVoiceItemData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $VoiceItemTable(this.attachedDatabase, [this._alias]);
+  $TVoiceItemTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _titleMeta = const VerificationMeta('title');
   @override
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
@@ -454,17 +455,17 @@ class $VoiceItemTable extends VoiceItem
       'voice_work_title', aliasedName, false,
       type: DriftSqlType.string,
       requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('REFERENCES voice_work (title)'));
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES t_voice_work (title)'));
   @override
   List<GeneratedColumn> get $columns => [title, filePath, voiceWorkTitle];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'voice_item';
+  static const String $name = 't_voice_item';
   @override
-  VerificationContext validateIntegrity(Insertable<VoiceItemData> instance,
+  VerificationContext validateIntegrity(Insertable<TVoiceItemData> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -494,9 +495,9 @@ class $VoiceItemTable extends VoiceItem
   @override
   Set<GeneratedColumn> get $primaryKey => {title};
   @override
-  VoiceItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
+  TVoiceItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return VoiceItemData(
+    return TVoiceItemData(
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
       filePath: attachedDatabase.typeMapping
@@ -507,16 +508,16 @@ class $VoiceItemTable extends VoiceItem
   }
 
   @override
-  $VoiceItemTable createAlias(String alias) {
-    return $VoiceItemTable(attachedDatabase, alias);
+  $TVoiceItemTable createAlias(String alias) {
+    return $TVoiceItemTable(attachedDatabase, alias);
   }
 }
 
-class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
+class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
   final String title;
   final String filePath;
   final String voiceWorkTitle;
-  const VoiceItemData(
+  const TVoiceItemData(
       {required this.title,
       required this.filePath,
       required this.voiceWorkTitle});
@@ -529,18 +530,18 @@ class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
     return map;
   }
 
-  VoiceItemCompanion toCompanion(bool nullToAbsent) {
-    return VoiceItemCompanion(
+  TVoiceItemCompanion toCompanion(bool nullToAbsent) {
+    return TVoiceItemCompanion(
       title: Value(title),
       filePath: Value(filePath),
       voiceWorkTitle: Value(voiceWorkTitle),
     );
   }
 
-  factory VoiceItemData.fromJson(Map<String, dynamic> json,
+  factory TVoiceItemData.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return VoiceItemData(
+    return TVoiceItemData(
       title: serializer.fromJson<String>(json['title']),
       filePath: serializer.fromJson<String>(json['filePath']),
       voiceWorkTitle: serializer.fromJson<String>(json['voiceWorkTitle']),
@@ -556,16 +557,16 @@ class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
     };
   }
 
-  VoiceItemData copyWith(
+  TVoiceItemData copyWith(
           {String? title, String? filePath, String? voiceWorkTitle}) =>
-      VoiceItemData(
+      TVoiceItemData(
         title: title ?? this.title,
         filePath: filePath ?? this.filePath,
         voiceWorkTitle: voiceWorkTitle ?? this.voiceWorkTitle,
       );
   @override
   String toString() {
-    return (StringBuffer('VoiceItemData(')
+    return (StringBuffer('TVoiceItemData(')
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
           ..write('voiceWorkTitle: $voiceWorkTitle')
@@ -578,24 +579,24 @@ class VoiceItemData extends DataClass implements Insertable<VoiceItemData> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is VoiceItemData &&
+      (other is TVoiceItemData &&
           other.title == this.title &&
           other.filePath == this.filePath &&
           other.voiceWorkTitle == this.voiceWorkTitle);
 }
 
-class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
+class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
   final Value<String> title;
   final Value<String> filePath;
   final Value<String> voiceWorkTitle;
   final Value<int> rowid;
-  const VoiceItemCompanion({
+  const TVoiceItemCompanion({
     this.title = const Value.absent(),
     this.filePath = const Value.absent(),
     this.voiceWorkTitle = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  VoiceItemCompanion.insert({
+  TVoiceItemCompanion.insert({
     required String title,
     required String filePath,
     required String voiceWorkTitle,
@@ -603,7 +604,7 @@ class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
   })  : title = Value(title),
         filePath = Value(filePath),
         voiceWorkTitle = Value(voiceWorkTitle);
-  static Insertable<VoiceItemData> custom({
+  static Insertable<TVoiceItemData> custom({
     Expression<String>? title,
     Expression<String>? filePath,
     Expression<String>? voiceWorkTitle,
@@ -617,12 +618,12 @@ class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
     });
   }
 
-  VoiceItemCompanion copyWith(
+  TVoiceItemCompanion copyWith(
       {Value<String>? title,
       Value<String>? filePath,
       Value<String>? voiceWorkTitle,
       Value<int>? rowid}) {
-    return VoiceItemCompanion(
+    return TVoiceItemCompanion(
       title: title ?? this.title,
       filePath: filePath ?? this.filePath,
       voiceWorkTitle: voiceWorkTitle ?? this.voiceWorkTitle,
@@ -650,7 +651,7 @@ class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
 
   @override
   String toString() {
-    return (StringBuffer('VoiceItemCompanion(')
+    return (StringBuffer('TVoiceItemCompanion(')
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
           ..write('voiceWorkTitle: $voiceWorkTitle, ')
@@ -663,54 +664,54 @@ class VoiceItemCompanion extends UpdateCompanion<VoiceItemData> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
-  late final $VoiceWorkCategoryTable voiceWorkCategory =
-      $VoiceWorkCategoryTable(this);
-  late final $VoiceWorkTable voiceWork = $VoiceWorkTable(this);
-  late final $VoiceItemTable voiceItem = $VoiceItemTable(this);
+  late final $TVoiceWorkCategoryTable tVoiceWorkCategory =
+      $TVoiceWorkCategoryTable(this);
+  late final $TVoiceWorkTable tVoiceWork = $TVoiceWorkTable(this);
+  late final $TVoiceItemTable tVoiceItem = $TVoiceItemTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [voiceWorkCategory, voiceWork, voiceItem];
+      [tVoiceWorkCategory, tVoiceWork, tVoiceItem];
 }
 
-typedef $$VoiceWorkCategoryTableInsertCompanionBuilder
-    = VoiceWorkCategoryCompanion Function({
+typedef $$TVoiceWorkCategoryTableInsertCompanionBuilder
+    = TVoiceWorkCategoryCompanion Function({
   required String description,
   Value<int> rowid,
 });
-typedef $$VoiceWorkCategoryTableUpdateCompanionBuilder
-    = VoiceWorkCategoryCompanion Function({
+typedef $$TVoiceWorkCategoryTableUpdateCompanionBuilder
+    = TVoiceWorkCategoryCompanion Function({
   Value<String> description,
   Value<int> rowid,
 });
 
-class $$VoiceWorkCategoryTableTableManager extends RootTableManager<
+class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $VoiceWorkCategoryTable,
-    VoiceWorkCategoryData,
-    $$VoiceWorkCategoryTableFilterComposer,
-    $$VoiceWorkCategoryTableOrderingComposer,
-    $$VoiceWorkCategoryTableProcessedTableManager,
-    $$VoiceWorkCategoryTableInsertCompanionBuilder,
-    $$VoiceWorkCategoryTableUpdateCompanionBuilder> {
-  $$VoiceWorkCategoryTableTableManager(
-      _$AppDatabase db, $VoiceWorkCategoryTable table)
+    $TVoiceWorkCategoryTable,
+    TVoiceWorkCategoryData,
+    $$TVoiceWorkCategoryTableFilterComposer,
+    $$TVoiceWorkCategoryTableOrderingComposer,
+    $$TVoiceWorkCategoryTableProcessedTableManager,
+    $$TVoiceWorkCategoryTableInsertCompanionBuilder,
+    $$TVoiceWorkCategoryTableUpdateCompanionBuilder> {
+  $$TVoiceWorkCategoryTableTableManager(
+      _$AppDatabase db, $TVoiceWorkCategoryTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           filteringComposer:
-              $$VoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$VoiceWorkCategoryTableOrderingComposer(
+              $$TVoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$TVoiceWorkCategoryTableOrderingComposer(
               ComposerState(db, table)),
           getChildManagerBuilder: (p) =>
-              $$VoiceWorkCategoryTableProcessedTableManager(p),
+              $$TVoiceWorkCategoryTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<String> description = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceWorkCategoryCompanion(
+              TVoiceWorkCategoryCompanion(
             description: description,
             rowid: rowid,
           ),
@@ -718,65 +719,65 @@ class $$VoiceWorkCategoryTableTableManager extends RootTableManager<
             required String description,
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceWorkCategoryCompanion.insert(
+              TVoiceWorkCategoryCompanion.insert(
             description: description,
             rowid: rowid,
           ),
         ));
 }
 
-class $$VoiceWorkCategoryTableProcessedTableManager
+class $$TVoiceWorkCategoryTableProcessedTableManager
     extends ProcessedTableManager<
         _$AppDatabase,
-        $VoiceWorkCategoryTable,
-        VoiceWorkCategoryData,
-        $$VoiceWorkCategoryTableFilterComposer,
-        $$VoiceWorkCategoryTableOrderingComposer,
-        $$VoiceWorkCategoryTableProcessedTableManager,
-        $$VoiceWorkCategoryTableInsertCompanionBuilder,
-        $$VoiceWorkCategoryTableUpdateCompanionBuilder> {
-  $$VoiceWorkCategoryTableProcessedTableManager(super.$state);
+        $TVoiceWorkCategoryTable,
+        TVoiceWorkCategoryData,
+        $$TVoiceWorkCategoryTableFilterComposer,
+        $$TVoiceWorkCategoryTableOrderingComposer,
+        $$TVoiceWorkCategoryTableProcessedTableManager,
+        $$TVoiceWorkCategoryTableInsertCompanionBuilder,
+        $$TVoiceWorkCategoryTableUpdateCompanionBuilder> {
+  $$TVoiceWorkCategoryTableProcessedTableManager(super.$state);
 }
 
-class $$VoiceWorkCategoryTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $VoiceWorkCategoryTable> {
-  $$VoiceWorkCategoryTableFilterComposer(super.$state);
+class $$TVoiceWorkCategoryTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TVoiceWorkCategoryTable> {
+  $$TVoiceWorkCategoryTableFilterComposer(super.$state);
   ColumnFilters<String> get description => $state.composableBuilder(
       column: $state.table.description,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ComposableFilter voiceWorkRefs(
-      ComposableFilter Function($$VoiceWorkTableFilterComposer f) f) {
-    final $$VoiceWorkTableFilterComposer composer = $state.composerBuilder(
+  ComposableFilter tVoiceWorkRefs(
+      ComposableFilter Function($$TVoiceWorkTableFilterComposer f) f) {
+    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.description,
-        referencedTable: $state.db.voiceWork,
+        referencedTable: $state.db.tVoiceWork,
         getReferencedColumn: (t) => t.category,
         builder: (joinBuilder, parentComposers) =>
-            $$VoiceWorkTableFilterComposer(ComposerState(
-                $state.db, $state.db.voiceWork, joinBuilder, parentComposers)));
+            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
+                $state.db.tVoiceWork, joinBuilder, parentComposers)));
     return f(composer);
   }
 }
 
-class $$VoiceWorkCategoryTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $VoiceWorkCategoryTable> {
-  $$VoiceWorkCategoryTableOrderingComposer(super.$state);
+class $$TVoiceWorkCategoryTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TVoiceWorkCategoryTable> {
+  $$TVoiceWorkCategoryTableOrderingComposer(super.$state);
   ColumnOrderings<String> get description => $state.composableBuilder(
       column: $state.table.description,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$VoiceWorkTableInsertCompanionBuilder = VoiceWorkCompanion Function({
+typedef $$TVoiceWorkTableInsertCompanionBuilder = TVoiceWorkCompanion Function({
   required String title,
   required String diretoryPath,
   required String category,
   Value<DateTime?> createdAt,
   Value<int> rowid,
 });
-typedef $$VoiceWorkTableUpdateCompanionBuilder = VoiceWorkCompanion Function({
+typedef $$TVoiceWorkTableUpdateCompanionBuilder = TVoiceWorkCompanion Function({
   Value<String> title,
   Value<String> diretoryPath,
   Value<String> category,
@@ -784,25 +785,25 @@ typedef $$VoiceWorkTableUpdateCompanionBuilder = VoiceWorkCompanion Function({
   Value<int> rowid,
 });
 
-class $$VoiceWorkTableTableManager extends RootTableManager<
+class $$TVoiceWorkTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $VoiceWorkTable,
-    VoiceWorkData,
-    $$VoiceWorkTableFilterComposer,
-    $$VoiceWorkTableOrderingComposer,
-    $$VoiceWorkTableProcessedTableManager,
-    $$VoiceWorkTableInsertCompanionBuilder,
-    $$VoiceWorkTableUpdateCompanionBuilder> {
-  $$VoiceWorkTableTableManager(_$AppDatabase db, $VoiceWorkTable table)
+    $TVoiceWorkTable,
+    TVoiceWorkData,
+    $$TVoiceWorkTableFilterComposer,
+    $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableProcessedTableManager,
+    $$TVoiceWorkTableInsertCompanionBuilder,
+    $$TVoiceWorkTableUpdateCompanionBuilder> {
+  $$TVoiceWorkTableTableManager(_$AppDatabase db, $TVoiceWorkTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           filteringComposer:
-              $$VoiceWorkTableFilterComposer(ComposerState(db, table)),
+              $$TVoiceWorkTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
-              $$VoiceWorkTableOrderingComposer(ComposerState(db, table)),
+              $$TVoiceWorkTableOrderingComposer(ComposerState(db, table)),
           getChildManagerBuilder: (p) =>
-              $$VoiceWorkTableProcessedTableManager(p),
+              $$TVoiceWorkTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<String> title = const Value.absent(),
             Value<String> diretoryPath = const Value.absent(),
@@ -810,7 +811,7 @@ class $$VoiceWorkTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceWorkCompanion(
+              TVoiceWorkCompanion(
             title: title,
             diretoryPath: diretoryPath,
             category: category,
@@ -824,7 +825,7 @@ class $$VoiceWorkTableTableManager extends RootTableManager<
             Value<DateTime?> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceWorkCompanion.insert(
+              TVoiceWorkCompanion.insert(
             title: title,
             diretoryPath: diretoryPath,
             category: category,
@@ -834,21 +835,21 @@ class $$VoiceWorkTableTableManager extends RootTableManager<
         ));
 }
 
-class $$VoiceWorkTableProcessedTableManager extends ProcessedTableManager<
+class $$TVoiceWorkTableProcessedTableManager extends ProcessedTableManager<
     _$AppDatabase,
-    $VoiceWorkTable,
-    VoiceWorkData,
-    $$VoiceWorkTableFilterComposer,
-    $$VoiceWorkTableOrderingComposer,
-    $$VoiceWorkTableProcessedTableManager,
-    $$VoiceWorkTableInsertCompanionBuilder,
-    $$VoiceWorkTableUpdateCompanionBuilder> {
-  $$VoiceWorkTableProcessedTableManager(super.$state);
+    $TVoiceWorkTable,
+    TVoiceWorkData,
+    $$TVoiceWorkTableFilterComposer,
+    $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableProcessedTableManager,
+    $$TVoiceWorkTableInsertCompanionBuilder,
+    $$TVoiceWorkTableUpdateCompanionBuilder> {
+  $$TVoiceWorkTableProcessedTableManager(super.$state);
 }
 
-class $$VoiceWorkTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $VoiceWorkTable> {
-  $$VoiceWorkTableFilterComposer(super.$state);
+class $$TVoiceWorkTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TVoiceWorkTable> {
+  $$TVoiceWorkTableFilterComposer(super.$state);
   ColumnFilters<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -864,39 +865,39 @@ class $$VoiceWorkTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkCategoryTableFilterComposer get category {
-    final $$VoiceWorkCategoryTableFilterComposer composer =
-        $state.composerBuilder(
+  $$TVoiceWorkCategoryTableFilterComposer get category {
+    final $$TVoiceWorkCategoryTableFilterComposer composer = $state
+        .composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.category,
-            referencedTable: $state.db.voiceWorkCategory,
+            referencedTable: $state.db.tVoiceWorkCategory,
             getReferencedColumn: (t) => t.description,
             builder: (joinBuilder, parentComposers) =>
-                $$VoiceWorkCategoryTableFilterComposer(ComposerState(
+                $$TVoiceWorkCategoryTableFilterComposer(ComposerState(
                     $state.db,
-                    $state.db.voiceWorkCategory,
+                    $state.db.tVoiceWorkCategory,
                     joinBuilder,
                     parentComposers)));
     return composer;
   }
 
-  ComposableFilter voiceItemRefs(
-      ComposableFilter Function($$VoiceItemTableFilterComposer f) f) {
-    final $$VoiceItemTableFilterComposer composer = $state.composerBuilder(
+  ComposableFilter tVoiceItemRefs(
+      ComposableFilter Function($$TVoiceItemTableFilterComposer f) f) {
+    final $$TVoiceItemTableFilterComposer composer = $state.composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.title,
-        referencedTable: $state.db.voiceItem,
+        referencedTable: $state.db.tVoiceItem,
         getReferencedColumn: (t) => t.voiceWorkTitle,
         builder: (joinBuilder, parentComposers) =>
-            $$VoiceItemTableFilterComposer(ComposerState(
-                $state.db, $state.db.voiceItem, joinBuilder, parentComposers)));
+            $$TVoiceItemTableFilterComposer(ComposerState($state.db,
+                $state.db.tVoiceItem, joinBuilder, parentComposers)));
     return f(composer);
   }
 }
 
-class $$VoiceWorkTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $VoiceWorkTable> {
-  $$VoiceWorkTableOrderingComposer(super.$state);
+class $$TVoiceWorkTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TVoiceWorkTable> {
+  $$TVoiceWorkTableOrderingComposer(super.$state);
   ColumnOrderings<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -912,62 +913,62 @@ class $$VoiceWorkTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkCategoryTableOrderingComposer get category {
-    final $$VoiceWorkCategoryTableOrderingComposer composer =
+  $$TVoiceWorkCategoryTableOrderingComposer get category {
+    final $$TVoiceWorkCategoryTableOrderingComposer composer =
         $state.composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.category,
-            referencedTable: $state.db.voiceWorkCategory,
+            referencedTable: $state.db.tVoiceWorkCategory,
             getReferencedColumn: (t) => t.description,
             builder: (joinBuilder, parentComposers) =>
-                $$VoiceWorkCategoryTableOrderingComposer(ComposerState(
+                $$TVoiceWorkCategoryTableOrderingComposer(ComposerState(
                     $state.db,
-                    $state.db.voiceWorkCategory,
+                    $state.db.tVoiceWorkCategory,
                     joinBuilder,
                     parentComposers)));
     return composer;
   }
 }
 
-typedef $$VoiceItemTableInsertCompanionBuilder = VoiceItemCompanion Function({
+typedef $$TVoiceItemTableInsertCompanionBuilder = TVoiceItemCompanion Function({
   required String title,
   required String filePath,
   required String voiceWorkTitle,
   Value<int> rowid,
 });
-typedef $$VoiceItemTableUpdateCompanionBuilder = VoiceItemCompanion Function({
+typedef $$TVoiceItemTableUpdateCompanionBuilder = TVoiceItemCompanion Function({
   Value<String> title,
   Value<String> filePath,
   Value<String> voiceWorkTitle,
   Value<int> rowid,
 });
 
-class $$VoiceItemTableTableManager extends RootTableManager<
+class $$TVoiceItemTableTableManager extends RootTableManager<
     _$AppDatabase,
-    $VoiceItemTable,
-    VoiceItemData,
-    $$VoiceItemTableFilterComposer,
-    $$VoiceItemTableOrderingComposer,
-    $$VoiceItemTableProcessedTableManager,
-    $$VoiceItemTableInsertCompanionBuilder,
-    $$VoiceItemTableUpdateCompanionBuilder> {
-  $$VoiceItemTableTableManager(_$AppDatabase db, $VoiceItemTable table)
+    $TVoiceItemTable,
+    TVoiceItemData,
+    $$TVoiceItemTableFilterComposer,
+    $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableProcessedTableManager,
+    $$TVoiceItemTableInsertCompanionBuilder,
+    $$TVoiceItemTableUpdateCompanionBuilder> {
+  $$TVoiceItemTableTableManager(_$AppDatabase db, $TVoiceItemTable table)
       : super(TableManagerState(
           db: db,
           table: table,
           filteringComposer:
-              $$VoiceItemTableFilterComposer(ComposerState(db, table)),
+              $$TVoiceItemTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
-              $$VoiceItemTableOrderingComposer(ComposerState(db, table)),
+              $$TVoiceItemTableOrderingComposer(ComposerState(db, table)),
           getChildManagerBuilder: (p) =>
-              $$VoiceItemTableProcessedTableManager(p),
+              $$TVoiceItemTableProcessedTableManager(p),
           getUpdateCompanionBuilder: ({
             Value<String> title = const Value.absent(),
             Value<String> filePath = const Value.absent(),
             Value<String> voiceWorkTitle = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceItemCompanion(
+              TVoiceItemCompanion(
             title: title,
             filePath: filePath,
             voiceWorkTitle: voiceWorkTitle,
@@ -979,7 +980,7 @@ class $$VoiceItemTableTableManager extends RootTableManager<
             required String voiceWorkTitle,
             Value<int> rowid = const Value.absent(),
           }) =>
-              VoiceItemCompanion.insert(
+              TVoiceItemCompanion.insert(
             title: title,
             filePath: filePath,
             voiceWorkTitle: voiceWorkTitle,
@@ -988,21 +989,21 @@ class $$VoiceItemTableTableManager extends RootTableManager<
         ));
 }
 
-class $$VoiceItemTableProcessedTableManager extends ProcessedTableManager<
+class $$TVoiceItemTableProcessedTableManager extends ProcessedTableManager<
     _$AppDatabase,
-    $VoiceItemTable,
-    VoiceItemData,
-    $$VoiceItemTableFilterComposer,
-    $$VoiceItemTableOrderingComposer,
-    $$VoiceItemTableProcessedTableManager,
-    $$VoiceItemTableInsertCompanionBuilder,
-    $$VoiceItemTableUpdateCompanionBuilder> {
-  $$VoiceItemTableProcessedTableManager(super.$state);
+    $TVoiceItemTable,
+    TVoiceItemData,
+    $$TVoiceItemTableFilterComposer,
+    $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableProcessedTableManager,
+    $$TVoiceItemTableInsertCompanionBuilder,
+    $$TVoiceItemTableUpdateCompanionBuilder> {
+  $$TVoiceItemTableProcessedTableManager(super.$state);
 }
 
-class $$VoiceItemTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $VoiceItemTable> {
-  $$VoiceItemTableFilterComposer(super.$state);
+class $$TVoiceItemTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TVoiceItemTable> {
+  $$TVoiceItemTableFilterComposer(super.$state);
   ColumnFilters<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -1013,22 +1014,22 @@ class $$VoiceItemTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkTableFilterComposer get voiceWorkTitle {
-    final $$VoiceWorkTableFilterComposer composer = $state.composerBuilder(
+  $$TVoiceWorkTableFilterComposer get voiceWorkTitle {
+    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkTitle,
-        referencedTable: $state.db.voiceWork,
+        referencedTable: $state.db.tVoiceWork,
         getReferencedColumn: (t) => t.title,
         builder: (joinBuilder, parentComposers) =>
-            $$VoiceWorkTableFilterComposer(ComposerState(
-                $state.db, $state.db.voiceWork, joinBuilder, parentComposers)));
+            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
+                $state.db.tVoiceWork, joinBuilder, parentComposers)));
     return composer;
   }
 }
 
-class $$VoiceItemTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $VoiceItemTable> {
-  $$VoiceItemTableOrderingComposer(super.$state);
+class $$TVoiceItemTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TVoiceItemTable> {
+  $$TVoiceItemTableOrderingComposer(super.$state);
   ColumnOrderings<String> get title => $state.composableBuilder(
       column: $state.table.title,
       builder: (column, joinBuilders) =>
@@ -1039,15 +1040,15 @@ class $$VoiceItemTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  $$VoiceWorkTableOrderingComposer get voiceWorkTitle {
-    final $$VoiceWorkTableOrderingComposer composer = $state.composerBuilder(
+  $$TVoiceWorkTableOrderingComposer get voiceWorkTitle {
+    final $$TVoiceWorkTableOrderingComposer composer = $state.composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkTitle,
-        referencedTable: $state.db.voiceWork,
+        referencedTable: $state.db.tVoiceWork,
         getReferencedColumn: (t) => t.title,
         builder: (joinBuilder, parentComposers) =>
-            $$VoiceWorkTableOrderingComposer(ComposerState(
-                $state.db, $state.db.voiceWork, joinBuilder, parentComposers)));
+            $$TVoiceWorkTableOrderingComposer(ComposerState($state.db,
+                $state.db.tVoiceWork, joinBuilder, parentComposers)));
     return composer;
   }
 }
@@ -1055,10 +1056,10 @@ class $$VoiceItemTableOrderingComposer
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
-  $$VoiceWorkCategoryTableTableManager get voiceWorkCategory =>
-      $$VoiceWorkCategoryTableTableManager(_db, _db.voiceWorkCategory);
-  $$VoiceWorkTableTableManager get voiceWork =>
-      $$VoiceWorkTableTableManager(_db, _db.voiceWork);
-  $$VoiceItemTableTableManager get voiceItem =>
-      $$VoiceItemTableTableManager(_db, _db.voiceItem);
+  $$TVoiceWorkCategoryTableTableManager get tVoiceWorkCategory =>
+      $$TVoiceWorkCategoryTableTableManager(_db, _db.tVoiceWorkCategory);
+  $$TVoiceWorkTableTableManager get tVoiceWork =>
+      $$TVoiceWorkTableTableManager(_db, _db.tVoiceWork);
+  $$TVoiceItemTableTableManager get tVoiceItem =>
+      $$TVoiceItemTableTableManager(_db, _db.tVoiceItem);
 }

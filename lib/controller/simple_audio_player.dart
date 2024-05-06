@@ -48,13 +48,13 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
 
     //==============================
     final database = AppDatabase();
-    Future<List<VoiceItemData>> allItems = (() async {
-      await database.into(database.voiceWorkCategory).insert(
-          VoiceWorkCategoryCompanion.insert(description: 'Marked'),
+    Future<List<TVoiceItemData>> allItems = (() async {
+      await database.into(database.tVoiceWorkCategory).insert(
+          TVoiceWorkCategoryCompanion.insert(description: 'Marked'),
           mode: InsertMode.insertOrIgnore);
 
-      await database.into(database.voiceWork).insert(
-          VoiceWorkCompanion.insert(
+      await database.into(database.tVoiceWork).insert(
+          TVoiceWorkCompanion.insert(
             title: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
             diretoryPath:
                 'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
@@ -62,15 +62,15 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
           ),
           mode: InsertMode.insertOrIgnore);
 
-      await database.into(database.voiceItem).insert(
-          VoiceItemCompanion.insert(
+      await database.into(database.tVoiceItem).insert(
+          TVoiceItemCompanion.insert(
               title: 'とらっく２ りなと添い寝',
               filePath:
                   'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～\\RJ01129638\\WAV\\とらっく２ りなと添い寝.wav',
               voiceWorkTitle: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～'),
           mode: InsertMode.insertOrIgnore);
 
-      return await database.select(database.voiceItem).get();
+      return await database.select(database.tVoiceItem).get();
     })();
     //==============================
 
@@ -82,7 +82,7 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
       //     await getWavList().then((List<File> wavList) => wavList[0].path)));
 
       await player.setSource(DeviceFileSource(await allItems.then(
-          (List<VoiceItemData> voiceItemList) => voiceItemList[0].filePath)));
+          (List<TVoiceItemData> voiceItemList) => voiceItemList[0].filePath)));
 
       // await player.setSource(DeviceFileSource(await database
       //     .select(database.voiceItem)
