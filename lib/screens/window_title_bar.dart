@@ -40,10 +40,9 @@ class WindowTitleBar extends StatelessWidget {
             height: 50.0,
             color: Colors.transparent,
             child: Row(
-              crossAxisAlignment:CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [Expanded(child: MoveWindow()), const WindowButtons()],
             ),
-
           )
         : Container();
   }
