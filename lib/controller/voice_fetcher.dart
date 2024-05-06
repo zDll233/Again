@@ -1,9 +1,6 @@
 import '../database/database.dart';
 
 
-
-class VoiceFetcher{
-
-}
+class VoiceFetcher{}
 
 class VoiceWorkFetcher{}

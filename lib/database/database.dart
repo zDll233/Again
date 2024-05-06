@@ -1,4 +1,3 @@
-import 'package:again/model/voice.dart';
 import 'package:drift/drift.dart';
 
 // These additional imports are necessary to open the sqlite3 database

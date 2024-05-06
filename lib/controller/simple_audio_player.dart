@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:drift/drift.dart';
 import 'package:flutter/material.dart';
 
 import 'package:again/database/database.dart';
@@ -18,24 +17,6 @@ class SimpleAudioPlayer extends StatefulWidget {
 class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
   late AudioPlayer player = AudioPlayer();
 
-  Future<List<File>> getWavList() async {
-    List<File> wavList = [];
-
-    // Get the system temp directory.
-    var systemTempDir = Directory(
-        'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～');
-
-    // List directory contents, recursing into sub-directories,
-    // but not following symbolic links.
-    await for (var entity
-        in systemTempDir.list(recursive: true, followLinks: true)) {
-      if (entity is File && entity.path.endsWith('.wav')) {
-        wavList.add(entity);
-      }
-    }
-    return wavList;
-  }
-
   @override
   void initState() {
     super.initState();
@@ -48,26 +29,10 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
 
     // Start the player as soon as the app is displayed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await player.setSource(AssetSource('songs/song01.flac'));
-
-      // await player.setSource(DeviceFileSource(
-      //     await getWavList().then((List<File> wavList) => wavList[0].path)));
-
-      // await player.setSource(DeviceFileSource(await allItems.then(
-      //     (List<TVoiceItemData> voiceItemList) => voiceItemList[0].filePath)));
-
-      // await player.setSource(DeviceFileSource(await database.allVoiceItems.then((List<TVoiceItemData> vd) => vd[0].filePath)));
       await player.setSource(DeviceFileSource(await database
           .selectSingleWorkVoiceItemsWithString(
               '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～')
-          .then((List<TVoiceItemData> vd) => vd[0].filePath)));
-
-      // await player.setSource(DeviceFileSource(await database
-      //     .select(database.voiceItem)
-      //     .get()
-      //     .then((List<VoiceItemData> vec) => vec[0].filePath)));
-
-      // await player.setSource(DeviceFileSource('E:\\Media\\Songs\\sprnova - Mikawa.flac'));
+          .then((List<TVoiceItemData> vd) => vd[1].filePath)));
 
       // await player.resume();
     });
