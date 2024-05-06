@@ -15,6 +15,20 @@ final closeButtonColors = WindowButtonColors(
     iconNormal: const Color.fromARGB(255, 255, 255, 255),
     iconMouseOver: Colors.white);
 
+class WindowButtons extends StatelessWidget {
+  const WindowButtons({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        MinimizeWindowButton(colors: buttonColors),
+        MaximizeWindowButton(colors: buttonColors),
+        CloseWindowButton(colors: closeButtonColors),
+      ],
+    );
+  }
+}
+
 class WindowTitleBar extends StatelessWidget {
   const WindowTitleBar({super.key});
 
@@ -23,19 +37,13 @@ class WindowTitleBar extends StatelessWidget {
     return Platform.isWindows
         ? Container(
             width: MediaQuery.of(context).size.width,
-            height: 32.0,
+            height: 50.0,
             color: Colors.transparent,
-            child: MoveWindow(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Spacer(),
-                  MinimizeWindowButton(colors: buttonColors),
-                  MaximizeWindowButton(colors: buttonColors),
-                  CloseWindowButton(colors: closeButtonColors),
-                ],
-              ),
+            child: Row(
+              crossAxisAlignment:CrossAxisAlignment.start,
+              children: [Expanded(child: MoveWindow()), const WindowButtons()],
             ),
+
           )
         : Container();
   }

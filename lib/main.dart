@@ -13,7 +13,7 @@ void main() async {
   // for window acrylic, mica or transparency effects
   await Window.initialize();
   Window.setEffect(
-    effect: WindowEffect.acrylic,
+    effect: WindowEffect.transparent,
     color: const Color(0xCC222222),
   );
 

@@ -10,3 +10,9 @@
 ### TODO
 
 - [ ] 更换icon：winwindows/runner/resources/app_icon.ico
+
+
+### BUG
+
+1. 描述：应用右上角出现windowbutton图标，与自己设置的buttons有位置偏移，颜色固定，不可点击  
+出现条件：WindowEffect.acrylic && 并没有放置wintitlebar。  
