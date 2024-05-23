@@ -96,8 +96,8 @@ class _PlayerWidgetState extends State<PlayerWidget> {
         ),
         Row(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Spacer(),
             Text(
               _position != null
                   ? '$_positionText / $_durationText'
@@ -106,7 +106,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
                       : '',
               style: const TextStyle(fontSize: 16.0),
             ),
-            const Spacer(),
             IconButton(
               key: const Key('play_button'),
               onPressed: _isPlaying ? null : _play,
@@ -128,7 +127,6 @@ class _PlayerWidgetState extends State<PlayerWidget> {
               icon: const Icon(Icons.stop),
               color: color,
             ),
-            const Spacer(),
           ],
         ),
       ],

@@ -12,9 +12,9 @@ class VoiceWorkPanel extends StatelessWidget {
         const SizedBox(
             height: 50.0,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('data'),
+                Text('VoiceWorks'),
                 ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
               ],
             )),
