@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../database/database.dart';
 
-class VoiceWorkPanel extends StatelessWidget {
-  const VoiceWorkPanel({
-    super.key,
-  });
+class VoiceItemPanel extends StatelessWidget {
+  const VoiceItemPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -16,26 +14,27 @@ class VoiceWorkPanel extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('VoiceWorks'),
+                Text('VoiceItems'),
                 ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
               ],
             )),
-        Expanded(child: FutureListView()),
+        Expanded(child: FutureVoiceItemListView()),
       ],
     );
   }
 }
 
-class FutureListView extends StatelessWidget {
-  const FutureListView({super.key});
+class FutureVoiceItemListView extends StatelessWidget {
+  const FutureVoiceItemListView({super.key});
 
-  Future<List<TVoiceWorkData>> fetchItems() async {
-    return database.selectAllVoiceWorks;
+  Future<List<TVoiceItemData>> fetchItems() async {
+    return await database.selectSingleWorkVoiceItemsWithString(
+        '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～');
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<TVoiceWorkData>>(
+    return FutureBuilder<List<TVoiceItemData>>(
       future: fetchItems(),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -55,19 +54,4 @@ class FutureListView extends StatelessWidget {
       },
     );
   }
-}
-
-ListTile _tile(String title, String subtitle, IconData icon) {
-  return ListTile(
-    title: Text(title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        )),
-    subtitle: Text(subtitle),
-    leading: Icon(
-      icon,
-      color: Colors.blue[500],
-    ),
-  );
 }
