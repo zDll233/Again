@@ -1,11 +1,7 @@
 import 'dart:io';
 
+import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
-
-import '../database/database.dart';
-
-// 'E:\\Media\ACG\\音声\\Marked'
-// 'E:\\Media\ACG\\音声\\Loved'
 
 class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
@@ -19,12 +15,12 @@ class VoiceUpdater {
   }
 
   Future<void> initialize() async {
-    await insertVoiceWorkCategories();  // categories
+    await insertVoiceWorkCategories(); // categories
     await for (var collectionDir in rootDir.list()) {
       if (collectionDir is Directory) {
-        await insertVoiceWorks(collectionDir);  // voiceWorks
-        await for (var voiceWorkDir in collectionDir.list()){
-          if(voiceWorkDir is Directory){
+        await insertVoiceWorks(collectionDir); // voiceWorks
+        await for (var voiceWorkDir in collectionDir.list()) {
+          if (voiceWorkDir is Directory) {
             await insertVoiceItems(voiceWorkDir); // voiceItems
           }
         }
@@ -72,27 +68,4 @@ class VoiceUpdater {
     }
     await database.insertMultipleVoiceItems(vic);
   }
-}
-
-void voiceUpdate() async {
-  await database.into(database.tVoiceWorkCategory).insert(
-      TVoiceWorkCategoryCompanion.insert(description: 'Marked'),
-      mode: InsertMode.insertOrIgnore);
-
-  await database.into(database.tVoiceWork).insert(
-      TVoiceWorkCompanion.insert(
-        title: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-        diretoryPath:
-            'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～',
-        category: 'Marked',
-      ),
-      mode: InsertMode.insertOrIgnore);
-
-  await database.into(database.tVoiceItem).insert(
-      TVoiceItemCompanion.insert(
-          title: 'とらっく２ りなと添い寝',
-          filePath:
-              'E:\\Media\\ACG\\音声\\Marked\\陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～\\RJ01129638\\WAV\\とらっく２ りなと添い寝.wav',
-          voiceWorkTitle: '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～'),
-      mode: InsertMode.insertOrIgnore);
 }
