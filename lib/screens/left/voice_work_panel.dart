@@ -56,18 +56,3 @@ class FutureListView extends StatelessWidget {
     );
   }
 }
-
-ListTile _tile(String title, String subtitle, IconData icon) {
-  return ListTile(
-    title: Text(title,
-        style: const TextStyle(
-          fontWeight: FontWeight.w500,
-          fontSize: 20,
-        )),
-    subtitle: Text(subtitle),
-    leading: Icon(
-      icon,
-      color: Colors.blue[500],
-    ),
-  );
-}

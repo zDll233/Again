@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/simple_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get/get.dart';
 
 import 'screens/home.dart';
 import 'screens/window_title_bar.dart';
@@ -45,19 +46,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProviderScope(
-      child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.purple,
-            brightness: Brightness.dark,
-          )),
-          home: const Scaffold(
-              backgroundColor: Colors.transparent,
-              body: Column(
-                children: [WindowTitleBar(), Home(), SimpleAudioPlayer()],
-              ))),
-    );
+    Get.lazyPut(()=>AudioController());
+    return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.purple,
+          brightness: Brightness.dark,
+        )),
+        home: const Scaffold(
+            backgroundColor: Colors.transparent,
+            body: Column(
+              children: [WindowTitleBar(), Home(), SimpleAudioPlayer()],
+            )));
   }
 }
