@@ -7,6 +7,8 @@ class AudioController extends GetxController {
   var duration = Duration.zero.obs;
   var position = Duration.zero.obs;
 
+  var vkTitle="".obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -30,6 +32,10 @@ class AudioController extends GetxController {
     player.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
+  }
+
+  void setVKTitle(String title) {
+    vkTitle.value = title;
   }
 
   Future<void> play(Source source) async {

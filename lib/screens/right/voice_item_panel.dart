@@ -1,15 +1,16 @@
+import 'package:again/controller/audio_controller.dart';
+import 'package:again/database/database.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../../database/database.dart';
-import '../../controller/audio_controller.dart';
 
 class VoiceItemPanel extends StatelessWidget {
   const VoiceItemPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final AudioController audioController = Get.find();
+
     return Column(
       children: [
         const SizedBox(
@@ -21,26 +22,30 @@ class VoiceItemPanel extends StatelessWidget {
                 ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
               ],
             )),
-        Expanded(child: FutureVoiceItemListView()),
+        Expanded(
+          child: Obx(() =>
+              FutureVoiceItemListView(vkTitle: audioController.vkTitle.value)),
+        ),
       ],
     );
   }
 }
 
 class FutureVoiceItemListView extends StatelessWidget {
-  FutureVoiceItemListView({super.key});
+  final String vkTitle;
+
+  FutureVoiceItemListView({required this.vkTitle, super.key});
 
   final AudioController audioController = Get.find();
 
-  Future<List<TVoiceItemData>> fetchItems() async {
-    return await database.selectSingleWorkVoiceItemsWithString(
-        '陽向葵ゅか-【 一緒に眠る ASMR】不眠症の眠り姫～あなたと眠る異世界生活～');
+  Future<List<TVoiceItemData>> fetchItems(String vkTitle) async {
+    return await database.selectSingleWorkVoiceItemsWithString(vkTitle);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<List<TVoiceItemData>>(
-      future: fetchItems(),
+      future: fetchItems(vkTitle),
       builder: (context, snapshot) {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return const Center(child: Text('No items found'));
@@ -50,7 +55,6 @@ class FutureVoiceItemListView extends StatelessWidget {
             itemBuilder: (context, index) {
               return ListTile(
                 title: Text(snapshot.data![index].title),
-                // onTap: c.setPlayablePath(snapshot.data![index].filePath),
                 onTap: () {
                   Source source =
                       DeviceFileSource(snapshot.data![index].filePath);
