@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class VoiceWorkPanel extends StatelessWidget {
-  const VoiceWorkPanel({
-    super.key,
-  });
+  const VoiceWorkPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final AudioController audioController = Get.find();
+
     return Column(
       children: [
         const SizedBox(
@@ -17,18 +17,24 @@ class VoiceWorkPanel extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('VoiceWorks'),
+                Text('VoiceItems'),
                 ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
               ],
             )),
-        Expanded(child: FutureVoiceWorkListView()),
+        Expanded(
+          child: Obx(() => FutureVoiceWorkListView(
+              vkIdx: audioController.selectedVkIdx.value)),
+        ),
       ],
     );
   }
 }
 
 class FutureVoiceWorkListView extends StatelessWidget {
-  FutureVoiceWorkListView({super.key});
+  final int vkIdx;
+
+  FutureVoiceWorkListView({required this.vkIdx, super.key});
+
   final AudioController audioController = Get.find();
 
   Future<List<TVoiceWorkData>> fetchItems() async {
@@ -46,11 +52,14 @@ class FutureVoiceWorkListView extends StatelessWidget {
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
+              bool isSelected = vkIdx == index;
               return ListTile(
                 title: Text(snapshot.data![index].title),
                 onTap: () {
-                  audioController.setVKTitle(snapshot.data![index].title);
+                  audioController.setSelectedVkTitle(snapshot.data![index].title);
+                  audioController.selectedVkIdx.value = index;
                 },
+                selected: isSelected ? true : false,
               );
             },
           );
