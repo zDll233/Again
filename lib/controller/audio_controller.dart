@@ -7,7 +7,9 @@ class AudioController extends GetxController {
   var duration = Duration.zero.obs;
   var position = Duration.zero.obs;
 
-  var vkTitle="".obs;
+  var vkTitle = "".obs;
+  var viPathList = [].obs;
+  var currentIdx = 0.obs;
 
   @override
   void onInit() {
@@ -25,8 +27,12 @@ class AudioController extends GetxController {
     });
 
     player.onPlayerComplete.listen((event) {
-      playerState.value = PlayerState.stopped;
-      position.value = Duration.zero;
+      if (currentIdx.value == viPathList.length - 1) {
+        playerState.value = PlayerState.stopped;
+        position.value = Duration.zero;
+      } else {
+        play(getSource(viPathList[++currentIdx.value]));
+      }
     });
 
     player.onPlayerStateChanged.listen((state) {
@@ -36,6 +42,10 @@ class AudioController extends GetxController {
 
   void setVKTitle(String title) {
     vkTitle.value = title;
+  }
+
+  Source getSource(String path){
+    return DeviceFileSource(path);
   }
 
   Future<void> play(Source source) async {

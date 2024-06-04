@@ -39,7 +39,12 @@ class FutureVoiceItemListView extends StatelessWidget {
   final AudioController audioController = Get.find();
 
   Future<List<TVoiceItemData>> fetchItems(String vkTitle) async {
-    return await database.selectSingleWorkVoiceItemsWithString(vkTitle);
+    var viDataList =
+        await database.selectSingleWorkVoiceItemsWithString(vkTitle);
+    audioController.viPathList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.filePath));
+    return viDataList;
   }
 
   @override
@@ -59,6 +64,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                   Source source =
                       DeviceFileSource(snapshot.data![index].filePath);
                   audioController.play(source);
+                  audioController.currentIdx.value = index;
                 },
               );
             },
