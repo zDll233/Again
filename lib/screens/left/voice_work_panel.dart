@@ -61,7 +61,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
                       .setSelectedVkTitle(snapshot.data![index].title);
                   audioController.selectedVkIdx.value = index;
                 },
-                selected: isSelected ? true : false,
+                selected: isSelected,
               );
             },
           );

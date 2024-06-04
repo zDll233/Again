@@ -80,7 +80,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                   audioController.playingViPathList =
                       audioController.selectedViPathList;
                 },
-                selected: isSelected ? true : false,
+                selected: isSelected,
               );
             },
           );
