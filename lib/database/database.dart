@@ -23,7 +23,6 @@ class TVoiceItem extends Table {
 
 class TVoiceWork extends Table {
   TextColumn get title => text()();
-  // IntColumn get voiceCounts => integer()(); TODO：需要一个触发器，每添加一个voiceItem，count++.
   TextColumn get diretoryPath => text()();
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();

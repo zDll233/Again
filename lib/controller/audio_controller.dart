@@ -37,7 +37,7 @@ class AudioController extends GetxController {
         playerState.value = PlayerState.stopped;
         position.value = Duration.zero;
       } else {
-        play(getSource(playingViPathList[++playingViIdx.value]));
+        playNext();
       }
     });
 
@@ -59,6 +59,24 @@ class AudioController extends GetxController {
     await player.setSource(source);
     await player.resume();
     playerState.value = PlayerState.playing;
+  }
+
+  Future<void> playNext() async {
+    playingViIdx++;
+    if (playingViIdx >= playingViPathList.length - 1) {
+      playingViIdx.value = playingViPathList.length - 1;
+    }
+
+    play(getSource(playingViPathList[playingViIdx.value]));
+  }
+
+  Future<void> playPrev() async {
+    playingViIdx--;
+    if (playingViIdx < 0) {
+      playingViIdx.value = 0;
+    }
+
+    play(getSource(playingViPathList[playingViIdx.value]));
   }
 
   Future<void> resume() async {

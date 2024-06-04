@@ -52,6 +52,12 @@ class PlayerWidget extends StatelessWidget {
                   style: const TextStyle(fontSize: 16.0),
                 ),
                 IconButton(
+                  key: const Key('prev_button'),
+                  onPressed: audioController.playPrev,
+                  iconSize: 48.0,
+                  icon: const Icon(Icons.skip_previous),
+                ),
+                IconButton(
                   key: const Key('play_pause_button'),
                   onPressed:
                       audioController.playerState.value == PlayerState.playing
@@ -59,22 +65,27 @@ class PlayerWidget extends StatelessWidget {
                           : audioController.resume,
                   iconSize: 48.0,
                   icon: audioController.playerState.value == PlayerState.playing
-                      ? const Icon(Icons.play_arrow)
-                      : const Icon(Icons.pause),
-                  color: Theme.of(context).primaryColor,
+                      ? const Icon(Icons.pause)
+                      : const Icon(Icons.play_arrow),
                 ),
                 IconButton(
-                  key: const Key('stop_button'),
-                  onPressed: audioController.playerState.value ==
-                              PlayerState.playing ||
-                          audioController.playerState.value ==
-                              PlayerState.paused
-                      ? audioController.stop
-                      : null,
+                  key: const Key('next_button'),
+                  onPressed: audioController.playNext,
                   iconSize: 48.0,
-                  icon: const Icon(Icons.stop),
-                  color: Theme.of(context).primaryColor,
+                  icon: const Icon(Icons.skip_next),
                 ),
+                // IconButton(
+                //   key: const Key('stop_button'),
+                //   onPressed: audioController.playerState.value ==
+                //               PlayerState.playing ||
+                //           audioController.playerState.value ==
+                //               PlayerState.paused
+                //       ? audioController.stop
+                //       : null,
+                //   iconSize: 48.0,
+                //   icon: const Icon(Icons.stop),
+                //   color: Theme.of(context).primaryColor,
+                // ),
               ],
             )),
       ],
