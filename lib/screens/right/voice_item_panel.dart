@@ -19,7 +19,7 @@ class VoiceItemPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('VoiceItems'),
-                ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
+                ElevatedButton(onPressed: null, child: Icon(Icons.location_searching))
               ],
             )),
         Expanded(

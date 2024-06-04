@@ -18,7 +18,8 @@ class VoiceWorkPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('VoiceItems'),
-                ElevatedButton(onPressed: null, child: Icon(Icons.refresh))
+                ElevatedButton(
+                    onPressed: null, child: Icon(Icons.location_searching))
               ],
             )),
         Expanded(
@@ -56,7 +57,8 @@ class FutureVoiceWorkListView extends StatelessWidget {
               return ListTile(
                 title: Text(snapshot.data![index].title),
                 onTap: () {
-                  audioController.setSelectedVkTitle(snapshot.data![index].title);
+                  audioController
+                      .setSelectedVkTitle(snapshot.data![index].title);
                   audioController.selectedVkIdx.value = index;
                 },
                 selected: isSelected ? true : false,
