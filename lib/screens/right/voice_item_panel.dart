@@ -79,6 +79,8 @@ class FutureVoiceItemListView extends StatelessWidget {
                       audioController.selectedVkIdx.value;
                   audioController.playingViPathList =
                       audioController.selectedViPathList;
+                  audioController.playingVkOffset.value =
+                      audioController.vkScrollController.offset;
                 },
                 selected: isSelected,
               );

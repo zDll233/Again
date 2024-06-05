@@ -1,4 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class AudioController extends GetxController {
@@ -17,6 +18,30 @@ class AudioController extends GetxController {
   var playingVkIdx = 0.obs;
   var selectedVkIdx = 0.obs;
 
+  var vkScrollController = ScrollController();
+  var playingVkOffset = 0.0.obs;
+
+  void scrollToPlayingVk() {
+    selectedVkIdx.value = playingViIdx.value;
+    // vkScrollController.value.
+  }
+
+  void setSelectedVkTitle(String title) {
+    selectedVkTitle.value = title;
+  }
+
+  Source getSource(String path) {
+    return DeviceFileSource(path);
+  }
+
+  // void onVkSelected(TVoiceWorkData selectedVk) {
+  //       setSelectedVkTitle(selectedVk.title);
+  //   audioController.selectedVkIdx.value = index;
+  // }
+
+  // ================================================
+  //  player actions
+  // ================================================
   @override
   void onInit() {
     super.onInit();
@@ -44,14 +69,6 @@ class AudioController extends GetxController {
     player.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
-  }
-
-  void setSelectedVkTitle(String title) {
-    selectedVkTitle.value = title;
-  }
-
-  Source getSource(String path) {
-    return DeviceFileSource(path);
   }
 
   Future<void> play(Source source) async {

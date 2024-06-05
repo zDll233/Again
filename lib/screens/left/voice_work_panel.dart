@@ -12,19 +12,30 @@ class VoiceWorkPanel extends StatelessWidget {
 
     return Column(
       children: [
-        const SizedBox(
+        SizedBox(
             height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('VoiceItems'),
+                const Text('VoiceItems'),
                 ElevatedButton(
-                    onPressed: null, child: Icon(Icons.location_searching))
+                    onPressed: () {
+                      audioController.vkScrollController.animateTo(
+                          audioController.playingVkOffset.value,
+                          duration: const Duration(microseconds: 300),
+                          curve: Curves.bounceIn);
+
+                      audioController.selectedVkIdx.value =
+                          audioController.playingVkIdx.value;
+                      audioController.setSelectedVkTitle(audioController
+                          .vkTitleList[audioController.playingVkIdx.value]);
+                    },
+                    child: const Icon(Icons.location_searching))
               ],
             )),
         Expanded(
           child: Obx(() => FutureVoiceWorkListView(
-              vkIdx: audioController.selectedVkIdx.value)),
+              selectedVkIdx: audioController.selectedVkIdx.value)),
         ),
       ],
     );
@@ -32,14 +43,18 @@ class VoiceWorkPanel extends StatelessWidget {
 }
 
 class FutureVoiceWorkListView extends StatelessWidget {
-  final int vkIdx;
+  final int selectedVkIdx;
 
-  FutureVoiceWorkListView({required this.vkIdx, super.key});
+  FutureVoiceWorkListView({required this.selectedVkIdx, super.key});
 
   final AudioController audioController = Get.find();
 
   Future<List<TVoiceWorkData>> fetchItems() async {
-    return database.selectAllVoiceWorks;
+    var vkDataList = await database.selectAllVoiceWorks;
+    audioController.vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+    return vkDataList;
   }
 
   @override
@@ -53,7 +68,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              bool isSelected = vkIdx == index;
+              bool isSelected = selectedVkIdx == index;
               return ListTile(
                 title: Text(snapshot.data![index].title),
                 onTap: () {
@@ -64,6 +79,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
                 selected: isSelected,
               );
             },
+            controller: audioController.vkScrollController,
           );
         }
       },
