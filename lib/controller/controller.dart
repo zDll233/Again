@@ -20,6 +20,7 @@ class Controller extends GetxController {
 
   var vkScrollController = ScrollController();
   var playingVkOffset = 0.0.obs;
+  var latestSelectedVkOffset = 0.0.obs;
 
   void onLocateBtnPressed() {
     vkScrollController.animateTo(playingVkOffset.value,
@@ -32,6 +33,7 @@ class Controller extends GetxController {
   void onVkSelected(int idx) {
     setSelectedVkTitle(vkTitleList[idx]);
     selectedVkIdx.value = idx;
+    latestSelectedVkOffset.value = vkScrollController.offset;
   }
 
   void onViSelected(int idx) {
@@ -41,12 +43,7 @@ class Controller extends GetxController {
     playingViIdx.value = idx;
     playingVkIdx.value = selectedVkIdx.value;
     playingViPathList = selectedViPathList;
-    playingVkOffset.value = vkScrollController.offset;
-  }
-
-  void scrollToPlayingVk() {
-    selectedVkIdx.value = playingViIdx.value;
-    // vkScrollController.value.
+    playingVkOffset.value = latestSelectedVkOffset.value;
   }
 
   void setSelectedVkTitle(String title) {

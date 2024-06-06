@@ -59,7 +59,6 @@ class FutureVoiceItemListView extends StatelessWidget {
                         c.selectedVkIdx.value,
               ));
         },
-        scrollController: c.vkScrollController,
       ),
     );
   }
