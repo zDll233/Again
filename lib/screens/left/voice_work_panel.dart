@@ -1,5 +1,5 @@
 import 'package:again/components/future_list.dart';
-import 'package:again/controller/audio_controller.dart';
+import 'package:again/controller/controller.dart';
 import 'package:again/database/database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
