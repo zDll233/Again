@@ -11,7 +11,7 @@ class Controller extends GetxController {
   var selectedVkTitle = "".obs;
   var selectedViPathList = [].obs;
 
-  var playingViIdx = 0.obs;
+  var playingViIdx = (-1).obs;
   var playingViPathList = [].obs;
 
   var vkTitleList = [].obs;

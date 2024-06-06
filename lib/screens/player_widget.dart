@@ -44,25 +44,23 @@ class PlayerWidget extends StatelessWidget {
                   c.position.value != Duration.zero
                       ? '${c.position.value.toString().split('.').first} / ${c.duration.value.toString().split('.').first}'
                       : c.duration.value != Duration.zero
-                          ? c.duration.value
-                              .toString()
-                              .split('.')
-                              .first
+                          ? c.duration.value.toString().split('.').first
                           : '',
                   style: const TextStyle(fontSize: 16.0),
                 ),
                 IconButton(
                   key: const Key('prev_button'),
-                  onPressed: c.playPrev,
+                  onPressed: c.playingViIdx >= 0 ? c.playPrev : null,
                   iconSize: 48.0,
                   icon: const Icon(Icons.skip_previous),
                 ),
                 IconButton(
                   key: const Key('play_pause_button'),
-                  onPressed:
-                      c.playerState.value == PlayerState.playing
+                  onPressed: c.playingViIdx >= 0
+                      ? c.playerState.value == PlayerState.playing
                           ? c.pause
-                          : c.resume,
+                          : c.resume
+                      : null,
                   iconSize: 48.0,
                   icon: c.playerState.value == PlayerState.playing
                       ? const Icon(Icons.pause)
@@ -70,7 +68,7 @@ class PlayerWidget extends StatelessWidget {
                 ),
                 IconButton(
                   key: const Key('next_button'),
-                  onPressed: c.playNext,
+                  onPressed: c.playingViIdx >= 0 ? c.playNext : null,
                   iconSize: 48.0,
                   icon: const Icon(Icons.skip_next),
                 ),
