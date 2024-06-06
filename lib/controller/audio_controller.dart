@@ -44,15 +44,6 @@ class AudioController extends GetxController {
     playingVkOffset.value = vkScrollController.offset;
   }
 
-  bool isVkselected(idx) {
-    return selectedVkIdx == idx;
-  }
-
-  bool isViPlaying(int idx) {
-    return playingViIdx.value == idx &&
-        playingVkIdx.value == selectedVkIdx.value;
-  }
-
   void scrollToPlayingVk() {
     selectedVkIdx.value = playingViIdx.value;
     // vkScrollController.value.

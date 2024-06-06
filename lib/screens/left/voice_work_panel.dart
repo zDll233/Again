@@ -1,3 +1,4 @@
+import 'package:again/components/future_list.dart';
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/database/database.dart';
 import 'package:flutter/material.dart';
@@ -48,29 +49,18 @@ class FutureVoiceWorkListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<TVoiceWorkData>>(
+    return FutureListView<TVoiceWorkData>(
       future: fetchItems(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No items found'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              return Obx(
-                () => ListTile(
-                  title: Text(snapshot.data![index].title),
-                  onTap: () {
-                    audioController.onVkSelected(index);
-                  },
-                  selected: audioController.selectedVkIdx.value == index,
-                ),
-              );
-            },
-            controller: audioController.vkScrollController,
-          );
-        }
+      itemBuilder: (context, item, index) {
+        return Obx(() => ListTile(
+              title: Text(item.title),
+              onTap: () {
+                audioController.onVkSelected(index);
+              },
+              selected: audioController.selectedVkIdx.value == index,
+            ));
       },
+      scrollController: audioController.vkScrollController,
     );
   }
 }

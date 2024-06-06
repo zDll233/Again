@@ -1,3 +1,4 @@
+import 'package:again/components/future_list.dart';
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/database/database.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -9,8 +10,6 @@ class VoiceItemPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AudioController audioController = Get.find();
-
     return Column(
       children: [
         const SizedBox(
@@ -19,14 +18,12 @@ class VoiceItemPanel extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text('VoiceItems'),
-                ElevatedButton(onPressed: null, child: Icon(Icons.location_searching))
+                ElevatedButton(
+                    onPressed: null, child: Icon(Icons.location_searching))
               ],
             )),
         Expanded(
-          child: Obx(() => FutureVoiceItemListView(
-                selectedVkTitle: audioController.selectedVkTitle.value,
-                playingViIdx: audioController.playingViIdx.value,
-              )),
+          child: FutureVoiceItemListView(),
         ),
       ],
     );
@@ -34,17 +31,13 @@ class VoiceItemPanel extends StatelessWidget {
 }
 
 class FutureVoiceItemListView extends StatelessWidget {
-  final String selectedVkTitle;
-  final int playingViIdx;
-
-  FutureVoiceItemListView(
-      {required this.selectedVkTitle, required this.playingViIdx, super.key});
+  FutureVoiceItemListView({super.key});
 
   final AudioController audioController = Get.find();
 
-  Future<List<TVoiceItemData>> fetchItems(String vkTitle) async {
-    var viDataList =
-        await database.selectSingleWorkVoiceItemsWithString(vkTitle);
+  Future<List<TVoiceItemData>> fetchItems() async {
+    var viDataList = await database.selectSingleWorkVoiceItemsWithString(
+        audioController.selectedVkTitle.value);
     audioController.selectedViPathList
       ..clear()
       ..addAll(viDataList.map((item) => item.filePath));
@@ -53,41 +46,22 @@ class FutureVoiceItemListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<TVoiceItemData>>(
-      future: fetchItems(selectedVkTitle),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No items found'));
-        } else {
-          return ListView.builder(
-            itemCount: snapshot.data!.length,
-            itemBuilder: (context, index) {
-              bool isSelected = playingViIdx == index &&
-                  audioController.playingVkIdx.value ==
-                      audioController.selectedVkIdx.value;
-              return ListTile(
-                title: Text(
-                  snapshot.data![index].title,
-                ),
+    return Obx(
+      () => FutureListView<TVoiceItemData>(
+        future: fetchItems(),
+        itemBuilder: (context, item, index) {
+          return Obx(() => ListTile(
+                title: Text(item.title),
                 onTap: () {
-                  Source source =
-                      DeviceFileSource(snapshot.data![index].filePath);
-                  audioController.play(source);
-
-                  audioController.playingViIdx.value = index;
-                  audioController.playingVkIdx.value =
-                      audioController.selectedVkIdx.value;
-                  audioController.playingViPathList =
-                      audioController.selectedViPathList;
-                  audioController.playingVkOffset.value =
-                      audioController.vkScrollController.offset;
+                  audioController.onViSelected(index);
                 },
-                selected: isSelected,
-              );
-            },
-          );
-        }
-      },
+                selected: audioController.playingViIdx.value == index &&
+                    audioController.playingVkIdx.value ==
+                        audioController.selectedVkIdx.value,
+              ));
+        },
+        scrollController: audioController.vkScrollController,
+      ),
     );
   }
 }
