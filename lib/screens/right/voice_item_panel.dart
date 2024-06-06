@@ -35,8 +35,8 @@ class FutureVoiceItemListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List<TVoiceItemData>> fetchItems() async {
-    var viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        c.selectedVkTitle.value);
+    var viDataList = await database
+        .selectSingleWorkVoiceItemsWithString(c.selectedVkTitle.value);
     c.selectedViPathList
       ..clear()
       ..addAll(viDataList.map((item) => item.filePath));
@@ -55,8 +55,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                   c.onViSelected(index);
                 },
                 selected: c.playingViIdx.value == index &&
-                    c.playingVkIdx.value ==
-                        c.selectedVkIdx.value,
+                    c.playingVkIdx.value == c.selectedVkIdx.value,
               ));
         },
       ),
