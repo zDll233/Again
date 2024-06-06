@@ -13,27 +13,27 @@ class PlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AudioController audioController = Get.find();
+    final Controller c = Get.find();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: <Widget>[
         Obx(() => Slider(
               onChanged: (value) {
-                final duration = audioController.duration.value;
+                final duration = c.duration.value;
                 if (duration == Duration.zero) {
                   return;
                 }
                 final position = value * duration.inMilliseconds;
                 player.seek(Duration(milliseconds: position.round()));
               },
-              value: (audioController.position.value != Duration.zero &&
-                      audioController.duration.value != Duration.zero &&
-                      audioController.position.value.inMilliseconds > 0 &&
-                      audioController.position.value.inMilliseconds <
-                          audioController.duration.value.inMilliseconds)
-                  ? audioController.position.value.inMilliseconds /
-                      audioController.duration.value.inMilliseconds
+              value: (c.position.value != Duration.zero &&
+                      c.duration.value != Duration.zero &&
+                      c.position.value.inMilliseconds > 0 &&
+                      c.position.value.inMilliseconds <
+                          c.duration.value.inMilliseconds)
+                  ? c.position.value.inMilliseconds /
+                      c.duration.value.inMilliseconds
                   : 0.0,
             )),
         Obx(() => Row(
@@ -41,10 +41,10 @@ class PlayerWidget extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 Text(
-                  audioController.position.value != Duration.zero
-                      ? '${audioController.position.value.toString().split('.').first} / ${audioController.duration.value.toString().split('.').first}'
-                      : audioController.duration.value != Duration.zero
-                          ? audioController.duration.value
+                  c.position.value != Duration.zero
+                      ? '${c.position.value.toString().split('.').first} / ${c.duration.value.toString().split('.').first}'
+                      : c.duration.value != Duration.zero
+                          ? c.duration.value
                               .toString()
                               .split('.')
                               .first
@@ -53,34 +53,34 @@ class PlayerWidget extends StatelessWidget {
                 ),
                 IconButton(
                   key: const Key('prev_button'),
-                  onPressed: audioController.playPrev,
+                  onPressed: c.playPrev,
                   iconSize: 48.0,
                   icon: const Icon(Icons.skip_previous),
                 ),
                 IconButton(
                   key: const Key('play_pause_button'),
                   onPressed:
-                      audioController.playerState.value == PlayerState.playing
-                          ? audioController.pause
-                          : audioController.resume,
+                      c.playerState.value == PlayerState.playing
+                          ? c.pause
+                          : c.resume,
                   iconSize: 48.0,
-                  icon: audioController.playerState.value == PlayerState.playing
+                  icon: c.playerState.value == PlayerState.playing
                       ? const Icon(Icons.pause)
                       : const Icon(Icons.play_arrow),
                 ),
                 IconButton(
                   key: const Key('next_button'),
-                  onPressed: audioController.playNext,
+                  onPressed: c.playNext,
                   iconSize: 48.0,
                   icon: const Icon(Icons.skip_next),
                 ),
                 // IconButton(
                 //   key: const Key('stop_button'),
-                //   onPressed: audioController.playerState.value ==
+                //   onPressed: c.playerState.value ==
                 //               PlayerState.playing ||
-                //           audioController.playerState.value ==
+                //           c.playerState.value ==
                 //               PlayerState.paused
-                //       ? audioController.stop
+                //       ? c.stop
                 //       : null,
                 //   iconSize: 48.0,
                 //   icon: const Icon(Icons.stop),

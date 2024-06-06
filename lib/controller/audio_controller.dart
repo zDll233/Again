@@ -2,7 +2,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class AudioController extends GetxController {
+class Controller extends GetxController {
   late AudioPlayer player;
   var playerState = PlayerState.stopped.obs;
   var duration = Duration.zero.obs;

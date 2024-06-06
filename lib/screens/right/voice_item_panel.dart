@@ -1,7 +1,6 @@
 import 'package:again/components/future_list.dart';
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/database/database.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -33,12 +32,12 @@ class VoiceItemPanel extends StatelessWidget {
 class FutureVoiceItemListView extends StatelessWidget {
   FutureVoiceItemListView({super.key});
 
-  final AudioController audioController = Get.find();
+  final Controller c = Get.find();
 
   Future<List<TVoiceItemData>> fetchItems() async {
     var viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        audioController.selectedVkTitle.value);
-    audioController.selectedViPathList
+        c.selectedVkTitle.value);
+    c.selectedViPathList
       ..clear()
       ..addAll(viDataList.map((item) => item.filePath));
     return viDataList;
@@ -53,14 +52,14 @@ class FutureVoiceItemListView extends StatelessWidget {
           return Obx(() => ListTile(
                 title: Text(item.title),
                 onTap: () {
-                  audioController.onViSelected(index);
+                  c.onViSelected(index);
                 },
-                selected: audioController.playingViIdx.value == index &&
-                    audioController.playingVkIdx.value ==
-                        audioController.selectedVkIdx.value,
+                selected: c.playingViIdx.value == index &&
+                    c.playingVkIdx.value ==
+                        c.selectedVkIdx.value,
               ));
         },
-        scrollController: audioController.vkScrollController,
+        scrollController: c.vkScrollController,
       ),
     );
   }

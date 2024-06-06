@@ -9,7 +9,7 @@ class VoiceWorkPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final AudioController audioController = Get.find();
+    final Controller c = Get.find();
 
     return Column(
       children: [
@@ -21,7 +21,7 @@ class VoiceWorkPanel extends StatelessWidget {
                 const Text('VoiceItems'),
                 ElevatedButton(
                     onPressed: () {
-                      audioController.onLocateBtnPressed();
+                      c.onLocateBtnPressed();
                     },
                     child: const Icon(Icons.location_searching))
               ],
@@ -37,11 +37,11 @@ class VoiceWorkPanel extends StatelessWidget {
 class FutureVoiceWorkListView extends StatelessWidget {
   FutureVoiceWorkListView({super.key});
 
-  final AudioController audioController = Get.find();
+  final Controller c = Get.find();
 
   Future<List<TVoiceWorkData>> fetchItems() async {
     var vkDataList = await database.selectAllVoiceWorks;
-    audioController.vkTitleList
+    c.vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
     return vkDataList;
@@ -55,12 +55,12 @@ class FutureVoiceWorkListView extends StatelessWidget {
         return Obx(() => ListTile(
               title: Text(item.title),
               onTap: () {
-                audioController.onVkSelected(index);
+                c.onVkSelected(index);
               },
-              selected: audioController.selectedVkIdx.value == index,
+              selected: c.selectedVkIdx.value == index,
             ));
       },
-      scrollController: audioController.vkScrollController,
+      scrollController: c.vkScrollController,
     );
   }
 }

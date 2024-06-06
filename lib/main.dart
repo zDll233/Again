@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Get.lazyPut(()=>AudioController());
+    Get.lazyPut(()=>Controller());
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
