@@ -20,22 +20,13 @@ class VoiceWorkPanel extends StatelessWidget {
                 const Text('VoiceItems'),
                 ElevatedButton(
                     onPressed: () {
-                      audioController.vkScrollController.animateTo(
-                          audioController.playingVkOffset.value,
-                          duration: const Duration(microseconds: 300),
-                          curve: Curves.bounceIn);
-
-                      audioController.selectedVkIdx.value =
-                          audioController.playingVkIdx.value;
-                      audioController.setSelectedVkTitle(audioController
-                          .vkTitleList[audioController.playingVkIdx.value]);
+                      audioController.onLocateBtnPressed();
                     },
                     child: const Icon(Icons.location_searching))
               ],
             )),
         Expanded(
-          child: Obx(() => FutureVoiceWorkListView(
-              selectedVkIdx: audioController.selectedVkIdx.value)),
+          child: FutureVoiceWorkListView(),
         ),
       ],
     );
@@ -43,9 +34,7 @@ class VoiceWorkPanel extends StatelessWidget {
 }
 
 class FutureVoiceWorkListView extends StatelessWidget {
-  final int selectedVkIdx;
-
-  FutureVoiceWorkListView({required this.selectedVkIdx, super.key});
+  FutureVoiceWorkListView({super.key});
 
   final AudioController audioController = Get.find();
 
@@ -68,15 +57,14 @@ class FutureVoiceWorkListView extends StatelessWidget {
           return ListView.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
-              bool isSelected = selectedVkIdx == index;
-              return ListTile(
-                title: Text(snapshot.data![index].title),
-                onTap: () {
-                  audioController
-                      .setSelectedVkTitle(snapshot.data![index].title);
-                  audioController.selectedVkIdx.value = index;
-                },
-                selected: isSelected,
+              return Obx(
+                () => ListTile(
+                  title: Text(snapshot.data![index].title),
+                  onTap: () {
+                    audioController.onVkSelected(index);
+                  },
+                  selected: audioController.selectedVkIdx.value == index,
+                ),
               );
             },
             controller: audioController.vkScrollController,

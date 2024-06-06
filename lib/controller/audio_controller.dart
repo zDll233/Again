@@ -21,6 +21,38 @@ class AudioController extends GetxController {
   var vkScrollController = ScrollController();
   var playingVkOffset = 0.0.obs;
 
+  void onLocateBtnPressed() {
+    vkScrollController.animateTo(playingVkOffset.value,
+        duration: const Duration(microseconds: 300), curve: Curves.bounceIn);
+
+    selectedVkIdx.value = playingVkIdx.value;
+    setSelectedVkTitle(vkTitleList[playingVkIdx.value]);
+  }
+
+  void onVkSelected(int idx) {
+    setSelectedVkTitle(vkTitleList[idx]);
+    selectedVkIdx.value = idx;
+  }
+
+  void onViSelected(int idx) {
+    Source source = DeviceFileSource(selectedViPathList[idx]);
+    play(source);
+
+    playingViIdx.value = idx;
+    playingVkIdx.value = selectedVkIdx.value;
+    playingViPathList = selectedViPathList;
+    playingVkOffset.value = vkScrollController.offset;
+  }
+
+  bool isVkselected(idx) {
+    return selectedVkIdx == idx;
+  }
+
+  bool isViPlaying(int idx) {
+    return playingViIdx.value == idx &&
+        playingVkIdx.value == selectedVkIdx.value;
+  }
+
   void scrollToPlayingVk() {
     selectedVkIdx.value = playingViIdx.value;
     // vkScrollController.value.
@@ -34,14 +66,6 @@ class AudioController extends GetxController {
     return DeviceFileSource(path);
   }
 
-  // void onVkSelected(TVoiceWorkData selectedVk) {
-  //       setSelectedVkTitle(selectedVk.title);
-  //   audioController.selectedVkIdx.value = index;
-  // }
-
-  // ================================================
-  //  player actions
-  // ================================================
   @override
   void onInit() {
     super.onInit();
