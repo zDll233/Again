@@ -10,11 +10,11 @@ class VoiceWorkPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Controller c = Get.find();
     return VoicePanel(
       title: 'VoiceWorks',
       listView: FutureVoiceWorkListView(),
-      onLocateBtnPressed: c.onLocateBtnPressed,
+      icon: const Icon(Icons.refresh),
+      onLocateBtnPressed: null,
     );
   }
 }

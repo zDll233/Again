@@ -15,12 +15,18 @@ class Controller extends GetxController {
   var playingViPathList = [].obs;
 
   var vkTitleList = [].obs;
-  var playingVkIdx = 0.obs;
+  var playingVkIdx = (-1).obs;
   var selectedVkIdx = 0.obs;
 
   var vkScrollController = ScrollController();
   var playingVkOffset = 0.0.obs;
   var latestSelectedVkOffset = 0.0.obs;
+
+  Future<void> onRefreshPressed() async {
+    // final dbFolder = await getApplicationDocumentsDirectory();
+    // final file = File(join(dbFolder.path, 'again_voiceworks.db'));
+    // await file.delete();
+  }
 
   void onLocateBtnPressed() {
     vkScrollController.animateTo(playingVkOffset.value,
@@ -43,7 +49,9 @@ class Controller extends GetxController {
     playingViIdx.value = idx;
     playingVkIdx.value = selectedVkIdx.value;
     playingViPathList = selectedViPathList;
-    playingVkOffset.value = latestSelectedVkOffset.value;
+    if (playingVkIdx != selectedVkIdx) {
+      playingVkOffset.value = latestSelectedVkOffset.value;
+    }
   }
 
   void setSelectedVkTitle(String title) {
