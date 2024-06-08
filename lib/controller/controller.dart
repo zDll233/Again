@@ -9,18 +9,17 @@ class Controller extends GetxController {
   var position = Duration.zero.obs;
 
   var selectedVkTitle = "".obs;
-  var selectedViPathList = [].obs;
+  var selectedViPathList = [];
 
   var playingViIdx = (-1).obs;
-  var playingViPathList = [].obs;
+  var playingViPathList = [];
 
-  var vkTitleList = [].obs;
-  var playingVkIdx = (-1).obs;
+  var vkTitleList = [];
+  var playingVkIdx = 0.obs;
   var selectedVkIdx = 0.obs;
 
   var vkScrollController = ScrollController();
-  var playingVkOffset = 0.0.obs;
-  var latestSelectedVkOffset = 0.0.obs;
+  var vkOffsetMap = {};
 
   Future<void> onRefreshPressed() async {
     // final dbFolder = await getApplicationDocumentsDirectory();
@@ -29,7 +28,7 @@ class Controller extends GetxController {
   }
 
   void onLocateBtnPressed() {
-    vkScrollController.animateTo(playingVkOffset.value,
+    vkScrollController.animateTo(vkOffsetMap[playingVkIdx],
         duration: const Duration(microseconds: 300), curve: Curves.bounceIn);
 
     selectedVkIdx.value = playingVkIdx.value;
@@ -39,19 +38,18 @@ class Controller extends GetxController {
   void onVkSelected(int idx) {
     setSelectedVkTitle(vkTitleList[idx]);
     selectedVkIdx.value = idx;
-    latestSelectedVkOffset.value = vkScrollController.offset;
+
+    var offset = vkScrollController.offset;
+    vkOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
   }
 
   void onViSelected(int idx) {
-    Source source = DeviceFileSource(selectedViPathList[idx]);
-    play(source);
-
     playingViIdx.value = idx;
     playingVkIdx.value = selectedVkIdx.value;
-    playingViPathList = selectedViPathList;
-    if (playingVkIdx != selectedVkIdx) {
-      playingVkOffset.value = latestSelectedVkOffset.value;
-    }
+    playingViPathList = selectedViPathList.toList();
+
+    Source source = DeviceFileSource(playingViPathList[idx]);
+    play(source);
   }
 
   void setSelectedVkTitle(String title) {
