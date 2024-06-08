@@ -10,7 +10,7 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
 
-final database = AppDatabase();
+AppDatabase database = AppDatabase();
 
 class TVoiceItem extends Table {
   TextColumn get title => text()();
