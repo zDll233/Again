@@ -23,6 +23,23 @@ class Controller extends GetxController {
   var vkScrollController = ScrollController();
   var vkOffsetMap = {};
 
+  var volume = 1.0.obs;
+  var leastVolume = 0.0;
+
+  Future<void> onMutePressed() async {
+    if (volume.value != 0) {
+      leastVolume = volume.value;
+      setVolume(0);
+    } else {
+      setVolume(leastVolume);
+    }
+  }
+
+  Future<void> setVolume(double v) async {
+    volume.value = v;
+    return player.setVolume(v);
+  }
+
   Future<void> updateDatabase() async {
     await voiceUpdater.update();
     await updateVkTitleList();

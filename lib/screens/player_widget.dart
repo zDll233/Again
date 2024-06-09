@@ -27,23 +27,67 @@ class PlayerWidget extends StatelessWidget {
               child: SizedBox(
                 height: 50,
                 width: appWidth,
-                child: Slider(
-                  onChanged: (value) {
-                    final duration = c.duration.value;
-                    if (duration == Duration.zero) {
-                      return;
-                    }
-                    final position = value * duration.inMilliseconds;
-                    player.seek(Duration(milliseconds: position.round()));
-                  },
-                  value: (c.position.value != Duration.zero &&
-                          c.duration.value != Duration.zero &&
-                          c.position.value.inMilliseconds > 0 &&
-                          c.position.value.inMilliseconds <
-                              c.duration.value.inMilliseconds)
-                      ? c.position.value.inMilliseconds /
-                          c.duration.value.inMilliseconds
-                      : 0.0,
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 1.0,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 10.0),
+                  ),
+                  child: Slider(
+                    onChanged: (value) {
+                      final duration = c.duration.value;
+                      if (duration == Duration.zero) {
+                        return;
+                      }
+                      final position = value * duration.inMilliseconds;
+                      player.seek(Duration(milliseconds: position.round()));
+                    },
+                    value: (c.position.value != Duration.zero &&
+                            c.duration.value != Duration.zero &&
+                            c.position.value.inMilliseconds > 0 &&
+                            c.position.value.inMilliseconds <
+                                c.duration.value.inMilliseconds)
+                        ? c.position.value.inMilliseconds /
+                            c.duration.value.inMilliseconds
+                        : 0.0,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              right: 10,
+              bottom: 15,
+              child: SizedBox(
+                width: 150,
+                child: Row(
+                  children: [
+                    IconButton(
+                        onPressed: c.onMutePressed,
+                        icon: c.volume.value == 0
+                            ? const Icon(Icons.volume_off)
+                            : const Icon(Icons.volume_up)),
+                    Expanded(
+                      child: SliderTheme(
+                        data: SliderTheme.of(context).copyWith(
+                          trackHeight: 1.0,
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 1.0),
+                          overlayShape: const RoundSliderOverlayShape(
+                              overlayRadius: 10.0),
+                        ),
+                        child: Slider(
+                          value: c.volume.value,
+                          min: 0.0,
+                          max: 1.0,
+                          onChanged: (double value) {
+                            c.setVolume(value);
+                          },
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
