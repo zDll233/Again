@@ -1,3 +1,5 @@
+import 'package:again/controller/voice_updater.dart';
+import 'package:again/database/database.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -14,17 +16,36 @@ class Controller extends GetxController {
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
 
-  var vkTitleList = [];
+  var vkTitleList = [].obs;
   var playingVkIdx = 0.obs;
   var selectedVkIdx = 0.obs;
 
   var vkScrollController = ScrollController();
   var vkOffsetMap = {};
 
+  Future<void> updateDatabase() async {
+    await voiceUpdater.update();
+    await updateVkTitleList();
+  }
+
+  Future<void> updateVkTitleList() async {
+    var vkDataList = await database.selectAllVoiceWorks;
+    vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+  }
+
   Future<void> onRefreshPressed() async {
-    // final dbFolder = await getApplicationDocumentsDirectory();
-    // final file = File(join(dbFolder.path, 'again_voiceworks.db'));
-    // await file.delete();
+    await database.transaction(() async {
+      // Deleting tables in reverse topological order to avoid foreign-key conflicts
+      final tables = database.allTables.toList().reversed;
+
+      for (final table in tables) {
+        await database.delete(table).go();
+      }
+    });
+
+    updateDatabase();
   }
 
   void onLocateBtnPressed() {
@@ -87,6 +108,8 @@ class Controller extends GetxController {
     player.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
+
+    updateVkTitleList();
   }
 
   Future<void> play(Source source) async {

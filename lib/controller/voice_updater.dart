@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
 
+VoiceUpdater voiceUpdater = VoiceUpdater('E:\\Media\\ACG\\音声');
+
 class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
 
@@ -14,7 +16,7 @@ class VoiceUpdater {
     return result;
   }
 
-  Future<void> initialize() async {
+  Future<void> update() async {
     await insertVoiceWorkCategories(); // categories
     await for (var collectionDir in rootDir.list()) {
       if (collectionDir is Directory) {

@@ -1,7 +1,6 @@
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controller/controller.dart';
-import 'package:again/database/database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -10,11 +9,12 @@ class VoiceWorkPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Controller c = Get.find();
     return VoicePanel(
       title: 'VoiceWorks',
       listView: FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
-      onLocateBtnPressed: null,
+      onLocateBtnPressed: c.onRefreshPressed,
     );
   }
 }
@@ -24,28 +24,25 @@ class FutureVoiceWorkListView extends StatelessWidget {
 
   final Controller c = Get.find();
 
-  Future<List<TVoiceWorkData>> fetchItems() async {
-    var vkDataList = await database.selectAllVoiceWorks;
-    c.vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
-    return vkDataList;
+  Future<List> fetchItems() async {
+    List titleList = c.vkTitleList.toList();
+    return titleList;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureListView<TVoiceWorkData>(
-      future: fetchItems(),
-      itemBuilder: (context, item, index) {
-        return Obx(() => ListTile(
-              title: Text(item.title),
-              onTap: () {
-                c.onVkSelected(index);
-              },
-              selected: c.selectedVkIdx.value == index,
-            ));
-      },
-      scrollController: c.vkScrollController,
-    );
+    return Obx(() => FutureListView(
+          future: fetchItems(),
+          itemBuilder: (context, title, index) {
+            return Obx(() => ListTile(
+                  title: Text(title),
+                  onTap: () {
+                    c.onVkSelected(index);
+                  },
+                  selected: c.selectedVkIdx.value == index,
+                ));
+          },
+          scrollController: c.vkScrollController,
+        ));
   }
 }
