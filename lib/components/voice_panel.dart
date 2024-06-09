@@ -26,6 +26,10 @@ class VoicePanel<T> extends StatelessWidget {
               Text(title),
               ElevatedButton(
                 onPressed: onLocateBtnPressed,
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: const EdgeInsets.all(15), // 控制按钮的大小
+                ),
                 child: icon,
               ),
             ],
