@@ -24,13 +24,9 @@ class VoicePanel<T> extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Text(title),
-              ElevatedButton(
+              IconButton(
                 onPressed: onLocateBtnPressed,
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(15), // 控制按钮的大小
-                ),
-                child: icon,
+                icon: icon,
               ),
             ],
           ),
