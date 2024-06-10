@@ -9,7 +9,7 @@
 
 ### TODO
 
-- [ ] 更换icon：winwindows/runner/resources/app_icon.ico
+- [x] 更换icon：winwindows/runner/resources/app_icon.ico
 
 
 ### BUG
