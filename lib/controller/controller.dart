@@ -37,7 +37,7 @@ class Controller extends GetxController {
 
   Future<void> setVolume(double v) async {
     volume.value = v;
-    return player.setVolume(v);
+    player.setVolume(v);
   }
 
   Future<void> updateDatabase() async {
