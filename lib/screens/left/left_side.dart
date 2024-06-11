@@ -8,6 +8,11 @@ class LeftSide extends StatelessWidget {
   const LeftSide({super.key});
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(width: 300, child: VoiceWorkPanel());
+    return const Row(
+      children: [
+        SizedBox(width: 200,child: Placeholder(),),
+        SizedBox(width: 300, child: VoiceWorkPanel()),
+      ],
+    );
   }
 }
