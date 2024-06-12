@@ -15,6 +15,6 @@ class _SimpleAudioPlayerState extends State<SimpleAudioPlayer> {
   @override
   Widget build(BuildContext context) {
     final Controller c = Get.find();
-    return PlayerWidget(player: c.player);
+    return PlayerWidget(player: c.audioController.player);
   }
 }
