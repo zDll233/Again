@@ -95,11 +95,29 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  Future<void> insertMultipleCvs(List<TCVCompanion> cvc) async {
+    await batch((batch) {
+      batch.insertAll(tcv, cvc, mode: InsertMode.insertOrIgnore);
+    });
+  }
+
+  Future<void> insertMultipleVoiceCvs(List<TVoiceCVCompanion> vcc) async {
+    await batch((batch) {
+      batch.insertAll(tVoiceCV, vcc, mode: InsertMode.insertOrIgnore);
+    });
+  }
+
   // select
   Future<List<TVoiceWorkData>> get selectAllVoiceWorks =>
       select(tVoiceWork).get();
+
   Future<List<TVoiceItemData>> get selectAllVoiceItems =>
       select(tVoiceItem).get();
+
+  Future<List<TCVData>> selectAllCv() async => select(tcv).get();
+
+  Future<List<TVoiceWorkCategoryData>> selectAllCategory() async =>
+      select(tVoiceWorkCategory).get();
 
   Future<List<TVoiceItemData>> selectSingleWorkVoiceItems(
       TVoiceWorkData voiceWorkData) {
@@ -122,6 +140,18 @@ class AppDatabase extends _$AppDatabase {
       innerJoin(tVoiceCV, tVoiceCV.vkTitle.equalsExp(tVoiceWork.title)),
     ])
           ..where(tVoiceCV.cvName.equals(cvName)))
+        .get();
+
+    return query.map((row) => row.readTable(tVoiceWork)).toList();
+  }
+
+  // 根据类别筛选出VoiceWork
+  Future<List<TVoiceWorkData>> selectVkWithCategory(String category) async {
+    var query = await (select(tVoiceWork).join([
+      innerJoin(tVoiceWorkCategory,
+          tVoiceWorkCategory.description.equalsExp(tVoiceWork.category)),
+    ])
+          ..where(tVoiceWork.category.equals(category)))
         .get();
 
     return query.map((row) => row.readTable(tVoiceWork)).toList();

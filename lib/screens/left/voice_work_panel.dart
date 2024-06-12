@@ -14,7 +14,7 @@ class VoiceWorkPanel extends StatelessWidget {
       title: 'VoiceWorks',
       listView: FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
-      onLocateBtnPressed: c.databaseController.onRefreshPressed,
+      onLocateBtnPressed: c.databaseController.onUpdatePressed,
     );
   }
 }

@@ -10,12 +10,6 @@ class VoiceUpdater {
 
   late Directory rootDir;
 
-  String getTitleFromPath(String path) {
-    int lastIndex = path.lastIndexOf('\\');
-    String result = lastIndex != -1 ? path.substring(lastIndex + 1) : path;
-    return result;
-  }
-
   Future<void> update() async {
     await insertVoiceWorkCategories(); // categories
     await for (var collectionDir in rootDir.list()) {
@@ -28,6 +22,12 @@ class VoiceUpdater {
         }
       }
     }
+  }
+
+  String getTitleFromPath(String path) {
+    int lastIndex = path.lastIndexOf('\\');
+    String result = lastIndex != -1 ? path.substring(lastIndex + 1) : path;
+    return result;
   }
 
   List<String> getCVList(String vkTitle) {
@@ -49,16 +49,51 @@ class VoiceUpdater {
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
     List<TVoiceWorkCompanion> vkc = [];
+    Set<String> cvNames = {};
+    List<TCVCompanion> cvc = [];
+    List<TVoiceCVCompanion> vcc = [];
+
     await for (var entity in collectionDir.list()) {
+      String vkTitle = getTitleFromPath(entity.path);
+
+      // VoiceWork
       vkc.add(TVoiceWorkCompanion(
-        title: Value(getTitleFromPath(entity.path)),
+        title: Value(vkTitle),
         diretoryPath: Value(entity.path),
         category: Value(getTitleFromPath(entity.parent.path)),
         createdAt: Value(await entity.stat().then((v) => v.changed)),
         rowid: const Value.absent(),
       ));
+
+      List<String> singleVkCvNames = getCVList(vkTitle);
+
+      // cv
+      cvNames.addAll(singleVkCvNames);
+
+      // cv vk
+      for (var cvName in singleVkCvNames) {
+        vcc.add(TVoiceCVCompanion(
+          vkTitle: Value(vkTitle),
+          cvName: Value(cvName),
+          rowid: const Value.absent(),
+        ));
+      }
     }
+
+    // VoiceWork
     await database.insertMultipleVoiceWorks(vkc);
+
+    // cv
+    for (var cvName in cvNames) {
+      cvc.add(TCVCompanion(
+        cvName: Value(cvName),
+        rowid: const Value.absent(),
+      ));
+    }
+    await database.insertMultipleCvs(cvc);
+
+    // cv vk
+    await database.insertMultipleVoiceCvs(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {

@@ -17,7 +17,7 @@ class DatabaseController extends GetxController {
       ..addAll(vkDataList.map((item) => item.title));
   }
 
-  Future<void> onRefreshPressed() async {
+  Future<void> onUpdatePressed() async {
     await database.transaction(() async {
       // Deleting tables in reverse topological order to avoid foreign-key conflicts
       final tables = database.allTables.toList().reversed;
