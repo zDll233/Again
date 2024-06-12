@@ -39,7 +39,23 @@ class TVoiceWorkCategory extends Table {
   Set<Column> get primaryKey => {description};
 }
 
-@DriftDatabase(tables: [TVoiceItem, TVoiceWork, TVoiceWorkCategory])
+class TCV extends Table {
+  TextColumn get cvName => text()();
+
+  @override
+  Set<Column> get primaryKey => {cvName};
+}
+
+class TVoiceCV extends Table {
+  TextColumn get vkTitle => text().references(TVoiceWork, #title)();
+  TextColumn get cvName => text().references(TCV, #cvName)();
+
+  @override
+  Set<Column> get primaryKey => {vkTitle, cvName};
+}
+
+@DriftDatabase(
+    tables: [TVoiceItem, TVoiceWork, TVoiceWorkCategory, TCV, TVoiceCV])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
@@ -98,6 +114,32 @@ class AppDatabase extends _$AppDatabase {
     return (select(tVoiceItem)
           ..where((voiceItem) => voiceItem.voiceWorkTitle.equals(vkTitle)))
         .get();
+  }
+
+  // 根据CV筛选出VoiceWork
+  Future<List<TVoiceWorkData>> selectVkWithCv(String cvName) async {
+    var query = await (select(tVoiceWork).join([
+      innerJoin(tVoiceCV, tVoiceCV.vkTitle.equalsExp(tVoiceWork.title)),
+    ])
+          ..where(tVoiceCV.cvName.equals(cvName)))
+        .get();
+
+    return query.map((row) => row.readTable(tVoiceWork)).toList();
+  }
+
+  // 根据CV和类别筛选出VoiceWork
+  Future<List<TVoiceWorkData>> selectVkWithCvAndCategory(
+      String cvName, String category) async {
+    var query = await (select(tVoiceWork).join([
+      innerJoin(tVoiceCV, tVoiceCV.vkTitle.equalsExp(tVoiceWork.title)),
+      innerJoin(tVoiceWorkCategory,
+          tVoiceWorkCategory.description.equalsExp(tVoiceWork.category)),
+    ])
+          ..where(tVoiceCV.cvName.equals(cvName) &
+              tVoiceWork.category.equals(category)))
+        .get();
+
+    return query.map((row) => row.readTable(tVoiceWork)).toList();
   }
 }
 

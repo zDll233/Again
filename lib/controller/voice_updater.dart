@@ -30,6 +30,12 @@ class VoiceUpdater {
     }
   }
 
+  List<String> getCVList(String vkTitle) {
+    String input = vkTitle;
+    List<String> cvList = input.split('-')[0].split('&');
+    return cvList;
+  }
+
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [];
     await for (var collectionDir in rootDir.list()) {

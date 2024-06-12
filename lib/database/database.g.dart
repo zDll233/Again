@@ -661,6 +661,344 @@ class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
   }
 }
 
+class $TCVTable extends TCV with TableInfo<$TCVTable, TCVData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TCVTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _cvNameMeta = const VerificationMeta('cvName');
+  @override
+  late final GeneratedColumn<String> cvName = GeneratedColumn<String>(
+      'cv_name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [cvName];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tcv';
+  @override
+  VerificationContext validateIntegrity(Insertable<TCVData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('cv_name')) {
+      context.handle(_cvNameMeta,
+          cvName.isAcceptableOrUnknown(data['cv_name']!, _cvNameMeta));
+    } else if (isInserting) {
+      context.missing(_cvNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {cvName};
+  @override
+  TCVData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TCVData(
+      cvName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cv_name'])!,
+    );
+  }
+
+  @override
+  $TCVTable createAlias(String alias) {
+    return $TCVTable(attachedDatabase, alias);
+  }
+}
+
+class TCVData extends DataClass implements Insertable<TCVData> {
+  final String cvName;
+  const TCVData({required this.cvName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['cv_name'] = Variable<String>(cvName);
+    return map;
+  }
+
+  TCVCompanion toCompanion(bool nullToAbsent) {
+    return TCVCompanion(
+      cvName: Value(cvName),
+    );
+  }
+
+  factory TCVData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TCVData(
+      cvName: serializer.fromJson<String>(json['cvName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'cvName': serializer.toJson<String>(cvName),
+    };
+  }
+
+  TCVData copyWith({String? cvName}) => TCVData(
+        cvName: cvName ?? this.cvName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TCVData(')
+          ..write('cvName: $cvName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => cvName.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TCVData && other.cvName == this.cvName);
+}
+
+class TCVCompanion extends UpdateCompanion<TCVData> {
+  final Value<String> cvName;
+  final Value<int> rowid;
+  const TCVCompanion({
+    this.cvName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TCVCompanion.insert({
+    required String cvName,
+    this.rowid = const Value.absent(),
+  }) : cvName = Value(cvName);
+  static Insertable<TCVData> custom({
+    Expression<String>? cvName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (cvName != null) 'cv_name': cvName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TCVCompanion copyWith({Value<String>? cvName, Value<int>? rowid}) {
+    return TCVCompanion(
+      cvName: cvName ?? this.cvName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (cvName.present) {
+      map['cv_name'] = Variable<String>(cvName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TCVCompanion(')
+          ..write('cvName: $cvName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TVoiceCVTable extends TVoiceCV
+    with TableInfo<$TVoiceCVTable, TVoiceCVData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TVoiceCVTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _vkTitleMeta =
+      const VerificationMeta('vkTitle');
+  @override
+  late final GeneratedColumn<String> vkTitle = GeneratedColumn<String>(
+      'vk_title', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES t_voice_work (title)'));
+  static const VerificationMeta _cvNameMeta = const VerificationMeta('cvName');
+  @override
+  late final GeneratedColumn<String> cvName = GeneratedColumn<String>(
+      'cv_name', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES tcv (cv_name)'));
+  @override
+  List<GeneratedColumn> get $columns => [vkTitle, cvName];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 't_voice_c_v';
+  @override
+  VerificationContext validateIntegrity(Insertable<TVoiceCVData> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('vk_title')) {
+      context.handle(_vkTitleMeta,
+          vkTitle.isAcceptableOrUnknown(data['vk_title']!, _vkTitleMeta));
+    } else if (isInserting) {
+      context.missing(_vkTitleMeta);
+    }
+    if (data.containsKey('cv_name')) {
+      context.handle(_cvNameMeta,
+          cvName.isAcceptableOrUnknown(data['cv_name']!, _cvNameMeta));
+    } else if (isInserting) {
+      context.missing(_cvNameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {vkTitle, cvName};
+  @override
+  TVoiceCVData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TVoiceCVData(
+      vkTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}vk_title'])!,
+      cvName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}cv_name'])!,
+    );
+  }
+
+  @override
+  $TVoiceCVTable createAlias(String alias) {
+    return $TVoiceCVTable(attachedDatabase, alias);
+  }
+}
+
+class TVoiceCVData extends DataClass implements Insertable<TVoiceCVData> {
+  final String vkTitle;
+  final String cvName;
+  const TVoiceCVData({required this.vkTitle, required this.cvName});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['vk_title'] = Variable<String>(vkTitle);
+    map['cv_name'] = Variable<String>(cvName);
+    return map;
+  }
+
+  TVoiceCVCompanion toCompanion(bool nullToAbsent) {
+    return TVoiceCVCompanion(
+      vkTitle: Value(vkTitle),
+      cvName: Value(cvName),
+    );
+  }
+
+  factory TVoiceCVData.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TVoiceCVData(
+      vkTitle: serializer.fromJson<String>(json['vkTitle']),
+      cvName: serializer.fromJson<String>(json['cvName']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'vkTitle': serializer.toJson<String>(vkTitle),
+      'cvName': serializer.toJson<String>(cvName),
+    };
+  }
+
+  TVoiceCVData copyWith({String? vkTitle, String? cvName}) => TVoiceCVData(
+        vkTitle: vkTitle ?? this.vkTitle,
+        cvName: cvName ?? this.cvName,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('TVoiceCVData(')
+          ..write('vkTitle: $vkTitle, ')
+          ..write('cvName: $cvName')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(vkTitle, cvName);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TVoiceCVData &&
+          other.vkTitle == this.vkTitle &&
+          other.cvName == this.cvName);
+}
+
+class TVoiceCVCompanion extends UpdateCompanion<TVoiceCVData> {
+  final Value<String> vkTitle;
+  final Value<String> cvName;
+  final Value<int> rowid;
+  const TVoiceCVCompanion({
+    this.vkTitle = const Value.absent(),
+    this.cvName = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TVoiceCVCompanion.insert({
+    required String vkTitle,
+    required String cvName,
+    this.rowid = const Value.absent(),
+  })  : vkTitle = Value(vkTitle),
+        cvName = Value(cvName);
+  static Insertable<TVoiceCVData> custom({
+    Expression<String>? vkTitle,
+    Expression<String>? cvName,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (vkTitle != null) 'vk_title': vkTitle,
+      if (cvName != null) 'cv_name': cvName,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TVoiceCVCompanion copyWith(
+      {Value<String>? vkTitle, Value<String>? cvName, Value<int>? rowid}) {
+    return TVoiceCVCompanion(
+      vkTitle: vkTitle ?? this.vkTitle,
+      cvName: cvName ?? this.cvName,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (vkTitle.present) {
+      map['vk_title'] = Variable<String>(vkTitle.value);
+    }
+    if (cvName.present) {
+      map['cv_name'] = Variable<String>(cvName.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TVoiceCVCompanion(')
+          ..write('vkTitle: $vkTitle, ')
+          ..write('cvName: $cvName, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
@@ -668,12 +1006,14 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $TVoiceWorkCategoryTable(this);
   late final $TVoiceWorkTable tVoiceWork = $TVoiceWorkTable(this);
   late final $TVoiceItemTable tVoiceItem = $TVoiceItemTable(this);
+  late final $TCVTable tcv = $TCVTable(this);
+  late final $TVoiceCVTable tVoiceCV = $TVoiceCVTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
   List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [tVoiceWorkCategory, tVoiceWork, tVoiceItem];
+      [tVoiceWorkCategory, tVoiceWork, tVoiceItem, tcv, tVoiceCV];
 }
 
 typedef $$TVoiceWorkCategoryTableInsertCompanionBuilder
@@ -893,6 +1233,19 @@ class $$TVoiceWorkTableFilterComposer
                 $state.db.tVoiceItem, joinBuilder, parentComposers)));
     return f(composer);
   }
+
+  ComposableFilter tVoiceCVRefs(
+      ComposableFilter Function($$TVoiceCVTableFilterComposer f) f) {
+    final $$TVoiceCVTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.title,
+        referencedTable: $state.db.tVoiceCV,
+        getReferencedColumn: (t) => t.vkTitle,
+        builder: (joinBuilder, parentComposers) =>
+            $$TVoiceCVTableFilterComposer(ComposerState(
+                $state.db, $state.db.tVoiceCV, joinBuilder, parentComposers)));
+    return f(composer);
+  }
 }
 
 class $$TVoiceWorkTableOrderingComposer
@@ -1053,6 +1406,215 @@ class $$TVoiceItemTableOrderingComposer
   }
 }
 
+typedef $$TCVTableInsertCompanionBuilder = TCVCompanion Function({
+  required String cvName,
+  Value<int> rowid,
+});
+typedef $$TCVTableUpdateCompanionBuilder = TCVCompanion Function({
+  Value<String> cvName,
+  Value<int> rowid,
+});
+
+class $$TCVTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TCVTable,
+    TCVData,
+    $$TCVTableFilterComposer,
+    $$TCVTableOrderingComposer,
+    $$TCVTableProcessedTableManager,
+    $$TCVTableInsertCompanionBuilder,
+    $$TCVTableUpdateCompanionBuilder> {
+  $$TCVTableTableManager(_$AppDatabase db, $TCVTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$TCVTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TCVTableOrderingComposer(ComposerState(db, table)),
+          getChildManagerBuilder: (p) => $$TCVTableProcessedTableManager(p),
+          getUpdateCompanionBuilder: ({
+            Value<String> cvName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TCVCompanion(
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          getInsertCompanionBuilder: ({
+            required String cvName,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TCVCompanion.insert(
+            cvName: cvName,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$TCVTableProcessedTableManager extends ProcessedTableManager<
+    _$AppDatabase,
+    $TCVTable,
+    TCVData,
+    $$TCVTableFilterComposer,
+    $$TCVTableOrderingComposer,
+    $$TCVTableProcessedTableManager,
+    $$TCVTableInsertCompanionBuilder,
+    $$TCVTableUpdateCompanionBuilder> {
+  $$TCVTableProcessedTableManager(super.$state);
+}
+
+class $$TCVTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TCVTable> {
+  $$TCVTableFilterComposer(super.$state);
+  ColumnFilters<String> get cvName => $state.composableBuilder(
+      column: $state.table.cvName,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ComposableFilter tVoiceCVRefs(
+      ComposableFilter Function($$TVoiceCVTableFilterComposer f) f) {
+    final $$TVoiceCVTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.cvName,
+        referencedTable: $state.db.tVoiceCV,
+        getReferencedColumn: (t) => t.cvName,
+        builder: (joinBuilder, parentComposers) =>
+            $$TVoiceCVTableFilterComposer(ComposerState(
+                $state.db, $state.db.tVoiceCV, joinBuilder, parentComposers)));
+    return f(composer);
+  }
+}
+
+class $$TCVTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TCVTable> {
+  $$TCVTableOrderingComposer(super.$state);
+  ColumnOrderings<String> get cvName => $state.composableBuilder(
+      column: $state.table.cvName,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+typedef $$TVoiceCVTableInsertCompanionBuilder = TVoiceCVCompanion Function({
+  required String vkTitle,
+  required String cvName,
+  Value<int> rowid,
+});
+typedef $$TVoiceCVTableUpdateCompanionBuilder = TVoiceCVCompanion Function({
+  Value<String> vkTitle,
+  Value<String> cvName,
+  Value<int> rowid,
+});
+
+class $$TVoiceCVTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TVoiceCVTable,
+    TVoiceCVData,
+    $$TVoiceCVTableFilterComposer,
+    $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableProcessedTableManager,
+    $$TVoiceCVTableInsertCompanionBuilder,
+    $$TVoiceCVTableUpdateCompanionBuilder> {
+  $$TVoiceCVTableTableManager(_$AppDatabase db, $TVoiceCVTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TVoiceCVTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TVoiceCVTableOrderingComposer(ComposerState(db, table)),
+          getChildManagerBuilder: (p) =>
+              $$TVoiceCVTableProcessedTableManager(p),
+          getUpdateCompanionBuilder: ({
+            Value<String> vkTitle = const Value.absent(),
+            Value<String> cvName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceCVCompanion(
+            vkTitle: vkTitle,
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          getInsertCompanionBuilder: ({
+            required String vkTitle,
+            required String cvName,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceCVCompanion.insert(
+            vkTitle: vkTitle,
+            cvName: cvName,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$TVoiceCVTableProcessedTableManager extends ProcessedTableManager<
+    _$AppDatabase,
+    $TVoiceCVTable,
+    TVoiceCVData,
+    $$TVoiceCVTableFilterComposer,
+    $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableProcessedTableManager,
+    $$TVoiceCVTableInsertCompanionBuilder,
+    $$TVoiceCVTableUpdateCompanionBuilder> {
+  $$TVoiceCVTableProcessedTableManager(super.$state);
+}
+
+class $$TVoiceCVTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $TVoiceCVTable> {
+  $$TVoiceCVTableFilterComposer(super.$state);
+  $$TVoiceWorkTableFilterComposer get vkTitle {
+    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.vkTitle,
+        referencedTable: $state.db.tVoiceWork,
+        getReferencedColumn: (t) => t.title,
+        builder: (joinBuilder, parentComposers) =>
+            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
+                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  $$TCVTableFilterComposer get cvName {
+    final $$TCVTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.cvName,
+        referencedTable: $state.db.tcv,
+        getReferencedColumn: (t) => t.cvName,
+        builder: (joinBuilder, parentComposers) => $$TCVTableFilterComposer(
+            ComposerState(
+                $state.db, $state.db.tcv, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$TVoiceCVTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $TVoiceCVTable> {
+  $$TVoiceCVTableOrderingComposer(super.$state);
+  $$TVoiceWorkTableOrderingComposer get vkTitle {
+    final $$TVoiceWorkTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.vkTitle,
+        referencedTable: $state.db.tVoiceWork,
+        getReferencedColumn: (t) => t.title,
+        builder: (joinBuilder, parentComposers) =>
+            $$TVoiceWorkTableOrderingComposer(ComposerState($state.db,
+                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+    return composer;
+  }
+
+  $$TCVTableOrderingComposer get cvName {
+    final $$TCVTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.cvName,
+        referencedTable: $state.db.tcv,
+        getReferencedColumn: (t) => t.cvName,
+        builder: (joinBuilder, parentComposers) => $$TCVTableOrderingComposer(
+            ComposerState(
+                $state.db, $state.db.tcv, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
 class _$AppDatabaseManager {
   final _$AppDatabase _db;
   _$AppDatabaseManager(this._db);
@@ -1062,4 +1624,7 @@ class _$AppDatabaseManager {
       $$TVoiceWorkTableTableManager(_db, _db.tVoiceWork);
   $$TVoiceItemTableTableManager get tVoiceItem =>
       $$TVoiceItemTableTableManager(_db, _db.tVoiceItem);
+  $$TCVTableTableManager get tcv => $$TCVTableTableManager(_db, _db.tcv);
+  $$TVoiceCVTableTableManager get tVoiceCV =>
+      $$TVoiceCVTableTableManager(_db, _db.tVoiceCV);
 }
