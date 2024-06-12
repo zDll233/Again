@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:again/controller/controller.dart';
-import 'package:again/controller/simple_audio_player.dart';
 import 'package:again/controller/voice_updater.dart';
+import 'package:again/screens/player_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Get.lazyPut(() => Controller());
+    final Controller c = Get.find();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -51,10 +52,14 @@ class MyApp extends StatelessWidget {
           seedColor: Colors.purple,
           brightness: Brightness.dark,
         )),
-        home: const Scaffold(
+        home: Scaffold(
             backgroundColor: Colors.transparent,
             body: Column(
-              children: [WindowTitleBar(), Home(), SimpleAudioPlayer()],
+              children: [
+                const WindowTitleBar(),
+                const Home(),
+                PlayerWidget(player: c.audioController.player)
+              ],
             )));
   }
 }

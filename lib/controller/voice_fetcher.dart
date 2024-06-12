@@ -1,5 +1,0 @@
-
-
-class VoiceFetcher{}
-
-class VoiceWorkFetcher{}
