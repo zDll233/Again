@@ -6,7 +6,20 @@ import 'package:get/get.dart';
 class DatabaseController extends GetxController {
   Future<void> updateDatabase() async {
     await voiceUpdater.update();
-    await updateVkTitleList();
+    await updateViewList();
+  }
+
+  Future<void> updateViewList() async {
+    var selectedCvIdx = Get.find<UIController>().selectedCvIdx.value;
+
+    if (selectedCvIdx != 0) {
+      await updateVkTitleListWithCv(
+          Get.find<UIController>().cvNames[selectedCvIdx]);
+    } else {
+      await updateVkTitleList();
+    }
+
+    await updateFilterList();
   }
 
   Future<void> updateVkTitleList() async {
@@ -14,6 +27,39 @@ class DatabaseController extends GetxController {
     Get.find<UIController>().vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
+  }
+
+  Future<void> updateVkTitleListWithCv(String cvName) async {
+    var vkDataList = await database.selectVkWithCv(cvName);
+    Get.find<UIController>().vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+  }
+
+  Future<void> updateVkTitleListWithCategory(String category) async {
+    var vkDataList = await database.selectVkWithCategory(category);
+    Get.find<UIController>().vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+  }
+
+  Future<void> updateVkTitleListWithCvAndCategory(
+      String cvName, String category) async {
+    var vkDataList = await database.selectVkWithCvAndCategory(cvName, category);
+    Get.find<UIController>().vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+  }
+
+  Future<void> updateFilterList() async {
+    var cvDataList = await database.selectAllCv();
+    var categoryDataList = await database.selectAllCategory();
+    Get.find<UIController>().cvNames
+      ..clear()
+      ..addAll(cvDataList.map((item) => item.cvName));
+    Get.find<UIController>().categories
+      ..clear()
+      ..addAll(categoryDataList.map((item) => item.description));
   }
 
   Future<void> onUpdatePressed() async {

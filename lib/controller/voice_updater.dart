@@ -37,7 +37,12 @@ class VoiceUpdater {
   }
 
   Future<void> insertVoiceWorkCategories() async {
-    List<TVoiceWorkCategoryCompanion> vkcc = [];
+    List<TVoiceWorkCategoryCompanion> vkcc = [
+      const TVoiceWorkCategoryCompanion(
+        description: Value("All"),
+        rowid: Value.absent(),
+      )
+    ];
     await for (var collectionDir in rootDir.list()) {
       vkcc.add(TVoiceWorkCategoryCompanion(
         description: Value(getTitleFromPath(collectionDir.path)),
@@ -50,7 +55,12 @@ class VoiceUpdater {
   Future<void> insertVoiceWorks(Directory collectionDir) async {
     List<TVoiceWorkCompanion> vkc = [];
     Set<String> cvNames = {};
-    List<TCVCompanion> cvc = [];
+    List<TCVCompanion> cvc = [
+      const TCVCompanion(
+        cvName: Value("All"),
+        rowid: Value.absent(),
+      )
+    ];
     List<TVoiceCVCompanion> vcc = [];
 
     await for (var entity in collectionDir.list()) {

@@ -12,6 +12,6 @@ class Controller extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    database.updateVkTitleList();
+    database.updateViewList();
   }
 }

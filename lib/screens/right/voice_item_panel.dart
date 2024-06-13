@@ -25,8 +25,7 @@ class FutureVoiceItemListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    List titleList = c.ui.selectedViTitleList.toList();
-    return titleList;
+    return c.ui.selectedViTitleList.toList();
   }
 
   @override
