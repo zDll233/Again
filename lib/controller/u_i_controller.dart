@@ -59,15 +59,16 @@ class UIController extends GetxController {
     var cate = categories[selectedCategoryIdx.value];
     var cv = cvNames[selectedCvIdx.value];
 
+    DatabaseController dbController = Get.find<DatabaseController>();
+
     if (cate == "All" && cv == "All") {
-      await Get.find<DatabaseController>().updateAllVkTitleList();
-    } else if (cate == "All" && cv != "All") {
-      await Get.find<DatabaseController>().updateVkTitleListWithCv(cv);
-    } else if (cate != "All" && cv == "All") {
-      await Get.find<DatabaseController>().updateVkTitleListWithCategory(cate);
+      await dbController.updateAllVkTitleList();
+    } else if (cate == "All") {
+      await dbController.updateVkTitleListWithCv(cv);
+    } else if (cv == "All") {
+      await dbController.updateVkTitleListWithCategory(cate);
     } else {
-      await Get.find<DatabaseController>()
-          .updateVkTitleListWithCvAndCategory(cv, cate);
+      await dbController.updateVkTitleListWithCvAndCategory(cv, cate);
     }
   }
 
@@ -126,9 +127,10 @@ class UIController extends GetxController {
   }
 
   Future<void> onViSelected(int idx) async {
+    final AudioController audioController = Get.find();
     // vi
-    Get.find<AudioController>().playingViIdx.value = idx;
-    Get.find<AudioController>().playingViPathList = selectedViPathList.toList();
+    audioController.playingViIdx.value = idx;
+    audioController.playingViPathList = selectedViPathList.toList();
     // vk
     playingVkIdx.value = selectedVkIdx.value;
     // cv
@@ -136,9 +138,8 @@ class UIController extends GetxController {
     // cate
     playingCategoryIdx.value = selectedCategoryIdx.value;
 
-    Source source =
-        DeviceFileSource(Get.find<AudioController>().playingViPathList[idx]);
-    Get.find<AudioController>().play(source);
+    Source source = DeviceFileSource(audioController.playingViPathList[idx]);
+    audioController.play(source);
   }
 
   Future<void> scrollToTop(ScrollController controller,
