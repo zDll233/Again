@@ -28,8 +28,10 @@ class UIController extends GetxController {
   var selectedCategoryIdx = 0.obs;
 
   Future<void> onRomoveFilterPressed() async {
-    selectedCvIdx.value = 0;
-    selectedCategoryIdx.value = 0;
+    // cate
+    await updateWithCategorySelected(0);
+    // cv
+    await updateWithCvSelected(0);
   }
 
   Future<void> onLocateBtnPressed() async {

@@ -9,11 +9,12 @@ class FilterPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Controller c = Get.find();
     return VoicePanel(
       title: 'Filter',
       listView: FutureFilterListView(),
       icon: const Icon(Icons.remove),
-      onLocateBtnPressed: null,
+      onLocateBtnPressed: c.ui.onRomoveFilterPressed,
     );
   }
 }
