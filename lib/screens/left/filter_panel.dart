@@ -39,16 +39,15 @@ class FutureFilterListView extends StatelessWidget {
           width: 120,
           child: Obx(() => FutureListView(
                 future: fetchcategoryItems(),
-                itemBuilder: (context, title, index) {
+                itemBuilder: (context, category, index) {
                   return Obx(() => ListTile(
-                        title: Text(title),
+                        title: Text(category),
                         onTap: () {
-                          c.ui.onCvSelected(index);
+                          c.ui.onCategorySelected(index);
                         },
-                        selected: c.ui.selectedCvIdx.value == index,
+                        selected: c.ui.selectedCategoryIdx.value == index,
                       ));
                 },
-                // scrollController: c.ui.vkScrollController,
               )),
         ),
         SizedBox(
@@ -64,7 +63,7 @@ class FutureFilterListView extends StatelessWidget {
                         selected: c.ui.selectedCvIdx.value == index,
                       ));
                 },
-                // scrollController: c.ui.vkScrollController,
+                scrollController: c.ui.cvScrollController,
               )),
         )
       ],

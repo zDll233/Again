@@ -11,23 +11,30 @@ class UIController extends GetxController {
   var selectedViPathList = [];
   var selectedViTitleList = [].obs;
 
-  var playingVkIdx = 0.obs;
-  var selectedVkIdx = 0.obs;
+  var playingVkIdx = (-1).obs;
+  var selectedVkIdx = (-1).obs;
 
   var vkScrollController = ScrollController();
+  var cvScrollController = ScrollController();
   var vkOffsetMap = {};
+  var cvOffsetMap = {};
 
   var cvNames = [].obs;
   var playingCvIdx = 0.obs;
   var selectedCvIdx = 0.obs;
 
-  var categories = [];
+  var categories = [].obs;
+  var playingCategoryIdx = 0.obs;
+  var selectedCategoryIdx = 0.obs;
 
   void onRomoveFilterPressed() {
     selectedCvIdx.value = 0;
+    selectedCategoryIdx.value = 0;
   }
 
   Future<void> onLocateBtnPressed() async {
+    // cate
+    await onCategorySelected(playingCategoryIdx.value);
     // cv
     await onCvSelected(playingCvIdx.value);
 
@@ -36,26 +43,68 @@ class UIController extends GetxController {
       // vk
       selectedVkIdx.value = playingVkIdx.value;
       updateSelectedVkTitle(vkTitleList[playingVkIdx.value]);
-      await vkScrollController.animateTo(
-        vkOffsetMap[playingVkIdx.value]!,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeIn,
-      );
+
+      if (vkOffsetMap.containsKey(playingVkIdx.value) &&
+          vkOffsetMap[playingVkIdx.value] != null) {
+        await vkScrollController.animateTo(
+          vkOffsetMap[playingVkIdx.value]!,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeIn,
+        );
+      }
+
+      if (cvOffsetMap.containsKey(playingCvIdx.value) &&
+          cvOffsetMap[playingCvIdx.value] != null) {
+        await cvScrollController.animateTo(
+          cvOffsetMap[playingCvIdx.value]!,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeIn,
+        );
+      }
     });
+  }
+
+  Future<void> updateVkTitleList() async {
+    var cate = categories[selectedCategoryIdx.value];
+    var cv = cvNames[selectedCvIdx.value];
+
+    if (cate == "All" && cv == "All") {
+      await Get.find<DatabaseController>().updateAllVkTitleList();
+    } else if (cate == "All" && cv != "All") {
+      await Get.find<DatabaseController>().updateVkTitleListWithCv(cv);
+    } else if (cate != "All" && cv == "All") {
+      await Get.find<DatabaseController>().updateVkTitleListWithCategory(cate);
+    } else {
+      await Get.find<DatabaseController>()
+          .updateVkTitleListWithCvAndCategory(cv, cate);
+    }
+  }
+
+  Future<void> onCategorySelected(int idx) async {
+    selectedCategoryIdx.value = idx;
+
+    // update vkTitleList
+    await updateVkTitleList();
+    // vk idx
+    selectedVkIdx.value = selectedCategoryIdx.value == playingCategoryIdx.value
+        ? playingVkIdx.value
+        : -1;
   }
 
   Future<void> onCvSelected(int idx) async {
     selectedCvIdx.value = idx;
 
     // update vkTitleList
-    if (idx == 0) {
-      await Get.find<DatabaseController>().updateVkTitleList();
-    } else {
-      await Get.find<DatabaseController>()
-          .updateVkTitleListWithCv(cvNames[idx]);
-    }
+    await updateVkTitleList();
+    // vk idx
     selectedVkIdx.value =
-        selectedCvIdx.value == playingCvIdx.value ? playingCvIdx.value : -1;
+        selectedCvIdx.value == playingCvIdx.value ? playingVkIdx.value : -1;
+
+    if (playingCvIdx.value != selectedCvIdx.value) {
+      var offset = cvScrollController.offset;
+      cvOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
+    }
+    // print("cvOffsetMap: ${cvOffsetMap[selectedCvIdx.value]}"); // 添加调试信息
   }
 
   void onVkSelected(int idx) {

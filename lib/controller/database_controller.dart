@@ -16,39 +16,37 @@ class DatabaseController extends GetxController {
       await updateVkTitleListWithCv(
           Get.find<UIController>().cvNames[selectedCvIdx]);
     } else {
-      await updateVkTitleList();
+      await updateAllVkTitleList();
     }
 
     await updateFilterList();
   }
 
-  Future<void> updateVkTitleList() async {
-    var vkDataList = await database.selectAllVoiceWorks;
+  void updateVkTitleList(List<TVoiceWorkData> vkDataList){
     Get.find<UIController>().vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
   }
 
+  Future<void> updateAllVkTitleList() async {
+    var vkDataList = await database.selectAllVoiceWorks;
+    updateVkTitleList(vkDataList);
+  }
+
   Future<void> updateVkTitleListWithCv(String cvName) async {
-    var vkDataList = await database.selectVkWithCv(cvName);
-    Get.find<UIController>().vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
+    var vkDataList =  await database.selectVkWithCv(cvName);
+    updateVkTitleList(vkDataList);
   }
 
   Future<void> updateVkTitleListWithCategory(String category) async {
     var vkDataList = await database.selectVkWithCategory(category);
-    Get.find<UIController>().vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
+    updateVkTitleList(vkDataList);
   }
 
   Future<void> updateVkTitleListWithCvAndCategory(
       String cvName, String category) async {
     var vkDataList = await database.selectVkWithCvAndCategory(cvName, category);
-    Get.find<UIController>().vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
+    updateVkTitleList(vkDataList);
   }
 
   Future<void> updateFilterList() async {

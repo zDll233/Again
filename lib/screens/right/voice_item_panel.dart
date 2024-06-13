@@ -10,12 +10,12 @@ class VoiceItemPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final Controller c = Get.find();
-    return VoicePanel(
-      title: 'VoiceItems',
-      listView: FutureVoiceItemListView(),
-      icon: const Icon(Icons.location_searching),
-      onLocateBtnPressed: c.ui.onLocateBtnPressed,
-    );
+    return Obx(() => VoicePanel(
+          title: 'VoiceItems(${c.ui.selectedViTitleList.length})',
+          listView: FutureVoiceItemListView(),
+          icon: const Icon(Icons.location_searching),
+          onLocateBtnPressed: c.ui.onLocateBtnPressed,
+        ));
   }
 }
 
@@ -40,8 +40,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                   c.ui.onViSelected(index);
                 },
                 selected: c.audio.playingViIdx.value == index &&
-                    c.ui.playingVkIdx.value ==
-                        c.ui.selectedVkIdx.value,
+                    c.ui.playingVkIdx.value == c.ui.selectedVkIdx.value,
               ));
         },
       ),
