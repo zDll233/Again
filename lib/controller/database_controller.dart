@@ -9,20 +9,13 @@ class DatabaseController extends GetxController {
     await updateViewList();
   }
 
+  // view: filter, vk
   Future<void> updateViewList() async {
-    var selectedCvIdx = Get.find<UIController>().selectedCvIdx.value;
-
-    if (selectedCvIdx != 0) {
-      await updateVkTitleListWithCv(
-          Get.find<UIController>().cvNames[selectedCvIdx]);
-    } else {
-      await updateAllVkTitleList();
-    }
-
-    await updateFilterList();
+    Get.find<UIController>().updateVkTitleList();
+    await updateFilterLists();
   }
 
-  void updateVkTitleList(List<TVoiceWorkData> vkDataList){
+  void updateVkTitleList(List<TVoiceWorkData> vkDataList) {
     Get.find<UIController>().vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
@@ -34,7 +27,7 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> updateVkTitleListWithCv(String cvName) async {
-    var vkDataList =  await database.selectVkWithCv(cvName);
+    var vkDataList = await database.selectVkWithCv(cvName);
     updateVkTitleList(vkDataList);
   }
 
@@ -49,15 +42,31 @@ class DatabaseController extends GetxController {
     updateVkTitleList(vkDataList);
   }
 
-  Future<void> updateFilterList() async {
+  Future<void> updateFilterLists() async {
     var cvDataList = await database.selectAllCv();
     var categoryDataList = await database.selectAllCategory();
+
     Get.find<UIController>().cvNames
       ..clear()
       ..addAll(cvDataList.map((item) => item.cvName));
+
     Get.find<UIController>().categories
       ..clear()
       ..addAll(categoryDataList.map((item) => item.description));
+  }
+
+  Future<void> updateSelectedViLists() async {
+    // selected vi path, title list
+    var viDataList = await database.selectSingleWorkVoiceItemsWithString(
+        Get.find<UIController>().selectedVkTitle.value);
+
+    Get.find<UIController>().selectedViPathList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.filePath));
+
+    Get.find<UIController>().selectedViTitleList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.title));
   }
 
   Future<void> onUpdatePressed() async {

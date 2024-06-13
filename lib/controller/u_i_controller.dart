@@ -19,11 +19,11 @@ class UIController extends GetxController {
   var vkOffsetMap = {};
   var cvOffsetMap = {};
 
-  var cvNames = [].obs;
+  var cvNames = ["All"].obs;
   var playingCvIdx = 0.obs;
   var selectedCvIdx = 0.obs;
 
-  var categories = [].obs;
+  var categories = ["All"].obs;
   var playingCategoryIdx = 0.obs;
   var selectedCategoryIdx = 0.obs;
 
@@ -139,16 +139,8 @@ class UIController extends GetxController {
     selectedVkIdx.value = seletedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
 
-    // update vi list
-    // selected vi path, title list
-    var viDataList = await database
-        .selectSingleWorkVoiceItemsWithString(selectedVkTitle.value);
-    selectedViPathList
-      ..clear()
-      ..addAll(viDataList.map((item) => item.filePath));
-    selectedViTitleList
-      ..clear()
-      ..addAll(viDataList.map((item) => item.title));
+    // update vi lists
+    Get.find<DatabaseController>().updateSelectedViLists();
   }
 
   Future<void> onViSelected(int idx) async {
@@ -159,6 +151,8 @@ class UIController extends GetxController {
     playingVkIdx.value = selectedVkIdx.value;
     // cv
     playingCvIdx.value = selectedCvIdx.value;
+    // cate
+    playingCategoryIdx.value = selectedCategoryIdx.value;
 
     Source source =
         DeviceFileSource(Get.find<AudioController>().playingViPathList[idx]);
