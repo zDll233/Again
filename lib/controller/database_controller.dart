@@ -21,7 +21,7 @@ class DatabaseController extends GetxController {
 
   Future<void> _initializeStorage() async {
     final currentDir = Directory.current;
-    String directoryPath = '../data/storage';
+    String directoryPath = 'data/storage';
     String fileName = 'settings.json';
     final filePath =
         p.normalize(p.join(currentDir.path, directoryPath, fileName));
