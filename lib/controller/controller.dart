@@ -8,10 +8,4 @@ class Controller extends GetxController {
   final audio = Get.put(AudioController());
   final database = Get.put(DatabaseController());
   final ui = Get.put(UIController());
-
-  // @override
-  // void onInit() {
-  //   super.onInit();
-  //   database.updateDatabase();
-  // }
 }
