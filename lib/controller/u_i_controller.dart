@@ -27,23 +27,21 @@ class UIController extends GetxController {
   var playingCategoryIdx = 0.obs;
   var selectedCategoryIdx = 0.obs;
 
-  void onRomoveFilterPressed() {
+  Future<void> onRomoveFilterPressed() async {
     selectedCvIdx.value = 0;
     selectedCategoryIdx.value = 0;
   }
 
   Future<void> onLocateBtnPressed() async {
     // cate
-    await onCategorySelected(playingCategoryIdx.value);
+    await updateWithCategorySelected(playingCategoryIdx.value);
     // cv
-    await onCvSelected(playingCvIdx.value);
+    await updateWithCvSelected(playingCvIdx.value);
+    // vk
+    await updateWithVkSelected(playingVkIdx.value);
 
     // 确保在当前帧结束后执行滚动操作
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // vk
-      selectedVkIdx.value = playingVkIdx.value;
-      updateSelectedVkTitle(vkTitleList[playingVkIdx.value]);
-
       if (vkOffsetMap.containsKey(playingVkIdx.value) &&
           vkOffsetMap[playingVkIdx.value] != null) {
         await vkScrollController.animateTo(
@@ -81,10 +79,16 @@ class UIController extends GetxController {
   }
 
   Future<void> onCategorySelected(int idx) async {
+    updateWithCategorySelected(idx);
+  }
+
+  Future<void> updateWithCategorySelected(int idx) async {
     selectedCategoryIdx.value = idx;
 
     // update vkTitleList
     await updateVkTitleList();
+
+    // 点击别的cate后不会有相同位置的vk显示被选中，cv中同
     // vk idx
     selectedVkIdx.value = selectedCategoryIdx.value == playingCategoryIdx.value
         ? playingVkIdx.value
@@ -92,6 +96,13 @@ class UIController extends GetxController {
   }
 
   Future<void> onCvSelected(int idx) async {
+    updateWithCvSelected(idx);
+
+    var offset = cvScrollController.offset;
+    cvOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
+  }
+
+  Future<void> updateWithCvSelected(int idx) async {
     selectedCvIdx.value = idx;
 
     // update vkTitleList
@@ -99,27 +110,37 @@ class UIController extends GetxController {
     // vk idx
     selectedVkIdx.value =
         selectedCvIdx.value == playingCvIdx.value ? playingVkIdx.value : -1;
-
-    if (playingCvIdx.value != selectedCvIdx.value) {
-      var offset = cvScrollController.offset;
-      cvOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
-    }
-    // print("cvOffsetMap: ${cvOffsetMap[selectedCvIdx.value]}"); // 添加调试信息
   }
 
-  void onVkSelected(int idx) {
-    // update selected vk title, idx
-    updateSelectedVkTitle(vkTitleList[idx]);
-    selectedVkIdx.value = idx;
+  Future<void> onVkSelected(int idx) async {
+    updateWithVkSelected(idx);
 
     // update offset
-    if (playingCvIdx.value == selectedCvIdx.value) {
+    if (playingCvIdx.value == selectedCvIdx.value &&
+        playingCategoryIdx.value == selectedCategoryIdx.value) {
       var offset = vkScrollController.offset;
       vkOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
     }
   }
 
-  void onViSelected(int idx) {
+  // update selected vk title/idx, selected Vi Path/title List
+  Future<void> updateWithVkSelected(int idx) async {
+    selectedVkIdx.value = idx;
+    selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
+
+    // update vi list
+    // selected vi path, title list
+    var viDataList = await database
+        .selectSingleWorkVoiceItemsWithString(selectedVkTitle.value);
+    selectedViPathList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.filePath));
+    selectedViTitleList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.title));
+  }
+
+  Future<void> onViSelected(int idx) async {
     // vi
     Get.find<AudioController>().playingViIdx.value = idx;
     Get.find<AudioController>().playingViPathList = selectedViPathList.toList();
@@ -131,19 +152,5 @@ class UIController extends GetxController {
     Source source =
         DeviceFileSource(Get.find<AudioController>().playingViPathList[idx]);
     Get.find<AudioController>().play(source);
-  }
-
-  void updateSelectedVkTitle(String title) async {
-    selectedVkTitle.value = title;
-
-    // selected vi path, title list
-    var viDataList = await database
-        .selectSingleWorkVoiceItemsWithString(selectedVkTitle.value);
-    selectedViPathList
-      ..clear()
-      ..addAll(viDataList.map((item) => item.filePath));
-    selectedViTitleList
-      ..clear()
-      ..addAll(viDataList.map((item) => item.title));
   }
 }
