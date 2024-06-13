@@ -32,6 +32,15 @@ class UIController extends GetxController {
     await updateWithCategorySelected(0);
     // cv
     await updateWithCvSelected(0);
+
+    // 确保在当前帧结束后执行滚动操作
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await cvScrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeIn,
+      );
+    });
   }
 
   Future<void> onLocateBtnPressed() async {
@@ -84,8 +93,8 @@ class UIController extends GetxController {
     updateWithCategorySelected(idx);
   }
 
-  Future<void> updateWithCategorySelected(int idx) async {
-    selectedCategoryIdx.value = idx;
+  Future<void> updateWithCategorySelected(int seletedIdx) async {
+    selectedCategoryIdx.value = seletedIdx;
 
     // update vkTitleList
     await updateVkTitleList();
@@ -104,8 +113,8 @@ class UIController extends GetxController {
     cvOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
   }
 
-  Future<void> updateWithCvSelected(int idx) async {
-    selectedCvIdx.value = idx;
+  Future<void> updateWithCvSelected(int seletedIdx) async {
+    selectedCvIdx.value = seletedIdx;
 
     // update vkTitleList
     await updateVkTitleList();
@@ -126,8 +135,8 @@ class UIController extends GetxController {
   }
 
   // update selected vk title/idx, selected Vi Path/title List
-  Future<void> updateWithVkSelected(int idx) async {
-    selectedVkIdx.value = idx;
+  Future<void> updateWithVkSelected(int seletedIdx) async {
+    selectedVkIdx.value = seletedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
 
     // update vi list
