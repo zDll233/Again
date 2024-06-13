@@ -117,7 +117,8 @@ class PlayerWidget extends StatelessWidget {
                   children: [
                     IconButton(
                       key: const Key('prev_button'),
-                      onPressed: c.caudio.playingViIdx >= 0 ? c.caudio.playPrev : null,
+                      onPressed:
+                          c.caudio.playingViIdx >= 0 ? c.caudio.playPrev : null,
                       iconSize: _iconSize,
                       icon: const Icon(Icons.skip_previous),
                     ),
@@ -135,7 +136,8 @@ class PlayerWidget extends StatelessWidget {
                     ),
                     IconButton(
                       key: const Key('next_button'),
-                      onPressed: c.caudio.playingViIdx >= 0 ? c.caudio.playNext : null,
+                      onPressed:
+                          c.caudio.playingViIdx >= 0 ? c.caudio.playNext : null,
                       iconSize: _iconSize,
                       icon: const Icon(Icons.skip_next),
                     ),
