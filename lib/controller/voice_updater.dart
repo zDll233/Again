@@ -3,8 +3,6 @@ import 'dart:io';
 import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
 
-VoiceUpdater voiceUpdater = VoiceUpdater('E:\\Media\\ACG\\音声');
-
 class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
 

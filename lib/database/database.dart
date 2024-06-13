@@ -178,8 +178,13 @@ LazyDatabase _openConnection() {
   return LazyDatabase(() async {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'again_voiceworks.db'));
+    final currentDir = Directory.current;
+    const directoryPath = '../data/storage';
+    const fileName = 'again_voiceworks.db';
+    final filePath =
+        p.normalize(p.join(currentDir.path, directoryPath, fileName));
+
+    final file = File(filePath);
 
     // Also work around limitations on old Android versions
     if (Platform.isAndroid) {

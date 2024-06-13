@@ -34,7 +34,8 @@ class UIController extends GetxController {
 
     // 确保在当前帧结束后执行滚动操作
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      scrollToTop(cvScrollController, duration: 200);
+      scrollToOffset(cvScrollController, 0, duration: 200);
+      scrollToOffset(vkScrollController, 0, duration: 200);
     });
   }
 
@@ -59,16 +60,16 @@ class UIController extends GetxController {
     var cate = categories[selectedCategoryIdx.value];
     var cv = cvNames[selectedCvIdx.value];
 
-    DatabaseController dbController = Get.find<DatabaseController>();
+    DatabaseController dc = Get.find<DatabaseController>();
 
     if (cate == "All" && cv == "All") {
-      await dbController.updateAllVkTitleList();
+      await dc.updateAllVkTitleList();
     } else if (cate == "All") {
-      await dbController.updateVkTitleListWithCv(cv);
+      await dc.updateVkTitleListWithCv(cv);
     } else if (cv == "All") {
-      await dbController.updateVkTitleListWithCategory(cate);
+      await dc.updateVkTitleListWithCategory(cate);
     } else {
-      await dbController.updateVkTitleListWithCvAndCategory(cv, cate);
+      await dc.updateVkTitleListWithCvAndCategory(cv, cate);
     }
   }
 
@@ -127,10 +128,10 @@ class UIController extends GetxController {
   }
 
   Future<void> onViSelected(int idx) async {
-    final AudioController audioController = Get.find();
+    final AudioController ac = Get.find();
     // vi
-    audioController.playingViIdx.value = idx;
-    audioController.playingViPathList = selectedViPathList.toList();
+    ac.playingViIdx.value = idx;
+    ac.playingViPathList = selectedViPathList.toList();
     // vk
     playingVkIdx.value = selectedVkIdx.value;
     // cv
@@ -138,17 +139,8 @@ class UIController extends GetxController {
     // cate
     playingCategoryIdx.value = selectedCategoryIdx.value;
 
-    Source source = DeviceFileSource(audioController.playingViPathList[idx]);
-    audioController.play(source);
-  }
-
-  Future<void> scrollToTop(ScrollController controller,
-      {int duration = 200}) async {
-    await controller.animateTo(
-      0,
-      duration: Duration(milliseconds: duration),
-      curve: Curves.easeIn,
-    );
+    Source source = DeviceFileSource(ac.playingViPathList[idx]);
+    ac.play(source);
   }
 
   Future<void> scrollToOffset(ScrollController controller, double? offset,

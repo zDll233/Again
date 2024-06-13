@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:again/controller/controller.dart';
-import 'package:again/controller/voice_updater.dart';
 import 'package:again/screens/player_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
@@ -19,8 +18,6 @@ void main() async {
     effect: WindowEffect.transparent,
     color: const Color(0xCC222222),
   );
-
-  await voiceUpdater.update();
 
   runApp(const MyApp());
 
