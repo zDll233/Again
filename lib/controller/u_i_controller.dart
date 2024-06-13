@@ -132,12 +132,17 @@ class UIController extends GetxController {
     // vi
     ac.playingViIdx.value = idx;
     ac.playingViPathList = selectedViPathList.toList();
-    // vk
-    playingVkIdx.value = selectedVkIdx.value;
-    // cv
-    playingCvIdx.value = selectedCvIdx.value;
-    // cate
-    playingCategoryIdx.value = selectedCategoryIdx.value;
+
+    // 不等于-1说明肯定点击了某个vk, 此时vi list变了
+    // 否则说明vi list是正在播放的list，但Filter选中的是非播放的vk
+    if (selectedVkIdx.value != -1) {
+      // vk
+      playingVkIdx.value = selectedVkIdx.value;
+      // cv
+      playingCvIdx.value = selectedCvIdx.value;
+      // cate
+      playingCategoryIdx.value = selectedCategoryIdx.value;
+    }
 
     Source source = DeviceFileSource(ac.playingViPathList[idx]);
     ac.play(source);
