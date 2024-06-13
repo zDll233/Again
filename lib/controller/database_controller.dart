@@ -35,15 +35,12 @@ class DatabaseController extends GetxController {
         ? data['vkRootDirPath']
         : 'E:\\Media\\ACG\\音声';
 
-    Directory directory = Directory(vkRootDirPath!);
-    directory.exists().then((bool exists) {
-      if (exists) {
-        voiceUpdater = VoiceUpdater(vkRootDirPath!);
-        updateDatabase();
-      } else {
-        selectDirectory();
-      }
-    });
+    if (await Directory(vkRootDirPath!).exists()) {
+      voiceUpdater = VoiceUpdater(vkRootDirPath!);
+      updateDatabase();
+    } else {
+      selectDirectory();
+    }
   }
 
   Future<void> _saverootDirPath(String path) async {

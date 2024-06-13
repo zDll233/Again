@@ -18,7 +18,9 @@ class JsonStorage {
 
   Future<void> write(Map<String, dynamic> data) async {
     final file = File(filePath);
-    await file.create(recursive: true);
+    if (!await file.exists()) {
+      await file.create(recursive: true);
+    }
     final contents = json.encode(data);
     await file.writeAsString(contents);
   }
