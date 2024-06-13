@@ -11,10 +11,10 @@ class VoiceWorkPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final Controller c = Get.find();
     return Obx(() => VoicePanel(
-          title: 'VoiceWorks(${c.cui.vkTitleList.length})',
+          title: 'VoiceWorks(${c.ui.vkTitleList.length})',
           listView: FutureVoiceWorkListView(),
           icon: const Icon(Icons.refresh),
-          onLocateBtnPressed: c.cdb.onUpdatePressed,
+          onLocateBtnPressed: c.db.onUpdatePressed,
         ));
   }
 }
@@ -25,7 +25,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    return c.cui.vkTitleList.toList();
+    return c.ui.vkTitleList.toList();
   }
 
   @override
@@ -36,12 +36,12 @@ class FutureVoiceWorkListView extends StatelessWidget {
             return Obx(() => ListTile(
                   title: Text(title),
                   onTap: () {
-                    c.cui.onVkSelected(index);
+                    c.ui.onVkSelected(index);
                   },
-                  selected: c.cui.selectedVkIdx.value == index,
+                  selected: c.ui.selectedVkIdx.value == index,
                 ));
           },
-          scrollController: c.cui.vkScrollController,
+          scrollController: c.ui.vkScrollController,
         ));
   }
 }

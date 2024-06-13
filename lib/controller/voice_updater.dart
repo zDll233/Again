@@ -51,7 +51,7 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await c.cdb.database.insertMultipleVoiceWorkCategories(vkcc);
+    await c.db.database.insertMultipleVoiceWorkCategories(vkcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
@@ -93,7 +93,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await c.cdb.database.insertMultipleVoiceWorks(vkc);
+    await c.db.database.insertMultipleVoiceWorks(vkc);
 
     // cv
     for (var cvName in cvNames) {
@@ -102,10 +102,10 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await c.cdb.database.insertMultipleCvs(cvc);
+    await c.db.database.insertMultipleCvs(cvc);
 
     // cv vk
-    await c.cdb.database.insertMultipleVoiceCvs(vcc);
+    await c.db.database.insertMultipleVoiceCvs(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
@@ -121,6 +121,6 @@ class VoiceUpdater {
         ));
       }
     }
-    await c.cdb.database.insertMultipleVoiceItems(vic);
+    await c.db.database.insertMultipleVoiceItems(vic);
   }
 }
