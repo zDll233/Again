@@ -34,11 +34,7 @@ class UIController extends GetxController {
 
     // 确保在当前帧结束后执行滚动操作
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await cvScrollController.animateTo(
-        0,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeIn,
-      );
+      scrollToTop(cvScrollController, duration: 200);
     });
   }
 
@@ -52,23 +48,10 @@ class UIController extends GetxController {
 
     // 确保在当前帧结束后执行滚动操作
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (cvOffsetMap.containsKey(playingCvIdx.value) &&
-          cvOffsetMap[playingCvIdx.value] != null) {
-        await cvScrollController.animateTo(
-          cvOffsetMap[playingCvIdx.value]!,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeIn,
-        );
-      }
-
-      if (vkOffsetMap.containsKey(playingVkIdx.value) &&
-          vkOffsetMap[playingVkIdx.value] != null) {
-        await vkScrollController.animateTo(
-          vkOffsetMap[playingVkIdx.value]!,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeIn,
-        );
-      }
+      scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
+          duration: 200);
+      scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+          duration: 200);
     });
   }
 
@@ -156,5 +139,25 @@ class UIController extends GetxController {
     Source source =
         DeviceFileSource(Get.find<AudioController>().playingViPathList[idx]);
     Get.find<AudioController>().play(source);
+  }
+
+  Future<void> scrollToTop(ScrollController controller,
+      {int duration = 200}) async {
+    await controller.animateTo(
+      0,
+      duration: Duration(milliseconds: duration),
+      curve: Curves.easeIn,
+    );
+  }
+
+  Future<void> scrollToOffset(ScrollController controller, double? offset,
+      {int duration = 200}) async {
+    if (offset != null) {
+      await controller.animateTo(
+        offset,
+        duration: Duration(milliseconds: duration),
+        curve: Curves.easeIn,
+      );
+    }
   }
 }
