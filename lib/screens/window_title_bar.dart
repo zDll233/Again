@@ -3,17 +3,19 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 
 final buttonColors = WindowButtonColors(
-    iconNormal: const Color.fromARGB(128, 255, 255, 255),
-    mouseOver: const Color(0x80F6A00C),
-    mouseDown: const Color(0x80805306),
-    iconMouseOver: const Color(0xFF805306),
-    iconMouseDown: const Color(0xFFFFD500));
+  iconNormal: const Color.fromRGBO(255, 255, 255, 0.5), // 半透明白色图标
+  mouseOver: const Color.fromRGBO(255, 255, 255, 0.1),  // 鼠标悬停时的按钮颜色，透明度 10%
+  mouseDown: const Color.fromRGBO(255, 255, 255, 0.2),  // 鼠标按下时的按钮颜色，透明度 20%
+  iconMouseOver: const Color.fromRGBO(255, 255, 255, 1.0), // 鼠标悬停时的图标颜色，纯白色
+  iconMouseDown: const Color.fromRGBO(255, 255, 255, 1.0), // 鼠标按下时的图标颜色，纯白色
+);
 
 final closeButtonColors = WindowButtonColors(
-    mouseOver: const Color(0x80D32F2F),
-    mouseDown: const Color(0x80B71C1C),
-    iconNormal: const Color.fromARGB(128, 255, 255, 255),
-    iconMouseOver: Colors.white);
+  mouseOver: const Color.fromRGBO(211, 47, 47, 0.5), // 关闭按钮鼠标悬停时的颜色，透明度 50%
+  mouseDown: const Color.fromRGBO(183, 28, 28, 0.5), // 关闭按钮鼠标按下时的颜色，透明度 50%
+  iconNormal: const Color.fromRGBO(255, 255, 255, 0.5), // 半透明白色图标
+  iconMouseOver: const Color.fromRGBO(255, 255, 255, 1.0), // 鼠标悬停时的图标颜色，纯白色
+);
 
 class WindowButtons extends StatelessWidget {
   const WindowButtons({super.key});
