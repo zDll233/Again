@@ -11,8 +11,8 @@ class DatabaseController extends GetxController {
 
   // view: filter, vk
   Future<void> updateViewList() async {
-    Get.find<UIController>().updateVkTitleList();
     await updateFilterLists();
+    Get.find<UIController>().updateVkTitleList();
   }
 
   void updateVkTitleList(List<TVoiceWorkData> vkDataList) {
