@@ -52,19 +52,19 @@ class UIController extends GetxController {
 
     // 确保在当前帧结束后执行滚动操作
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (vkOffsetMap.containsKey(playingVkIdx.value) &&
-          vkOffsetMap[playingVkIdx.value] != null) {
-        await vkScrollController.animateTo(
-          vkOffsetMap[playingVkIdx.value]!,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeIn,
-        );
-      }
-
       if (cvOffsetMap.containsKey(playingCvIdx.value) &&
           cvOffsetMap[playingCvIdx.value] != null) {
         await cvScrollController.animateTo(
           cvOffsetMap[playingCvIdx.value]!,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeIn,
+        );
+      }
+
+      if (vkOffsetMap.containsKey(playingVkIdx.value) &&
+          vkOffsetMap[playingVkIdx.value] != null) {
+        await vkScrollController.animateTo(
+          vkOffsetMap[playingVkIdx.value]!,
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeIn,
         );
