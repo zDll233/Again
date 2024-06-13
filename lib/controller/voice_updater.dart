@@ -1,12 +1,16 @@
 import 'dart:io';
 
+import 'package:again/controller/controller.dart';
 import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 
 class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
 
   late Directory rootDir;
+  final Controller c = Get.find();
 
   Future<void> update() async {
     await insertVoiceWorkCategories(); // categories
@@ -47,7 +51,7 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await database.insertMultipleVoiceWorkCategories(vkcc);
+    await c.cdb.database.insertMultipleVoiceWorkCategories(vkcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
@@ -89,7 +93,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await database.insertMultipleVoiceWorks(vkc);
+    await c.cdb.database.insertMultipleVoiceWorks(vkc);
 
     // cv
     for (var cvName in cvNames) {
@@ -98,10 +102,10 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await database.insertMultipleCvs(cvc);
+    await c.cdb.database.insertMultipleCvs(cvc);
 
     // cv vk
-    await database.insertMultipleVoiceCvs(vcc);
+    await c.cdb.database.insertMultipleVoiceCvs(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
@@ -117,6 +121,6 @@ class VoiceUpdater {
         ));
       }
     }
-    await database.insertMultipleVoiceItems(vic);
+    await c.cdb.database.insertMultipleVoiceItems(vic);
   }
 }

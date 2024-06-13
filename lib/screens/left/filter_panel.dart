@@ -14,7 +14,7 @@ class FilterPanel extends StatelessWidget {
       title: 'Filter',
       listView: FutureFilterListView(),
       icon: const Icon(Icons.remove),
-      onLocateBtnPressed: c.ui.onRomoveFilterPressed,
+      onLocateBtnPressed: c.cui.onRomoveFilterPressed,
     );
   }
 }
@@ -25,11 +25,11 @@ class FutureFilterListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchcategoryItems() async {
-    return c.ui.categories.toList();
+    return c.cui.categories.toList();
   }
 
   Future<List> fetchCvItems() async {
-    return c.ui.cvNames.toList();
+    return c.cui.cvNames.toList();
   }
 
   @override
@@ -44,9 +44,9 @@ class FutureFilterListView extends StatelessWidget {
                   return Obx(() => ListTile(
                         title: Text(category),
                         onTap: () {
-                          c.ui.onCategorySelected(index);
+                          c.cui.onCategorySelected(index);
                         },
-                        selected: c.ui.selectedCategoryIdx.value == index,
+                        selected: c.cui.selectedCategoryIdx.value == index,
                       ));
                 },
               )),
@@ -59,12 +59,12 @@ class FutureFilterListView extends StatelessWidget {
                   return Obx(() => ListTile(
                         title: Text(title),
                         onTap: () {
-                          c.ui.onCvSelected(index);
+                          c.cui.onCvSelected(index);
                         },
-                        selected: c.ui.selectedCvIdx.value == index,
+                        selected: c.cui.selectedCvIdx.value == index,
                       ));
                 },
-                scrollController: c.ui.cvScrollController,
+                scrollController: c.cui.cvScrollController,
               )),
         )
       ],

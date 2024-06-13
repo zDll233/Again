@@ -9,9 +9,12 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 class DatabaseController extends GetxController {
+  AppDatabase database = AppDatabase();
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
   late JsonStorage storage;
+  final currentDir = Directory.current;
+  final directoryPath = 'data/storage';
 
   @override
   void onInit() {
@@ -20,9 +23,7 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> _initializeStorage() async {
-    final currentDir = Directory.current;
-    String directoryPath = 'data/storage';
-    String fileName = 'settings.json';
+    const fileName = 'settings.json';
     final filePath =
         p.normalize(p.join(currentDir.path, directoryPath, fileName));
     storage = JsonStorage(filePath: filePath);

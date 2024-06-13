@@ -37,20 +37,20 @@ class PlayerWidget extends StatelessWidget {
                   ),
                   child: Slider(
                     onChanged: (value) {
-                      final duration = c.audio.duration.value;
+                      final duration = c.caudio.duration.value;
                       if (duration == Duration.zero) {
                         return;
                       }
                       final position = value * duration.inMilliseconds;
                       player.seek(Duration(milliseconds: position.round()));
                     },
-                    value: (c.audio.position.value != Duration.zero &&
-                            c.audio.duration.value != Duration.zero &&
-                            c.audio.position.value.inMilliseconds > 0 &&
-                            c.audio.position.value.inMilliseconds <
-                                c.audio.duration.value.inMilliseconds)
-                        ? c.audio.position.value.inMilliseconds /
-                            c.audio.duration.value.inMilliseconds
+                    value: (c.caudio.position.value != Duration.zero &&
+                            c.caudio.duration.value != Duration.zero &&
+                            c.caudio.position.value.inMilliseconds > 0 &&
+                            c.caudio.position.value.inMilliseconds <
+                                c.caudio.duration.value.inMilliseconds)
+                        ? c.caudio.position.value.inMilliseconds /
+                            c.caudio.duration.value.inMilliseconds
                         : 0.0,
                   ),
                 ),
@@ -64,8 +64,8 @@ class PlayerWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                        onPressed: c.audio.onMutePressed,
-                        icon: c.audio.volume.value == 0
+                        onPressed: c.caudio.onMutePressed,
+                        icon: c.caudio.volume.value == 0
                             ? const Icon(Icons.volume_off)
                             : const Icon(Icons.volume_up)),
                     Expanded(
@@ -78,11 +78,11 @@ class PlayerWidget extends StatelessWidget {
                               overlayRadius: 10.0),
                         ),
                         child: Slider(
-                          value: c.audio.volume.value,
+                          value: c.caudio.volume.value,
                           min: 0.0,
                           max: 1.0,
                           onChanged: (double value) {
-                            c.audio.setVolume(value);
+                            c.caudio.setVolume(value);
                           },
                         ),
                       ),
@@ -97,10 +97,10 @@ class PlayerWidget extends StatelessWidget {
               child: Align(
                 alignment: Alignment.center,
                 child: Text(
-                  c.audio.position.value != Duration.zero
-                      ? '${c.audio.position.value.toString().split('.').first} /${c.audio.duration.value.toString().split('.').first}'
-                      : c.audio.duration.value != Duration.zero
-                          ? c.audio.duration.value.toString().split('.').first
+                  c.caudio.position.value != Duration.zero
+                      ? '${c.caudio.position.value.toString().split('.').first} /${c.caudio.duration.value.toString().split('.').first}'
+                      : c.caudio.duration.value != Duration.zero
+                          ? c.caudio.duration.value.toString().split('.').first
                           : '',
                   style: const TextStyle(fontSize: 16.0),
                 ),
@@ -117,25 +117,25 @@ class PlayerWidget extends StatelessWidget {
                   children: [
                     IconButton(
                       key: const Key('prev_button'),
-                      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playPrev : null,
+                      onPressed: c.caudio.playingViIdx >= 0 ? c.caudio.playPrev : null,
                       iconSize: _iconSize,
                       icon: const Icon(Icons.skip_previous),
                     ),
                     IconButton(
                       key: const Key('play_pause_button'),
-                      onPressed: c.audio.playingViIdx >= 0
-                          ? c.audio.playerState.value == PlayerState.playing
-                              ? c.audio.pause
-                              : c.audio.resume
+                      onPressed: c.caudio.playingViIdx >= 0
+                          ? c.caudio.playerState.value == PlayerState.playing
+                              ? c.caudio.pause
+                              : c.caudio.resume
                           : null,
                       iconSize: _iconSize,
-                      icon: c.audio.playerState.value == PlayerState.playing
+                      icon: c.caudio.playerState.value == PlayerState.playing
                           ? const Icon(Icons.pause)
                           : const Icon(Icons.play_arrow),
                     ),
                     IconButton(
                       key: const Key('next_button'),
-                      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
+                      onPressed: c.caudio.playingViIdx >= 0 ? c.caudio.playNext : null,
                       iconSize: _iconSize,
                       icon: const Icon(Icons.skip_next),
                     ),
