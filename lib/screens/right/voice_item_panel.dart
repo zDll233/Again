@@ -14,7 +14,7 @@ class VoiceItemPanel extends StatelessWidget {
       title: 'VoiceItems',
       listView: FutureVoiceItemListView(),
       icon: const Icon(Icons.location_searching),
-      onLocateBtnPressed: c.uiController.onLocateBtnPressed,
+      onLocateBtnPressed: c.ui.onLocateBtnPressed,
     );
   }
 }
@@ -25,7 +25,7 @@ class FutureVoiceItemListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    List titleList = c.uiController.selectedViTitleList.toList();
+    List titleList = c.ui.selectedViTitleList.toList();
     return titleList;
   }
 
@@ -38,11 +38,11 @@ class FutureVoiceItemListView extends StatelessWidget {
           return Obx(() => ListTile(
                 title: Text(title),
                 onTap: () {
-                  c.uiController.onViSelected(index);
+                  c.ui.onViSelected(index);
                 },
-                selected: c.audioController.playingViIdx.value == index &&
-                    c.uiController.playingVkIdx.value ==
-                        c.uiController.selectedVkIdx.value,
+                selected: c.audio.playingViIdx.value == index &&
+                    c.ui.playingVkIdx.value ==
+                        c.ui.selectedVkIdx.value,
               ));
         },
       ),

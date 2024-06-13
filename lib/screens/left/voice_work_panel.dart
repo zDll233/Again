@@ -14,7 +14,7 @@ class VoiceWorkPanel extends StatelessWidget {
       title: 'VoiceWorks',
       listView: FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
-      onLocateBtnPressed: c.databaseController.onUpdatePressed,
+      onLocateBtnPressed: c.database.onUpdatePressed,
     );
   }
 }
@@ -25,7 +25,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    List titleList = c.uiController.vkTitleList.toList();
+    List titleList = c.ui.vkTitleList.toList();
     return titleList;
   }
 
@@ -37,12 +37,12 @@ class FutureVoiceWorkListView extends StatelessWidget {
             return Obx(() => ListTile(
                   title: Text(title),
                   onTap: () {
-                    c.uiController.onVkSelected(index);
+                    c.ui.onVkSelected(index);
                   },
-                  selected: c.uiController.selectedVkIdx.value == index,
+                  selected: c.ui.selectedVkIdx.value == index,
                 ));
           },
-          scrollController: c.uiController.vkScrollController,
+          scrollController: c.ui.vkScrollController,
         ));
   }
 }
