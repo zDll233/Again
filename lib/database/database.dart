@@ -179,7 +179,7 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
     final currentDir = Directory.current;
-    const directoryPath = '../data/storage';
+    const directoryPath = 'data/storage';
     const fileName = 'again_voiceworks.db';
     final filePath =
         p.normalize(p.join(currentDir.path, directoryPath, fileName));
