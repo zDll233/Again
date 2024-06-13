@@ -26,6 +26,10 @@ class UIController extends GetxController {
   var playingCategoryIdx = 0.obs;
   var selectedCategoryIdx = 0.obs;
 
+  var latestCategoryIdx = -1;
+  var latestCvIdx = -1;
+  var latestVkIdx = -1;
+
   Future<void> onRomoveFilterPressed() async {
     // cate
     await updateWithCategorySelected(0);
@@ -110,6 +114,10 @@ class UIController extends GetxController {
   Future<void> onVkSelected(int idx) async {
     updateWithVkSelected(idx);
 
+    latestCategoryIdx = selectedCategoryIdx.value;
+    latestCvIdx = selectedCvIdx.value;
+    latestVkIdx = selectedVkIdx.value;
+
     // update offset
     if (playingCvIdx.value == selectedCvIdx.value &&
         playingCategoryIdx.value == selectedCategoryIdx.value) {
@@ -134,7 +142,7 @@ class UIController extends GetxController {
     ac.playingViPathList = selectedViPathList.toList();
 
     // 不等于-1说明肯定点击了某个vk, 此时vi list变了
-    // 否则说明vi list是正在播放的list，但Filter选中的是非播放的vk
+    // 等于-1说明点击了Filter，且Filter对应非正在播放的vk, vi list是 *上次点击vk* 时list，这时候playing vk, filter都不能更新
     if (selectedVkIdx.value != -1) {
       // vk
       playingVkIdx.value = selectedVkIdx.value;
@@ -142,6 +150,10 @@ class UIController extends GetxController {
       playingCvIdx.value = selectedCvIdx.value;
       // cate
       playingCategoryIdx.value = selectedCategoryIdx.value;
+    } else {
+      playingVkIdx.value = latestVkIdx;
+      playingCvIdx.value = latestCvIdx;
+      playingCategoryIdx.value = latestCategoryIdx;
     }
 
     Source source = DeviceFileSource(ac.playingViPathList[idx]);
