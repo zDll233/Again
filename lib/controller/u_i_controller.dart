@@ -1,12 +1,14 @@
 import 'package:again/controller/audio_controller.dart';
-import 'package:again/controller/database_controller.dart';
+import 'package:again/database/database.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class UIController extends GetxController {
+  var vkTitleList = [].obs;
   var selectedVkTitle = "".obs;
   var selectedViPathList = [];
+  var selectedViTitleList = [].obs;
 
   var playingVkIdx = 0.obs;
   var selectedVkIdx = 0.obs;
@@ -19,14 +21,15 @@ class UIController extends GetxController {
         duration: const Duration(microseconds: 300), curve: Curves.bounceIn);
 
     selectedVkIdx.value = playingVkIdx.value;
-    setSelectedVkTitle(
-        Get.find<DatabaseController>().vkTitleList[playingVkIdx.value]);
+    updateSelectedVkTitle(vkTitleList[playingVkIdx.value]);
   }
 
   void onVkSelected(int idx) {
-    setSelectedVkTitle(Get.find<DatabaseController>().vkTitleList[idx]);
+    // update selected vk title, idx
+    updateSelectedVkTitle(vkTitleList[idx]);
     selectedVkIdx.value = idx;
 
+    // update offset
     var offset = vkScrollController.offset;
     vkOffsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
   }
@@ -41,7 +44,17 @@ class UIController extends GetxController {
     Get.find<AudioController>().play(source);
   }
 
-  void setSelectedVkTitle(String title) {
+  void updateSelectedVkTitle(String title) async {
     selectedVkTitle.value = title;
+
+    // selected vi path, title list
+    var viDataList = await database
+        .selectSingleWorkVoiceItemsWithString(selectedVkTitle.value);
+    selectedViPathList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.filePath));
+    selectedViTitleList
+      ..clear()
+      ..addAll(viDataList.map((item) => item.title));
   }
 }

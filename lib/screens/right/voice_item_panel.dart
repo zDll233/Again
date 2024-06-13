@@ -1,7 +1,6 @@
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controller/controller.dart';
-import 'package:again/database/database.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -25,23 +24,19 @@ class FutureVoiceItemListView extends StatelessWidget {
 
   final Controller c = Get.find();
 
-  Future<List<TVoiceItemData>> fetchItems() async {
-    var viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        c.uiController.selectedVkTitle.value);
-    c.uiController.selectedViPathList
-      ..clear()
-      ..addAll(viDataList.map((item) => item.filePath));
-    return viDataList;
+  Future<List> fetchItems() async {
+    List titleList = c.uiController.selectedViTitleList.toList();
+    return titleList;
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => FutureListView<TVoiceItemData>(
+      () => FutureListView(
         future: fetchItems(),
-        itemBuilder: (context, item, index) {
+        itemBuilder: (context, title, index) {
           return Obx(() => ListTile(
-                title: Text(item.title),
+                title: Text(title),
                 onTap: () {
                   c.uiController.onViSelected(index);
                 },

@@ -1,10 +1,9 @@
+import 'package:again/controller/u_i_controller.dart';
 import 'package:again/controller/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:get/get.dart';
 
 class DatabaseController extends GetxController {
-  var vkTitleList = [].obs;
-
   Future<void> updateDatabase() async {
     await voiceUpdater.update();
     await updateVkTitleList();
@@ -12,7 +11,7 @@ class DatabaseController extends GetxController {
 
   Future<void> updateVkTitleList() async {
     var vkDataList = await database.selectAllVoiceWorks;
-    vkTitleList
+    Get.find<UIController>().vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
   }
