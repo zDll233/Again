@@ -110,9 +110,18 @@ class VoiceUpdater {
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
     List<TVoiceItemCompanion> vic = [];
+    const List<String> audioExtensions = [
+      '.mp3',
+      '.wav',
+      '.aac',
+      '.flac',
+      '.ogg',
+    ];
+
     await for (var entity in voiceWorkDir.list(recursive: true)) {
       if (entity is File &&
-          (entity.path.endsWith('wav') || entity.path.endsWith('mp3'))) {
+          audioExtensions
+              .any((ext) => entity.path.endsWith(ext))) {
         vic.add(TVoiceItemCompanion(
           title: Value(getTitleFromPath(entity.path)),
           filePath: Value(entity.path),
