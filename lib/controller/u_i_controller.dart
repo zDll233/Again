@@ -55,7 +55,7 @@ class UIController extends GetxController {
 
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
-    _setPlayingSelection();
+    await _setPlayingSelection();
     _scrollToPlayingOffsets();
   }
 
@@ -150,9 +150,9 @@ class UIController extends GetxController {
 
   void _scrollToPlayingOffsets() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
+      scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
           duration: 200);
-      await scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+      scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
           duration: 200);
     });
   }
