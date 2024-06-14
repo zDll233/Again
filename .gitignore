@@ -42,5 +42,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# data folder used for db and json
+# data folder used for this runable
 /data
