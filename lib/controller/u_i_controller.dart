@@ -21,7 +21,7 @@ class UIController extends GetxController {
   var vkScrollController = ScrollController();
   var cvScrollController = ScrollController();
   var vkOffsetMap = {};
-  var cvOffsetMap = {};
+  var cvOffsetMap = {0: 0.0};
 
   var cvNames = ["All"].obs;
   var playingCvIdx = 0.obs;
