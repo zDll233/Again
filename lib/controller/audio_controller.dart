@@ -1,6 +1,6 @@
-import 'package:again/controller/controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 class AudioController extends GetxController {
   late AudioPlayer player;
@@ -13,7 +13,7 @@ class AudioController extends GetxController {
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
 
-  final Controller c = Get.find();
+  final Logger logger = Logger();
 
   @override
   void onInit() {
@@ -50,7 +50,7 @@ class AudioController extends GetxController {
       await player.resume();
       playerState.value = PlayerState.playing;
     } catch (e) {
-      c.logger.e('Error playing audio: $e');
+      logger.e('Error playing audio: $e');
     }
   }
 
@@ -77,7 +77,7 @@ class AudioController extends GetxController {
       await player.resume();
       playerState.value = PlayerState.playing;
     } catch (e) {
-      c.logger.e('Error resuming audio: $e');
+      logger.e('Error resuming audio: $e');
     }
   }
 
@@ -86,7 +86,7 @@ class AudioController extends GetxController {
       await player.pause();
       playerState.value = PlayerState.paused;
     } catch (e) {
-      c.logger.e('Error pausing audio: $e');
+      logger.e('Error pausing audio: $e');
     }
   }
 
@@ -100,7 +100,7 @@ class AudioController extends GetxController {
       playerState.value = PlayerState.stopped;
       position.value = Duration.zero;
     } catch (e) {
-      c.logger.e('Error stopping audio: $e');
+      logger.e('Error stopping audio: $e');
     }
   }
 
