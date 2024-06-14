@@ -32,7 +32,8 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(BuildContext context, Controller c, double appWidth) {
+  Widget _buildProgressBar(
+      BuildContext context, Controller c, double appWidth) {
     return Positioned(
       top: 5,
       child: SizedBox(
@@ -63,7 +64,8 @@ class PlayerWidget extends StatelessWidget {
     if (c.audio.position.value != Duration.zero &&
         c.audio.duration.value != Duration.zero &&
         c.audio.position.value.inMilliseconds > 0 &&
-        c.audio.position.value.inMilliseconds < c.audio.duration.value.inMilliseconds) {
+        c.audio.position.value.inMilliseconds <
+            c.audio.duration.value.inMilliseconds) {
       return c.audio.position.value.inMilliseconds /
           c.audio.duration.value.inMilliseconds;
     } else {
@@ -89,8 +91,10 @@ class PlayerWidget extends StatelessWidget {
               child: SliderTheme(
                 data: SliderTheme.of(context).copyWith(
                   trackHeight: 1.0,
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 1.0),
-                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 10.0),
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 1.0),
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 10.0),
                 ),
                 child: Slider(
                   value: c.audio.volume.value,
@@ -184,4 +188,3 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 }
-

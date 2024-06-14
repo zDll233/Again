@@ -10,5 +10,5 @@ class Controller extends GetxController {
   final db = Get.put(DatabaseController());
   final ui = Get.put(UIController());
 
- final Logger logger = Logger();
+  final Logger logger = Logger();
 }

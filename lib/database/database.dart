@@ -182,8 +182,8 @@ LazyDatabase _openConnection() {
 
     final Controller c = Get.find();
     const fileName = 'again_voiceworks.db';
-    final filePath = p.normalize(
-        p.join(c.db.currentDir.path, c.db.directoryPath, fileName));
+    final filePath =
+        p.normalize(p.join(c.db.currentDir.path, c.db.directoryPath, fileName));
 
     final file = File(filePath);
 
