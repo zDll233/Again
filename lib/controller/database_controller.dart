@@ -13,8 +13,6 @@ class DatabaseController extends GetxController {
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
   late JsonStorage storage;
-  final Directory currentDir = Directory.current;
-  final String directoryPath = 'data/storage';
 
   var vkDataList = [];
 
@@ -25,9 +23,9 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> _initializeStorage() async {
+    const String directoryPath = 'config';
     const fileName = 'settings.json';
-    final filePath =
-        p.normalize(p.join(currentDir.path, directoryPath, fileName));
+    final filePath = p.join(directoryPath, fileName);
     storage = JsonStorage(filePath: filePath);
     await _loadRootDirPath();
   }
@@ -87,7 +85,7 @@ class DatabaseController extends GetxController {
     return numA.compareTo(numB);
   }
 
-  void updateVkTitleList() {
+  void updateSortedVkTitleList() {
     final uiController = Get.find<UIController>();
     switch (uiController.sortOrder.value) {
       case SortOrder.byTitle:
@@ -106,23 +104,23 @@ class DatabaseController extends GetxController {
 
   Future<void> updateAllVkTitleList() async {
     vkDataList = await database.selectAllVoiceWorks;
-    updateVkTitleList();
+    updateSortedVkTitleList();
   }
 
   Future<void> updateVkTitleListWithCv(String cvName) async {
     vkDataList = await database.selectVkWithCv(cvName);
-    updateVkTitleList();
+    updateSortedVkTitleList();
   }
 
   Future<void> updateVkTitleListWithCategory(String category) async {
     vkDataList = await database.selectVkWithCategory(category);
-    updateVkTitleList();
+    updateSortedVkTitleList();
   }
 
   Future<void> updateVkTitleListWithCvAndCategory(
       String cvName, String category) async {
     vkDataList = await database.selectVkWithCvAndCategory(cvName, category);
-    updateVkTitleList();
+    updateSortedVkTitleList();
   }
 
   Future<void> updateFilterLists() async {

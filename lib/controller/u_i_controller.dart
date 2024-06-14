@@ -50,7 +50,8 @@ class UIController extends GetxController {
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
 
-    Get.find<DatabaseController>().updateVkTitleList();
+    Get.find<DatabaseController>().updateSortedVkTitleList();
+    _updateSelectedVkIdx();
   }
 
   /// Locates the playing item by updating the selection and scrolling to it.
@@ -158,8 +159,11 @@ class UIController extends GetxController {
   }
 
   void _updateSelectedVkIdx() {
-    selectedVkIdx.value =
-        selectedCvIdx.value == playingCvIdx.value ? playingVkIdx.value : -1;
+    selectedVkIdx.value = selectedCvIdx.value == playingCvIdx.value &&
+            selectedCategoryIdx.value == playingCategoryIdx.value &&
+            sortOrder.value == playingSortOrder
+        ? playingVkIdx.value
+        : -1;
   }
 
   void _updateOffset(

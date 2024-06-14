@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:audioplayers/audioplayers.dart';
+import 'package:path/path.dart' as p;
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
@@ -13,10 +16,10 @@ class AudioController extends GetxController {
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
 
-  final Logger logger = Logger();
+  late final Logger _logger;
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     player = AudioPlayer();
     player.setReleaseMode(ReleaseMode.stop);
@@ -41,6 +44,17 @@ class AudioController extends GetxController {
     player.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
+
+    // init logger
+    final String logPath = p.join('debug', 'audio.log');
+    final File logFile = File(logPath);
+    if (!await logFile.exists()) {
+      await logFile.create(recursive: true);
+    }
+    _logger = Logger(
+        printer: PrettyPrinter(methodCount: 2, colors: false, printTime: true),
+        level: Level.error,
+        output: FileOutput(file: logFile));
   }
 
   Future<void> play(Source source) async {
@@ -50,7 +64,7 @@ class AudioController extends GetxController {
       await player.resume();
       playerState.value = PlayerState.playing;
     } catch (e) {
-      logger.e('Error playing audio: $e');
+      _logger.e('Error playing audio: $e');
     }
   }
 
@@ -77,7 +91,7 @@ class AudioController extends GetxController {
       await player.resume();
       playerState.value = PlayerState.playing;
     } catch (e) {
-      logger.e('Error resuming audio: $e');
+      _logger.e('Error resuming audio: $e');
     }
   }
 
@@ -86,7 +100,7 @@ class AudioController extends GetxController {
       await player.pause();
       playerState.value = PlayerState.paused;
     } catch (e) {
-      logger.e('Error pausing audio: $e');
+      _logger.e('Error pausing audio: $e');
     }
   }
 
@@ -100,7 +114,7 @@ class AudioController extends GetxController {
       playerState.value = PlayerState.stopped;
       position.value = Duration.zero;
     } catch (e) {
-      logger.e('Error stopping audio: $e');
+      _logger.e('Error stopping audio: $e');
     }
   }
 

@@ -1,11 +1,8 @@
-import 'package:again/controller/controller.dart';
 import 'package:drift/drift.dart';
 
 // These additional imports are necessary to open the sqlite3 database
 import 'dart:io';
 import 'package:drift/native.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
@@ -180,10 +177,9 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
 
-    final Controller c = Get.find();
+    const directoryPath = 'data/storage';
     const fileName = 'again_voiceworks.db';
-    final filePath =
-        p.normalize(p.join(c.db.currentDir.path, c.db.directoryPath, fileName));
+    final filePath = p.join(directoryPath, fileName);
 
     final file = File(filePath);
 
