@@ -23,7 +23,7 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> _initializeStorage() async {
-    const String directoryPath = 'config';
+    const directoryPath = 'config';
     const fileName = 'settings.json';
     final filePath = p.join(directoryPath, fileName);
     storage = JsonStorage(filePath: filePath);
