@@ -1,6 +1,7 @@
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controller/controller.dart';
+import 'package:again/controller/u_i_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -11,10 +12,12 @@ class VoiceWorkPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final Controller c = Get.find();
     return Obx(() => VoicePanel(
-          title: 'VoiceWorks(${c.ui.vkTitleList.length})',
+          title:
+              'VoiceWorks(${c.ui.vkTitleList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
           listView: FutureVoiceWorkListView(),
           icon: const Icon(Icons.refresh),
-          onLocateBtnPressed: c.db.onUpdatePressed,
+          onIconBtnPressed: c.db.onUpdatePressed,
+          onTextBtnPressed: c.ui.onSortOrderPressed,
         ));
   }
 }

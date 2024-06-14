@@ -14,7 +14,7 @@ class VoiceItemPanel extends StatelessWidget {
           title: 'VoiceItems(${c.ui.selectedViTitleList.length})',
           listView: FutureVoiceItemListView(),
           icon: const Icon(Icons.location_searching),
-          onLocateBtnPressed: c.ui.onLocateBtnPressed,
+          onIconBtnPressed: c.ui.onLocateBtnPressed,
         ));
   }
 }

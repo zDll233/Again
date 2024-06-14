@@ -4,6 +4,11 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+enum SortOrder {
+  byTitle,
+  byCreatedAt,
+}
+
 class UIController extends GetxController {
   var vkTitleList = [].obs;
   var selectedVkTitle = "".obs;
@@ -30,6 +35,8 @@ class UIController extends GetxController {
   var latestCvIdx = -1;
   var latestVkIdx = -1;
 
+  var sortOrder = SortOrder.byTitle.obs;
+
   Future<void> onRomoveFilterPressed() async {
     // cate
     await updateWithCategorySelected(0);
@@ -41,6 +48,14 @@ class UIController extends GetxController {
       scrollToOffset(cvScrollController, 0, duration: 200);
       scrollToOffset(vkScrollController, 0, duration: 200);
     });
+  }
+
+  Future<void> onSortOrderPressed() async {
+    sortOrder.value = sortOrder.value == SortOrder.byTitle
+        ? SortOrder.byCreatedAt
+        : SortOrder.byTitle;
+      
+    Get.find<DatabaseController>().updateVkTitleList();
   }
 
   Future<void> onLocateBtnPressed() async {

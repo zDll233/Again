@@ -4,14 +4,16 @@ class VoicePanel<T> extends StatelessWidget {
   final String title;
   final Widget listView;
   final Icon icon;
-  final Function()? onLocateBtnPressed;
+  final Function()? onIconBtnPressed;
+  final Function()? onTextBtnPressed;
 
   const VoicePanel({
     super.key,
     required this.title,
     required this.listView,
     required this.icon,
-    this.onLocateBtnPressed,
+    this.onIconBtnPressed,
+    this.onTextBtnPressed,
   });
 
   @override
@@ -23,9 +25,13 @@ class VoicePanel<T> extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              Text(title),
+              TextButton(
+                onPressed: onTextBtnPressed,
+                child:
+                    Text(title, style: Theme.of(context).textTheme.bodyMedium),
+              ),
               IconButton(
-                onPressed: onLocateBtnPressed,
+                onPressed: onIconBtnPressed,
                 icon: icon,
               ),
             ],
