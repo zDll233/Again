@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/database_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -38,10 +40,14 @@ class UIController extends GetxController {
   var sortOrder = SortOrder.byTitle.obs;
   var playingSortOrder = SortOrder.byTitle;
 
-  /// Resets the filters and scrolls to the top.
-  Future<void> onRemoveFilterPressed() async {
-    await _resetFilters();
-    _scrollToTop();
+  Future<void> onOpenSelectedVkFolder() async {
+    if (selectedViPathList.isNotEmpty) {
+      Directory directory = File(selectedViPathList[0]).parent;
+
+      if (await directory.exists()) {
+        Process.run('explorer', [directory.path]); // Windows
+      }
+    }
   }
 
   /// Toggles the sort order and updates the title list.
@@ -52,6 +58,12 @@ class UIController extends GetxController {
 
     Get.find<DatabaseController>().updateSortedVkTitleList();
     _updateSelectedVkIdx();
+  }
+
+  /// Resets the filters and scrolls to the top.
+  Future<void> onRemoveFilterPressed() async {
+    await _resetFilters();
+    _scrollToTop();
   }
 
   /// Locates the playing item by updating the selection and scrolling to it.
