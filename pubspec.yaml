@@ -41,6 +41,7 @@ dependencies:
   sqlite3: ^2.4.2
   get: ^4.6.6
   file_picker: ^8.0.5
+  logger: ^2.3.0
 
 dev_dependencies:
   flutter_test:

@@ -149,7 +149,7 @@ class UIController extends GetxController {
   }
 
   void _scrollToPlayingOffsets() {
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
           duration: 200);
       await scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
@@ -175,11 +175,13 @@ class UIController extends GetxController {
   }
 
   void _updatePlayingSelection() {
+    // 不等于-1说明肯定点击了某个vk, 此时vi list变了
     if (selectedVkIdx.value != -1) {
       playingVkIdx.value = selectedVkIdx.value;
       playingCvIdx.value = selectedCvIdx.value;
       playingCategoryIdx.value = selectedCategoryIdx.value;
     } else {
+      // 等于-1说明点击了Filter，且Filter对应非正在播放的vk, vi list是 *上次点击vk* 时list
       playingVkIdx.value = latestVkIdx;
       playingCvIdx.value = latestCvIdx;
       playingCategoryIdx.value = latestCategoryIdx;

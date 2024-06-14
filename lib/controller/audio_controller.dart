@@ -1,3 +1,4 @@
+import 'package:again/controller/controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:get/get.dart';
 
@@ -11,6 +12,8 @@ class AudioController extends GetxController {
 
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
+
+  final Controller c = Get.find();
 
   @override
   void onInit() {
@@ -29,8 +32,7 @@ class AudioController extends GetxController {
 
     player.onPlayerComplete.listen((event) {
       if (playingViIdx.value == playingViPathList.length - 1) {
-        playerState.value = PlayerState.stopped;
-        position.value = Duration.zero;
+        _stopPlayer();
       } else {
         playNext();
       }
@@ -42,42 +44,64 @@ class AudioController extends GetxController {
   }
 
   Future<void> play(Source source) async {
-    await player.stop();
-    await player.setSource(source);
-    await player.resume();
-    playerState.value = PlayerState.playing;
+    try {
+      await player.stop();
+      await player.setSource(source);
+      await player.resume();
+      playerState.value = PlayerState.playing;
+    } catch (e) {
+      c.logger.e('Error playing audio: $e');
+    }
   }
 
   Future<void> playNext() async {
-    playingViIdx++;
-    if (playingViIdx >= playingViPathList.length - 1) {
-      playingViIdx.value = playingViPathList.length - 1;
-    }
-    play(DeviceFileSource(playingViPathList[playingViIdx.value]));
+    _changeTrack(1);
   }
 
   Future<void> playPrev() async {
-    playingViIdx--;
-    if (playingViIdx < 0) {
+    _changeTrack(-1);
+  }
+
+  void _changeTrack(int direction) {
+    playingViIdx.value += direction;
+    if (playingViIdx.value >= playingViPathList.length) {
+      playingViIdx.value = playingViPathList.length - 1;
+    } else if (playingViIdx.value < 0) {
       playingViIdx.value = 0;
     }
     play(DeviceFileSource(playingViPathList[playingViIdx.value]));
   }
 
   Future<void> resume() async {
-    await player.resume();
-    playerState.value = PlayerState.playing;
+    try {
+      await player.resume();
+      playerState.value = PlayerState.playing;
+    } catch (e) {
+      c.logger.e('Error resuming audio: $e');
+    }
   }
 
   Future<void> pause() async {
-    await player.pause();
-    playerState.value = PlayerState.paused;
+    try {
+      await player.pause();
+      playerState.value = PlayerState.paused;
+    } catch (e) {
+      c.logger.e('Error pausing audio: $e');
+    }
   }
 
   Future<void> stop() async {
-    await player.stop();
-    playerState.value = PlayerState.stopped;
-    position.value = Duration.zero;
+    await _stopPlayer();
+  }
+
+  Future<void> _stopPlayer() async {
+    try {
+      await player.stop();
+      playerState.value = PlayerState.stopped;
+      position.value = Duration.zero;
+    } catch (e) {
+      c.logger.e('Error stopping audio: $e');
+    }
   }
 
   Future<void> onMutePressed() async {
@@ -91,7 +115,7 @@ class AudioController extends GetxController {
 
   Future<void> setVolume(double v) async {
     volume.value = v;
-    player.setVolume(v);
+    await player.setVolume(v);
   }
 
   @override

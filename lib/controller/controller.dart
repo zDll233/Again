@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 import 'audio_controller.dart';
 import 'database_controller.dart';
@@ -8,4 +9,6 @@ class Controller extends GetxController {
   final audio = Get.put(AudioController());
   final db = Get.put(DatabaseController());
   final ui = Get.put(UIController());
+
+ final Logger logger = Logger();
 }
