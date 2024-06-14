@@ -9,12 +9,12 @@ import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
 class DatabaseController extends GetxController {
-  AppDatabase database = AppDatabase();
+  final AppDatabase database = AppDatabase();
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
   late JsonStorage storage;
-  final currentDir = Directory.current;
-  final directoryPath = 'data/storage';
+  final Directory currentDir = Directory.current;
+  final String directoryPath = 'data/storage';
 
   var vkDataList = [];
 
@@ -29,35 +29,37 @@ class DatabaseController extends GetxController {
     final filePath =
         p.normalize(p.join(currentDir.path, directoryPath, fileName));
     storage = JsonStorage(filePath: filePath);
-    await _loadrootDirPath();
+    await _loadRootDirPath();
   }
 
-  Future<void> _loadrootDirPath() async {
+  Future<void> _loadRootDirPath() async {
     final data = await storage.read();
-    vkRootDirPath = data.containsKey('vkRootDirPath')
-        ? data['vkRootDirPath']
-        : 'E:\\Media\\ACG\\音声';
+    vkRootDirPath = data['vkRootDirPath'] ?? 'E:\\Media\\ACG\\音声';
 
     if (await Directory(vkRootDirPath!).exists()) {
-      voiceUpdater = VoiceUpdater(vkRootDirPath!);
-      updateDatabase();
+      _initializeVoiceUpdater();
+      await updateDatabase();
     } else {
-      selectDirectory();
+      await selectAndSaveDirectory();
     }
   }
 
-  Future<void> _saverootDirPath(String path) async {
-    await storage.write({'vkRootDirPath': path});
+  Future<void> _initializeVoiceUpdater() async {
+    voiceUpdater = VoiceUpdater(vkRootDirPath!);
   }
 
-  Future<void> selectDirectory() async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+  Future<void> selectAndSaveDirectory() async {
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
     if (selectedDirectory != null) {
       vkRootDirPath = selectedDirectory;
-      voiceUpdater = VoiceUpdater(vkRootDirPath!);
-      await _saverootDirPath(vkRootDirPath!);
+      await _initializeVoiceUpdater();
+      await _saveRootDirPath(vkRootDirPath!);
       await onUpdatePressed();
     }
+  }
+
+  Future<void> _saveRootDirPath(String path) async {
+    await storage.write({'vkRootDirPath': path});
   }
 
   Future<void> updateDatabase() async {
@@ -65,7 +67,6 @@ class DatabaseController extends GetxController {
     await updateViewList();
   }
 
-  // view: filter, vk
   Future<void> updateViewList() async {
     await updateFilterLists();
     Get.find<UIController>().updateVkTitleList();
@@ -74,10 +75,7 @@ class DatabaseController extends GetxController {
   int _extractNumber(String title) {
     final regex = RegExp(r'(\d+)');
     final match = regex.firstMatch(title);
-    if (match != null) {
-      return int.parse(match.group(1)!);
-    }
-    return -1; // 返回-1，表示没有找到序号的标题
+    return match != null ? int.parse(match.group(1)!) : -1;
   }
 
   int _compareTitle(String a, String b) {
@@ -90,19 +88,18 @@ class DatabaseController extends GetxController {
   }
 
   void updateVkTitleList() {
-    // 排序逻辑
-    switch (Get.find<UIController>().sortOrder.value) {
+    final uiController = Get.find<UIController>();
+    switch (uiController.sortOrder.value) {
       case SortOrder.byTitle:
         vkDataList.sort((a, b) => _compareTitle(a.title, b.title));
         break;
       case SortOrder.byCreatedAt:
         vkDataList.sort((a, b) => (b.createdAt ?? DateTime(1970))
-            .compareTo(a.createdAt ?? DateTime(1970))); // descend
+            .compareTo(a.createdAt ?? DateTime(1970)));
         break;
     }
 
-    // 更新UIController中的vkTitleList
-    Get.find<UIController>().vkTitleList
+    uiController.vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
   }
@@ -129,42 +126,41 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> updateFilterLists() async {
-    var cvDataList = await database.selectAllCv();
-    var categoryDataList = await database.selectAllCategory();
+    final cvDataList = await database.selectAllCv();
+    final categoryDataList = await database.selectAllCategory();
 
-    Get.find<UIController>().cvNames
+    final uiController = Get.find<UIController>();
+    uiController.cvNames
       ..clear()
       ..addAll(cvDataList.map((item) => item.cvName));
 
-    Get.find<UIController>().categories
+    uiController.categories
       ..clear()
       ..addAll(categoryDataList.map((item) => item.description));
   }
 
   Future<void> updateSelectedViLists() async {
-    // selected vi path, title list
-    var viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        Get.find<UIController>().selectedVkTitle.value)
+    final uiController = Get.find<UIController>();
+    final viDataList = await database.selectSingleWorkVoiceItemsWithString(
+        uiController.selectedVkTitle.value)
       ..sort((a, b) => _compareTitle(a.title, b.title));
 
-    Get.find<UIController>().selectedViPathList
+    uiController.selectedViPathList
       ..clear()
       ..addAll(viDataList.map((item) => item.filePath));
 
-    Get.find<UIController>().selectedViTitleList
+    uiController.selectedViTitleList
       ..clear()
       ..addAll(viDataList.map((item) => item.title));
   }
 
   Future<void> onUpdatePressed() async {
     await database.transaction(() async {
-      // Deleting tables in reverse topological order to avoid foreign-key conflicts
       final tables = database.allTables.toList().reversed;
-
       for (final table in tables) {
         await database.delete(table).go();
       }
     });
-    updateDatabase();
+    await updateDatabase();
   }
 }

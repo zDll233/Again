@@ -14,7 +14,7 @@ class FilterPanel extends StatelessWidget {
       title: 'Filter',
       listView: FutureFilterListView(),
       icon: const Icon(Icons.remove),
-      onIconBtnPressed: c.ui.onRomoveFilterPressed,
+      onIconBtnPressed: c.ui.onRemoveFilterPressed,
     );
   }
 }
