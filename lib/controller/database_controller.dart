@@ -76,7 +76,7 @@ class DatabaseController extends GetxController {
     return match != null ? int.parse(match.group(1)!) : -1;
   }
 
-  int _compareTitle(String a, String b) {
+  int _compareTitleWithNum(String a, String b) {
     final numA = _extractNumber(a);
     final numB = _extractNumber(b);
     if (numA == -1 || numB == -1) {
@@ -89,7 +89,7 @@ class DatabaseController extends GetxController {
     final uiController = Get.find<UIController>();
     switch (uiController.sortOrder.value) {
       case SortOrder.byTitle:
-        vkDataList.sort((a, b) => _compareTitle(a.title, b.title));
+        vkDataList.sort((a, b) => a.title.compareTo(b.title));
         break;
       case SortOrder.byCreatedAt:
         vkDataList.sort((a, b) => (b.createdAt ?? DateTime(1970))
@@ -141,7 +141,7 @@ class DatabaseController extends GetxController {
     final uiController = Get.find<UIController>();
     final viDataList = await database.selectSingleWorkVoiceItemsWithString(
         uiController.selectedVkTitle.value)
-      ..sort((a, b) => _compareTitle(a.title, b.title));
+      ..sort((a, b) => _compareTitleWithNum(a.title, b.title));
 
     uiController.selectedViPathList
       ..clear()
