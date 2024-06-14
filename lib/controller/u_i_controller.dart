@@ -36,6 +36,7 @@ class UIController extends GetxController {
   var latestVkIdx = -1;
 
   var sortOrder = SortOrder.byTitle.obs;
+  var playingSortOrder = SortOrder.byTitle;
 
   Future<void> onRomoveFilterPressed() async {
     // cate
@@ -54,11 +55,13 @@ class UIController extends GetxController {
     sortOrder.value = sortOrder.value == SortOrder.byTitle
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
-      
+
     Get.find<DatabaseController>().updateVkTitleList();
   }
 
   Future<void> onLocateBtnPressed() async {
+    // sort
+    sortOrder.value = playingSortOrder;
     // cate
     await updateWithCategorySelected(playingCategoryIdx.value);
     // cv
@@ -170,6 +173,8 @@ class UIController extends GetxController {
       playingCvIdx.value = latestCvIdx;
       playingCategoryIdx.value = latestCategoryIdx;
     }
+    // sort
+    playingSortOrder = sortOrder.value;
 
     Source source = DeviceFileSource(ac.playingViPathList[idx]);
     ac.play(source);
