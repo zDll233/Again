@@ -13,7 +13,7 @@ enum SortOrder {
 
 class UIController extends GetxController {
   var vkTitleList = <String>[].obs;
-  var selectedVkTitle = "".obs;
+  var selectedVkTitle = ''.obs;
   var selectedViPathList = <String>[];
   var selectedViTitleList = <String>[].obs;
 
@@ -25,17 +25,13 @@ class UIController extends GetxController {
   var vkOffsetMap = <int, double>{0: 0.0};
   var cvOffsetMap = <int, double>{0: 0.0};
 
-  var cvNames = ["All"].obs;
+  var cvNames = ['All'].obs;
   var playingCvIdx = 0.obs;
   var selectedCvIdx = 0.obs;
 
-  var categories = ["All"].obs;
+  var categories = ['All'].obs;
   var playingCategoryIdx = 0.obs;
   var selectedCategoryIdx = 0.obs;
-
-  var lastCategoryIdx = -1;
-  var lastCvIdx = -1;
-  var lastVkIdx = -1;
 
   var sortOrder = SortOrder.byTitle.obs;
   var playingSortOrder = SortOrder.byTitle;
@@ -57,7 +53,7 @@ class UIController extends GetxController {
         : SortOrder.byTitle;
 
     Get.find<DatabaseController>().updateSortedVkTitleList();
-    _updateSelectedVkIdx();
+    _otherFilterSelected();
   }
 
   /// Resets the filters and scrolls to the top.
@@ -69,7 +65,7 @@ class UIController extends GetxController {
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
     await _setPlayingSelection();
-    scrollToPlayingOffsets();
+    await scrollToPlayingOffsets();
   }
 
   Future<void> onCategorySelected(int idx) async {
@@ -79,7 +75,7 @@ class UIController extends GetxController {
   Future<void> updateWithCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _updateSelectedVkIdx();
+    _otherFilterSelected();
   }
 
   Future<void> onCvSelected(int idx) async {
@@ -90,12 +86,11 @@ class UIController extends GetxController {
   Future<void> updateWithCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _updateSelectedVkIdx();
+    _otherFilterSelected();
   }
 
   Future<void> onVkSelected(int idx) async {
     await updateWithVkSelected(idx);
-    _storeLastSelection();
     _updateOffset(vkScrollController, vkOffsetMap, idx);
   }
 
@@ -114,6 +109,7 @@ class UIController extends GetxController {
       return;
     }
 
+    // vi
     audio.playingViIdx.value = idx;
     audio.playingViPathList = selectedViPathList.toList();
 
@@ -167,19 +163,20 @@ class UIController extends GetxController {
   }
 
   bool isCurrentViIdxPlaying(int selectedViIdx) {
-    return _isCurrentVkListPlaying() &&
+    return _isFilterPlaying() &&
         playingVkIdx.value == selectedVkIdx.value &&
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
   }
 
-  bool _isCurrentVkListPlaying() {
+  bool _isFilterPlaying() {
     return selectedCvIdx.value == playingCvIdx.value &&
         selectedCategoryIdx.value == playingCategoryIdx.value &&
         sortOrder.value == playingSortOrder;
   }
 
-  void _updateSelectedVkIdx() {
-    selectedVkIdx.value = _isCurrentVkListPlaying() ? playingVkIdx.value : -1;
+  void _otherFilterSelected() {
+    selectedVkIdx.value = _isFilterPlaying() ? playingVkIdx.value : -1;
+    selectedViTitleList.clear();
   }
 
   void _updateOffset(
@@ -190,24 +187,10 @@ class UIController extends GetxController {
     }
   }
 
-  void _storeLastSelection() {
-    lastCategoryIdx = selectedCategoryIdx.value;
-    lastCvIdx = selectedCvIdx.value;
-    lastVkIdx = selectedVkIdx.value;
-  }
-
   void _updatePlayingSelection() {
-    // 不等于-1说明肯定点击了某个vk, 此时vi list变了
-    if (selectedVkIdx.value != -1) {
-      playingVkIdx.value = selectedVkIdx.value;
-      playingCvIdx.value = selectedCvIdx.value;
-      playingCategoryIdx.value = selectedCategoryIdx.value;
-    } else {
-      // 等于-1说明点击了Filter，且Filter对应非正在播放的vk, vi list是 *上次点击vk* 时list
-      playingVkIdx.value = lastVkIdx;
-      playingCvIdx.value = lastCvIdx;
-      playingCategoryIdx.value = lastCategoryIdx;
-    }
+    playingVkIdx.value = selectedVkIdx.value;
+    playingCvIdx.value = selectedCvIdx.value;
+    playingCategoryIdx.value = selectedCategoryIdx.value;
     playingSortOrder = sortOrder.value;
   }
 
