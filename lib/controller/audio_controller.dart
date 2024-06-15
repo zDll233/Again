@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audioplayers/audioplayers.dart';
+
 import 'package:path/path.dart' as p;
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
@@ -11,7 +12,7 @@ class AudioController extends GetxController {
   var duration = Duration.zero.obs;
   var position = Duration.zero.obs;
   var volume = 1.0.obs;
-  var leastVolume = 0.0;
+  var lastVolume = 0.0;
 
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
@@ -21,6 +22,23 @@ class AudioController extends GetxController {
   @override
   void onInit() async {
     super.onInit();
+    _initPlayer();
+    await _initLogger();
+  }
+
+  Future<void> _initLogger() async {
+    final String logPath = p.join('debug', 'audio.log');
+    final File logFile = File(logPath);
+    if (!await logFile.exists()) {
+      await logFile.create(recursive: true);
+    }
+    _logger = Logger(
+        printer: PrettyPrinter(methodCount: 2, colors: false, printTime: true),
+        level: Level.error,
+        output: FileOutput(file: logFile));
+  }
+
+  void _initPlayer() {
     player = AudioPlayer();
     player.setReleaseMode(ReleaseMode.stop);
 
@@ -44,17 +62,6 @@ class AudioController extends GetxController {
     player.onPlayerStateChanged.listen((state) {
       playerState.value = state;
     });
-
-    // init logger
-    final String logPath = p.join('debug', 'audio.log');
-    final File logFile = File(logPath);
-    if (!await logFile.exists()) {
-      await logFile.create(recursive: true);
-    }
-    _logger = Logger(
-        printer: PrettyPrinter(methodCount: 2, colors: false, printTime: true),
-        level: Level.error,
-        output: FileOutput(file: logFile));
   }
 
   Future<void> play(Source source) async {
@@ -120,10 +127,10 @@ class AudioController extends GetxController {
 
   Future<void> onMutePressed() async {
     if (volume.value != 0) {
-      leastVolume = volume.value;
+      lastVolume = volume.value;
       setVolume(0);
     } else {
-      setVolume(leastVolume);
+      setVolume(lastVolume);
     }
   }
 

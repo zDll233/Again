@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/database_controller.dart';
+import 'package:again/utils/json_storage.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 
 enum SortOrder {
   byTitle,
@@ -33,12 +35,14 @@ class UIController extends GetxController {
   var playingCategoryIdx = 0.obs;
   var selectedCategoryIdx = 0.obs;
 
-  var latestCategoryIdx = -1;
-  var latestCvIdx = -1;
-  var latestVkIdx = -1;
+  var lastCategoryIdx = -1;
+  var lastCvIdx = -1;
+  var lastVkIdx = -1;
 
   var sortOrder = SortOrder.byTitle.obs;
   var playingSortOrder = SortOrder.byTitle;
+
+  late JsonStorage _cache;
 
   Future<void> onOpenSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {
@@ -69,24 +73,7 @@ class UIController extends GetxController {
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
     await _setPlayingSelection();
-    _scrollToPlayingOffsets();
-  }
-
-  /// Updates the vkTitleList based on the selected category and cv.
-  Future<void> updateVkTitleList() async {
-    var dc = Get.find<DatabaseController>();
-    var cate = categories[selectedCategoryIdx.value];
-    var cv = cvNames[selectedCvIdx.value];
-
-    if (cate == "All" && cv == "All") {
-      await dc.updateAllVkTitleList();
-    } else if (cate == "All") {
-      await dc.updateVkTitleListWithCv(cv);
-    } else if (cv == "All") {
-      await dc.updateVkTitleListWithCategory(cate);
-    } else {
-      await dc.updateVkTitleListWithCvAndCategory(cv, cate);
-    }
+    scrollToPlayingOffsets();
   }
 
   Future<void> onCategorySelected(int idx) async {
@@ -95,7 +82,7 @@ class UIController extends GetxController {
 
   Future<void> updateWithCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
-    await updateVkTitleList();
+    await Get.find<DatabaseController>().updateVkTitleList();
     _updateSelectedVkIdx();
   }
 
@@ -106,29 +93,29 @@ class UIController extends GetxController {
 
   Future<void> updateWithCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
-    await updateVkTitleList();
+    await Get.find<DatabaseController>().updateVkTitleList();
     _updateSelectedVkIdx();
   }
 
   Future<void> onVkSelected(int idx) async {
     await updateWithVkSelected(idx);
-    _storeLatestSelection();
+    _storeLastSelection();
     _updateOffset(vkScrollController, vkOffsetMap, idx);
   }
 
   Future<void> updateWithVkSelected(int selectedIdx) async {
     selectedVkIdx.value = selectedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
-    Get.find<DatabaseController>().updateSelectedViLists();
+    await Get.find<DatabaseController>().updateSelectedViLists();
   }
 
   Future<void> onViSelected(int idx) async {
-    final AudioController ac = Get.find();
-    ac.playingViIdx.value = idx;
-    ac.playingViPathList = selectedViPathList.toList();
+    final AudioController audio = Get.find();
+    audio.playingViIdx.value = idx;
+    audio.playingViPathList = selectedViPathList.toList();
 
     _updatePlayingSelection();
-    ac.play(DeviceFileSource(ac.playingViPathList[idx]));
+    audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
 
   Future<void> scrollToOffset(ScrollController controller, double? offset,
@@ -161,12 +148,14 @@ class UIController extends GetxController {
     await updateWithVkSelected(playingVkIdx.value);
   }
 
-  void _scrollToPlayingOffsets() {
+  Future<void> scrollToPlayingOffsets() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
-          duration: 200);
-      scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
-          duration: 200);
+      if (cvScrollController.hasClients && vkScrollController.hasClients) {
+        scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
+            duration: 200);
+        scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+            duration: 200);
+      }
     });
   }
 
@@ -180,14 +169,16 @@ class UIController extends GetxController {
 
   void _updateOffset(
       ScrollController controller, Map<int, double> offsetMap, int idx) {
-    var offset = controller.offset;
-    offsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
+    if (controller.hasClients) {
+      var offset = controller.offset;
+      offsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
+    }
   }
 
-  void _storeLatestSelection() {
-    latestCategoryIdx = selectedCategoryIdx.value;
-    latestCvIdx = selectedCvIdx.value;
-    latestVkIdx = selectedVkIdx.value;
+  void _storeLastSelection() {
+    lastCategoryIdx = selectedCategoryIdx.value;
+    lastCvIdx = selectedCvIdx.value;
+    lastVkIdx = selectedVkIdx.value;
   }
 
   void _updatePlayingSelection() {
@@ -198,10 +189,54 @@ class UIController extends GetxController {
       playingCategoryIdx.value = selectedCategoryIdx.value;
     } else {
       // 等于-1说明点击了Filter，且Filter对应非正在播放的vk, vi list是 *上次点击vk* 时list
-      playingVkIdx.value = latestVkIdx;
-      playingCvIdx.value = latestCvIdx;
-      playingCategoryIdx.value = latestCategoryIdx;
+      playingVkIdx.value = lastVkIdx;
+      playingCvIdx.value = lastCvIdx;
+      playingCategoryIdx.value = lastCategoryIdx;
     }
     playingSortOrder = sortOrder.value;
+  }
+
+  Future<void> saveCache() async {
+    Map<String, dynamic> lastPlayed = {
+      'filter': {
+        'category': playingCategoryIdx.value,
+        'cv': playingCvIdx.value,
+        'sortOrder': sortOrder.value.index
+      },
+      'vk': playingVkIdx.value,
+      'vi': Get.find<AudioController>().playingViIdx.value,
+      'scrollOffset': {
+        'cvOffset': cvOffsetMap[playingCvIdx.value],
+        'vkOffset': vkOffsetMap[playingVkIdx.value],
+      }
+    };
+    await _cache.write(lastPlayed);
+  }
+
+  Future<void> loadCache() async {
+    const directoryPath = 'cache';
+    const fileName = 'last_played.json';
+    final filePath = p.join(directoryPath, fileName);
+    _cache = JsonStorage(filePath: filePath);
+
+    if (!await File(filePath).exists()) return;
+
+    final data = await _cache.read();
+    final filter = data['filter'];
+    final offset = data['scrollOffset'];
+
+    // filter
+    sortOrder.value = playingSortOrder = SortOrder.values[filter['sortOrder']];
+    playingCategoryIdx.value = selectedCategoryIdx.value = filter['category'];
+    playingCvIdx.value = selectedCvIdx.value = filter['cv'];
+    // vk
+    playingVkIdx.value = selectedVkIdx.value = data['vk'];
+    // vi
+    Get.find<AudioController>().playingViIdx.value = data['vi'];
+    // scroll
+    cvOffsetMap.update(playingCvIdx.value, (value) => offset['cvOffset'],
+        ifAbsent: () => offset['cvOffset']);
+    vkOffsetMap.update(playingVkIdx.value, (value) => offset['vkOffset'],
+        ifAbsent: () => offset['vkOffset']);
   }
 }

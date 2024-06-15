@@ -5,6 +5,7 @@ import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_instance/get_instance.dart';
+import 'package:path/path.dart' as p;
 
 class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
@@ -34,12 +35,6 @@ class VoiceUpdater {
     }
   }
 
-  String getTitleFromPath(String path) {
-    int lastIndex = path.lastIndexOf('\\');
-    String result = lastIndex != -1 ? path.substring(lastIndex + 1) : path;
-    return result;
-  }
-
   List<String> getCVList(String vkTitle) {
     String input = vkTitle;
     List<String> cvList = input.split('-')[0].split('&');
@@ -55,7 +50,7 @@ class VoiceUpdater {
     ];
     await for (var collectionDir in rootDir.list()) {
       vkcc.add(TVoiceWorkCategoryCompanion(
-        description: Value(getTitleFromPath(collectionDir.path)),
+        description: Value(p.basename(collectionDir.path)),
         rowid: const Value.absent(),
       ));
     }
@@ -74,13 +69,13 @@ class VoiceUpdater {
     List<TVoiceCVCompanion> vcc = [];
 
     await for (var entity in collectionDir.list()) {
-      String vkTitle = getTitleFromPath(entity.path);
+      String vkTitle = p.basename(entity.path);
 
       // VoiceWork
       vkc.add(TVoiceWorkCompanion(
         title: Value(vkTitle),
         diretoryPath: Value(entity.path),
-        category: Value(getTitleFromPath(entity.parent.path)),
+        category: Value(p.basename(entity.parent.path)),
         createdAt: Value(await entity.stat().then((v) => v.changed)),
         rowid: const Value.absent(),
       ));
@@ -123,9 +118,9 @@ class VoiceUpdater {
       if (entity is File &&
           audioExtensions.any((ext) => entity.path.endsWith(ext))) {
         vic.add(TVoiceItemCompanion(
-          title: Value(getTitleFromPath(entity.path)),
+          title: Value(p.basenameWithoutExtension(entity.path)),
           filePath: Value(entity.path),
-          voiceWorkTitle: Value(getTitleFromPath(voiceWorkDir.path)),
+          voiceWorkTitle: Value(p.basename(voiceWorkDir.path)),
           rowid: const Value.absent(),
         ));
       }

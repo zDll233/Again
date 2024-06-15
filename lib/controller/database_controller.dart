@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/u_i_controller.dart';
 import 'package:again/controller/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -17,9 +19,21 @@ class DatabaseController extends GetxController {
   var vkDataList = [];
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
-    _initializeStorage();
+    final UIController ui = Get.find();
+    final AudioController audio = Get.find();
+    await ui.loadCache();
+    await _initializeStorage();
+
+    // 延迟滚动到保存的位置, 恢复上次vi list
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ui.scrollToPlayingOffsets();
+      await ui.onVkSelected(ui.playingVkIdx.value);
+
+      // await audio.stop();
+      await ui.onViSelected(audio.playingViIdx.value);
+    });
   }
 
   Future<void> _initializeStorage() async {
@@ -67,7 +81,7 @@ class DatabaseController extends GetxController {
 
   Future<void> updateViewList() async {
     await updateFilterLists();
-    Get.find<UIController>().updateVkTitleList();
+    updateVkTitleList();
   }
 
   int _extractNumber(String title) {
@@ -85,9 +99,26 @@ class DatabaseController extends GetxController {
     return numA.compareTo(numB);
   }
 
+  /// Updates the vkTitleList based on the selected category and cv.
+  Future<void> updateVkTitleList() async {
+    final ui = Get.find<UIController>();
+    final cate = ui.categories[ui.selectedCategoryIdx.value];
+    final cv = ui.cvNames[ui.selectedCvIdx.value];
+
+    if (cate == "All" && cv == "All") {
+      await updateAllVkTitleList();
+    } else if (cate == "All") {
+      await updateVkTitleListWithCv(cv);
+    } else if (cv == "All") {
+      await updateVkTitleListWithCategory(cate);
+    } else {
+      await updateVkTitleListWithCvAndCategory(cv, cate);
+    }
+  }
+
   void updateSortedVkTitleList() {
-    final uiController = Get.find<UIController>();
-    switch (uiController.sortOrder.value) {
+    final ui = Get.find<UIController>();
+    switch (ui.sortOrder.value) {
       case SortOrder.byTitle:
         vkDataList.sort((a, b) => a.title.compareTo(b.title));
         break;
@@ -97,7 +128,7 @@ class DatabaseController extends GetxController {
         break;
     }
 
-    uiController.vkTitleList
+    ui.vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
   }
@@ -138,16 +169,16 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> updateSelectedViLists() async {
-    final uiController = Get.find<UIController>();
+    final ui = Get.find<UIController>();
     final viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        uiController.selectedVkTitle.value)
+        ui.selectedVkTitle.value)
       ..sort((a, b) => _compareTitleWithNum(a.title, b.title));
 
-    uiController.selectedViPathList
+    ui.selectedViPathList
       ..clear()
       ..addAll(viDataList.map((item) => item.filePath));
 
-    uiController.selectedViTitleList
+    ui.selectedViTitleList
       ..clear()
       ..addAll(viDataList.map((item) => item.title));
   }

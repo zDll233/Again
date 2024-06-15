@@ -6,6 +6,6 @@ import 'u_i_controller.dart';
 
 class Controller extends GetxController {
   final audio = Get.put(AudioController());
-  final db = Get.put(DatabaseController());
   final ui = Get.put(UIController());
+  final db = Get.put(DatabaseController());
 }
