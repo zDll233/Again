@@ -1,12 +1,10 @@
 import 'dart:io';
 
-import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/u_i_controller.dart';
 import 'package:again/controller/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -18,25 +16,7 @@ class DatabaseController extends GetxController {
 
   var vkDataList = [];
 
-  @override
-  void onInit() async {
-    super.onInit();
-    final UIController ui = Get.find();
-    final AudioController audio = Get.find();
-    await ui.loadCache();
-    await _initializeStorage();
-
-    // 延迟滚动到保存的位置, 恢复上次vi list
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ui.scrollToPlayingOffsets();
-      await ui.onVkSelected(ui.playingVkIdx.value);
-
-      // await audio.stop();
-      await ui.onViSelected(audio.playingViIdx.value);
-    });
-  }
-
-  Future<void> _initializeStorage() async {
+  Future<void> initializeStorage() async {
     const directoryPath = 'config';
     const fileName = 'settings.json';
     final filePath = p.join(directoryPath, fileName);
@@ -170,8 +150,8 @@ class DatabaseController extends GetxController {
 
   Future<void> updateSelectedViLists() async {
     final ui = Get.find<UIController>();
-    final viDataList = await database.selectSingleWorkVoiceItemsWithString(
-        ui.selectedVkTitle.value)
+    final viDataList = await database
+        .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
       ..sort((a, b) => _compareTitleWithNum(a.title, b.title));
 
     ui.selectedViPathList

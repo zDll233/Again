@@ -115,7 +115,7 @@ class UIController extends GetxController {
     audio.playingViPathList = selectedViPathList.toList();
 
     _updatePlayingSelection();
-    audio.play(DeviceFileSource(audio.playingViPathList[idx]));
+    await audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
 
   Future<void> scrollToOffset(ScrollController controller, double? offset,
