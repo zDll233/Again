@@ -53,18 +53,20 @@ class UIController extends GetxController {
         : SortOrder.byTitle;
 
     Get.find<DatabaseController>().updateSortedVkTitleList();
-    _otherFilterSelected();
+    _filterSelected();
   }
 
   /// Resets the filters and scrolls to the top.
   Future<void> onRemoveFilterPressed() async {
     await _resetFilters();
-    _scrollToTop();
+    await _scrollToTop();
   }
 
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
-    await _setPlayingSelection();
+    if (!_isFilterPlaying() || selectedVkIdx.value != playingVkIdx.value) {
+      await _setPlayingSelection();
+    }
     await scrollToPlayingOffsets();
   }
 
@@ -75,23 +77,23 @@ class UIController extends GetxController {
   Future<void> updateWithCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _otherFilterSelected();
+    _filterSelected();
   }
 
   Future<void> onCvSelected(int idx) async {
-    await updateWithCvSelected(idx);
     _updateOffset(cvScrollController, cvOffsetMap, idx);
+    await updateWithCvSelected(idx);
   }
 
   Future<void> updateWithCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _otherFilterSelected();
+    _filterSelected();
   }
 
   Future<void> onVkSelected(int idx) async {
-    await updateWithVkSelected(idx);
     _updateOffset(vkScrollController, vkOffsetMap, idx);
+    await updateWithVkSelected(idx);
   }
 
   Future<void> updateWithVkSelected(int selectedIdx) async {
@@ -109,7 +111,6 @@ class UIController extends GetxController {
       return;
     }
 
-    // vi
     audio.playingViIdx.value = idx;
     audio.playingViPathList = selectedViPathList.toList();
 
@@ -133,7 +134,7 @@ class UIController extends GetxController {
     await updateWithCvSelected(0);
   }
 
-  void _scrollToTop() {
+  Future<void> _scrollToTop() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
         scrollToOffset(cvScrollController, 0, duration: 200),
@@ -174,9 +175,13 @@ class UIController extends GetxController {
         sortOrder.value == playingSortOrder;
   }
 
-  void _otherFilterSelected() {
-    selectedVkIdx.value = _isFilterPlaying() ? playingVkIdx.value : -1;
-    selectedViTitleList.clear();
+  Future<void> _filterSelected() async {
+    if (_isFilterPlaying()) {
+      await updateWithVkSelected(playingVkIdx.value);
+    } else {
+      selectedVkIdx.value = -1;
+      selectedViTitleList.clear();
+    }
   }
 
   void _updateOffset(
