@@ -107,7 +107,7 @@ class UIController extends GetxController {
 
   Future<void> onViSelected(int idx) async {
     final AudioController audio = Get.find();
-    if (idx == audio.playingViIdx.value) {
+    if (isCurrentViIdxPlaying(idx)) {
       audio.playerState.value == PlayerState.playing
           ? audio.pause()
           : audio.resume();
@@ -166,12 +166,20 @@ class UIController extends GetxController {
     });
   }
 
+  bool isCurrentViIdxPlaying(int selectedViIdx) {
+    return _isCurrentVkListPlaying() &&
+        playingVkIdx.value == selectedVkIdx.value &&
+        selectedViIdx == Get.find<AudioController>().playingViIdx.value;
+  }
+
+  bool _isCurrentVkListPlaying() {
+    return selectedCvIdx.value == playingCvIdx.value &&
+        selectedCategoryIdx.value == playingCategoryIdx.value &&
+        sortOrder.value == playingSortOrder;
+  }
+
   void _updateSelectedVkIdx() {
-    selectedVkIdx.value = selectedCvIdx.value == playingCvIdx.value &&
-            selectedCategoryIdx.value == playingCategoryIdx.value &&
-            sortOrder.value == playingSortOrder
-        ? playingVkIdx.value
-        : -1;
+    selectedVkIdx.value = _isCurrentVkListPlaying() ? playingVkIdx.value : -1;
   }
 
   void _updateOffset(

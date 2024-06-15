@@ -40,8 +40,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                 onTap: () {
                   c.ui.onViSelected(index);
                 },
-                selected: c.audio.playingViIdx.value == index &&
-                    c.ui.playingVkIdx.value == c.ui.selectedVkIdx.value,
+                selected: c.ui.isCurrentViIdxPlaying(index),
               ));
         },
       ),
