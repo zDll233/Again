@@ -12,15 +12,9 @@ class DatabaseController extends GetxController {
   final AppDatabase database = AppDatabase();
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
-  late JsonStorage storage;
+  late final JsonStorage storage;
 
   var vkDataList = [];
-
-  @override
-  void onInit() {
-    super.onInit();
-    initializeStorage();
-  }
 
   Future<void> initializeStorage() async {
     const directoryPath = 'config';

@@ -107,6 +107,13 @@ class UIController extends GetxController {
 
   Future<void> onViSelected(int idx) async {
     final AudioController audio = Get.find();
+    if (idx == audio.playingViIdx.value) {
+      audio.playerState.value == PlayerState.playing
+          ? audio.pause()
+          : audio.resume();
+      return;
+    }
+
     audio.playingViIdx.value = idx;
     audio.playingViPathList = selectedViPathList.toList();
 

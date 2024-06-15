@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
 class AudioController extends GetxController {
-  late AudioPlayer player;
+  late final AudioPlayer player;
   var playerState = PlayerState.stopped.obs;
   var duration = Duration.zero.obs;
   var position = Duration.zero.obs;
@@ -151,8 +151,16 @@ class AudioController extends GetxController {
 
     volume.value = audioCache['volume'];
     playingViIdx.value = audioCache['vi'];
-    await Get.find<UIController>().onViSelected(playingViIdx.value);
-    await player.seek(Duration(milliseconds: audioCache['position'].round()));
-    await pause();
+    playingViPathList = Get.find<UIController>().selectedViPathList.toList();
+
+    try {
+      await player.stop();
+      await player
+          .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
+      await player.seek(Duration(milliseconds: audioCache['position']));
+      playerState.value = PlayerState.paused;
+    } catch (e) {
+      _logger.e('Error loading last audio: $e');
+    }
   }
 }
