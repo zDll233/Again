@@ -7,11 +7,11 @@ class JsonStorage {
   JsonStorage({required this.filePath});
 
   Future<Map<String, dynamic>> read() async {
-    final file = File(filePath);
-    if (await file.exists()) {
+    try {
+      final file = File(filePath);
       final contents = await file.readAsString();
       return json.decode(contents) as Map<String, dynamic>;
-    } else {
+    } catch (_) {
       return {};
     }
   }

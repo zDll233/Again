@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:again/controller/u_i_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import 'package:path/path.dart' as p;
@@ -143,5 +144,15 @@ class AudioController extends GetxController {
   void onClose() {
     player.dispose();
     super.onClose();
+  }
+
+  Future<void> loadCache(Map<String, dynamic> audioCache) async {
+    if (audioCache.isEmpty) return;
+
+    volume.value = audioCache['volume'];
+    playingViIdx.value = audioCache['vi'];
+    await Get.find<UIController>().onViSelected(playingViIdx.value);
+    await player.seek(Duration(milliseconds: audioCache['position'].round()));
+    await pause();
   }
 }

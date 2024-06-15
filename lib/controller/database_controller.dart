@@ -16,6 +16,12 @@ class DatabaseController extends GetxController {
 
   var vkDataList = [];
 
+  @override
+  void onInit() {
+    super.onInit();
+    initializeStorage();
+  }
+
   Future<void> initializeStorage() async {
     const directoryPath = 'config';
     const fileName = 'settings.json';

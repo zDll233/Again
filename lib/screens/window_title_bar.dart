@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:again/controller/controller.dart';
-import 'package:again/controller/u_i_controller.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -39,7 +38,7 @@ class WindowButtons extends StatelessWidget {
         CloseWindowButton(
           colors: closeButtonColors,
           onPressed: () async {
-            await Get.find<UIController>().saveCache();
+            await Get.find<Controller>().saveCache();
             appWindow.close();
           },
         ),

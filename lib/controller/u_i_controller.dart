@@ -2,11 +2,9 @@ import 'dart:io';
 
 import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/database_controller.dart';
-import 'package:again/utils/json_storage.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:path/path.dart' as p;
 
 enum SortOrder {
   byTitle,
@@ -41,8 +39,6 @@ class UIController extends GetxController {
 
   var sortOrder = SortOrder.byTitle.obs;
   var playingSortOrder = SortOrder.byTitle;
-
-  late JsonStorage _cache;
 
   Future<void> onOpenSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {
@@ -136,8 +132,10 @@ class UIController extends GetxController {
 
   void _scrollToTop() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await scrollToOffset(cvScrollController, 0, duration: 200);
-      await scrollToOffset(vkScrollController, 0, duration: 200);
+      await Future.wait([
+        scrollToOffset(cvScrollController, 0, duration: 200),
+        scrollToOffset(vkScrollController, 0, duration: 200)
+      ]);
     });
   }
 
@@ -151,10 +149,12 @@ class UIController extends GetxController {
   Future<void> scrollToPlayingOffsets() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (cvScrollController.hasClients && vkScrollController.hasClients) {
-        scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
-            duration: 200);
-        scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
-            duration: 200);
+        await Future.wait([
+          scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
+              duration: 200),
+          scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+              duration: 200)
+        ]);
       }
     });
   }
@@ -196,43 +196,23 @@ class UIController extends GetxController {
     playingSortOrder = sortOrder.value;
   }
 
-  Future<void> saveCache() async {
-    Map<String, dynamic> lastPlayed = {
-      'filter': {
-        'category': playingCategoryIdx.value,
-        'cv': playingCvIdx.value,
-        'sortOrder': sortOrder.value.index
-      },
-      'vk': playingVkIdx.value,
-      'vi': Get.find<AudioController>().playingViIdx.value,
-      'scrollOffset': {
-        'cvOffset': cvOffsetMap[playingCvIdx.value],
-        'vkOffset': vkOffsetMap[playingVkIdx.value],
-      }
-    };
-    await _cache.write(lastPlayed);
-  }
+  Future<void> loadCache(Map<String, dynamic> uiCache) async {
+    if (uiCache.isEmpty) return;
 
-  Future<void> loadCache() async {
-    const directoryPath = 'cache';
-    const fileName = 'last_played.json';
-    final filePath = p.join(directoryPath, fileName);
-    _cache = JsonStorage(filePath: filePath);
-
-    if (!await File(filePath).exists()) return;
-
-    final data = await _cache.read();
-    final filter = data['filter'];
-    final offset = data['scrollOffset'];
+    final filter = uiCache['filter'];
+    final offset = uiCache['scrollOffset'];
 
     // filter
     sortOrder.value = playingSortOrder = SortOrder.values[filter['sortOrder']];
-    playingCategoryIdx.value = selectedCategoryIdx.value = filter['category'];
-    playingCvIdx.value = selectedCvIdx.value = filter['cv'];
+    playingCategoryIdx.value = filter['category'];
+    playingCvIdx.value = filter['cv'];
+    await onCategorySelected(playingCategoryIdx.value);
+    await onCvSelected(playingCvIdx.value);
+
     // vk
-    playingVkIdx.value = selectedVkIdx.value = data['vk'];
-    // vi
-    Get.find<AudioController>().playingViIdx.value = data['vi'];
+    playingVkIdx.value = uiCache['vk'];
+    await onVkSelected(playingVkIdx.value);
+
     // scroll
     cvOffsetMap.update(playingCvIdx.value, (value) => offset['cvOffset'],
         ifAbsent: () => offset['cvOffset']);
