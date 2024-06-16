@@ -152,6 +152,16 @@ class AudioController extends GetxController {
         : LoopMode.allLoop;
   }
 
+  Future<void> switchPauseResume() async {
+    playerState.value == PlayerState.playing ? await pause() : await resume();
+  }
+
+  Future<void> onPausePressed() async {
+    if (playingViIdx.value >= 0) {
+      await switchPauseResume();
+    }
+  }
+
   @override
   void onClose() {
     _logger.close();

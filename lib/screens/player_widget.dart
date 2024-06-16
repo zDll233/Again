@@ -167,11 +167,7 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildPlayPauseButton() {
     return IconButton(
       key: const Key('play_pause_button'),
-      onPressed: c.audio.playingViIdx >= 0
-          ? c.audio.playerState.value == PlayerState.playing
-              ? c.audio.pause
-              : c.audio.resume
-          : null,
+      onPressed: c.audio.onPausePressed,
       iconSize: _iconSize,
       icon: c.audio.playerState.value == PlayerState.playing
           ? const Icon(Icons.pause)

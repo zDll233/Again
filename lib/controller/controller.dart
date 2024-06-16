@@ -1,5 +1,6 @@
 import 'package:again/utils/json_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import 'audio_controller.dart';
@@ -20,6 +21,22 @@ class Controller extends GetxController {
     super.onInit();
     await db.initializeStorage();
     await _loadHistory();
+    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+  }
+
+  @override
+  void onClose() {
+    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
+  }
+
+  bool _handleKeyEvent(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.space) {
+        audio.onPausePressed();
+        return true;
+      }
+    }
+    return false;
   }
 
   Future<void> saveHistory() async {
@@ -40,7 +57,7 @@ class Controller extends GetxController {
         'vi': audio.playingViIdx.value,
         'position': audio.position.value.inMilliseconds,
         'volume': audio.volume.value,
-        'loopMode':audio.loopMode.value.index
+        'loopMode': audio.loopMode.value.index
       },
     };
     await _history.write(lastPlayed);
