@@ -53,7 +53,7 @@ class UIController extends GetxController {
         : SortOrder.byTitle;
 
     Get.find<DatabaseController>().updateSortedVkTitleList();
-    _filterSelected();
+    await _filterSelected();
   }
 
   /// Resets the filters and scrolls to the top.
@@ -77,18 +77,20 @@ class UIController extends GetxController {
   Future<void> updateWithCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _filterSelected();
+    await _filterSelected();
   }
 
   Future<void> onCvSelected(int idx) async {
     _updateOffset(cvScrollController, cvOffsetMap, idx);
+
+    // locate 用到了此函数，为了offset不被覆盖，分开执行
     await updateWithCvSelected(idx);
   }
 
   Future<void> updateWithCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
-    _filterSelected();
+    await _filterSelected();
   }
 
   Future<void> onVkSelected(int idx) async {
@@ -175,6 +177,8 @@ class UIController extends GetxController {
         sortOrder.value == playingSortOrder;
   }
 
+  /// 在播放的：vk select, vi show;
+  /// 不在播放的：vk not select, vi clear;
   Future<void> _filterSelected() async {
     if (_isFilterPlaying()) {
       await updateWithVkSelected(playingVkIdx.value);
@@ -205,15 +209,13 @@ class UIController extends GetxController {
     final filter = uiCache['filter'];
     final offset = uiCache['scrollOffset'];
 
-    // filter
+    // filter vk
     sortOrder.value = playingSortOrder = SortOrder.values[filter['sortOrder']];
     playingCategoryIdx.value = filter['category'];
     playingCvIdx.value = filter['cv'];
+    playingVkIdx.value = uiCache['vk'];
     await onCategorySelected(playingCategoryIdx.value);
     await onCvSelected(playingCvIdx.value);
-
-    // vk
-    playingVkIdx.value = uiCache['vk'];
     await onVkSelected(playingVkIdx.value);
 
     // scroll

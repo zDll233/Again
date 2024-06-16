@@ -11,6 +11,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Expanded(
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           LeftSide(),
           VerticalDivider(

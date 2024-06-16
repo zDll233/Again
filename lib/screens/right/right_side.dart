@@ -6,6 +6,7 @@ class RightSide extends StatelessWidget {
   const RightSide({super.key});
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(width: 300, child: VoiceItemPanel());
+    final appWidth = MediaQuery.of(context).size.width - 260;
+    return SizedBox(width: appWidth * 0.40, child: const VoiceItemPanel());
   }
 }

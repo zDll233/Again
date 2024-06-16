@@ -7,17 +7,18 @@ class LeftSide extends StatelessWidget {
   const LeftSide({super.key});
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    final appWidth = MediaQuery.of(context).size.width - 260;
+    return Row(
       children: [
-        SizedBox(
-          width: 300,
+        const SizedBox(
+          width: 250,
           child: FilterPanel(),
         ),
-        VerticalDivider(
+        const VerticalDivider(
           width: 5.0,
           color: Color(0x80B3B0F6),
         ),
-        SizedBox(width: 400, child: VoiceWorkPanel()),
+        SizedBox(width: appWidth * 0.60, child: const VoiceWorkPanel()),
       ],
     );
   }

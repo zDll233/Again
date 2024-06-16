@@ -37,7 +37,7 @@ class FutureFilterListView extends StatelessWidget {
     return Row(
       children: [
         SizedBox(
-          width: 120,
+          width: 100,
           child: Obx(() => FutureListView(
                 future: fetchcategoryItems(),
                 itemBuilder: (context, category, index) {
@@ -52,7 +52,7 @@ class FutureFilterListView extends StatelessWidget {
               )),
         ),
         SizedBox(
-          width: 180,
+          width: 150,
           child: Obx(() => FutureListView(
                 future: fetchCvItems(),
                 itemBuilder: (context, title, index) {

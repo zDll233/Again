@@ -24,7 +24,7 @@ void main() async {
   // custom titlebar/buttons
   if (Platform.isWindows) {
     doWhenWindowReady(() {
-      const initialSize = Size(1020, 690);
+      const initialSize = Size(1010, 690);
       appWindow
         ..minSize = initialSize
         ..size = initialSize
