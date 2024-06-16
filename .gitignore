@@ -44,4 +44,4 @@ app.*.map.json
 
 # data folder used for this runable
 /data
-/cache
+/history
