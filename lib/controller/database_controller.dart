@@ -29,7 +29,7 @@ class DatabaseController extends GetxController {
     vkRootDirPath = data['vkRootDirPath'] ?? 'E:\\Media\\ACG\\音声';
 
     if (await Directory(vkRootDirPath!).exists()) {
-      _initializeVoiceUpdater();
+      await _initializeVoiceUpdater();
       await updateDatabase();
     } else {
       await selectAndSaveDirectory();
@@ -61,7 +61,7 @@ class DatabaseController extends GetxController {
 
   Future<void> updateViewList() async {
     await updateFilterLists();
-    updateVkTitleList();
+    await updateVkTitleList();
   }
 
   int _extractNumber(String title) {

@@ -77,21 +77,21 @@ class AudioController extends GetxController {
   }
 
   Future<void> playNext() async {
-    _changeTrack(1);
+    await _changeTrack(1);
   }
 
   Future<void> playPrev() async {
-    _changeTrack(-1);
+    await _changeTrack(-1);
   }
 
-  void _changeTrack(int direction) {
+  Future<void> _changeTrack(int direction) async {
     playingViIdx.value += direction;
     if (playingViIdx.value >= playingViPathList.length) {
       playingViIdx.value = playingViPathList.length - 1;
     } else if (playingViIdx.value < 0) {
       playingViIdx.value = 0;
     }
-    play(DeviceFileSource(playingViPathList[playingViIdx.value]));
+    await play(DeviceFileSource(playingViPathList[playingViIdx.value]));
   }
 
   Future<void> resume() async {
@@ -129,9 +129,9 @@ class AudioController extends GetxController {
   Future<void> onMutePressed() async {
     if (volume.value != 0) {
       lastVolume = volume.value;
-      setVolume(0);
+      await setVolume(0);
     } else {
-      setVolume(lastVolume);
+      await setVolume(lastVolume);
     }
   }
 
@@ -142,6 +142,7 @@ class AudioController extends GetxController {
 
   @override
   void onClose() {
+    _logger.close();
     player.dispose();
     super.onClose();
   }

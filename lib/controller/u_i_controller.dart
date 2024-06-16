@@ -108,8 +108,8 @@ class UIController extends GetxController {
     final AudioController audio = Get.find();
     if (isCurrentViIdxPlaying(idx)) {
       audio.playerState.value == PlayerState.playing
-          ? audio.pause()
-          : audio.resume();
+          ? await audio.pause()
+          : await audio.resume();
       return;
     }
 
