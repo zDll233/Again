@@ -23,7 +23,6 @@ class Controller extends GetxController {
   }
 
   Future<void> saveHistory() async {
-    final AudioController audio = Get.find();
     Map<String, dynamic> lastPlayed = {
       'ui': {
         'filter': {
