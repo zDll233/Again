@@ -122,7 +122,7 @@ class UIController extends GetxController {
 
   Future<void> scrollToOffset(ScrollController controller, double? offset,
       {int duration = 200}) async {
-    if (offset != null) {
+    if (offset != null && controller.hasClients) {
       await controller.animateTo(
         offset,
         duration: Duration(milliseconds: duration),
@@ -154,14 +154,12 @@ class UIController extends GetxController {
 
   Future<void> scrollToPlayingOffsets() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      if (cvScrollController.hasClients && vkScrollController.hasClients) {
-        await Future.wait([
-          scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
-              duration: 200),
-          scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
-              duration: 200)
-        ]);
-      }
+      await Future.wait([
+        scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
+            duration: 200),
+        scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+            duration: 200)
+      ]);
     });
   }
 
