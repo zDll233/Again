@@ -60,11 +60,11 @@ class AudioController extends GetxController {
     });
 
     player.onPlayerComplete.listen((event) {
-      if (playingViIdx.value == playingViPathList.length - 1) {
-        _stopPlayer();
-      } else {
-        loopMode.value == LoopMode.allLoop ? _changeTrack(1) : _changeTrack(0);
-      }
+      loopMode.value == LoopMode.allLoop
+          ? playingViIdx.value == playingViPathList.length - 1
+              ? _stopPlayer()
+              : _changeTrack(1)
+          : _changeTrack(0);
     });
 
     player.onPlayerStateChanged.listen((state) {
