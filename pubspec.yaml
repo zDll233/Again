@@ -1,5 +1,5 @@
 name: again
-description: "音声作品播放器，初衷是为了解决音频文件路径太深，自带资源管理器要点很多下开发的"
+description: "flutter 本地音声播放器"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
