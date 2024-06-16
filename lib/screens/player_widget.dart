@@ -6,14 +6,13 @@ import 'package:again/controller/controller.dart';
 
 class PlayerWidget extends StatelessWidget {
   final AudioPlayer player;
+  static const double _iconSize = 45.0;
+  final Controller c = Get.find();
 
   PlayerWidget({
     required this.player,
     super.key,
   });
-
-  static const double _iconSize = 45.0;
-  final Controller c = Get.find();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +22,7 @@ class PlayerWidget extends StatelessWidget {
         height: 100, // Adjust this height as needed
         child: Stack(
           children: [
-            _buildProgressBar(context, c, appWidth),
+            _buildProgressBar(context, appWidth),
             _buildVolumeControl(context),
             _buildTimeDisplay(),
             _buildPlaybackControls(),
@@ -33,8 +32,7 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressBar(
-      BuildContext context, Controller c, double appWidth) {
+  Widget _buildProgressBar(BuildContext context, double appWidth) {
     return Positioned(
       top: 5,
       child: SizedBox(
