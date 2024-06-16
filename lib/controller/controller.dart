@@ -48,7 +48,7 @@ class Controller extends GetxController {
   }
 
   Future<void> _loadHistory() async {
-    const directoryPath = 'History';
+    const directoryPath = 'history';
     const fileName = 'last_played.json';
     final filePath = p.join(directoryPath, fileName);
 
