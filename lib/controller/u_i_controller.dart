@@ -208,13 +208,11 @@ class UIController extends GetxController {
     final offset = uiHistory['scrollOffset'];
 
     // filter vk
-    sortOrder.value = playingSortOrder = SortOrder.values[filter['sortOrder']];
+    playingSortOrder = SortOrder.values[filter['sortOrder']];
     playingCategoryIdx.value = filter['category'];
     playingCvIdx.value = filter['cv'];
     playingVkIdx.value = uiHistory['vk'];
-    await onCategorySelected(playingCategoryIdx.value);
-    await onCvSelected(playingCvIdx.value);
-    await onVkSelected(playingVkIdx.value);
+    await _setPlayingSelection();
 
     // scroll
     cvOffsetMap.update(playingCvIdx.value, (value) => offset['cvOffset'],
