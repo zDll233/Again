@@ -38,7 +38,7 @@ class WindowButtons extends StatelessWidget {
         CloseWindowButton(
           colors: closeButtonColors,
           onPressed: () async {
-            await Get.find<Controller>().saveHistory();
+            await c.saveHistory();
             appWindow.close();
           },
         ),
