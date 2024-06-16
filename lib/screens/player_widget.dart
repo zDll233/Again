@@ -7,16 +7,16 @@ import 'package:again/controller/controller.dart';
 class PlayerWidget extends StatelessWidget {
   final AudioPlayer player;
 
-  const PlayerWidget({
+  PlayerWidget({
     required this.player,
     super.key,
   });
 
   static const double _iconSize = 45.0;
+  final Controller c = Get.find();
 
   @override
   Widget build(BuildContext context) {
-    final Controller c = Get.find();
     final appWidth = MediaQuery.of(context).size.width;
     return Obx(
       () => SizedBox(
@@ -24,9 +24,9 @@ class PlayerWidget extends StatelessWidget {
         child: Stack(
           children: [
             _buildProgressBar(context, c, appWidth),
-            _buildVolumeControl(context, c),
-            _buildTimeDisplay(c),
-            _buildPlaybackControls(c),
+            _buildVolumeControl(context),
+            _buildTimeDisplay(),
+            _buildPlaybackControls(),
           ],
         ),
       ),
@@ -54,14 +54,14 @@ class PlayerWidget extends StatelessWidget {
                 player.seek(Duration(milliseconds: position.round()));
               }
             },
-            value: _getProgressBarValue(c),
+            value: _getProgressBarValue(),
           ),
         ),
       ),
     );
   }
 
-  double _getProgressBarValue(Controller c) {
+  double _getProgressBarValue() {
     if (c.audio.position.value != Duration.zero &&
         c.audio.duration.value != Duration.zero &&
         c.audio.position.value.inMilliseconds > 0 &&
@@ -74,7 +74,7 @@ class PlayerWidget extends StatelessWidget {
     }
   }
 
-  Widget _buildVolumeControl(BuildContext context, Controller c) {
+  Widget _buildVolumeControl(BuildContext context) {
     return Positioned(
       right: 10,
       bottom: 10,
@@ -113,21 +113,21 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeDisplay(Controller c) {
+  Widget _buildTimeDisplay() {
     return Positioned(
       left: 20,
       bottom: 20,
       child: Align(
         alignment: Alignment.center,
         child: Text(
-          _getTimeDisplayText(c),
+          _getTimeDisplayText(),
           style: const TextStyle(fontSize: 16.0),
         ),
       ),
     );
   }
 
-  String _getTimeDisplayText(Controller c) {
+  String _getTimeDisplayText() {
     if (c.audio.position.value != Duration.zero) {
       return '${c.audio.position.value.toString().split('.').first} /${c.audio.duration.value.toString().split('.').first}';
     } else if (c.audio.duration.value != Duration.zero) {
@@ -137,7 +137,7 @@ class PlayerWidget extends StatelessWidget {
     }
   }
 
-  Widget _buildPlaybackControls(Controller c) {
+  Widget _buildPlaybackControls() {
     return Positioned(
       left: 0,
       right: 0,
@@ -147,17 +147,17 @@ class PlayerWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildPrevButton(c),
-            _buildPlayPauseButton(c),
-            _buildNextButton(c),
-            _buildLoopModeButton(c),
+            _buildPrevButton(),
+            _buildPlayPauseButton(),
+            _buildNextButton(),
+            _buildLoopModeButton(),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildPrevButton(Controller c) {
+  Widget _buildPrevButton() {
     return IconButton(
       key: const Key('prev_button'),
       onPressed: c.audio.playingViIdx >= 0 ? c.audio.playPrev : null,
@@ -166,7 +166,7 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildPlayPauseButton(Controller c) {
+  Widget _buildPlayPauseButton() {
     return IconButton(
       key: const Key('play_pause_button'),
       onPressed: c.audio.playingViIdx >= 0
@@ -181,7 +181,7 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildNextButton(Controller c) {
+  Widget _buildNextButton() {
     return IconButton(
       key: const Key('next_button'),
       onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
@@ -190,7 +190,7 @@ class PlayerWidget extends StatelessWidget {
     );
   }
 
-  _buildLoopModeButton(Controller c) {
+  _buildLoopModeButton() {
     return IconButton(
       key: const Key('loop_mode'),
       onPressed: c.audio.onLoopModePressed,
