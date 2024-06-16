@@ -127,7 +127,7 @@ class PlayerWidget extends StatelessWidget {
 
   String _getTimeDisplayText() {
     if (c.audio.position.value != Duration.zero) {
-      return '${c.audio.position.value.toString().split('.').first} /${c.audio.duration.value.toString().split('.').first}';
+      return '${c.audio.position.value.toString().split('.').first} / ${c.audio.duration.value.toString().split('.').first}';
     } else if (c.audio.duration.value != Duration.zero) {
       return c.audio.duration.value.toString().split('.').first;
     } else {
