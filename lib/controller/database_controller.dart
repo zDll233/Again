@@ -138,12 +138,12 @@ class DatabaseController extends GetxController {
     final cvDataList = await database.selectAllCv();
     final categoryDataList = await database.selectAllCategory();
 
-    final uiController = Get.find<UIController>();
-    uiController.cvNames
+    final ui = Get.find<UIController>();
+    ui.cvNames
       ..clear()
       ..addAll(cvDataList.map((item) => item.cvName));
 
-    uiController.categories
+    ui.categories
       ..clear()
       ..addAll(categoryDataList.map((item) => item.description));
   }
