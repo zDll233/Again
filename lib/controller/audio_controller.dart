@@ -74,7 +74,6 @@ class AudioController extends GetxController {
 
   Future<void> play(Source source) async {
     try {
-      await player.stop();
       await player.setSource(source);
       await player.resume();
       playerState.value = PlayerState.playing;
