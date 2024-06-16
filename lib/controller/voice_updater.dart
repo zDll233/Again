@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/controller/controller.dart';
+import 'package:again/controller/database_controller.dart';
 import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -11,7 +11,7 @@ class VoiceUpdater {
   VoiceUpdater(String root) : rootDir = Directory(root);
 
   late Directory rootDir;
-  final Controller c = Get.find();
+  final DatabaseController db = Get.find();
 
   static const List<String> audioExtensions = [
     '.mp3',
@@ -36,15 +36,13 @@ class VoiceUpdater {
   }
 
   List<String> getCVList(String vkTitle) {
-    String input = vkTitle;
-    List<String> cvList = input.split('-')[0].split('&');
-    return cvList;
+    return vkTitle.split('-')[0].split('&');
   }
 
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [
       const TVoiceWorkCategoryCompanion(
-        description: Value("All"),
+        description: Value('All'),
         rowid: Value.absent(),
       )
     ];
@@ -54,7 +52,7 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await c.db.database.insertMultipleVoiceWorkCategories(vkcc);
+    await db.database.insertMultipleVoiceWorkCategories(vkcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
@@ -62,7 +60,7 @@ class VoiceUpdater {
     Set<String> cvNames = {};
     List<TCVCompanion> cvc = [
       const TCVCompanion(
-        cvName: Value("All"),
+        cvName: Value('All'),
         rowid: Value.absent(),
       )
     ];
@@ -96,7 +94,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await c.db.database.insertMultipleVoiceWorks(vkc);
+    await db.database.insertMultipleVoiceWorks(vkc);
 
     // cv
     for (var cvName in cvNames) {
@@ -105,10 +103,10 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await c.db.database.insertMultipleCvs(cvc);
+    await db.database.insertMultipleCvs(cvc);
 
     // cv vk
-    await c.db.database.insertMultipleVoiceCvs(vcc);
+    await db.database.insertMultipleVoiceCvs(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
@@ -125,6 +123,6 @@ class VoiceUpdater {
         ));
       }
     }
-    await c.db.database.insertMultipleVoiceItems(vic);
+    await db.database.insertMultipleVoiceItems(vic);
   }
 }
