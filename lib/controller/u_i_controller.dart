@@ -203,17 +203,17 @@ class UIController extends GetxController {
     playingSortOrder = sortOrder.value;
   }
 
-  Future<void> loadCache(Map<String, dynamic> uiCache) async {
-    if (uiCache.isEmpty) return;
+  Future<void> loadHistory(Map<String, dynamic> uiHistory) async {
+    if (uiHistory.isEmpty) return;
 
-    final filter = uiCache['filter'];
-    final offset = uiCache['scrollOffset'];
+    final filter = uiHistory['filter'];
+    final offset = uiHistory['scrollOffset'];
 
     // filter vk
     sortOrder.value = playingSortOrder = SortOrder.values[filter['sortOrder']];
     playingCategoryIdx.value = filter['category'];
     playingCvIdx.value = filter['cv'];
-    playingVkIdx.value = uiCache['vk'];
+    playingVkIdx.value = uiHistory['vk'];
     await onCategorySelected(playingCategoryIdx.value);
     await onCvSelected(playingCvIdx.value);
     await onVkSelected(playingVkIdx.value);

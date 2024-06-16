@@ -13,16 +13,16 @@ class Controller extends GetxController {
   final ui = Get.put(UIController());
   final db = Get.put(DatabaseController());
 
-  late final JsonStorage _cache;
+  late final JsonStorage _history;
 
   @override
   void onInit() async {
     super.onInit();
     await db.initializeStorage();
-    await _loadCache();
+    await _loadHistory();
   }
 
-  Future<void> saveCache() async {
+  Future<void> saveHistory() async {
     final AudioController audio = Get.find();
     Map<String, dynamic> lastPlayed = {
       'ui': {
@@ -44,25 +44,25 @@ class Controller extends GetxController {
         'loopMode':audio.loopMode.value.index
       },
     };
-    await _cache.write(lastPlayed);
+    await _history.write(lastPlayed);
   }
 
-  Future<void> _loadCache() async {
-    const directoryPath = 'cache';
+  Future<void> _loadHistory() async {
+    const directoryPath = 'History';
     const fileName = 'last_played.json';
     final filePath = p.join(directoryPath, fileName);
 
-    _cache = JsonStorage(filePath: filePath);
-    final data = await _cache.read();
+    _history = JsonStorage(filePath: filePath);
+    final data = await _history.read();
     if (data.isEmpty) return;
 
-    await ui.loadCache(data['ui']);
+    await ui.loadHistory(data['ui']);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 延迟滚动到保存的位置
       await ui.scrollToPlayingOffsets();
 
-      await audio.loadCache(data['audio']);
+      await audio.loadHistory(data['audio']);
     });
   }
 }

@@ -160,19 +160,19 @@ class AudioController extends GetxController {
     super.onClose();
   }
 
-  Future<void> loadCache(Map<String, dynamic> audioCache) async {
-    if (audioCache.isEmpty) return;
+  Future<void> loadHistory(Map<String, dynamic> audioHistory) async {
+    if (audioHistory.isEmpty) return;
 
-    volume.value = audioCache['volume'];
-    playingViIdx.value = audioCache['vi'];
+    volume.value = audioHistory['volume'];
+    playingViIdx.value = audioHistory['vi'];
     playingViPathList = Get.find<UIController>().selectedViPathList.toList();
-    loopMode.value = LoopMode.values[audioCache['loopMode']];
+    loopMode.value = LoopMode.values[audioHistory['loopMode']];
 
     try {
       await player.stop();
       await player
           .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
-      await player.seek(Duration(milliseconds: audioCache['position']));
+      await player.seek(Duration(milliseconds: audioHistory['position']));
       playerState.value = PlayerState.paused;
     } catch (e) {
       _logger.e('Error loading last audio: $e');
