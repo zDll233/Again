@@ -1,3 +1,4 @@
+import 'package:again/controller/audio_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -149,6 +150,7 @@ class PlayerWidget extends StatelessWidget {
             _buildPrevButton(c),
             _buildPlayPauseButton(c),
             _buildNextButton(c),
+            _buildLoopModeButton(c),
           ],
         ),
       ),
@@ -185,6 +187,17 @@ class PlayerWidget extends StatelessWidget {
       onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
       iconSize: _iconSize,
       icon: const Icon(Icons.skip_next),
+    );
+  }
+
+  _buildLoopModeButton(Controller c) {
+    return IconButton(
+      key: const Key('loop_mode'),
+      onPressed: c.audio.onLoopModePressed,
+      iconSize: _iconSize * 0.5,
+      icon: c.audio.loopMode.value == LoopMode.allLoop
+          ? const Icon(Icons.repeat)
+          : const Icon(Icons.repeat_one),
     );
   }
 }

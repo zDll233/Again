@@ -41,6 +41,7 @@ class Controller extends GetxController {
         'vi': audio.playingViIdx.value,
         'position': audio.position.value.inMilliseconds,
         'volume': audio.volume.value,
+        'loopMode':audio.loopMode.value.index
       },
     };
     await _cache.write(lastPlayed);

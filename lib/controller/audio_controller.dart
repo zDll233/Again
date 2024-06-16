@@ -7,6 +7,11 @@ import 'package:path/path.dart' as p;
 import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
+enum LoopMode {
+  allLoop,
+  singleLoop,
+}
+
 class AudioController extends GetxController {
   late final AudioPlayer player;
   var playerState = PlayerState.stopped.obs;
@@ -17,6 +22,8 @@ class AudioController extends GetxController {
 
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
+
+  var loopMode = LoopMode.allLoop.obs;
 
   late final Logger _logger;
 
@@ -56,7 +63,7 @@ class AudioController extends GetxController {
       if (playingViIdx.value == playingViPathList.length - 1) {
         _stopPlayer();
       } else {
-        playNext();
+        loopMode.value == LoopMode.allLoop ? _changeTrack(1) : _changeTrack(0);
       }
     });
 
@@ -140,6 +147,12 @@ class AudioController extends GetxController {
     await player.setVolume(v);
   }
 
+  void onLoopModePressed() {
+    loopMode.value = loopMode.value == LoopMode.allLoop
+        ? LoopMode.singleLoop
+        : LoopMode.allLoop;
+  }
+
   @override
   void onClose() {
     _logger.close();
@@ -153,6 +166,7 @@ class AudioController extends GetxController {
     volume.value = audioCache['volume'];
     playingViIdx.value = audioCache['vi'];
     playingViPathList = Get.find<UIController>().selectedViPathList.toList();
+    loopMode.value = LoopMode.values[audioCache['loopMode']];
 
     try {
       await player.stop();
