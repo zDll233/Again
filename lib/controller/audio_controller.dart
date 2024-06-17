@@ -172,7 +172,7 @@ class AudioController extends GetxController {
   Future<void> loadHistory(Map<String, dynamic> audioHistory) async {
     if (audioHistory.isEmpty) return;
 
-    volume.value = audioHistory['volume'];
+    await setVolume(audioHistory['volume']);
     playingViIdx.value = audioHistory['vi'];
     playingViPathList = Get.find<UIController>().selectedViPathList.toList();
     loopMode.value = LoopMode.values[audioHistory['loopMode']];

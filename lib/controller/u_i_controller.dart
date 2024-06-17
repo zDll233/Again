@@ -36,10 +36,6 @@ class UIController extends GetxController {
   final sortOrder = SortOrder.byTitle.obs;
   SortOrder playingSortOrder = SortOrder.byTitle;
 
-  final Map<int, GlobalKey> vkKeys = <int, GlobalKey>{};
-  final List<double> vkHeightList = <double>[];
-
-
   Future<void> onOpenSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {
       Directory directory = File(selectedViPathList[0]).parent;
