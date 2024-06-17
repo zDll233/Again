@@ -12,29 +12,33 @@ enum SortOrder {
 }
 
 class UIController extends GetxController {
-  var vkTitleList = <String>[].obs;
-  var selectedVkTitle = ''.obs;
-  var selectedViPathList = <String>[];
-  var selectedViTitleList = <String>[].obs;
+  final vkTitleList = <String>[].obs;
+  final selectedVkTitle = ''.obs;
+  final selectedViPathList = <String>[];
+  final selectedViTitleList = <String>[].obs;
 
-  var playingVkIdx = (-1).obs;
-  var selectedVkIdx = (-1).obs;
+  final playingVkIdx = (-1).obs;
+  final selectedVkIdx = (-1).obs;
 
-  var vkScrollController = ScrollController();
-  var cvScrollController = ScrollController();
-  var vkOffsetMap = <int, double>{0: 0.0};
-  var cvOffsetMap = <int, double>{0: 0.0};
+  final vkScrollController = ScrollController();
+  final cvScrollController = ScrollController();
+  final vkOffsetMap = <int, double>{0: 0.0};
+  final cvOffsetMap = <int, double>{0: 0.0};
 
-  var cvNames = ['All'].obs;
-  var playingCvIdx = 0.obs;
-  var selectedCvIdx = 0.obs;
+  final cvNames = ['All'].obs;
+  final playingCvIdx = 0.obs;
+  final selectedCvIdx = 0.obs;
 
-  var categories = ['All'].obs;
-  var playingCategoryIdx = 0.obs;
-  var selectedCategoryIdx = 0.obs;
+  final categories = ['All'].obs;
+  final playingCategoryIdx = 0.obs;
+  final selectedCategoryIdx = 0.obs;
 
-  var sortOrder = SortOrder.byTitle.obs;
-  var playingSortOrder = SortOrder.byTitle;
+  final sortOrder = SortOrder.byTitle.obs;
+  SortOrder playingSortOrder = SortOrder.byTitle;
+
+  final Map<int, GlobalKey> vkKeys = <int, GlobalKey>{};
+  final List<double> vkHeightList = <double>[];
+
 
   Future<void> onOpenSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {

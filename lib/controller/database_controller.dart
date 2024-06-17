@@ -135,8 +135,10 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> updateFilterLists() async {
-    final cvDataList = await database.selectAllCv();
-    final categoryDataList = await database.selectAllCategory();
+    final cvDataList = await database.selectAllCv()
+      ..sort((a, b) => _compareTitleWithNum(a.cvName, b.cvName));
+    final categoryDataList = await database.selectAllCategory()
+      ..sort((a, b) => _compareTitleWithNum(a.description, b.description));
 
     final ui = Get.find<UIController>();
     ui.cvNames
