@@ -60,7 +60,7 @@ class UIController extends GetxController {
   /// Resets the filters and scrolls to the top.
   Future<void> onRemoveFilterPressed() async {
     await _resetFilters();
-    await _scrollToTop();
+    _scrollToTop();
   }
 
   /// Locates the playing item by updating the selection and scrolling to it.
@@ -69,8 +69,8 @@ class UIController extends GetxController {
       await _setFilterPlaying();
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await scrollToPlayingIdx();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToPlayingIdx();
     });
   }
 
@@ -107,24 +107,13 @@ class UIController extends GetxController {
     await audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
 
-  Future<void> scrollToOffset(ScrollController controller, double? offset,
-      {int duration = 200}) async {
-    if (offset != null && controller.hasClients) {
-      await controller.animateTo(
-        offset,
-        duration: Duration(milliseconds: duration),
-        curve: Curves.easeIn,
-      );
-    }
-  }
-
   Future<void> scrollToIndex(ItemScrollController controller, int? index,
       {int duration = 200}) async {
     if (index != null && controller.isAttached) {
-      await controller.scrollTo(
+      controller.scrollTo(
         index: index,
         duration: Duration(milliseconds: duration),
-        curve: Curves.ease,
+        curve: Curves.bounceIn,
       );
     }
   }
@@ -136,8 +125,8 @@ class UIController extends GetxController {
   }
 
   Future<void> _scrollToTop() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.wait([
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.wait([
         scrollToIndex(cvScrollController, 0, duration: 200),
         scrollToIndex(vkScrollController, 0, duration: 200),
       ]);
@@ -152,14 +141,12 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToPlayingIdx() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.wait([
-        scrollToIndex(cvScrollController, playingCvIdx.value, duration: 200),
-        scrollToIndex(vkScrollController, playingVkIdx.value, duration: 200),
-        scrollToIndex(
-            viScrollController, Get.find<AudioController>().playingViIdx.value,
-            duration: 200)
-      ]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToIndex(cvScrollController, playingCvIdx.value, duration: 200);
+      scrollToIndex(vkScrollController, playingVkIdx.value, duration: 200);
+      scrollToIndex(
+          viScrollController, Get.find<AudioController>().playingViIdx.value,
+          duration: 200);
     });
   }
 
