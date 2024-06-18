@@ -18,7 +18,7 @@ class AudioController extends GetxController {
   var duration = Duration.zero.obs;
   var position = Duration.zero.obs;
   var volume = 1.0.obs;
-  var lastVolume = 0.0;
+  var lastVolume = 1.0;
 
   var playingViIdx = (-1).obs;
   var playingViPathList = [];
@@ -28,10 +28,10 @@ class AudioController extends GetxController {
   late final Logger _logger;
 
   @override
-  void onInit() async {
+  void onInit() {
     super.onInit();
     _initPlayer();
-    await _initLogger();
+    _initLogger();
   }
 
   Future<void> _initLogger() async {
@@ -177,7 +177,6 @@ class AudioController extends GetxController {
       await player
           .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
       await player.seek(Duration(milliseconds: audioHistory['position']));
-      // playerState.value = PlayerState.paused;
     } catch (e) {
       _logger.e('Error loading last audio: $e');
     }
