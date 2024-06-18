@@ -4,7 +4,7 @@ import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/database_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -68,7 +68,10 @@ class UIController extends GetxController {
     if (!_isFilterPlaying() || selectedVkIdx.value != playingVkIdx.value) {
       await _setPlayingSelection();
     }
-    await scrollToPlayingIdx();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await scrollToPlayingIdx();
+    });
   }
 
   Future<void> onCategorySelected(int selectedIdx) async {
@@ -99,7 +102,7 @@ class UIController extends GetxController {
     audio.playingViIdx.value = idx;
     audio.playingViPathList = selectedViPathList.toList();
 
-    _updatePlayingSelection(sortOrder.value, selectedCategoryIdx.value,
+    _updatePlayingIdx(sortOrder.value, selectedCategoryIdx.value,
         selectedCvIdx.value, selectedVkIdx.value);
     await audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
@@ -148,7 +151,7 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToPlayingIdx() async {
-    SchedulerBinding.instance.addPostFrameCallback((_) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
         scrollToIndex(cvScrollController, playingCvIdx.value, duration: 200),
         scrollToIndex(vkScrollController, playingVkIdx.value, duration: 200),
@@ -182,7 +185,7 @@ class UIController extends GetxController {
     }
   }
 
-  void _updatePlayingSelection(
+  void _updatePlayingIdx(
       SortOrder sortOrder, int cateIdx, int cvIdx, int vkIdx) {
     playingSortOrder = sortOrder;
     playingCategoryIdx.value = cateIdx;
@@ -196,8 +199,8 @@ class UIController extends GetxController {
     final filter = uiHistory['filter'];
 
     // filter vk
-    _updatePlayingSelection(SortOrder.values[filter['sortOrder']],
-        filter['category'], filter['cv'], uiHistory['vk']);
+    _updatePlayingIdx(SortOrder.values[filter['sortOrder']], filter['category'],
+        filter['cv'], uiHistory['vk']);
     await _setPlayingSelection();
   }
 }
