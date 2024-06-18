@@ -48,7 +48,7 @@ class AudioController extends GetxController {
 
   void _initPlayer() {
     player = AudioPlayer();
-    player.setReleaseMode(ReleaseMode.stop);
+    player.setReleaseMode(ReleaseMode.release);
 
     // Initialize streams
     player.onDurationChanged.listen((d) {
@@ -76,7 +76,6 @@ class AudioController extends GetxController {
     try {
       await player.setSource(source);
       await player.resume();
-      playerState.value = PlayerState.playing;
     } catch (e) {
       _logger.e('Error playing audio: $e');
     }
@@ -103,7 +102,6 @@ class AudioController extends GetxController {
   Future<void> resume() async {
     try {
       await player.resume();
-      playerState.value = PlayerState.playing;
     } catch (e) {
       _logger.e('Error resuming audio: $e');
     }
@@ -112,7 +110,6 @@ class AudioController extends GetxController {
   Future<void> pause() async {
     try {
       await player.pause();
-      playerState.value = PlayerState.paused;
     } catch (e) {
       _logger.e('Error pausing audio: $e');
     }
@@ -125,7 +122,6 @@ class AudioController extends GetxController {
   Future<void> _stopPlayer() async {
     try {
       await player.stop();
-      playerState.value = PlayerState.stopped;
       position.value = Duration.zero;
     } catch (e) {
       _logger.e('Error stopping audio: $e');
@@ -178,11 +174,10 @@ class AudioController extends GetxController {
     loopMode.value = LoopMode.values[audioHistory['loopMode']];
 
     try {
-      await player.stop();
       await player
           .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
       await player.seek(Duration(milliseconds: audioHistory['position']));
-      playerState.value = PlayerState.paused;
+      // playerState.value = PlayerState.paused;
     } catch (e) {
       _logger.e('Error loading last audio: $e');
     }
