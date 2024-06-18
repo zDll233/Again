@@ -66,7 +66,7 @@ class UIController extends GetxController {
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
     if (!_isFilterPlaying() || selectedVkIdx.value != playingVkIdx.value) {
-      await _setPlayingSelection();
+      await _setFilterPlaying();
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -144,11 +144,11 @@ class UIController extends GetxController {
     });
   }
 
-  Future<void> _setPlayingSelection() async {
+  /// set filter playing idx value, update vk list
+  Future<void> _setFilterPlaying() async {
     sortOrder.value = playingSortOrder;
     selectedCategoryIdx.value = playingCategoryIdx.value;
     await onCvSelected(playingCvIdx.value);
-    await onVkSelected(playingVkIdx.value);
   }
 
   Future<void> scrollToPlayingIdx() async {
@@ -202,6 +202,6 @@ class UIController extends GetxController {
     // filter vk
     _updatePlayingIdx(SortOrder.values[filter['sortOrder']], filter['category'],
         filter['cv'], uiHistory['vk']);
-    await _setPlayingSelection();
+    await _setFilterPlaying();
   }
 }
