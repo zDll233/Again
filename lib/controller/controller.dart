@@ -48,10 +48,6 @@ class Controller extends GetxController {
           'sortOrder': ui.sortOrder.value.index
         },
         'vk': ui.playingVkIdx.value,
-        'scrollOffset': {
-          'cvOffset': ui.cvOffsetMap[ui.playingCvIdx.value],
-          'vkOffset': ui.vkOffsetMap[ui.playingVkIdx.value],
-        },
       },
       'audio': {
         'vi': audio.playingViIdx.value,
@@ -76,7 +72,7 @@ class Controller extends GetxController {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 延迟滚动到保存的位置
-      await ui.scrollToPlayingOffsets();
+      await ui.scrollToPlayingIdx();
 
       await audio.loadHistory(data['audio']);
     });

@@ -4,7 +4,9 @@ import 'package:again/controller/audio_controller.dart';
 import 'package:again/controller/database_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 enum SortOrder {
   byTitle,
@@ -20,10 +22,9 @@ class UIController extends GetxController {
   final playingVkIdx = (-1).obs;
   final selectedVkIdx = (-1).obs;
 
-  final vkScrollController = ScrollController();
-  final cvScrollController = ScrollController();
-  final vkOffsetMap = <int, double>{0: 0.0};
-  final cvOffsetMap = <int, double>{0: 0.0};
+  final cvScrollController = ItemScrollController();
+  final vkScrollController = ItemScrollController();
+  final viScrollController = ItemScrollController();
 
   final cvNames = ['All'].obs;
   final playingCvIdx = 0.obs;
@@ -67,38 +68,22 @@ class UIController extends GetxController {
     if (!_isFilterPlaying() || selectedVkIdx.value != playingVkIdx.value) {
       await _setPlayingSelection();
     }
-    await scrollToPlayingOffsets();
+    await scrollToPlayingIdx();
   }
 
-  Future<void> onCategorySelected(int idx) async {
-    await updateWithCategorySelected(idx);
-  }
-
-  Future<void> updateWithCategorySelected(int selectedIdx) async {
+  Future<void> onCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
     await _filterSelected();
   }
 
-  Future<void> onCvSelected(int idx) async {
-    _updateOffset(cvScrollController, cvOffsetMap, idx);
-
-    // locate 用到了此函数，为了offset不被覆盖，分开执行
-    await updateWithCvSelected(idx);
-  }
-
-  Future<void> updateWithCvSelected(int selectedIdx) async {
+  Future<void> onCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
     await Get.find<DatabaseController>().updateVkTitleList();
     await _filterSelected();
   }
 
-  Future<void> onVkSelected(int idx) async {
-    _updateOffset(vkScrollController, vkOffsetMap, idx);
-    await updateWithVkSelected(idx);
-  }
-
-  Future<void> updateWithVkSelected(int selectedIdx) async {
+  Future<void> onVkSelected(int selectedIdx) async {
     selectedVkIdx.value = selectedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
     await Get.find<DatabaseController>().updateSelectedViLists();
@@ -114,7 +99,8 @@ class UIController extends GetxController {
     audio.playingViIdx.value = idx;
     audio.playingViPathList = selectedViPathList.toList();
 
-    _updatePlayingSelection();
+    _updatePlayingSelection(sortOrder.value, selectedCategoryIdx.value,
+        selectedCvIdx.value, selectedVkIdx.value);
     await audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
 
@@ -129,33 +115,45 @@ class UIController extends GetxController {
     }
   }
 
+  Future<void> scrollToIndex(ItemScrollController controller, int? index,
+      {int duration = 200}) async {
+    if (index != null && controller.isAttached) {
+      await controller.scrollTo(
+        index: index,
+        duration: Duration(milliseconds: duration),
+        curve: Curves.easeIn,
+      );
+    }
+  }
+
   Future<void> _resetFilters() async {
-    await updateWithCategorySelected(0);
-    await updateWithCvSelected(0);
+    await onCategorySelected(0);
+    await onCvSelected(0);
   }
 
   Future<void> _scrollToTop() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
-        scrollToOffset(cvScrollController, 0, duration: 200),
-        scrollToOffset(vkScrollController, 0, duration: 200)
+        scrollToIndex(cvScrollController, 0, duration: 200),
+        scrollToIndex(vkScrollController, 0, duration: 200),
       ]);
     });
   }
 
   Future<void> _setPlayingSelection() async {
     sortOrder.value = playingSortOrder;
-    await updateWithCategorySelected(playingCategoryIdx.value);
-    await updateWithCvSelected(playingCvIdx.value);
-    await updateWithVkSelected(playingVkIdx.value);
+    selectedCategoryIdx.value = playingCategoryIdx.value;
+    await onCvSelected(playingCvIdx.value);
+    await onVkSelected(playingVkIdx.value);
   }
 
-  Future<void> scrollToPlayingOffsets() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
+  Future<void> scrollToPlayingIdx() async {
+    SchedulerBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
-        scrollToOffset(cvScrollController, cvOffsetMap[playingCvIdx.value],
-            duration: 200),
-        scrollToOffset(vkScrollController, vkOffsetMap[playingVkIdx.value],
+        scrollToIndex(cvScrollController, playingCvIdx.value, duration: 200),
+        scrollToIndex(vkScrollController, playingVkIdx.value, duration: 200),
+        scrollToIndex(
+            viScrollController, Get.find<AudioController>().playingViIdx.value,
             duration: 200)
       ]);
     });
@@ -177,45 +175,29 @@ class UIController extends GetxController {
   /// 不在播放的：vk not select, vi clear;
   Future<void> _filterSelected() async {
     if (_isFilterPlaying()) {
-      await updateWithVkSelected(playingVkIdx.value);
+      await onVkSelected(playingVkIdx.value);
     } else {
       selectedVkIdx.value = -1;
       selectedViTitleList.clear();
     }
   }
 
-  void _updateOffset(
-      ScrollController controller, Map<int, double> offsetMap, int idx) {
-    if (controller.hasClients) {
-      var offset = controller.offset;
-      offsetMap.update(idx, (value) => offset, ifAbsent: () => offset);
-    }
-  }
-
-  void _updatePlayingSelection() {
-    playingVkIdx.value = selectedVkIdx.value;
-    playingCvIdx.value = selectedCvIdx.value;
-    playingCategoryIdx.value = selectedCategoryIdx.value;
-    playingSortOrder = sortOrder.value;
+  void _updatePlayingSelection(
+      SortOrder sortOrder, int cateIdx, int cvIdx, int vkIdx) {
+    playingSortOrder = sortOrder;
+    playingCategoryIdx.value = cateIdx;
+    playingCvIdx.value = cvIdx;
+    playingVkIdx.value = vkIdx;
   }
 
   Future<void> loadHistory(Map<String, dynamic> uiHistory) async {
     if (uiHistory.isEmpty) return;
 
     final filter = uiHistory['filter'];
-    final offset = uiHistory['scrollOffset'];
 
     // filter vk
-    playingSortOrder = SortOrder.values[filter['sortOrder']];
-    playingCategoryIdx.value = filter['category'];
-    playingCvIdx.value = filter['cv'];
-    playingVkIdx.value = uiHistory['vk'];
+    _updatePlayingSelection(SortOrder.values[filter['sortOrder']],
+        filter['category'], filter['cv'], uiHistory['vk']);
     await _setPlayingSelection();
-
-    // scroll
-    cvOffsetMap.update(playingCvIdx.value, (value) => offset['cvOffset'],
-        ifAbsent: () => offset['cvOffset']);
-    vkOffsetMap.update(playingVkIdx.value, (value) => offset['vkOffset'],
-        ifAbsent: () => offset['vkOffset']);
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class FutureListView<T> extends StatelessWidget {
   const FutureListView({
@@ -12,7 +13,7 @@ class FutureListView<T> extends StatelessWidget {
   final Future<List<T>> future;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final String emptyMessage;
-  final ScrollController? scrollController;
+  final ItemScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +23,12 @@ class FutureListView<T> extends StatelessWidget {
         if (!snapshot.hasData || snapshot.data!.isEmpty) {
           return Center(child: Text(emptyMessage));
         } else {
-          return ListView.builder(
+          return ScrollablePositionedList.builder(
             itemCount: snapshot.data!.length,
             itemBuilder: (context, index) {
               return itemBuilder(context, snapshot.data![index], index);
             },
-            controller: scrollController,
+            itemScrollController: scrollController,
           );
         }
       },
