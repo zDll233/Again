@@ -124,7 +124,7 @@ class UIController extends GetxController {
       await controller.scrollTo(
         index: index,
         duration: Duration(milliseconds: duration),
-        curve: Curves.easeIn,
+        curve: Curves.ease,
       );
     }
   }
