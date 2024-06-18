@@ -129,8 +129,9 @@ class UIController extends GetxController {
     }
   }
 
+  /// reset category & cv, except sortOrder
   Future<void> _resetFilters() async {
-    await onCategorySelected(0);
+    selectedCategoryIdx.value = 0;
     await onCvSelected(0);
   }
 
