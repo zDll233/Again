@@ -1,5 +1,4 @@
 import 'package:again/utils/json_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
@@ -69,12 +68,6 @@ class Controller extends GetxController {
     if (data.isEmpty) return;
 
     await ui.loadHistory(data['ui']);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // 延迟滚动到保存的位置
-      await ui.scrollToPlayingIdx();
-
-      await audio.loadHistory(data['audio']);
-    });
+    await audio.loadHistory(data['audio']);
   }
 }

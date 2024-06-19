@@ -26,6 +26,7 @@ class UIController extends GetxController {
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
+  late Completer vkCompleter;
   late Completer viCompleter;
 
   final cvNames = ['All'].obs;
@@ -71,9 +72,7 @@ class UIController extends GetxController {
       await _setFilterPlaying();
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await scrollToPlayingIdx();
-    });
+    await scrollToPlayingIdx();
   }
 
   Future<void> onCategorySelected(int selectedIdx) async {
@@ -147,14 +146,19 @@ class UIController extends GetxController {
   Future<void> scrollToPlayingIdx() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
-        viCompleter.future,
+        vkCompleter.future,
       ]);
-      await Future.wait([
-        scrollToIndex(cvScrollController, playingCvIdx.value),
-        scrollToIndex(vkScrollController, playingVkIdx.value),
-        scrollToIndex(
-            viScrollController, Get.find<AudioController>().playingViIdx.value)
-      ]);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await Future.wait([
+          viCompleter.future,
+        ]);
+        await Future.wait([
+          scrollToIndex(cvScrollController, playingCvIdx.value),
+          scrollToIndex(vkScrollController, playingVkIdx.value),
+          scrollToIndex(viScrollController,
+              Get.find<AudioController>().playingViIdx.value)
+        ]);
+      });
     });
   }
 
@@ -198,6 +202,6 @@ class UIController extends GetxController {
     // filter vk
     _updatePlayingIdx(SortOrder.values[filter['sortOrder']], filter['category'],
         filter['cv'], uiHistory['vk']);
-    await _setFilterPlaying();
+    await onLocateBtnPressed();
   }
 }
