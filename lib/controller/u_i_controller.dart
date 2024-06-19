@@ -127,8 +127,8 @@ class UIController extends GetxController {
   Future<void> _scrollToTop() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.wait([
-        scrollToIndex(cvScrollController, 0, duration: 200),
-        scrollToIndex(vkScrollController, 0, duration: 200),
+        scrollToIndex(cvScrollController, 0),
+        scrollToIndex(vkScrollController, 0),
       ]);
     });
   }
