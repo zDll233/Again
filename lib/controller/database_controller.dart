@@ -96,7 +96,7 @@ class DatabaseController extends GetxController {
     }
   }
 
-  void updateSortedVkTitleList() {
+  Future<void> updateSortedVkTitleList() async {
     final ui = Get.find<UIController>();
     switch (ui.sortOrder.value) {
       case SortOrder.byTitle:
@@ -150,7 +150,7 @@ class DatabaseController extends GetxController {
       ..addAll(categoryDataList.map((item) => item.description));
   }
 
-  Future<void> updateSelectedViLists() async {
+  Future<void> updateSelectedViList() async {
     final ui = Get.find<UIController>();
     final viDataList = await database
         .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)

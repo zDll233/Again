@@ -7,13 +7,13 @@ class FutureListView<T> extends StatelessWidget {
     required this.future,
     required this.itemBuilder,
     this.emptyMessage = 'No items found',
-    this.scrollController,
+    this.itemScrollController,
   });
 
   final Future<List<T>> future;
   final Widget Function(BuildContext context, T item, int index) itemBuilder;
   final String emptyMessage;
-  final ItemScrollController? scrollController;
+  final ItemScrollController? itemScrollController;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class FutureListView<T> extends StatelessWidget {
             itemBuilder: (context, index) {
               return itemBuilder(context, snapshot.data![index], index);
             },
-            itemScrollController: scrollController,
+            itemScrollController: itemScrollController,
           );
         }
       },

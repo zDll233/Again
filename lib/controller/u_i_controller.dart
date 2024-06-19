@@ -42,7 +42,7 @@ class UIController extends GetxController {
       Directory directory = File(selectedViPathList[0]).parent;
 
       if (await directory.exists()) {
-        Process.run('explorer', [directory.path]); // Windows
+        await Process.run('explorer', [directory.path]); // Windows
       }
     }
   }
@@ -53,14 +53,14 @@ class UIController extends GetxController {
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
 
-    Get.find<DatabaseController>().updateSortedVkTitleList();
+    await Get.find<DatabaseController>().updateSortedVkTitleList();
     await _filterSelected();
   }
 
   /// Resets the filters and scrolls to the top.
   Future<void> onRemoveFilterPressed() async {
     await _resetFilters();
-    _scrollToTop();
+    await _scrollToTop();
   }
 
   /// Locates the playing item by updating the selection and scrolling to it.
@@ -69,8 +69,8 @@ class UIController extends GetxController {
       await _setFilterPlaying();
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollToPlayingIdx();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await scrollToPlayingIdx();
     });
   }
 
@@ -89,7 +89,7 @@ class UIController extends GetxController {
   Future<void> onVkSelected(int selectedIdx) async {
     selectedVkIdx.value = selectedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
-    await Get.find<DatabaseController>().updateSelectedViLists();
+    await Get.find<DatabaseController>().updateSelectedViList();
   }
 
   Future<void> onViSelected(int idx) async {
@@ -108,12 +108,12 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToIndex(ItemScrollController controller, int? index,
-      {int duration = 200}) async {
+      {int duration = 200, Curve curve = Curves.ease}) async {
     if (index != null && controller.isAttached) {
-      controller.scrollTo(
+      await controller.scrollTo(
         index: index,
         duration: Duration(milliseconds: duration),
-        curve: Curves.bounceIn,
+        curve: curve,
       );
     }
   }
@@ -125,8 +125,8 @@ class UIController extends GetxController {
   }
 
   Future<void> _scrollToTop() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Future.wait([
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.wait([
         scrollToIndex(cvScrollController, 0, duration: 200),
         scrollToIndex(vkScrollController, 0, duration: 200),
       ]);
@@ -134,6 +134,8 @@ class UIController extends GetxController {
   }
 
   /// set filter playing idx value, update vk list
+  ///
+  /// filterSelected will open vi list when filter is playing
   Future<void> _setFilterPlaying() async {
     sortOrder.value = playingSortOrder;
     selectedCategoryIdx.value = playingCategoryIdx.value;
@@ -141,12 +143,13 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToPlayingIdx() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollToIndex(cvScrollController, playingCvIdx.value, duration: 200);
-      scrollToIndex(vkScrollController, playingVkIdx.value, duration: 200);
-      scrollToIndex(
-          viScrollController, Get.find<AudioController>().playingViIdx.value,
-          duration: 200);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.wait([
+        scrollToIndex(cvScrollController, playingCvIdx.value),
+        scrollToIndex(vkScrollController, playingVkIdx.value),
+        scrollToIndex(
+            viScrollController, Get.find<AudioController>().playingViIdx.value)
+      ]);
     });
   }
 
@@ -163,6 +166,7 @@ class UIController extends GetxController {
   }
 
   /// 在播放的：vk select, vi show;
+  ///
   /// 不在播放的：vk not select, vi clear;
   Future<void> _filterSelected() async {
     if (_isFilterPlaying()) {

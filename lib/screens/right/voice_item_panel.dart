@@ -43,7 +43,7 @@ class FutureVoiceItemListView extends StatelessWidget {
                 selected: c.ui.isCurrentViIdxPlaying(index),
               ));
         },
-        scrollController: c.ui.viScrollController,
+        itemScrollController: c.ui.viScrollController,
       ),
     );
   }

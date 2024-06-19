@@ -64,7 +64,7 @@ class FutureFilterListView extends StatelessWidget {
                         selected: c.ui.selectedCvIdx.value == index,
                       ));
                 },
-                scrollController: c.ui.cvScrollController,
+                itemScrollController: c.ui.cvScrollController,
               )),
         )
       ],

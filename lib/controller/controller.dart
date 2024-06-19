@@ -70,11 +70,11 @@ class Controller extends GetxController {
 
     await ui.loadHistory(data['ui']);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       // 延迟滚动到保存的位置
-      ui.scrollToPlayingIdx();
+      await ui.scrollToPlayingIdx();
 
-      audio.loadHistory(data['audio']);
+      await audio.loadHistory(data['audio']);
     });
   }
 }

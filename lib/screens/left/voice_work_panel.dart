@@ -44,7 +44,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
                   selected: c.ui.selectedVkIdx.value == index,
                 ));
           },
-          scrollController: c.ui.vkScrollController,
+          itemScrollController: c.ui.vkScrollController,
         ));
   }
 }
