@@ -26,7 +26,6 @@ class UIController extends GetxController {
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
-  late Completer vkCompleter;
   late Completer viCompleter;
 
   final cvNames = ['All'].obs;
@@ -145,9 +144,6 @@ class UIController extends GetxController {
 
   Future<void> scrollToPlayingIdx() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.wait([
-        vkCompleter.future,
-      ]);
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await Future.wait([
           viCompleter.future,

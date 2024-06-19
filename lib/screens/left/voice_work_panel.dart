@@ -30,15 +30,11 @@ class FutureVoiceWorkListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    c.ui.vkCompleter = Completer();
     return c.ui.vkTitleList.toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      c.ui.vkCompleter.complete();
-    });
     return Obx(() => FutureListView(
           future: fetchItems(),
           itemBuilder: (context, title, index) {
