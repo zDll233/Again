@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:again/controller/audio_controller.dart';
@@ -25,6 +26,7 @@ class UIController extends GetxController {
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
+  late Completer viCompleter;
 
   final cvNames = ['All'].obs;
   final playingCvIdx = 0.obs;
@@ -70,7 +72,7 @@ class UIController extends GetxController {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await scrollToPlayingIdx();
+      await scrollToPlayingIdx();
     });
   }
 
@@ -108,7 +110,7 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToIndex(ItemScrollController controller, int? index,
-      {int duration = 200, Curve curve = Curves.bounceIn}) async {
+      {int duration = 200, Curve curve = Curves.linear}) async {
     if (index != null && controller.isAttached) {
       await controller.scrollTo(
         index: index,
@@ -144,6 +146,9 @@ class UIController extends GetxController {
 
   Future<void> scrollToPlayingIdx() async {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.wait([
+        viCompleter.future,
+      ]);
       await Future.wait([
         scrollToIndex(cvScrollController, playingCvIdx.value),
         scrollToIndex(vkScrollController, playingVkIdx.value),
