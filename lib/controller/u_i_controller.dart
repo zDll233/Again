@@ -108,7 +108,7 @@ class UIController extends GetxController {
   }
 
   Future<void> scrollToIndex(ItemScrollController controller, int? index,
-      {int duration = 200, Curve curve = Curves.ease}) async {
+      {int duration = 200, Curve curve = Curves.bounceIn}) async {
     if (index != null && controller.isAttached) {
       await controller.scrollTo(
         index: index,
