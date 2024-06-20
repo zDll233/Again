@@ -43,6 +43,7 @@ dependencies:
   file_picker: ^8.0.5
   logger: ^2.3.0
   scrollable_positioned_list: ^0.3.8
+  collection: ^1.18.0
 
 dev_dependencies:
   flutter_test:

@@ -67,7 +67,9 @@ class Controller extends GetxController {
     final data = await _history.read();
     if (data.isEmpty) return;
 
-    await ui.loadHistory(data['ui']);
-    await audio.loadHistory(data['audio']);
+    try {
+      await ui.loadHistory(data['ui']);
+      await audio.loadHistory(data['audio']);
+    } catch (_) {}
   }
 }

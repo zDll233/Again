@@ -4,6 +4,7 @@ import 'package:again/controller/u_i_controller.dart';
 import 'package:again/controller/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:again/utils/json_storage.dart';
+import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -64,21 +65,6 @@ class DatabaseController extends GetxController {
     await updateVkTitleList();
   }
 
-  int _extractNumber(String title) {
-    final regex = RegExp(r'(\d+)');
-    final match = regex.firstMatch(title);
-    return match != null ? int.parse(match.group(1)!) : -1;
-  }
-
-  int _compareTitleWithNum(String a, String b) {
-    final numA = _extractNumber(a);
-    final numB = _extractNumber(b);
-    if (numA == -1 || numB == -1) {
-      return a.compareTo(b);
-    }
-    return numA.compareTo(numB);
-  }
-
   /// Updates the vkTitleList based on the selected category and cv.
   Future<void> updateVkTitleList() async {
     final ui = Get.find<UIController>();
@@ -136,9 +122,9 @@ class DatabaseController extends GetxController {
 
   Future<void> updateFilterLists() async {
     final cvDataList = await database.selectAllCv()
-      ..sort((a, b) => _compareTitleWithNum(a.cvName, b.cvName));
+      ..sort((a, b) => compareNatural(a.cvName, b.cvName));
     final categoryDataList = await database.selectAllCategory()
-      ..sort((a, b) => _compareTitleWithNum(a.description, b.description));
+      ..sort((a, b) => compareNatural(a.description, b.description));
 
     final ui = Get.find<UIController>();
     ui.cvNames
@@ -154,7 +140,7 @@ class DatabaseController extends GetxController {
     final ui = Get.find<UIController>();
     final viDataList = await database
         .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
-      ..sort((a, b) => _compareTitleWithNum(a.title, b.title));
+      ..sort((a, b) => compareNatural(a.title, b.title));
 
     ui.selectedViPathList
       ..clear()
