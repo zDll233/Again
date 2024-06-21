@@ -63,6 +63,7 @@ class DatabaseController extends GetxController {
   Future<void> updateViewList() async {
     await updateFilterLists();
     await updateVkTitleList();
+    await updateSelectedViList();
   }
 
   /// Updates the vkTitleList based on the selected category and cv.
