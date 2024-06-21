@@ -19,6 +19,7 @@ class VoiceUpdater {
     '.aac',
     '.flac',
     '.ogg',
+    '.m4a',
   ];
 
   Future<void> update() async {
