@@ -12,7 +12,7 @@ class LyricPanel extends StatelessWidget {
   LyricPanel({super.key});
 
   final Controller c = Get.find();
-  final lyricUi = UINetease();
+  final lyricUi = UINetease(highLightTextColor: Colors.purple[300]);
 
   @override
   Widget build(BuildContext context) {

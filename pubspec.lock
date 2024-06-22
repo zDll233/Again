@@ -377,10 +377,11 @@ packages:
   flutter_lyric:
     dependency: "direct main"
     description:
-      name: flutter_lyric
-      sha256: "5d7e6c46c07b96842a05d5d8af385cb9d715feb7e0f1db1983bc128813c420d7"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "3b760ee0bb31794b0d11460450e611bb34a486bd"
+      url: "https://github.com/zDll233/flutter_lyric.git"
+    source: git
     version: "2.0.4+6"
   flutter_plugin_android_lifecycle:
     dependency: transitive
