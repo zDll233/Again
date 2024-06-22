@@ -20,13 +20,14 @@ class LyricPanel extends StatelessWidget {
       String playingViPath =
           c.audio.playingViPathList[c.audio.playingViIdx.value];
       return Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           SizedBox(
-              child: Text(
-            p.basenameWithoutExtension(playingViPath),
-            style: const TextStyle(fontSize: 23),
-          )),
+            height: 50.0,
+            child: Text(
+              p.basenameWithoutExtension(playingViPath),
+              style: const TextStyle(fontSize: 23),
+            ),
+          ),
           _lrcPanelBuilder(context, playingViPath),
         ],
       );
@@ -38,7 +39,7 @@ class LyricPanel extends StatelessWidget {
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
         final mediaSize = MediaQuery.of(context).size;
-        final size = Size(mediaSize.width, mediaSize.height) * 0.70;
+        final size = Size(mediaSize.width * 0.60, mediaSize.height - 200.0);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
