@@ -52,6 +52,7 @@ class WindowTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Controller c = Get.find();
     return Platform.isWindows
         ? Container(
             width: MediaQuery.of(context).size.width,
@@ -59,7 +60,18 @@ class WindowTitleBar extends StatelessWidget {
             color: Colors.transparent,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [Expanded(child: MoveWindow()), const WindowButtons()],
+              children: [
+                Obx(() => IconButton(
+                      icon: c.ui.showLrcPanel.value
+                          ? const Icon(Icons.arrow_drop_down)
+                          : const Icon(Icons.arrow_drop_up),
+                      onPressed: () {
+                        c.ui.showLrcPanel.toggle();
+                      },
+                    )),
+                Expanded(child: MoveWindow()),
+                const WindowButtons()
+              ],
             ),
           )
         : Container();

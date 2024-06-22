@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
             body: Column(
               children: [
                 const WindowTitleBar(),
-                const Home(),
+                Home(),
                 PlayerWidget(player: c.audio.player)
               ],
             )));

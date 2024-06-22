@@ -44,6 +44,7 @@ dependencies:
   logger: ^2.3.0
   scrollable_positioned_list: ^0.3.8
   collection: ^1.18.0
+  flutter_lyric: ^2.0.4+6
 
 dev_dependencies:
   flutter_test:

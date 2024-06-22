@@ -14,16 +14,16 @@ enum LoopMode {
 
 class AudioController extends GetxController {
   late final AudioPlayer player;
-  var playerState = PlayerState.stopped.obs;
-  var duration = Duration.zero.obs;
-  var position = Duration.zero.obs;
-  var volume = 1.0.obs;
+  final playerState = PlayerState.stopped.obs;
+  final duration = Duration.zero.obs;
+  final position = Duration.zero.obs;
+  final volume = 1.0.obs;
   var lastVolume = 1.0;
 
-  var playingViIdx = (-1).obs;
+  final playingViIdx = (-1).obs;
   var playingViPathList = [];
 
-  var loopMode = LoopMode.allLoop.obs;
+  final loopMode = LoopMode.allLoop.obs;
 
   late final Logger _logger;
 
