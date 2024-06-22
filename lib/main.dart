@@ -7,7 +7,7 @@ import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
 
-import 'screens/home.dart';
+import 'screens/home/home.dart';
 import 'screens/window_title_bar.dart';
 
 void main() async {

@@ -1,7 +1,7 @@
 import 'package:again/controller/controller.dart';
-import 'package:again/screens/left/left_side.dart';
+import 'package:again/screens/home/left/left_side.dart';
 import 'package:again/screens/player/lrc_panel.dart';
-import 'package:again/screens/right/right_side.dart';
+import 'package:again/screens/home/right/right_side.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

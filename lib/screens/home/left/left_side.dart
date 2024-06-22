@@ -1,4 +1,4 @@
-import 'package:again/screens/left/filter_panel.dart';
+import 'package:again/screens/home/left/filter_panel.dart';
 import 'package:flutter/material.dart';
 
 import 'voice_work_panel.dart';
