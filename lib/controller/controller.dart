@@ -33,6 +33,14 @@ class Controller extends GetxController {
       if (event.logicalKey == LogicalKeyboardKey.space) {
         audio.onPausePressed();
         return true;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        audio.player.seek(Duration(
+            milliseconds: audio.position.value.inMilliseconds - 10000));
+        return true;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        audio.player.seek(Duration(
+            milliseconds: audio.position.value.inMilliseconds + 10000));
+        return true;
       }
     }
     return false;
