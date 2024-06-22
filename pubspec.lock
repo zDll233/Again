@@ -379,7 +379,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "80edb818506a92d72d91c6b21b95164b6b710474"
+      resolved-ref: d8460bccb695c07369b5480a144404b3d84bba71
       url: "https://github.com/zDll233/flutter_lyric.git"
     source: git
     version: "2.0.4+6"
