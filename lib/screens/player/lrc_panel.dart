@@ -17,8 +17,19 @@ class LyricPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      String lrcPath = c.audio.playingViPathList[c.audio.playingViIdx.value];
-      return _lrcPanelBuilder(context, lrcPath);
+      String playingViPath =
+          c.audio.playingViPathList[c.audio.playingViIdx.value];
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          SizedBox(
+              child: Text(
+            p.basenameWithoutExtension(playingViPath),
+            style: const TextStyle(fontSize: 23),
+          )),
+          _lrcPanelBuilder(context, playingViPath),
+        ],
+      );
     });
   }
 
@@ -26,9 +37,8 @@ class LyricPanel extends StatelessWidget {
     return FutureBuilder<String>(
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
-        final size = Size(MediaQuery.of(context).size.width,
-                MediaQuery.of(context).size.height) *
-            0.9;
+        final mediaSize = MediaQuery.of(context).size;
+        final size = Size(mediaSize.width, mediaSize.height) * 0.70;
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -78,7 +88,7 @@ class LyricPanel extends StatelessWidget {
           ),
         ),
         Text(
-          '  ${Duration(milliseconds: progress).toString().split('.').first}',
+          '    ${Duration(milliseconds: progress).toString().split('.').first}',
           // style: const TextStyle(color: Colors.green),
         )
       ],
