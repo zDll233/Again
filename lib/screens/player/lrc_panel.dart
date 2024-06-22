@@ -77,6 +77,9 @@ class LyricPanel extends StatelessWidget {
             LyricsLog.logD("点击事件");
             confirm.call();
             c.audio.player.seek(Duration(milliseconds: progress));
+            if (c.audio.playerState.value != PlayerState.playing) {
+              c.audio.resume();
+            }
           },
           icon: const Icon(Icons.play_arrow),
         ),
