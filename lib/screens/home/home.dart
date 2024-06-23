@@ -24,7 +24,7 @@ class Home extends StatelessWidget {
             transitionBuilder: (Widget child, Animation<double> animation) {
               return FadeTransition(opacity: animation, child: child);
             },
-            child: c.ui.showLrcPanel.value ? LyricPanel() : const ListView(),
+            child: c.ui.showLrcPanel.value ? const LyricPanel() : const ListView(),
           ),
         ));
   }

@@ -8,11 +8,20 @@ import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
-class LyricPanel extends StatelessWidget {
-  LyricPanel({super.key});
+class LyricPanel extends StatefulWidget {
+  const LyricPanel({super.key});
 
+  @override
+  State<LyricPanel> createState() => _LyricPanelState();
+}
+
+class _LyricPanelState extends State<LyricPanel> {
   final Controller c = Get.find();
+
   final lyricUi = UINetease(highLightTextColor: Colors.purple[200]);
+
+  bool hasLyric = false;
+  bool readLyric = false;
 
   @override
   Widget build(BuildContext context) {
@@ -23,12 +32,18 @@ class LyricPanel extends StatelessWidget {
         children: [
           SizedBox(
             height: 50.0,
-            child: Text(
-              p.basenameWithoutExtension(playingViPath),
-              style: const TextStyle(fontSize: 23),
+            child: TextButton(
+              onPressed: c.ui.slectPlayingViFile,
+              child: Text(
+                p.basenameWithoutExtension(playingViPath),
+                style: Theme.of(context).textTheme.headlineMedium,
+              ),
             ),
           ),
-          _lrcPanelBuilder(context, playingViPath),
+          Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: _lrcPanelBuilder(context, playingViPath),
+          ),
         ],
       );
     });
@@ -39,7 +54,7 @@ class LyricPanel extends StatelessWidget {
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
         final mediaSize = MediaQuery.of(context).size;
-        final size = Size(mediaSize.width * 0.60, mediaSize.height - 200.0);
+        final size = Size(mediaSize.width * 0.60, mediaSize.height - 210.0);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -63,9 +78,13 @@ class LyricPanel extends StatelessWidget {
   }
 
   Widget _emptyBuilder() {
-    return const Center(
+    return Center(
       child: Text(
-        "No lyrics",
+        hasLyric
+            ? readLyric
+                ? "Can't read lyric file"
+                : "Incorrect lyric format"
+            : "No lyric",
       ),
     );
   }
@@ -93,7 +112,6 @@ class LyricPanel extends StatelessWidget {
         ),
         Text(
           '    ${Duration(milliseconds: progress).toString().split('.').first}',
-          // style: const TextStyle(color: Colors.green),
         )
       ],
     );
@@ -104,7 +122,19 @@ class LyricPanel extends StatelessWidget {
 
     try {
       final file = File(lrcPath);
-      return await file.readAsString();
+      hasLyric = true;
+      String result = await file.readAsString();
+      readLyric = true;
+      return result;
+    } on FileSystemException catch (e) {
+      if (e.osError?.errorCode == 2) {
+        // 错误码2表示文件未找到
+        hasLyric = false;
+        return '';
+      } else {
+        readLyric = false;
+        return '';
+      }
     } catch (_) {
       return '';
     }

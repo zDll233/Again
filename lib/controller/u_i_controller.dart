@@ -9,6 +9,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import 'package:path/path.dart' as p;
+
 enum SortOrder {
   byTitle,
   byCreatedAt,
@@ -41,14 +43,20 @@ class UIController extends GetxController {
 
   final showLrcPanel = false.obs;
 
-  Future<void> onOpenSelectedVkFolder() async {
+  Future<void> openSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {
-      Directory directory = File(selectedViPathList[0]).parent;
-
-      if (await directory.exists()) {
-        await Process.run('explorer', [directory.path]); // Windows
+      if (_isFilterPlaying() && playingVkIdx.value == selectedVkIdx.value) {
+        await slectPlayingViFile();
+      } else {
+        await Process.run('explorer', [p.dirname(selectedViPathList[0])]);
       }
     }
+  }
+
+  Future<void> slectPlayingViFile() async {
+    final AudioController audio = Get.find();
+    final playingViPath = audio.playingViPathList[audio.playingViIdx.value];
+    await Process.run('explorer', ['/select,', playingViPath]);
   }
 
   /// Toggles the sort order and updates the title list.
