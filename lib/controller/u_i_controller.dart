@@ -45,7 +45,7 @@ class UIController extends GetxController {
 
   Future<void> openSelectedVkFolder() async {
     if (selectedViPathList.isNotEmpty) {
-      if (_isFilterPlaying() && playingVkIdx.value == selectedVkIdx.value) {
+      if (_isSelectedVkPlaying()) {
         await slectPlayingViFile();
       } else {
         await Process.run('explorer', [p.dirname(selectedViPathList[0])]);
@@ -77,7 +77,7 @@ class UIController extends GetxController {
 
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
-    if (!_isFilterPlaying() || selectedVkIdx.value != playingVkIdx.value) {
+    if (!_isSelectedVkPlaying()) {
       await _setFilterPlaying();
     }
 
@@ -169,9 +169,12 @@ class UIController extends GetxController {
   }
 
   bool isCurrentViIdxPlaying(int selectedViIdx) {
-    return _isFilterPlaying() &&
-        playingVkIdx.value == selectedVkIdx.value &&
+    return _isSelectedVkPlaying() &&
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
+  }
+
+  bool _isSelectedVkPlaying() {
+    return _isFilterPlaying() && playingVkIdx.value == selectedVkIdx.value;
   }
 
   bool _isFilterPlaying() {
