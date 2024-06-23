@@ -18,7 +18,8 @@ class LyricPanel extends StatefulWidget {
 class _LyricPanelState extends State<LyricPanel> {
   final Controller c = Get.find();
 
-  final lyricUi = UINetease(highLightTextColor: Colors.purple[200]);
+  final lyricUi = UINetease(
+      otherMainColor: Colors.white60, highLightTextColor: Colors.purple[200]);
 
   bool hasLyric = false;
   bool readLyric = false;
