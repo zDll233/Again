@@ -69,8 +69,13 @@ class DatabaseController extends GetxController {
   /// Updates the vkTitleList based on the selected category and cv.
   Future<void> updateVkTitleList() async {
     final ui = Get.find<UIController>();
-    final cate = ui.categories[ui.selectedCategoryIdx.value];
-    final cv = ui.cvNames[ui.selectedCvIdx.value];
+    final cateIdx = ui.selectedCategoryIdx.value;
+    final cvIdx = ui.selectedCvIdx.value;
+    if (cateIdx < 0 || cvIdx < 0) return;
+
+    final cate = ui.categories[cateIdx];
+    final cv = ui.cvNames[cvIdx];
+
 
     if (cate == "All" && cv == "All") {
       await updateAllVkTitleList();

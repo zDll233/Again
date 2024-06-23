@@ -26,6 +26,12 @@ class _LyricPanelState extends State<LyricPanel> {
 
   @override
   Widget build(BuildContext context) {
+    return c.audio.playingViIdx.value >= 0
+        ? _lrcPanelBuilder(context)
+        : _emptyBuilder();
+  }
+
+  Widget _lrcPanelBuilder(BuildContext context) {
     return Obx(() {
       String playingViPath =
           c.audio.playingViPathList[c.audio.playingViIdx.value];
@@ -43,14 +49,14 @@ class _LyricPanelState extends State<LyricPanel> {
           ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
-            child: _lrcPanelBuilder(context, playingViPath),
+            child: _lrcBuilder(context, playingViPath),
           ),
         ],
       );
     });
   }
 
-  Widget _lrcPanelBuilder(BuildContext context, String lrcPath) {
+  Widget _lrcBuilder(BuildContext context, String lrcPath) {
     return FutureBuilder<String>(
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
@@ -145,3 +151,4 @@ class _LyricPanelState extends State<LyricPanel> {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
   }
 }
+

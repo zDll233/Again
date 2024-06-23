@@ -117,9 +117,9 @@ class UIController extends GetxController {
     await audio.play(DeviceFileSource(audio.playingViPathList[idx]));
   }
 
-  Future<void> scrollToIndex(ItemScrollController controller, int? index,
+  Future<void> scrollToIndex(ItemScrollController controller, int index,
       {int duration = 200, Curve curve = Curves.linear}) async {
-    if (index != null && controller.isAttached) {
+    if (index >= 0 && controller.isAttached) {
       await controller.scrollTo(
         index: index,
         duration: Duration(milliseconds: duration),
