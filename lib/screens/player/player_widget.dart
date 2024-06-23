@@ -1,5 +1,6 @@
 import 'package:again/controller/audio_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:again/controller/controller.dart';
@@ -84,36 +85,48 @@ class PlayerWidget extends StatelessWidget {
     return Positioned(
       right: 10,
       bottom: 10,
-      child: SizedBox(
-        width: 150,
-        child: Row(
-          children: [
-            IconButton(
-              onPressed: c.audio.onMutePressed,
-              icon: c.audio.volume.value == 0
-                  ? const Icon(Icons.volume_off)
-                  : const Icon(Icons.volume_up),
-            ),
-            Expanded(
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 1.0,
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 1.0),
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 10.0),
-                ),
-                child: Slider(
-                  value: c.audio.volume.value,
-                  min: 0.0,
-                  max: 1.0,
-                  onChanged: (double value) {
-                    c.audio.setVolume(value);
-                  },
+      child: Listener(
+        onPointerSignal: (pointerSignal) {
+          if (pointerSignal is PointerScrollEvent) {
+            final scrollDelta = pointerSignal.scrollDelta.dy;
+            if (scrollDelta > 0) {
+              c.audio.setVolume((c.audio.volume.value - 0.1).clamp(0.0, 1.0));
+            } else if (scrollDelta < 0) {
+              c.audio.setVolume((c.audio.volume.value + 0.1).clamp(0.0, 1.0));
+            }
+          }
+        },
+        child: SizedBox(
+          width: 150,
+          child: Row(
+            children: [
+              IconButton(
+                onPressed: c.audio.onMutePressed,
+                icon: c.audio.volume.value == 0
+                    ? const Icon(Icons.volume_off)
+                    : const Icon(Icons.volume_up),
+              ),
+              Expanded(
+                child: SliderTheme(
+                  data: SliderTheme.of(context).copyWith(
+                    trackHeight: 1.0,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 1.0),
+                    overlayShape:
+                        const RoundSliderOverlayShape(overlayRadius: 10.0),
+                  ),
+                  child: Slider(
+                    value: c.audio.volume.value,
+                    min: 0.0,
+                    max: 1.0,
+                    onChanged: (double value) {
+                      c.audio.setVolume(value);
+                    },
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
