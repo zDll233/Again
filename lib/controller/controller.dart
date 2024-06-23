@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:again/utils/json_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -34,16 +36,40 @@ class Controller extends GetxController {
         audio.onPausePressed();
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        audio.player.seek(Duration(
-            milliseconds: audio.position.value.inMilliseconds - 10000));
+        _startSeek(-10000);
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        audio.player.seek(Duration(
-            milliseconds: audio.position.value.inMilliseconds + 10000));
+        _startSeek(10000);
+        return true;
+      }
+    } else if (event is KeyUpEvent) {
+      if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
+          event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        _stopSeek();
         return true;
       }
     }
     return false;
+  }
+
+  Timer? _seekTimer;
+
+  void _startSeek(int milliseconds) {
+    audio.player.seek(Duration(
+        milliseconds: audio.position.value.inMilliseconds + milliseconds));
+
+    _seekTimer = Timer.periodic(const Duration(milliseconds: 400), (timer) {
+      _seekTimer?.cancel();
+      _seekTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+        audio.player.seek(Duration(
+            milliseconds: audio.position.value.inMilliseconds + milliseconds));
+      });
+    });
+  }
+
+  void _stopSeek() {
+    _seekTimer?.cancel();
+    _seekTimer = null;
   }
 
   Future<void> saveHistory() async {
