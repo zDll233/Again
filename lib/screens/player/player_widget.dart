@@ -182,7 +182,9 @@ class PlayerWidget extends StatelessWidget {
       key: const Key('lyric_button'),
       onPressed: () {
         c.ui.showLrcPanel.toggle();
-        c.ui.onLocateBtnPressed();
+        if (c.ui.showLrcPanel.value == false) {
+          c.ui.onLocateBtnPressed();
+        }
       },
       iconSize: _iconSize * 0.5,
       icon: c.ui.showLrcPanel.value
