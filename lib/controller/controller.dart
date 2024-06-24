@@ -21,9 +21,7 @@ class Controller extends GetxController {
   void onInit() async {
     super.onInit();
     await db.initializeStorage();
-    print('initializeStorage. cnt: ${ui.cnt}');
     await _loadHistory();
-    print('_loadHistory. cnt: ${ui.cnt}');
     HardwareKeyboard.instance.addHandler(_handleKeyEvent);
   }
 

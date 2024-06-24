@@ -71,18 +71,12 @@ class UIController extends GetxController {
     await onCvSelected(0);
   }
 
-  var locate = false;
-  var cnt = 0;
-
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
-    cnt = 0;
-    print('locate pressed. cnt: ${cnt}');
     if (!_isSelectedVkPlaying) {
       // locate = true;
       await _setFilterPlaying();
     }
-
     scrollToPlayingIdx();
   }
 
