@@ -19,12 +19,25 @@ class Home extends StatelessWidget {
 
   Widget _viewSwitch() {
     return Obx(() => Expanded(
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
-            transitionBuilder: (Widget child, Animation<double> animation) {
-              return FadeTransition(opacity: animation, child: child);
-            },
-            child: c.ui.showLrcPanel.value ? const LyricPanel() : const ListView(),
+          child: Stack(
+            children: [
+              AnimatedOpacity(
+                opacity: c.ui.showLrcPanel.value ? 0.0 : 1.0,
+                duration: const Duration(milliseconds: 300),
+                child: Offstage(
+                  offstage: c.ui.showLrcPanel.value,
+                  child: const ListView(),
+                ),
+              ),
+              AnimatedOpacity(
+                opacity: c.ui.showLrcPanel.value ? 1.0 : 0.0,
+                duration: const Duration(milliseconds: 300),
+                child: Offstage(
+                  offstage: !c.ui.showLrcPanel.value,
+                  child: const LyricPanel(),
+                ),
+              ),
+            ],
           ),
         ));
   }

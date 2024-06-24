@@ -180,12 +180,7 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildShowLryicButton() {
     return IconButton(
       key: const Key('lyric_button'),
-      onPressed: () {
-        c.ui.showLrcPanel.toggle();
-        if (c.ui.showLrcPanel.value == false) {
-          c.ui.onLocateBtnPressed();
-        }
-      },
+      onPressed: c.ui.showLrcPanel.toggle,
       iconSize: _iconSize * 0.5,
       icon: c.ui.showLrcPanel.value
           ? const Icon(Icons.arrow_drop_down)
