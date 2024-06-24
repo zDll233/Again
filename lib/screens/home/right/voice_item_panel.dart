@@ -36,6 +36,12 @@ class FutureVoiceItemListView extends StatelessWidget {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       c.ui.viCompleter.complete();
+      // if (c.ui.locate) {
+      //   c.ui.scrollToIndex(c.ui.viScrollController, c.audio.playingViIdx.value);
+      //   c.ui.locate = false;
+      // }
+      c.ui.cnt++;
+      print('vi build. cnt: ${c.ui.cnt} ${c.audio.playingViPathList.length}');
     });
     return Obx(
       () => FutureListView(

@@ -76,7 +76,6 @@ class DatabaseController extends GetxController {
     final cate = ui.categories[cateIdx];
     final cv = ui.cvNames[cvIdx];
 
-
     if (cate == "All" && cv == "All") {
       await updateAllVkTitleList();
     } else if (cate == "All") {
@@ -88,7 +87,7 @@ class DatabaseController extends GetxController {
     }
   }
 
-  Future<void> updateSortedVkTitleList() async {
+  void updateSortedVkTitleList() {
     final ui = Get.find<UIController>();
     switch (ui.sortOrder.value) {
       case SortOrder.byTitle:

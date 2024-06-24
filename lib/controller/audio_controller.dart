@@ -75,7 +75,7 @@ class AudioController extends GetxController {
   Future<void> play(Source source) async {
     try {
       await player.setSource(source);
-      await player.resume();
+      player.resume();
     } catch (e) {
       _logger.e('Error playing audio: $e');
     }
@@ -148,13 +148,13 @@ class AudioController extends GetxController {
         : LoopMode.allLoop;
   }
 
-  Future<void> switchPauseResume() async {
-    playerState.value == PlayerState.playing ? await pause() : await resume();
+  void switchPauseResume() {
+    playerState.value == PlayerState.playing ? pause() : resume();
   }
 
-  Future<void> onPausePressed() async {
+  void onPausePressed() {
     if (playingViIdx.value >= 0) {
-      await switchPauseResume();
+      switchPauseResume();
     }
   }
 
@@ -168,7 +168,7 @@ class AudioController extends GetxController {
   Future<void> loadHistory(Map<String, dynamic> audioHistory) async {
     if (audioHistory.isEmpty) return;
 
-    await setVolume(audioHistory['volume']);
+    setVolume(audioHistory['volume']);
     playingViIdx.value = audioHistory['vi'];
     playingViPathList = Get.find<UIController>().selectedViPathList.toList();
     loopMode.value = LoopMode.values[audioHistory['loopMode']];

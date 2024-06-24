@@ -35,6 +35,10 @@ class FutureVoiceWorkListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      c.ui.cnt++;
+      print('vk build. cnt: ${c.ui.cnt} ${c.ui.vkTitleList.length}');
+    });
     return Obx(() => FutureListView(
           future: fetchItems(),
           itemBuilder: (context, title, index) {
