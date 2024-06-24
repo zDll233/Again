@@ -66,6 +66,22 @@ class DatabaseController extends GetxController {
     await updateSelectedViList();
   }
 
+  Future<void> updateFilterLists() async {
+    final cvDataList = await database.selectAllCv()
+      ..sort((a, b) => compareNatural(a.cvName, b.cvName));
+    final categoryDataList = await database.selectAllCategory()
+      ..sort((a, b) => compareNatural(a.description, b.description));
+
+    final ui = Get.find<UIController>();
+    ui.cvNames
+      ..clear()
+      ..addAll(cvDataList.map((item) => item.cvName));
+
+    ui.categories
+      ..clear()
+      ..addAll(categoryDataList.map((item) => item.description));
+  }
+
   /// Updates the vkTitleList based on the selected category and cv.
   Future<void> updateVkTitleList() async {
     final ui = Get.find<UIController>();
@@ -85,23 +101,6 @@ class DatabaseController extends GetxController {
     } else {
       await updateVkTitleListWithCvAndCategory(cv, cate);
     }
-  }
-
-  void updateSortedVkTitleList() {
-    final ui = Get.find<UIController>();
-    switch (ui.sortOrder.value) {
-      case SortOrder.byTitle:
-        vkDataList.sort((a, b) => a.title.compareTo(b.title));
-        break;
-      case SortOrder.byCreatedAt:
-        vkDataList.sort((a, b) => (b.createdAt ?? DateTime(1970))
-            .compareTo(a.createdAt ?? DateTime(1970)));
-        break;
-    }
-
-    ui.vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
   }
 
   Future<void> updateAllVkTitleList() async {
@@ -125,20 +124,21 @@ class DatabaseController extends GetxController {
     updateSortedVkTitleList();
   }
 
-  Future<void> updateFilterLists() async {
-    final cvDataList = await database.selectAllCv()
-      ..sort((a, b) => compareNatural(a.cvName, b.cvName));
-    final categoryDataList = await database.selectAllCategory()
-      ..sort((a, b) => compareNatural(a.description, b.description));
-
+  void updateSortedVkTitleList() {
     final ui = Get.find<UIController>();
-    ui.cvNames
-      ..clear()
-      ..addAll(cvDataList.map((item) => item.cvName));
+    switch (ui.sortOrder.value) {
+      case SortOrder.byTitle:
+        vkDataList.sort((a, b) => a.title.compareTo(b.title));
+        break;
+      case SortOrder.byCreatedAt:
+        vkDataList.sort((a, b) => (b.createdAt ?? DateTime(1970))
+            .compareTo(a.createdAt ?? DateTime(1970)));
+        break;
+    }
 
-    ui.categories
+    ui.vkTitleList
       ..clear()
-      ..addAll(categoryDataList.map((item) => item.description));
+      ..addAll(vkDataList.map((item) => item.title));
   }
 
   Future<void> updateSelectedViList() async {
