@@ -62,8 +62,8 @@ class AudioController extends GetxController {
     player.onPlayerComplete.listen((event) {
       loopMode.value == LoopMode.allLoop
           ? playingViIdx.value == playingViPathList.length - 1
-              ? _stopPlayer()
-              : _changeTrack(1)
+              ? stop()
+              : playNext()
           : _changeTrack(0);
     });
 
@@ -75,71 +75,67 @@ class AudioController extends GetxController {
   Future<void> play(Source source) async {
     try {
       await player.setSource(source);
-      player.resume();
+      await player.resume();
     } catch (e) {
       _logger.e('Error playing audio: $e');
     }
   }
 
-  Future<void> playNext() async {
-    await _changeTrack(1);
+  void playNext() {
+    _changeTrack(1);
   }
 
-  Future<void> playPrev() async {
-    await _changeTrack(-1);
+  void playPrev() {
+    _changeTrack(-1);
   }
 
-  Future<void> _changeTrack(int direction) async {
+  void _changeTrack(int direction) {
     playingViIdx.value += direction;
     if (playingViIdx.value >= playingViPathList.length) {
       playingViIdx.value = playingViPathList.length - 1;
     } else if (playingViIdx.value < 0) {
       playingViIdx.value = 0;
     }
-    await play(DeviceFileSource(playingViPathList[playingViIdx.value]));
+    play(DeviceFileSource(playingViPathList[playingViIdx.value]));
   }
 
-  Future<void> resume() async {
+  void resume() {
     try {
-      await player.resume();
+      player.resume();
     } catch (e) {
       _logger.e('Error resuming audio: $e');
     }
   }
 
-  Future<void> pause() async {
+  void pause() {
     try {
-      await player.pause();
+      player.pause();
     } catch (e) {
       _logger.e('Error pausing audio: $e');
     }
   }
 
-  Future<void> stop() async {
-    await _stopPlayer();
-  }
-
-  Future<void> _stopPlayer() async {
+  void stop() {
     try {
-      await player.stop();
+      player.stop();
       position.value = Duration.zero;
     } catch (e) {
       _logger.e('Error stopping audio: $e');
     }
   }
 
-  Future<void> onMutePressed() async {
+  void onMutePressed() {
     if (volume.value != 0) {
       lastVolume = volume.value;
-      await setVolume(0);
+      setVolume(0);
     } else {
-      await setVolume(lastVolume);
+      setVolume(lastVolume);
     }
   }
 
-  Future<void> setVolume(double v) async {
+  void setVolume(double v) {
     volume.value = v;
-    await player.setVolume(v);
+    player.setVolume(v);
   }
 
   void onLoopModePressed() {
