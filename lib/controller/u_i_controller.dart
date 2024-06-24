@@ -155,6 +155,7 @@ class UIController extends GetxController {
       await onVkSelected(playingVkIdx.value);
     } else {
       selectedVkIdx.value = -1;
+      selectedVkTitle.value = '';
       selectedViTitleList.clear();
     }
   }
