@@ -8,27 +8,20 @@ import 'package:flutter_lyric/lyrics_reader_model.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
-class LyricPanel extends StatefulWidget {
-  const LyricPanel({super.key});
+bool hasLyric = false;
+bool readLyric = false;
 
-  @override
-  State<LyricPanel> createState() => _LyricPanelState();
-}
+class LyricPanel extends StatelessWidget {
+  LyricPanel({super.key});
 
-class _LyricPanelState extends State<LyricPanel> {
   final Controller c = Get.find();
 
   final lyricUi = UINetease(
       otherMainColor: Colors.white60, highLightTextColor: Colors.purple[200]);
 
-  bool hasLyric = false;
-  bool readLyric = false;
-
   @override
   Widget build(BuildContext context) {
-    return c.audio.playingViIdx.value >= 0
-        ? _lrcPanelBuilder(context)
-        : _emptyBuilder();
+    return _lrcPanelBuilder(context);
   }
 
   Widget _lrcPanelBuilder(BuildContext context) {
@@ -151,4 +144,3 @@ class _LyricPanelState extends State<LyricPanel> {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
   }
 }
-
