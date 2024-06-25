@@ -208,6 +208,9 @@ class UIController extends GetxController {
     // filter vk
     _updatePlayingIdx(SortOrder.values[filter['sortOrder']], filter['category'],
         filter['cv'], uiHistory['vk']);
+    // vi
+    Get.find<AudioController>().playingViIdx.value = uiHistory['vi'];
+
     await onLocateBtnPressed();
   }
 }

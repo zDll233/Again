@@ -22,17 +22,16 @@ class LyricPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final playingViIdx = c.audio.playingViIdx.value;
-      final playingViPathList = c.audio.playingViPathList.toList();
-      return playingViIdx >= 0 && playingViPathList.isNotEmpty
-          ? _lrcPanelBuilder(playingViIdx, playingViPathList, context)
+      return c.audio.playingViIdx.value >= 0 &&
+              c.audio.playingViPathList.isNotEmpty
+          ? _lrcPanelBuilder(context)
           : _emptyBuilder();
     });
   }
 
-  Widget _lrcPanelBuilder(
-      int playingViIdx, List playingViPathList, BuildContext context) {
-    String playingViPath = playingViPathList[playingViIdx];
+  Widget _lrcPanelBuilder(BuildContext context) {
+    String playingViPath =
+        c.audio.playingViPathList[c.audio.playingViIdx.value];
     return Column(
       children: [
         SizedBox(
@@ -148,3 +147,4 @@ class LyricPanel extends StatelessWidget {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
   }
 }
+
