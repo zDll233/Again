@@ -155,6 +155,7 @@ class UIController extends GetxController {
   }
 
   Future<void> onVkSelected(int selectedIdx) async {
+    if (selectedIdx < 0) return;
     selectedVkIdx.value = selectedIdx;
     selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
     await Get.find<DatabaseController>().updateSelectedViList();
@@ -195,7 +196,8 @@ class UIController extends GetxController {
   bool get _isFilterPlaying {
     return selectedCvIdx.value == playingCvIdx.value &&
         selectedCategoryIdx.value == playingCategoryIdx.value &&
-        sortOrder.value == playingSortOrder;
+        sortOrder.value == playingSortOrder &&
+        Get.find<AudioController>().playingViIdx.value >= 0;
   }
 
   Future<void> loadHistory(Map<String, dynamic> uiHistory) async {
