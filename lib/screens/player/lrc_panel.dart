@@ -47,8 +47,10 @@ class LyricPanel extends StatelessWidget {
   }
 
   Widget _viTitleBuilder(BuildContext context, String playingViPath) {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width * 0.75,
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.75,
+      ),
       child: TextButton(
         onPressed: c.ui.slectPlayingViFile,
         child: Text(
