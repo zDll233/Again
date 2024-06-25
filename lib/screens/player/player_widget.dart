@@ -36,30 +36,46 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildProgressBar(BuildContext context, double appWidth) {
     return Positioned(
       top: 5,
-      child: SizedBox(
-        height: 50,
-        width: appWidth,
-        child: FocusScope(
-          autofocus: true,
-          child: Focus(
+      child: Listener(
+        onPointerSignal: (pointerSignal) {
+          if (pointerSignal is PointerScrollEvent) {
+            final scrollDelta = pointerSignal.scrollDelta.dy;
+            var milliseconds = 0;
+            if (scrollDelta > 0) {
+              milliseconds = -10000;
+            } else if (scrollDelta < 0) {
+              milliseconds = 10000;
+            }
+            c.audio.player.seek(Duration(
+                milliseconds:
+                    c.audio.position.value.inMilliseconds + milliseconds));
+          }
+        },
+        child: SizedBox(
+          height: 50,
+          width: appWidth,
+          child: FocusScope(
             autofocus: true,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 1.0,
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-                overlayShape:
-                    const RoundSliderOverlayShape(overlayRadius: 10.0),
-              ),
-              child: Slider(
-                onChanged: (value) {
-                  final duration = c.audio.duration.value;
-                  if (duration != Duration.zero) {
-                    final position = value * duration.inMilliseconds;
-                    player.seek(Duration(milliseconds: position.round()));
-                  }
-                },
-                value: _getProgressBarValue(),
+            child: Focus(
+              autofocus: true,
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                  trackHeight: 1.0,
+                  thumbShape:
+                      const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+                  overlayShape:
+                      const RoundSliderOverlayShape(overlayRadius: 10.0),
+                ),
+                child: Slider(
+                  onChanged: (value) {
+                    final duration = c.audio.duration.value;
+                    if (duration != Duration.zero) {
+                      final position = value * duration.inMilliseconds;
+                      player.seek(Duration(milliseconds: position.round()));
+                    }
+                  },
+                  value: _getProgressBarValue(),
+                ),
               ),
             ),
           ),
