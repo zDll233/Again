@@ -36,13 +36,7 @@ class LyricPanel extends StatelessWidget {
       children: [
         SizedBox(
           height: 50.0,
-          child: TextButton(
-            onPressed: c.ui.slectPlayingViFile,
-            child: Text(
-              p.basenameWithoutExtension(playingViPath),
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ),
+          child: _viTitleBuilder(context, playingViPath),
         ),
         Padding(
           padding: const EdgeInsets.only(top: 10.0),
@@ -52,12 +46,27 @@ class LyricPanel extends StatelessWidget {
     );
   }
 
+  Widget _viTitleBuilder(BuildContext context, String playingViPath) {
+    return SizedBox(
+      width: MediaQuery.of(context).size.width * 0.75,
+      child: TextButton(
+        onPressed: c.ui.slectPlayingViFile,
+        child: Text(
+          p.basenameWithoutExtension(playingViPath),
+          style: Theme.of(context).textTheme.headlineMedium,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+  }
+
   Widget _lrcBuilder(BuildContext context, String lrcPath) {
     return FutureBuilder<String>(
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
-        final mediaSize = MediaQuery.of(context).size;
-        final size = Size(mediaSize.width * 0.60, mediaSize.height - 210.0);
+        final appSize = MediaQuery.of(context).size;
+        final size = Size(appSize.width * 0.60, appSize.height - 210.0);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -147,4 +156,3 @@ class LyricPanel extends StatelessWidget {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
   }
 }
-

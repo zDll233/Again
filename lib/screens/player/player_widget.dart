@@ -1,5 +1,6 @@
 import 'package:again/controller/audio_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -23,6 +24,7 @@ class PlayerWidget extends StatelessWidget {
         height: 100, // Adjust this height as needed
         child: Stack(
           children: [
+            MoveWindow(),
             _buildProgressBar(context, appWidth),
             _buildVolumeControl(context),
             _buildTimeDisplay(),
