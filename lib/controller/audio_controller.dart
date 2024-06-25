@@ -165,7 +165,6 @@ class AudioController extends GetxController {
     if (audioHistory.isEmpty) return;
 
     setVolume(audioHistory['volume']);
-    playingViIdx.value = audioHistory['vi'];
     playingViPathList = Get.find<UIController>().selectedViPathList.toList();
     loopMode.value = LoopMode.values[audioHistory['loopMode']];
 

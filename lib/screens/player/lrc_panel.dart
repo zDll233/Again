@@ -23,14 +23,16 @@ class LyricPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       final playingViIdx = c.audio.playingViIdx.value;
-      return playingViIdx >= 0
-          ? _lrcPanelBuilder(playingViIdx, context)
+      final playingViPathList = c.audio.playingViPathList.toList();
+      return playingViIdx >= 0 && playingViPathList.isNotEmpty
+          ? _lrcPanelBuilder(playingViIdx, playingViPathList, context)
           : _emptyBuilder();
     });
   }
 
-  Widget _lrcPanelBuilder(int playingViIdx, BuildContext context) {
-    String playingViPath = c.audio.playingViPathList[playingViIdx];
+  Widget _lrcPanelBuilder(
+      int playingViIdx, List playingViPathList, BuildContext context) {
+    String playingViPath = playingViPathList[playingViIdx];
     return Column(
       children: [
         SizedBox(

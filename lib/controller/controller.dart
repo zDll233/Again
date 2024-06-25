@@ -81,9 +81,9 @@ class Controller extends GetxController {
           'sortOrder': ui.sortOrder.value.index
         },
         'vk': ui.playingVkIdx.value,
+        'vi': audio.playingViIdx.value
       },
       'audio': {
-        'vi': audio.playingViIdx.value,
         'position': audio.position.value.inMilliseconds,
         'volume': audio.volume.value,
         'loopMode': audio.loopMode.value.index

@@ -27,8 +27,8 @@ class Home extends StatelessWidget {
               AnimatedOpacity(
                 opacity: c.ui.showLrcPanel.value ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 300),
-                child: Offstage(
-                  offstage: !c.ui.showLrcPanel.value,
+                child: Visibility(
+                  visible: c.ui.showLrcPanel.value,
                   child: LyricPanel(),
                 ),
               )
