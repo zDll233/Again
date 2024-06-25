@@ -42,6 +42,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# folder used for this runable
+# folders used for this runable
 /data
 /history
+/config
