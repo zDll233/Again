@@ -21,32 +21,34 @@ class LyricPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _lrcPanelBuilder(context);
+    return Obx(() {
+      final playingViIdx = c.audio.playingViIdx.value;
+      return playingViIdx >= 0
+          ? _lrcPanelBuilder(playingViIdx, context)
+          : _emptyBuilder();
+    });
   }
 
-  Widget _lrcPanelBuilder(BuildContext context) {
-    return Obx(() {
-      String playingViPath =
-          c.audio.playingViPathList[c.audio.playingViIdx.value];
-      return Column(
-        children: [
-          SizedBox(
-            height: 50.0,
-            child: TextButton(
-              onPressed: c.ui.slectPlayingViFile,
-              child: Text(
-                p.basenameWithoutExtension(playingViPath),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
+  Widget _lrcPanelBuilder(int playingViIdx, BuildContext context) {
+    String playingViPath = c.audio.playingViPathList[playingViIdx];
+    return Column(
+      children: [
+        SizedBox(
+          height: 50.0,
+          child: TextButton(
+            onPressed: c.ui.slectPlayingViFile,
+            child: Text(
+              p.basenameWithoutExtension(playingViPath),
+              style: Theme.of(context).textTheme.headlineMedium,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(top: 10.0),
-            child: _lrcBuilder(context, playingViPath),
-          ),
-        ],
-      );
-    });
+        ),
+        Padding(
+          padding: const EdgeInsets.only(top: 10.0),
+          child: _lrcBuilder(context, playingViPath),
+        ),
+      ],
+    );
   }
 
   Widget _lrcBuilder(BuildContext context, String lrcPath) {
