@@ -41,6 +41,12 @@ class Controller extends GetxController {
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
         _startSeek(10000);
         return true;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+        ui.showLrcPanel.value = true;
+        return true;
+      } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+        ui.showLrcPanel.value = false;
+        return true;
       }
     } else if (event is KeyUpEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
