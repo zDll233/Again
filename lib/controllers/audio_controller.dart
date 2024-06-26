@@ -90,12 +90,9 @@ class AudioController extends GetxController {
   }
 
   void _changeTrack(int direction) {
-    playingViIdx.value += direction;
-    if (playingViIdx.value >= playingViPathList.length) {
-      playingViIdx.value = playingViPathList.length - 1;
-    } else if (playingViIdx.value < 0) {
-      playingViIdx.value = 0;
-    }
+    var temp = playingViIdx.value + direction;
+    if (temp >= playingViPathList.length || temp < 0) return;
+    playingViIdx.value = temp;
     play(DeviceFileSource(playingViPathList[playingViIdx.value]));
   }
 
