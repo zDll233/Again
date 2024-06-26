@@ -58,26 +58,23 @@ class PlayerWidget extends StatelessWidget {
           width: appWidth,
           child: FocusScope(
             autofocus: true,
-            child: Focus(
-              autofocus: true,
-              child: SliderTheme(
-                data: SliderTheme.of(context).copyWith(
-                  trackHeight: 1.0,
-                  thumbShape:
-                      const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-                  overlayShape:
-                      const RoundSliderOverlayShape(overlayRadius: 10.0),
-                ),
-                child: Slider(
-                  onChanged: (value) {
-                    final duration = c.audio.duration.value;
-                    if (duration != Duration.zero) {
-                      final position = value * duration.inMilliseconds;
-                      player.seek(Duration(milliseconds: position.round()));
-                    }
-                  },
-                  value: _getProgressBarValue(),
-                ),
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                trackHeight: 1.0,
+                thumbShape:
+                    const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
+              ),
+              child: Slider(
+                focusNode: FocusNode(canRequestFocus: false),
+                onChanged: (value) {
+                  final duration = c.audio.duration.value;
+                  if (duration != Duration.zero) {
+                    final position = value * duration.inMilliseconds;
+                    player.seek(Duration(milliseconds: position.round()));
+                  }
+                },
+                value: _getProgressBarValue(),
               ),
             ),
           ),
@@ -127,12 +124,12 @@ class PlayerWidget extends StatelessWidget {
               Expanded(
                 child: SliderTheme(
                   data: SliderTheme.of(context).copyWith(
-                    trackHeight: 1.0,
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 1.0),
-                    overlayShape:
-                        const RoundSliderOverlayShape(overlayRadius: 10.0),
-                  ),
+                      trackHeight: 1.0,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 0.0),
+                      overlayShape:
+                          const RoundSliderOverlayShape(overlayRadius: 12.0),
+                      overlayColor: Colors.transparent),
                   child: Slider(
                     value: c.audio.volume.value,
                     min: 0.0,
