@@ -36,11 +36,9 @@ class Controller extends GetxController {
         audio.onPausePressed();
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-        _stopSeek();
         _startSeek(-10000);
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        _stopSeek();
         _startSeek(10000);
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
@@ -53,7 +51,7 @@ class Controller extends GetxController {
     } else if (event is KeyUpEvent) {
       if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
           event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        _stopSeek();
+        _stopSeekTimer();
         return true;
       }
     }
@@ -63,6 +61,8 @@ class Controller extends GetxController {
   Timer? _seekTimer;
 
   void _startSeek(int milliseconds) {
+    _stopSeekTimer(); // cacel last timer, avoid shaking progress
+
     audio.player.seek(Duration(
         milliseconds: audio.position.value.inMilliseconds + milliseconds));
 
@@ -75,7 +75,7 @@ class Controller extends GetxController {
     });
   }
 
-  void _stopSeek() {
+  void _stopSeekTimer() {
     _seekTimer?.cancel();
     _seekTimer = null;
   }
