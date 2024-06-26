@@ -36,9 +36,11 @@ class Controller extends GetxController {
         audio.onPausePressed();
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+        _stopSeek();
         _startSeek(-10000);
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+        _stopSeek();
         _startSeek(10000);
         return true;
       } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
