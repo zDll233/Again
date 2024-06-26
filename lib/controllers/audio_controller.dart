@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/controller/u_i_controller.dart';
+import 'package:again/controllers/u_i_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import 'package:path/path.dart' as p;

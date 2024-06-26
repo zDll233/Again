@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:again/controller/audio_controller.dart';
-import 'package:again/controller/database_controller.dart';
+import 'package:again/controllers/audio_controller.dart';
+import 'package:again/controllers/database_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';

@@ -1,10 +1,11 @@
-import 'package:again/controller/audio_controller.dart';
+import 'package:again/components/rectangle_overlay_shape.dart';
+import 'package:again/controllers/audio_controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:again/controller/controller.dart';
+import 'package:again/controllers/controller.dart';
 
 class PlayerWidget extends StatelessWidget {
   final AudioPlayer player;
@@ -127,8 +128,8 @@ class PlayerWidget extends StatelessWidget {
                       trackHeight: 1.0,
                       thumbShape:
                           const RoundSliderThumbShape(enabledThumbRadius: 0.0),
-                      overlayShape:
-                          const RoundSliderOverlayShape(overlayRadius: 12.0),
+                      overlayShape: RectangleOverlayShape(
+                          shapeSize: const Size(10.0, 40.0)),
                       overlayColor: Colors.transparent),
                   child: Slider(
                     value: c.audio.volume.value,

@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:again/controller/u_i_controller.dart';
-import 'package:again/controller/voice_updater.dart';
+import 'package:again/controllers/u_i_controller.dart';
+import 'package:again/controllers/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:collection/collection.dart';

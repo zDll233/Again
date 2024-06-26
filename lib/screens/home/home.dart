@@ -1,4 +1,4 @@
-import 'package:again/controller/controller.dart';
+import 'package:again/controllers/controller.dart';
 import 'package:again/screens/home/lists/lists_view.dart';
 import 'package:again/screens/player/lrc_panel.dart';
 import 'package:flutter/material.dart';

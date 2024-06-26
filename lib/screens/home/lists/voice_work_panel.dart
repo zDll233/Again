@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
-import 'package:again/controller/controller.dart';
-import 'package:again/controller/u_i_controller.dart';
+import 'package:again/controllers/controller.dart';
+import 'package:again/controllers/u_i_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 

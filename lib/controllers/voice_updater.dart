@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/controller/database_controller.dart';
+import 'package:again/controllers/database_controller.dart';
 import 'package:again/database/database.dart';
 import 'package:drift/drift.dart';
 import 'package:get/get_core/src/get_main.dart';

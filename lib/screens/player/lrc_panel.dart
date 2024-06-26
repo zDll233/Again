@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/controller/controller.dart';
+import 'package:again/controllers/controller.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
