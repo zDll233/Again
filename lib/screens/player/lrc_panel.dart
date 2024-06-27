@@ -49,7 +49,7 @@ class LyricPanel extends StatelessWidget {
   Widget _viTitleBuilder(BuildContext context, String playingViPath) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.75,
+        maxWidth: MediaQuery.of(context).size.width * 0.70,
       ),
       child: TextButton(
         onPressed: c.ui.slectPlayingViFile,
@@ -68,7 +68,7 @@ class LyricPanel extends StatelessWidget {
       future: _getLrcContent(lrcPath),
       builder: (context, snapshot) {
         final appSize = MediaQuery.of(context).size;
-        final size = Size(appSize.width * 0.60, appSize.height - 210.0);
+        final size = Size(appSize.width * 0.70, appSize.height - 210.0);
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -85,6 +85,8 @@ class LyricPanel extends StatelessWidget {
                 emptyBuilder: _emptyBuilder,
                 selectLineBuilder: _lineIndicator,
                 lyricUi: lyricUi,
+                scrollBack: c.audio.playerState.value == PlayerState.playing,
+                waitMilliseconds: 5000,
               ));
         }
       },
