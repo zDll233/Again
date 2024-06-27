@@ -493,7 +493,7 @@ class $TVoiceItemTable extends TVoiceItem
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {title};
+  Set<GeneratedColumn> get $primaryKey => {filePath};
   @override
   TVoiceItemData map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';

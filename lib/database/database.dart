@@ -16,7 +16,7 @@ class TVoiceItem extends Table {
   TextColumn get voiceWorkTitle => text().references(TVoiceWork, #title)();
 
   @override
-  Set<Column> get primaryKey => {title};
+  Set<Column> get primaryKey => {filePath};
 }
 
 class TVoiceWork extends Table {
