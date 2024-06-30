@@ -46,17 +46,21 @@ class UIController extends GetxController {
   void openSelectedVkFolder() {
     if (selectedViPathList.isNotEmpty) {
       if (_isSelectedVkPlaying) {
-        slectPlayingViFile();
+        selectPlayingViFile();
       } else {
-        Process.run('explorer', [p.dirname(selectedViPathList[0])]);
+        Process.run('explorer "${p.dirname(selectedViPathList[0])}"', []);
       }
     }
   }
 
-  void slectPlayingViFile() {
+  void selectPlayingViFile() {
     final AudioController audio = Get.find();
     final playingViPath = audio.playingViPathList[audio.playingViIdx.value];
-    Process.run('explorer', ['/select,', playingViPath]);
+
+    // flutter will replace " with /" in arg list. weird
+    // code below doesn't work
+    // Process.run('explorer', ['/select,', '"$playingViPath"']); // wrap path in "" so that Windows can resolve it
+    Process.run('explorer /select, "$playingViPath"', []);
   }
 
   /// Resets the filters and scrolls to the top.

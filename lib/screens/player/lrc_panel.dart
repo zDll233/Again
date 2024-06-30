@@ -52,7 +52,7 @@ class LyricPanel extends StatelessWidget {
         maxWidth: MediaQuery.of(context).size.width * 0.70,
       ),
       child: TextButton(
-        onPressed: c.ui.slectPlayingViFile,
+        onPressed: c.ui.selectPlayingViFile,
         child: Text(
           p.basenameWithoutExtension(playingViPath),
           style: Theme.of(context).textTheme.headlineMedium,
