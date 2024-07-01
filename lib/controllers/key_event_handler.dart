@@ -53,16 +53,20 @@ class KeyEventHandler {
         audio.onPausePressed();
         return true;
       case LogicalKeyboardKey.arrowLeft:
-        _startSeekTimer(-10000);
+        _startTimer(_seekTimer, () => updateProgress(-10000),
+            (newTimer) => _seekTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowRight:
-        _startSeekTimer(10000);
+        _startTimer(_seekTimer, () => updateProgress(10000),
+            (newTimer) => _seekTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowDown:
-        _startVolmueTimer(-0.1);
+        _startTimer(_volumeTimer, () => updateVolume(-0.1),
+            (newTimer) => _volumeTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowUp:
-        _startVolmueTimer(0.1);
+        _startTimer(_volumeTimer, () => updateVolume(0.1),
+            (newTimer) => _volumeTimer = newTimer);
         return true;
       default:
         return false;
@@ -73,53 +77,44 @@ class KeyEventHandler {
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowLeft:
       case LogicalKeyboardKey.arrowRight:
-        _stopSeekTimer();
+        _stopTimer(_seekTimer);
         return true;
       case LogicalKeyboardKey.arrowDown:
       case LogicalKeyboardKey.arrowUp:
-        _stopVolumeTimer();
+        _stopTimer(_volumeTimer);
         return true;
       default:
         return false;
     }
   }
 
-  void _startSeekTimer(int deltaMilliseconds) {
-    _stopSeekTimer(); // cancel last timer, avoid shaking progress
-
+  void updateProgress(int deltaMilliseconds) {
     audio.player.seek(Duration(
         milliseconds: audio.position.value.inMilliseconds + deltaMilliseconds));
-
-    _seekTimer = Timer.periodic(const Duration(milliseconds: 400), (_) {
-      _seekTimer?.cancel();
-      _seekTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-        audio.player.seek(Duration(
-            milliseconds:
-                audio.position.value.inMilliseconds + deltaMilliseconds));
-      });
-    });
   }
 
-  void _startVolmueTimer(double deltaVolume) {
-    _stopVolumeTimer();
-
+  void updateVolume(double deltaVolume) {
     audio.setVolume((audio.volume.value + deltaVolume).clamp(0.0, 1.0));
+  }
 
-    _volumeTimer = Timer.periodic(const Duration(milliseconds: 400), (_) {
-      _volumeTimer?.cancel();
-      _volumeTimer = Timer.periodic(const Duration(milliseconds: 100), (_) {
-        audio.setVolume((audio.volume.value + deltaVolume).clamp(0.0, 1.0));
+  void _startTimer(
+      Timer? timer, void Function() action, void Function(Timer) onTimerUpdate,
+      {int initDelay = 400, periodicDelay = 100}) {
+    _stopTimer(timer);
+    action();
+
+    Timer newTimer = Timer(Duration(milliseconds: initDelay), () {
+      Timer periodicTimer =
+          Timer.periodic(Duration(milliseconds: periodicDelay), (_) {
+        action();
       });
+      onTimerUpdate(periodicTimer);
     });
+    onTimerUpdate(newTimer);
   }
 
-  void _stopSeekTimer() {
-    _seekTimer?.cancel();
-    _seekTimer = null;
-  }
-
-  void _stopVolumeTimer() {
-    _volumeTimer?.cancel();
-    _volumeTimer = null;
+  void _stopTimer(Timer? timer) {
+    timer?.cancel();
+    timer = null;
   }
 }
