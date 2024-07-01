@@ -57,26 +57,22 @@ class PlayerWidget extends StatelessWidget {
         child: SizedBox(
           height: 50,
           width: appWidth,
-          child: FocusScope(
-            autofocus: true,
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 1.0,
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
-              ),
-              child: Slider(
-                focusNode: FocusNode(canRequestFocus: false),
-                onChanged: (value) {
-                  final duration = c.audio.duration.value;
-                  if (duration != Duration.zero) {
-                    final position = value * duration.inMilliseconds;
-                    player.seek(Duration(milliseconds: position.round()));
-                  }
-                },
-                value: _getProgressBarValue(),
-              ),
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              trackHeight: 1.0,
+              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+              overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
+            ),
+            child: Slider(
+              focusNode: FocusNode(canRequestFocus: false),
+              onChanged: (value) {
+                final duration = c.audio.duration.value;
+                if (duration != Duration.zero) {
+                  final position = value * duration.inMilliseconds;
+                  player.seek(Duration(milliseconds: position.round()));
+                }
+              },
+              value: _getProgressBarValue(),
             ),
           ),
         ),

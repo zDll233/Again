@@ -1,14 +1,14 @@
 import 'dart:async';
 
+import 'package:again/controllers/key_event_handler.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:path/path.dart' as p;
 
 import 'audio_controller.dart';
 import 'database_controller.dart';
 import 'u_i_controller.dart';
-
-import 'package:path/path.dart' as p;
 
 class Controller extends GetxController {
   final audio = Get.put(AudioController());
@@ -16,78 +16,20 @@ class Controller extends GetxController {
   final db = Get.put(DatabaseController());
 
   late final JsonStorage _history;
+  late final KeyEventHandler _keyEventHandler;
 
   @override
   void onInit() async {
     super.onInit();
     await db.initializeStorage();
     await _loadHistory();
-    HardwareKeyboard.instance.addHandler(_handleKeyEvent);
+    _keyEventHandler = KeyEventHandler(audio, ui);
+    HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
   }
 
   @override
   void onClose() {
-    HardwareKeyboard.instance.removeHandler(_handleKeyEvent);
-  }
-
-  bool _handleKeyEvent(KeyEvent event) {
-    if (event is KeyDownEvent) {
-      if (HardwareKeyboard.instance.isControlPressed) {
-        if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          audio.playPrev();
-          return true;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          audio.playNext();
-          return true;
-        }
-      } else {
-        if (event.logicalKey == LogicalKeyboardKey.space) {
-          audio.onPausePressed();
-          return true;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-          _startSeek(-10000);
-          return true;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
-          _startSeek(10000);
-          return true;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
-          ui.showLrcPanel.value = true;
-          return true;
-        } else if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
-          ui.showLrcPanel.value = false;
-          return true;
-        }
-      }
-    } else if (event is KeyUpEvent) {
-      if (event.logicalKey == LogicalKeyboardKey.arrowLeft ||
-          event.logicalKey == LogicalKeyboardKey.arrowRight) {
-        _stopSeekTimer();
-        return true;
-      }
-    }
-    return false;
-  }
-
-  Timer? _seekTimer;
-
-  void _startSeek(int milliseconds) {
-    _stopSeekTimer(); // cacel last timer, avoid shaking progress
-
-    audio.player.seek(Duration(
-        milliseconds: audio.position.value.inMilliseconds + milliseconds));
-
-    _seekTimer = Timer.periodic(const Duration(milliseconds: 400), (timer) {
-      _seekTimer?.cancel();
-      _seekTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-        audio.player.seek(Duration(
-            milliseconds: audio.position.value.inMilliseconds + milliseconds));
-      });
-    });
-  }
-
-  void _stopSeekTimer() {
-    _seekTimer?.cancel();
-    _seekTimer = null;
+    HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
   }
 
   Future<void> saveHistory() async {

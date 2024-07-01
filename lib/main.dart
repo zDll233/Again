@@ -51,12 +51,15 @@ class MyApp extends StatelessWidget {
         )),
         home: Scaffold(
             backgroundColor: Colors.transparent,
-            body: Column(
-              children: [
-                const WindowTitleBar(),
-                Home(),
-                PlayerWidget(player: c.audio.player)
-              ],
+            body: FocusScope(
+              canRequestFocus: false,
+              child: Column(
+                children: [
+                  const WindowTitleBar(),
+                  Home(),
+                  PlayerWidget(player: c.audio.player)
+                ],
+              ),
             )));
   }
 }
