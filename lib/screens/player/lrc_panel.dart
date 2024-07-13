@@ -85,9 +85,9 @@ class LyricPanel extends StatelessWidget {
                 emptyBuilder: _emptyBuilder,
                 selectLineBuilder: _lineIndicator,
                 lyricUi: lyricUi,
+                waitMilliseconds: 5000,
                 canScrollBack: c.audio.playerState.value == PlayerState.playing,
                 canFlashBack: true,
-                waitMilliseconds: 5000,
               ));
         }
       },

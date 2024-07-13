@@ -92,6 +92,13 @@ class TVoiceWorkCategoryData extends DataClass
       TVoiceWorkCategoryData(
         description: description ?? this.description,
       );
+  TVoiceWorkCategoryData copyWithCompanion(TVoiceWorkCategoryCompanion data) {
+    return TVoiceWorkCategoryData(
+      description:
+          data.description.present ? data.description.value : this.description,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TVoiceWorkCategoryData(')
@@ -321,6 +328,17 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
         category: category ?? this.category,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
       );
+  TVoiceWorkData copyWithCompanion(TVoiceWorkCompanion data) {
+    return TVoiceWorkData(
+      title: data.title.present ? data.title.value : this.title,
+      diretoryPath: data.diretoryPath.present
+          ? data.diretoryPath.value
+          : this.diretoryPath,
+      category: data.category.present ? data.category.value : this.category,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TVoiceWorkData(')
@@ -564,6 +582,16 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
         filePath: filePath ?? this.filePath,
         voiceWorkTitle: voiceWorkTitle ?? this.voiceWorkTitle,
       );
+  TVoiceItemData copyWithCompanion(TVoiceItemCompanion data) {
+    return TVoiceItemData(
+      title: data.title.present ? data.title.value : this.title,
+      filePath: data.filePath.present ? data.filePath.value : this.filePath,
+      voiceWorkTitle: data.voiceWorkTitle.present
+          ? data.voiceWorkTitle.value
+          : this.voiceWorkTitle,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TVoiceItemData(')
@@ -743,6 +771,12 @@ class TCVData extends DataClass implements Insertable<TCVData> {
   TCVData copyWith({String? cvName}) => TCVData(
         cvName: cvName ?? this.cvName,
       );
+  TCVData copyWithCompanion(TCVCompanion data) {
+    return TCVData(
+      cvName: data.cvName.present ? data.cvName.value : this.cvName,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TCVData(')
@@ -918,6 +952,13 @@ class TVoiceCVData extends DataClass implements Insertable<TVoiceCVData> {
         vkTitle: vkTitle ?? this.vkTitle,
         cvName: cvName ?? this.cvName,
       );
+  TVoiceCVData copyWithCompanion(TVoiceCVCompanion data) {
+    return TVoiceCVData(
+      vkTitle: data.vkTitle.present ? data.vkTitle.value : this.vkTitle,
+      cvName: data.cvName.present ? data.cvName.value : this.cvName,
+    );
+  }
+
   @override
   String toString() {
     return (StringBuffer('TVoiceCVData(')
@@ -1001,7 +1042,7 @@ class TVoiceCVCompanion extends UpdateCompanion<TVoiceCVData> {
 
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
-  _$AppDatabaseManager get managers => _$AppDatabaseManager(this);
+  $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $TVoiceWorkCategoryTable tVoiceWorkCategory =
       $TVoiceWorkCategoryTable(this);
   late final $TVoiceWorkTable tVoiceWork = $TVoiceWorkTable(this);
@@ -1016,7 +1057,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       [tVoiceWorkCategory, tVoiceWork, tVoiceItem, tcv, tVoiceCV];
 }
 
-typedef $$TVoiceWorkCategoryTableInsertCompanionBuilder
+typedef $$TVoiceWorkCategoryTableCreateCompanionBuilder
     = TVoiceWorkCategoryCompanion Function({
   required String description,
   Value<int> rowid,
@@ -1033,8 +1074,7 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
     TVoiceWorkCategoryData,
     $$TVoiceWorkCategoryTableFilterComposer,
     $$TVoiceWorkCategoryTableOrderingComposer,
-    $$TVoiceWorkCategoryTableProcessedTableManager,
-    $$TVoiceWorkCategoryTableInsertCompanionBuilder,
+    $$TVoiceWorkCategoryTableCreateCompanionBuilder,
     $$TVoiceWorkCategoryTableUpdateCompanionBuilder> {
   $$TVoiceWorkCategoryTableTableManager(
       _$AppDatabase db, $TVoiceWorkCategoryTable table)
@@ -1045,9 +1085,7 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
               $$TVoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
           orderingComposer: $$TVoiceWorkCategoryTableOrderingComposer(
               ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TVoiceWorkCategoryTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String> description = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1055,7 +1093,7 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
             description: description,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String description,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1064,19 +1102,6 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $$TVoiceWorkCategoryTableProcessedTableManager
-    extends ProcessedTableManager<
-        _$AppDatabase,
-        $TVoiceWorkCategoryTable,
-        TVoiceWorkCategoryData,
-        $$TVoiceWorkCategoryTableFilterComposer,
-        $$TVoiceWorkCategoryTableOrderingComposer,
-        $$TVoiceWorkCategoryTableProcessedTableManager,
-        $$TVoiceWorkCategoryTableInsertCompanionBuilder,
-        $$TVoiceWorkCategoryTableUpdateCompanionBuilder> {
-  $$TVoiceWorkCategoryTableProcessedTableManager(super.$state);
 }
 
 class $$TVoiceWorkCategoryTableFilterComposer
@@ -1110,7 +1135,7 @@ class $$TVoiceWorkCategoryTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$TVoiceWorkTableInsertCompanionBuilder = TVoiceWorkCompanion Function({
+typedef $$TVoiceWorkTableCreateCompanionBuilder = TVoiceWorkCompanion Function({
   required String title,
   required String diretoryPath,
   required String category,
@@ -1131,8 +1156,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
     TVoiceWorkData,
     $$TVoiceWorkTableFilterComposer,
     $$TVoiceWorkTableOrderingComposer,
-    $$TVoiceWorkTableProcessedTableManager,
-    $$TVoiceWorkTableInsertCompanionBuilder,
+    $$TVoiceWorkTableCreateCompanionBuilder,
     $$TVoiceWorkTableUpdateCompanionBuilder> {
   $$TVoiceWorkTableTableManager(_$AppDatabase db, $TVoiceWorkTable table)
       : super(TableManagerState(
@@ -1142,9 +1166,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
               $$TVoiceWorkTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$TVoiceWorkTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TVoiceWorkTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String> title = const Value.absent(),
             Value<String> diretoryPath = const Value.absent(),
             Value<String> category = const Value.absent(),
@@ -1158,7 +1180,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             createdAt: createdAt,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String title,
             required String diretoryPath,
             required String category,
@@ -1173,18 +1195,6 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $$TVoiceWorkTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    $TVoiceWorkTable,
-    TVoiceWorkData,
-    $$TVoiceWorkTableFilterComposer,
-    $$TVoiceWorkTableOrderingComposer,
-    $$TVoiceWorkTableProcessedTableManager,
-    $$TVoiceWorkTableInsertCompanionBuilder,
-    $$TVoiceWorkTableUpdateCompanionBuilder> {
-  $$TVoiceWorkTableProcessedTableManager(super.$state);
 }
 
 class $$TVoiceWorkTableFilterComposer
@@ -1283,7 +1293,7 @@ class $$TVoiceWorkTableOrderingComposer
   }
 }
 
-typedef $$TVoiceItemTableInsertCompanionBuilder = TVoiceItemCompanion Function({
+typedef $$TVoiceItemTableCreateCompanionBuilder = TVoiceItemCompanion Function({
   required String title,
   required String filePath,
   required String voiceWorkTitle,
@@ -1302,8 +1312,7 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
     TVoiceItemData,
     $$TVoiceItemTableFilterComposer,
     $$TVoiceItemTableOrderingComposer,
-    $$TVoiceItemTableProcessedTableManager,
-    $$TVoiceItemTableInsertCompanionBuilder,
+    $$TVoiceItemTableCreateCompanionBuilder,
     $$TVoiceItemTableUpdateCompanionBuilder> {
   $$TVoiceItemTableTableManager(_$AppDatabase db, $TVoiceItemTable table)
       : super(TableManagerState(
@@ -1313,9 +1322,7 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
               $$TVoiceItemTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$TVoiceItemTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TVoiceItemTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String> title = const Value.absent(),
             Value<String> filePath = const Value.absent(),
             Value<String> voiceWorkTitle = const Value.absent(),
@@ -1327,7 +1334,7 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
             voiceWorkTitle: voiceWorkTitle,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String title,
             required String filePath,
             required String voiceWorkTitle,
@@ -1340,18 +1347,6 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $$TVoiceItemTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    $TVoiceItemTable,
-    TVoiceItemData,
-    $$TVoiceItemTableFilterComposer,
-    $$TVoiceItemTableOrderingComposer,
-    $$TVoiceItemTableProcessedTableManager,
-    $$TVoiceItemTableInsertCompanionBuilder,
-    $$TVoiceItemTableUpdateCompanionBuilder> {
-  $$TVoiceItemTableProcessedTableManager(super.$state);
 }
 
 class $$TVoiceItemTableFilterComposer
@@ -1406,7 +1401,7 @@ class $$TVoiceItemTableOrderingComposer
   }
 }
 
-typedef $$TCVTableInsertCompanionBuilder = TCVCompanion Function({
+typedef $$TCVTableCreateCompanionBuilder = TCVCompanion Function({
   required String cvName,
   Value<int> rowid,
 });
@@ -1421,8 +1416,7 @@ class $$TCVTableTableManager extends RootTableManager<
     TCVData,
     $$TCVTableFilterComposer,
     $$TCVTableOrderingComposer,
-    $$TCVTableProcessedTableManager,
-    $$TCVTableInsertCompanionBuilder,
+    $$TCVTableCreateCompanionBuilder,
     $$TCVTableUpdateCompanionBuilder> {
   $$TCVTableTableManager(_$AppDatabase db, $TCVTable table)
       : super(TableManagerState(
@@ -1431,8 +1425,7 @@ class $$TCVTableTableManager extends RootTableManager<
           filteringComposer: $$TCVTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$TCVTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) => $$TCVTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String> cvName = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1440,7 +1433,7 @@ class $$TCVTableTableManager extends RootTableManager<
             cvName: cvName,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String cvName,
             Value<int> rowid = const Value.absent(),
           }) =>
@@ -1449,18 +1442,6 @@ class $$TCVTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $$TCVTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    $TCVTable,
-    TCVData,
-    $$TCVTableFilterComposer,
-    $$TCVTableOrderingComposer,
-    $$TCVTableProcessedTableManager,
-    $$TCVTableInsertCompanionBuilder,
-    $$TCVTableUpdateCompanionBuilder> {
-  $$TCVTableProcessedTableManager(super.$state);
 }
 
 class $$TCVTableFilterComposer
@@ -1494,7 +1475,7 @@ class $$TCVTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
-typedef $$TVoiceCVTableInsertCompanionBuilder = TVoiceCVCompanion Function({
+typedef $$TVoiceCVTableCreateCompanionBuilder = TVoiceCVCompanion Function({
   required String vkTitle,
   required String cvName,
   Value<int> rowid,
@@ -1511,8 +1492,7 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
     TVoiceCVData,
     $$TVoiceCVTableFilterComposer,
     $$TVoiceCVTableOrderingComposer,
-    $$TVoiceCVTableProcessedTableManager,
-    $$TVoiceCVTableInsertCompanionBuilder,
+    $$TVoiceCVTableCreateCompanionBuilder,
     $$TVoiceCVTableUpdateCompanionBuilder> {
   $$TVoiceCVTableTableManager(_$AppDatabase db, $TVoiceCVTable table)
       : super(TableManagerState(
@@ -1522,9 +1502,7 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
               $$TVoiceCVTableFilterComposer(ComposerState(db, table)),
           orderingComposer:
               $$TVoiceCVTableOrderingComposer(ComposerState(db, table)),
-          getChildManagerBuilder: (p) =>
-              $$TVoiceCVTableProcessedTableManager(p),
-          getUpdateCompanionBuilder: ({
+          updateCompanionCallback: ({
             Value<String> vkTitle = const Value.absent(),
             Value<String> cvName = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -1534,7 +1512,7 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
             cvName: cvName,
             rowid: rowid,
           ),
-          getInsertCompanionBuilder: ({
+          createCompanionCallback: ({
             required String vkTitle,
             required String cvName,
             Value<int> rowid = const Value.absent(),
@@ -1545,18 +1523,6 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
             rowid: rowid,
           ),
         ));
-}
-
-class $$TVoiceCVTableProcessedTableManager extends ProcessedTableManager<
-    _$AppDatabase,
-    $TVoiceCVTable,
-    TVoiceCVData,
-    $$TVoiceCVTableFilterComposer,
-    $$TVoiceCVTableOrderingComposer,
-    $$TVoiceCVTableProcessedTableManager,
-    $$TVoiceCVTableInsertCompanionBuilder,
-    $$TVoiceCVTableUpdateCompanionBuilder> {
-  $$TVoiceCVTableProcessedTableManager(super.$state);
 }
 
 class $$TVoiceCVTableFilterComposer
@@ -1615,9 +1581,9 @@ class $$TVoiceCVTableOrderingComposer
   }
 }
 
-class _$AppDatabaseManager {
+class $AppDatabaseManager {
   final _$AppDatabase _db;
-  _$AppDatabaseManager(this._db);
+  $AppDatabaseManager(this._db);
   $$TVoiceWorkCategoryTableTableManager get tVoiceWorkCategory =>
       $$TVoiceWorkCategoryTableTableManager(_db, _db.tVoiceWorkCategory);
   $$TVoiceWorkTableTableManager get tVoiceWork =>
