@@ -22,6 +22,7 @@ class TVoiceItem extends Table {
 class TVoiceWork extends Table {
   TextColumn get title => text()();
   TextColumn get diretoryPath => text()();
+  TextColumn get coverPath => text()();
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();

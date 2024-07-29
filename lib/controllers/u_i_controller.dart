@@ -18,6 +18,7 @@ enum SortOrder {
 
 class UIController extends GetxController {
   final vkTitleList = <String>[].obs;
+  final vkCoverPathList = <String>[].obs;
   final selectedVkTitle = ''.obs;
   final selectedViPathList = <String>[];
   final selectedViTitleList = <String>[].obs;
@@ -129,7 +130,7 @@ class UIController extends GetxController {
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
 
-    Get.find<DatabaseController>().updateSortedVkTitleList();
+    Get.find<DatabaseController>().updateSortedVkLists();
     await _filterSelected();
   }
 

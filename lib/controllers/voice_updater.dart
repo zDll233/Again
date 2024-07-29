@@ -22,6 +22,13 @@ class VoiceUpdater {
     '.m4a',
   ];
 
+  static const List<String> imgExtensions = [
+    '.jpg',
+    '.jpeg',
+    '.png',
+    '.webp',
+  ];
+
   Future<void> update() async {
     await insertVoiceWorkCategories(); // categories
     await for (var collectionDir in rootDir.list()) {
@@ -68,29 +75,41 @@ class VoiceUpdater {
     List<TVoiceCVCompanion> vcc = [];
 
     await for (var entity in collectionDir.list()) {
-      String vkTitle = p.basename(entity.path);
+      if (entity is Directory) {
+        String vkTitle = p.basename(entity.path);
+        String vkCoverPath = 'null';
 
-      // VoiceWork
-      vkc.add(TVoiceWorkCompanion(
-        title: Value(vkTitle),
-        diretoryPath: Value(entity.path),
-        category: Value(p.basename(entity.parent.path)),
-        createdAt: Value(await entity.stat().then((v) => v.changed)),
-        rowid: const Value.absent(),
-      ));
+        // vk img
+        await for (var e in entity.list(recursive: true)) {
+          if (e is File && imgExtensions.any((ext) => e.path.endsWith(ext))) {
+            vkCoverPath = e.path;
+            break;
+          }
+        }
 
-      List<String> singleVkCvNames = getCVList(vkTitle);
-
-      // cv
-      cvNames.addAll(singleVkCvNames);
-
-      // cv vk
-      for (var cvName in singleVkCvNames) {
-        vcc.add(TVoiceCVCompanion(
-          vkTitle: Value(vkTitle),
-          cvName: Value(cvName),
+        // VoiceWork
+        vkc.add(TVoiceWorkCompanion(
+          title: Value(vkTitle),
+          diretoryPath: Value(entity.path),
+          coverPath: Value(vkCoverPath),
+          category: Value(p.basename(entity.parent.path)),
+          createdAt: Value(await entity.stat().then((v) => v.changed)),
           rowid: const Value.absent(),
         ));
+
+        List<String> singleVkCvNames = getCVList(vkTitle);
+
+        // cv
+        cvNames.addAll(singleVkCvNames);
+
+        // cv vk
+        for (var cvName in singleVkCvNames) {
+          vcc.add(TVoiceCVCompanion(
+            vkTitle: Value(vkTitle),
+            cvName: Value(cvName),
+            rowid: const Value.absent(),
+          ));
+        }
       }
     }
 

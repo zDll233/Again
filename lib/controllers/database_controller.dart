@@ -105,26 +105,26 @@ class DatabaseController extends GetxController {
 
   Future<void> updateAllVkTitleList() async {
     vkDataList = await database.selectAllVoiceWorks;
-    updateSortedVkTitleList();
+    updateSortedVkLists();
   }
 
   Future<void> updateVkTitleListWithCv(String cvName) async {
     vkDataList = await database.selectVkWithCv(cvName);
-    updateSortedVkTitleList();
+    updateSortedVkLists();
   }
 
   Future<void> updateVkTitleListWithCategory(String category) async {
     vkDataList = await database.selectVkWithCategory(category);
-    updateSortedVkTitleList();
+    updateSortedVkLists();
   }
 
   Future<void> updateVkTitleListWithCvAndCategory(
       String cvName, String category) async {
     vkDataList = await database.selectVkWithCvAndCategory(cvName, category);
-    updateSortedVkTitleList();
+    updateSortedVkLists();
   }
 
-  void updateSortedVkTitleList() {
+  void updateSortedVkLists() {
     final ui = Get.find<UIController>();
     switch (ui.sortOrder.value) {
       case SortOrder.byTitle:
@@ -139,6 +139,9 @@ class DatabaseController extends GetxController {
     ui.vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
+    ui.vkCoverPathList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.coverPath));
   }
 
   Future<void> updateSelectedViList() async {

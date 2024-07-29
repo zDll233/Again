@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/u_i_controller.dart';
+import 'package:again/models/voice_work.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -30,16 +32,41 @@ class FutureVoiceWorkListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    return c.ui.vkTitleList.toList();
+    List<VoiceWork> vkList = [];
+    for (int idx = 0; idx < c.ui.vkTitleList.length; idx++) {
+      vkList.add(VoiceWork(
+          title: c.ui.vkTitleList[idx], coverPath: c.ui.vkCoverPathList[idx]));
+    }
+    return vkList;
+  }
+
+  Widget getVkCover(String path) {
+    var coverFile = File(path);
+    return _buildImage((coverFile.existsSync()
+        ? FileImage(coverFile)
+        : const AssetImage('assets/images/nocover.jpg')) as ImageProvider);
+  }
+
+  Widget _buildImage(ImageProvider imageProvider) {
+    return Image(
+      image: imageProvider,
+      width: 42.0,
+      height: 42.0,
+      fit: BoxFit.cover,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => FutureListView(
           future: fetchItems(),
-          itemBuilder: (context, title, index) {
+          itemBuilder: (context, vkList, index) {
             return Obx(() => ListTile(
-                  title: Text(title),
+                  leading: Padding(
+                    padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
+                    child: getVkCover(vkList.coverPath),
+                  ),
+                  title: Text(vkList.title),
                   onTap: () {
                     c.ui.onVkSelected(index);
                   },

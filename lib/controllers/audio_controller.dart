@@ -41,7 +41,7 @@ class AudioController extends GetxController {
       await logFile.create(recursive: true);
     }
     _logger = Logger(
-        printer: PrettyPrinter(methodCount: 2, colors: false, printTime: true),
+        printer: PrettyPrinter(methodCount: 2, colors: false, dateTimeFormat: DateTimeFormat.dateAndTime),
         level: Level.error,
         output: FileOutput(file: logFile));
   }
