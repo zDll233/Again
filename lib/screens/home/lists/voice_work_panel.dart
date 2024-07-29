@@ -48,10 +48,11 @@ class FutureVoiceWorkListView extends StatelessWidget {
   }
 
   Widget _buildImage(ImageProvider imageProvider) {
+    double size = 45.0;
     return Image(
       image: imageProvider,
-      width: 42.0,
-      height: 42.0,
+      width: size,
+      height: size,
       fit: BoxFit.cover,
     );
   }
@@ -62,15 +63,13 @@ class FutureVoiceWorkListView extends StatelessWidget {
           future: fetchItems(),
           itemBuilder: (context, vkList, index) {
             return Obx(() => ListTile(
-                  leading: Padding(
-                    padding: const EdgeInsets.only(top: 3.0, bottom: 3.0),
-                    child: getVkCover(vkList.coverPath),
-                  ),
+                  leading: getVkCover(vkList.coverPath),
                   title: Text(vkList.title),
                   onTap: () {
                     c.ui.onVkSelected(index);
                   },
                   selected: c.ui.selectedVkIdx.value == index,
+                  minVerticalPadding: 15.0,
                 ));
           },
           itemScrollController: c.ui.vkScrollController,
