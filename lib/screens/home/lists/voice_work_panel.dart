@@ -48,7 +48,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
   }
 
   Widget _buildImage(ImageProvider imageProvider) {
-    double size = 45.0;
+    double size = 60.0;
     return Image(
       image: imageProvider,
       width: size,
