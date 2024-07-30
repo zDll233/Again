@@ -45,15 +45,18 @@ class FutureVoiceWorkListView extends StatelessWidget {
     return Obx(() => FutureListView(
           future: fetchItems(),
           itemBuilder: (context, vk, index) {
-            return Obx(() => ListTile(
-                  leading: ImageThumbnail(imagePath: vk.coverPath),
-                  title: Text(vk.title),
-                  onTap: () {
-                    c.ui.onVkSelected(index);
-                  },
-                  selected: c.ui.selectedVkIdx.value == index,
-                  minVerticalPadding: 15.0,
-                ));
+            return Obx(() => Padding(
+              padding: const EdgeInsets.only(top: 5.0,bottom: 5.0),
+              child: ListTile(
+                    leading: ImageThumbnail(imagePath: vk.coverPath),
+                    title: Text(vk.title),
+                    onTap: () {
+                      c.ui.onVkSelected(index);
+                    },
+                    selected: c.ui.selectedVkIdx.value == index,
+                    // minVerticalPadding: 15.0,
+                  ),
+            ));
           },
           itemScrollController: c.ui.vkScrollController,
         ));
