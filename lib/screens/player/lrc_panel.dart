@@ -83,7 +83,9 @@ class LyricPanel extends StatelessWidget {
                 playing: c.audio.playerState.value == PlayerState.playing,
                 size: size,
                 emptyBuilder: _emptyBuilder,
-                selectLineBuilder: _lineIndicator,
+                selectLineBuilder: (progress, flashBack, go2SelectedLine) =>
+                    _lineIndicator(context, progress, flashBack,
+                        go2SelectedLine), // 传递 context
                 lyricUi: lyricUi,
                 waitMilliseconds: 5000,
                 canScrollBack: c.audio.playerState.value == PlayerState.playing,
@@ -106,30 +108,48 @@ class LyricPanel extends StatelessWidget {
     );
   }
 
-  Widget _lineIndicator(int progress, VoidCallback confirm) {
+  Widget _lineIndicator(BuildContext context, int progress,
+      VoidCallback flashBack, VoidCallback go2SelecedLine) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        IconButton(
-          onPressed: () {
-            LyricsLog.logD("点击事件");
-            confirm.call();
-            c.audio.player.seek(Duration(milliseconds: progress));
-            if (c.audio.playerState.value != PlayerState.playing) {
-              c.audio.resume();
-            }
-          },
-          icon: const Icon(Icons.play_arrow),
+        Flexible(
+          flex: 1,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 25.0),
+            child: IconButton(
+              onPressed: () {
+                LyricsLog.logD("点击跳转到播放行");
+                flashBack.call();
+              },
+              icon: const Icon(Icons.location_searching),
+            ),
+          ),
         ),
-        Expanded(
+        Flexible(
+          flex: 8,
           child: Container(
             decoration: const BoxDecoration(color: Colors.grey),
             height: 1,
             width: double.infinity,
           ),
         ),
-        Text(
-          '    ${Duration(milliseconds: progress).toString().split('.').first}',
-        )
+        Flexible(
+          flex: 1,
+          child: TextButton(
+            child: Text(
+                Duration(milliseconds: progress).toString().split('.').first,
+                style: Theme.of(context).textTheme.bodyMedium),
+            onPressed: () {
+              LyricsLog.logD("点击播放当前行");
+              go2SelecedLine.call();
+              c.audio.player.seek(Duration(milliseconds: progress));
+              if (c.audio.playerState.value != PlayerState.playing) {
+                c.audio.resume();
+              }
+            },
+          ),
+        ),
       ],
     );
   }
