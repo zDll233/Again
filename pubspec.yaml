@@ -46,6 +46,7 @@ dependencies:
   collection: ^1.18.0
   flutter_lyric:
     git: https://github.com/zDll233/flutter_lyric.git 
+    # path: ../
 
 dev_dependencies:
   flutter_test:

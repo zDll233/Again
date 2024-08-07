@@ -83,9 +83,9 @@ class LyricPanel extends StatelessWidget {
                 playing: c.audio.playerState.value == PlayerState.playing,
                 size: size,
                 emptyBuilder: _emptyBuilder,
-                selectLineBuilder: (progress, flashBack, go2SelectedLine) =>
-                    _lineIndicator(context, progress, flashBack,
-                        go2SelectedLine), // 传递 context
+                selectLineBuilder: (position, flashBack, confirmPlay) =>
+                    _lineIndicator(context, position, flashBack,
+                        confirmPlay), // 传递 context
                 lyricUi: lyricUi,
                 waitMilliseconds: 5000,
                 canScrollBack: c.audio.playerState.value == PlayerState.playing,
@@ -108,8 +108,8 @@ class LyricPanel extends StatelessWidget {
     );
   }
 
-  Widget _lineIndicator(BuildContext context, int progress,
-      VoidCallback flashBack, VoidCallback go2SelecedLine) {
+  Widget _lineIndicator(BuildContext context, int position,
+      VoidCallback flashBack, VoidCallback confirmPlay) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -119,7 +119,6 @@ class LyricPanel extends StatelessWidget {
             padding: const EdgeInsets.only(left: 25.0),
             child: IconButton(
               onPressed: () {
-                LyricsLog.logD("点击跳转到播放行");
                 flashBack.call();
               },
               icon: const Icon(Icons.location_searching),
@@ -138,12 +137,11 @@ class LyricPanel extends StatelessWidget {
           flex: 1,
           child: TextButton(
             child: Text(
-                Duration(milliseconds: progress).toString().split('.').first,
+                Duration(milliseconds: position).toString().split('.').first,
                 style: Theme.of(context).textTheme.bodyMedium),
             onPressed: () {
-              LyricsLog.logD("点击播放当前行");
-              go2SelecedLine.call();
-              c.audio.player.seek(Duration(milliseconds: progress));
+              c.audio.player.seek(Duration(milliseconds: position));
+              confirmPlay.call();
               if (c.audio.playerState.value != PlayerState.playing) {
                 c.audio.resume();
               }
