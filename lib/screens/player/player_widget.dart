@@ -26,10 +26,26 @@ class PlayerWidget extends StatelessWidget {
         child: Stack(
           children: [
             MoveWindow(),
-            _buildProgressBar(context, appWidth),
-            _buildVolumeControl(context),
-            _buildTimeDisplay(),
-            _buildPlaybackControls(),
+            Positioned(
+              top: 5,
+              child: _buildProgressBar(context, appWidth),
+            ),
+            Positioned(
+              left: 20,
+              bottom: 18,
+              child: _buildTimeDisplay(context),
+            ),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: _buildPlaybackControls(),
+            ),
+            Positioned(
+              right: 10,
+              bottom: 10,
+              child: _buildVolumeControl(context),
+            ),
           ],
         ),
       ),
@@ -37,43 +53,40 @@ class PlayerWidget extends StatelessWidget {
   }
 
   Widget _buildProgressBar(BuildContext context, double appWidth) {
-    return Positioned(
-      top: 5,
-      child: Listener(
-        onPointerSignal: (pointerSignal) {
-          if (pointerSignal is PointerScrollEvent) {
-            final scrollDelta = pointerSignal.scrollDelta.dy;
-            var milliseconds = 0;
-            if (scrollDelta > 0) {
-              milliseconds = -10000;
-            } else if (scrollDelta < 0) {
-              milliseconds = 10000;
-            }
-            c.audio.player.seek(Duration(
-                milliseconds:
-                    c.audio.position.value.inMilliseconds + milliseconds));
+    return Listener(
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
+          final scrollDelta = pointerSignal.scrollDelta.dy;
+          var milliseconds = 0;
+          if (scrollDelta > 0) {
+            milliseconds = -10000;
+          } else if (scrollDelta < 0) {
+            milliseconds = 10000;
           }
-        },
-        child: SizedBox(
-          height: 50,
-          width: appWidth,
-          child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              trackHeight: 1.0,
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
-              overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
-            ),
-            child: Slider(
-              focusNode: FocusNode(canRequestFocus: false),
-              onChanged: (value) {
-                final duration = c.audio.duration.value;
-                if (duration != Duration.zero) {
-                  final position = value * duration.inMilliseconds;
-                  player.seek(Duration(milliseconds: position.round()));
-                }
-              },
-              value: _getProgressBarValue(),
-            ),
+          c.audio.player.seek(Duration(
+              milliseconds:
+                  c.audio.position.value.inMilliseconds + milliseconds));
+        }
+      },
+      child: SizedBox(
+        height: 50,
+        width: appWidth,
+        child: SliderTheme(
+          data: SliderTheme.of(context).copyWith(
+            trackHeight: 1.0,
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
+          ),
+          child: Slider(
+            focusNode: FocusNode(canRequestFocus: false),
+            onChanged: (value) {
+              final duration = c.audio.duration.value;
+              if (duration != Duration.zero) {
+                final position = value * duration.inMilliseconds;
+                player.seek(Duration(milliseconds: position.round()));
+              }
+            },
+            value: _getProgressBarValue(),
           ),
         ),
       ),
@@ -94,68 +107,57 @@ class PlayerWidget extends StatelessWidget {
   }
 
   Widget _buildVolumeControl(BuildContext context) {
-    return Positioned(
-      right: 10,
-      bottom: 10,
-      child: Listener(
-        onPointerSignal: (pointerSignal) {
-          if (pointerSignal is PointerScrollEvent) {
-            final scrollDelta = pointerSignal.scrollDelta.dy;
-            if (scrollDelta > 0) {
-              c.audio.setVolume((c.audio.volume.value - 0.1).clamp(0.0, 1.0));
-            } else if (scrollDelta < 0) {
-              c.audio.setVolume((c.audio.volume.value + 0.1).clamp(0.0, 1.0));
-            }
+    return Listener(
+      onPointerSignal: (pointerSignal) {
+        if (pointerSignal is PointerScrollEvent) {
+          final scrollDelta = pointerSignal.scrollDelta.dy;
+          if (scrollDelta > 0) {
+            c.audio.setVolume((c.audio.volume.value - 0.1).clamp(0.0, 1.0));
+          } else if (scrollDelta < 0) {
+            c.audio.setVolume((c.audio.volume.value + 0.1).clamp(0.0, 1.0));
           }
-        },
-        child: SizedBox(
-          width: 150,
-          child: Row(
-            children: [
-              IconButton(
-                onPressed: c.audio.onMutePressed,
-                icon: c.audio.volume.value == 0
-                    ? const Icon(Icons.volume_off)
-                    : const Icon(Icons.volume_up),
-              ),
-              Expanded(
-                child: SliderTheme(
-                  data: SliderTheme.of(context).copyWith(
-                      trackHeight: 1.0,
-                      thumbShape:
-                          const RoundSliderThumbShape(enabledThumbRadius: 0.0),
-                      overlayShape: RectangleOverlayShape(
-                          shapeSize: const Size(10.0, 40.0)),
-                      overlayColor: Colors.transparent),
-                  child: Slider(
-                    value: c.audio.volume.value,
-                    min: 0.0,
-                    max: 1.0,
-                    onChanged: (double value) {
-                      c.audio.setVolume(value);
-                    },
-                  ),
+        }
+      },
+      child: SizedBox(
+        width: 150,
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: c.audio.onMutePressed,
+              icon: c.audio.volume.value == 0
+                  ? const Icon(Icons.volume_off)
+                  : const Icon(Icons.volume_up),
+            ),
+            Expanded(
+              child: SliderTheme(
+                data: SliderTheme.of(context).copyWith(
+                    trackHeight: 1.0,
+                    thumbShape:
+                        const RoundSliderThumbShape(enabledThumbRadius: 0.0),
+                    overlayShape: RectangleOverlayShape(
+                        shapeSize: const Size(10.0, 40.0)),
+                    overlayColor: Colors.transparent),
+                child: Slider(
+                  value: c.audio.volume.value,
+                  min: 0.0,
+                  max: 1.0,
+                  onChanged: (double value) {
+                    c.audio.setVolume(value);
+                  },
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildTimeDisplay() {
-    return Positioned(
-      left: 20,
-      bottom: 20,
-      child: Align(
+  Widget _buildTimeDisplay(BuildContext context) {
+    return Align(
         alignment: Alignment.center,
-        child: Text(
-          _getTimeDisplayText(),
-          style: const TextStyle(fontSize: 16.0),
-        ),
-      ),
-    );
+        child: Text(_getTimeDisplayText(),
+            style: Theme.of(context).textTheme.bodyLarge));
   }
 
   String _getTimeDisplayText() {
@@ -169,22 +171,17 @@ class PlayerWidget extends StatelessWidget {
   }
 
   Widget _buildPlaybackControls() {
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: Align(
-        alignment: Alignment.center,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildShowLryicButton(),
-            _buildPrevButton(),
-            _buildPlayPauseButton(),
-            _buildNextButton(),
-            _buildLoopModeButton(),
-          ],
-        ),
+    return Align(
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildShowLryicButton(),
+          _buildPrevButton(),
+          _buildPlayPauseButton(),
+          _buildNextButton(),
+          _buildLoopModeButton(),
+        ],
       ),
     );
   }
@@ -217,6 +214,7 @@ class PlayerWidget extends StatelessWidget {
       icon: c.audio.playerState.value == PlayerState.playing
           ? const Icon(Icons.pause)
           : const Icon(Icons.play_arrow),
+      padding: const EdgeInsets.all(7.5),
     );
   }
 

@@ -47,6 +47,7 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.purple,
+          dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
           brightness: Brightness.dark,
         )),
         home: Scaffold(
