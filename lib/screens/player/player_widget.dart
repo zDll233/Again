@@ -22,28 +22,28 @@ class PlayerWidget extends StatelessWidget {
     final appWidth = MediaQuery.of(context).size.width;
     return Obx(
       () => SizedBox(
-        height: 100, // Adjust this height as needed
+        height: 100,
         child: Stack(
           children: [
             MoveWindow(),
             Positioned(
-              top: 5,
+              top: 10,
               child: _buildProgressBar(context, appWidth),
             ),
             Positioned(
               left: 20,
-              bottom: 18,
+              bottom: 25,
               child: _buildTimeDisplay(context),
             ),
             Positioned(
               left: 0,
               right: 0,
-              bottom: 0,
+              bottom: 5,
               child: _buildPlaybackControls(),
             ),
             Positioned(
               right: 10,
-              bottom: 10,
+              bottom: 15,
               child: _buildVolumeControl(context),
             ),
           ],
@@ -69,7 +69,7 @@ class PlayerWidget extends StatelessWidget {
         }
       },
       child: SizedBox(
-        height: 50,
+        height: 40,
         width: appWidth,
         child: SliderTheme(
           data: SliderTheme.of(context).copyWith(
@@ -104,6 +104,95 @@ class PlayerWidget extends StatelessWidget {
     } else {
       return 0.0;
     }
+  }
+
+  Widget _buildTimeDisplay(BuildContext context) {
+    return Align(
+        alignment: Alignment.center,
+        child: Text(_getTimeDisplayText(),
+            style: Theme.of(context).textTheme.bodyLarge));
+  }
+
+  String _getTimeDisplayText() {
+    if (c.audio.position.value != Duration.zero) {
+      return '${c.audio.position.value.toString().split('.').first} / ${c.audio.duration.value.toString().split('.').first}';
+    } else if (c.audio.duration.value != Duration.zero) {
+      return c.audio.duration.value.toString().split('.').first;
+    } else {
+      return '';
+    }
+  }
+
+  Widget _buildPlaybackControls() {
+    // return Align(
+    return Container(
+      height: 60.0,
+      alignment: Alignment.center,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildShowLryicButton(),
+          _buildPrevButton(),
+          _buildPlayPauseButton(),
+          _buildNextButton(),
+          _buildLoopModeButton(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildShowLryicButton() {
+    return IconButton(
+      key: const Key('lyric_button'),
+      onPressed: c.ui.showLrcPanel.toggle,
+      iconSize: _iconSize * 0.5,
+      icon: c.ui.showLrcPanel.value
+          ? const Icon(Icons.arrow_drop_down)
+          : const Icon(Icons.arrow_drop_up),
+    );
+  }
+
+  Widget _buildPrevButton() {
+    return IconButton(
+      key: const Key('prev_button'),
+      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playPrev : null,
+      iconSize: _iconSize,
+      icon: const Icon(Icons.skip_previous),
+      padding: const EdgeInsets.all(2.5),
+    );
+  }
+
+  Widget _buildPlayPauseButton() {
+    return IconButton(
+      key: const Key('play_pause_button'),
+      onPressed: c.audio.playingViIdx >= 0 ? c.audio.switchPauseResume : null,
+      iconSize: _iconSize,
+      icon: c.audio.playerState.value == PlayerState.playing
+          ? const Icon(Icons.pause)
+          : const Icon(Icons.play_arrow),
+      padding: const EdgeInsets.all(2.5),
+    );
+  }
+
+  Widget _buildNextButton() {
+    return IconButton(
+      key: const Key('next_button'),
+      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
+      iconSize: _iconSize,
+      icon: const Icon(Icons.skip_next),
+      padding: const EdgeInsets.all(2.5),
+    );
+  }
+
+  _buildLoopModeButton() {
+    return IconButton(
+      key: const Key('loop_mode'),
+      onPressed: c.audio.onLoopModePressed,
+      iconSize: _iconSize * 0.5,
+      icon: c.audio.loopMode.value == LoopMode.allLoop
+          ? const Icon(Icons.repeat)
+          : const Icon(Icons.repeat_one),
+    );
   }
 
   Widget _buildVolumeControl(BuildContext context) {
@@ -150,91 +239,6 @@ class PlayerWidget extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTimeDisplay(BuildContext context) {
-    return Align(
-        alignment: Alignment.center,
-        child: Text(_getTimeDisplayText(),
-            style: Theme.of(context).textTheme.bodyLarge));
-  }
-
-  String _getTimeDisplayText() {
-    if (c.audio.position.value != Duration.zero) {
-      return '${c.audio.position.value.toString().split('.').first} / ${c.audio.duration.value.toString().split('.').first}';
-    } else if (c.audio.duration.value != Duration.zero) {
-      return c.audio.duration.value.toString().split('.').first;
-    } else {
-      return '';
-    }
-  }
-
-  Widget _buildPlaybackControls() {
-    return Align(
-      alignment: Alignment.center,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildShowLryicButton(),
-          _buildPrevButton(),
-          _buildPlayPauseButton(),
-          _buildNextButton(),
-          _buildLoopModeButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShowLryicButton() {
-    return IconButton(
-      key: const Key('lyric_button'),
-      onPressed: c.ui.showLrcPanel.toggle,
-      iconSize: _iconSize * 0.5,
-      icon: c.ui.showLrcPanel.value
-          ? const Icon(Icons.arrow_drop_down)
-          : const Icon(Icons.arrow_drop_up),
-    );
-  }
-
-  Widget _buildPrevButton() {
-    return IconButton(
-      key: const Key('prev_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playPrev : null,
-      iconSize: _iconSize,
-      icon: const Icon(Icons.skip_previous),
-    );
-  }
-
-  Widget _buildPlayPauseButton() {
-    return IconButton(
-      key: const Key('play_pause_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.switchPauseResume : null,
-      iconSize: _iconSize,
-      icon: c.audio.playerState.value == PlayerState.playing
-          ? const Icon(Icons.pause)
-          : const Icon(Icons.play_arrow),
-      padding: const EdgeInsets.all(7.5),
-    );
-  }
-
-  Widget _buildNextButton() {
-    return IconButton(
-      key: const Key('next_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
-      iconSize: _iconSize,
-      icon: const Icon(Icons.skip_next),
-    );
-  }
-
-  _buildLoopModeButton() {
-    return IconButton(
-      key: const Key('loop_mode'),
-      onPressed: c.audio.onLoopModePressed,
-      iconSize: _iconSize * 0.5,
-      icon: c.audio.loopMode.value == LoopMode.allLoop
-          ? const Icon(Icons.repeat)
-          : const Icon(Icons.repeat_one),
     );
   }
 }
