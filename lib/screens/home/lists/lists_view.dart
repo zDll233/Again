@@ -25,7 +25,7 @@ class ListsView extends StatelessWidget {
           color: dividerColor,
         ),
         Flexible(
-          flex: 6,
+          flex: 16,
           child: VoiceWorkPanel(),
         ),
         VerticalDivider(
@@ -33,7 +33,7 @@ class ListsView extends StatelessWidget {
           color: dividerColor,
         ),
         Flexible(
-          flex: 4,
+          flex: 10,
             child: VoiceItemPanel(),
         ),
       ],
