@@ -29,13 +29,13 @@ class VoiceWorkPanel extends StatelessWidget {
 class FutureVoiceWorkListView extends StatelessWidget {
   FutureVoiceWorkListView({super.key});
 
-  final Controller c = Get.find();
+  final ui = Get.find<UIController>();
 
   Future<List> fetchItems() async {
     List<VoiceWork> vkList = [];
-    for (int idx = 0; idx < c.ui.vkTitleList.length; idx++) {
+    for (int idx = 0; idx < ui.vkTitleList.length; idx++) {
       vkList.add(VoiceWork(
-          title: c.ui.vkTitleList[idx], coverPath: c.ui.vkCoverPathList[idx]));
+          title: ui.vkTitleList[idx], coverPath: ui.vkCoverPathList[idx]));
     }
     return vkList;
   }
@@ -45,20 +45,43 @@ class FutureVoiceWorkListView extends StatelessWidget {
     return Obx(() => FutureListView(
           future: fetchItems(),
           itemBuilder: (context, vk, index) {
-            return Obx(() => Padding(
-              padding: const EdgeInsets.only(top: 5.0,bottom: 5.0),
-              child: ListTile(
-                    leading: ImageThumbnail(imagePath: vk.coverPath),
-                    title: Text(vk.title),
-                    onTap: () {
-                      c.ui.onVkSelected(index);
-                    },
-                    selected: c.ui.selectedVkIdx.value == index,
-                    // minVerticalPadding: 15.0,
+            return Obx(() => ListTile(
+                  leading: ImageThumbnail(imagePath: vk.coverPath),
+                  title: Padding(
+                    padding: const EdgeInsets.only(left: 15.0, right: 5.0),
+                    child: Text(vk.title),
                   ),
-            ));
+                  trailing: vkMenu(context, vk.title),
+                  onTap: () => ui.onVkSelected(index),
+                  selected: ui.selectedVkIdx.value == index,
+                  contentPadding: const EdgeInsets.only(
+                      top: 5.0, bottom: 5.0, left: 10.0, right: 10.0),
+                  horizontalTitleGap: 0.0,
+                ));
           },
-          itemScrollController: c.ui.vkScrollController,
+          itemScrollController: ui.vkScrollController,
         ));
+  }
+
+  void selectCv(String cvName) {
+    final cvIndex = ui.cvNames.indexOf(cvName);
+    ui.onCvSelected(cvIndex);
+    ui.scrollToIndex(ui.cvScrollController, cvIndex);
+  }
+
+  Widget vkMenu(BuildContext context, String vkTitle) {
+    List<String> cvList = vkTitle.split('-')[0].split('&');
+    return TooltipVisibility(
+      visible: false,
+      child: PopupMenuButton<String>(
+        onSelected: (String value) => selectCv(value),
+        itemBuilder: (BuildContext context) {
+          return cvList
+              .map((cvName) =>
+                  PopupMenuItem<String>(value: cvName, child: Text(cvName)))
+              .toList();
+        },
+      ),
+    );
   }
 }

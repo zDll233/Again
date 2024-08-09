@@ -43,9 +43,7 @@ class FutureVoiceItemListView extends StatelessWidget {
         itemBuilder: (context, title, index) {
           return Obx(() => ListTile(
                 title: Text(title),
-                onTap: () {
-                  c.ui.onViSelected(index);
-                },
+                onTap: () => c.ui.onViSelected(index),
                 selected: c.ui.isCurrentViIdxPlaying(index),
               ));
         },

@@ -43,9 +43,7 @@ class FutureFilterListView extends StatelessWidget {
                 itemBuilder: (context, category, index) {
                   return Obx(() => ListTile(
                         title: Text(category),
-                        onTap: () {
-                          c.ui.onCategorySelected(index);
-                        },
+                        onTap: () => c.ui.onCategorySelected(index),
                         selected: c.ui.selectedCategoryIdx.value == index,
                       ));
                 },
@@ -58,9 +56,7 @@ class FutureFilterListView extends StatelessWidget {
                 itemBuilder: (context, title, index) {
                   return Obx(() => ListTile(
                         title: Text(title),
-                        onTap: () {
-                          c.ui.onCvSelected(index);
-                        },
+                        onTap: () => c.ui.onCvSelected(index),
                         selected: c.ui.selectedCvIdx.value == index,
                       ));
                 },
