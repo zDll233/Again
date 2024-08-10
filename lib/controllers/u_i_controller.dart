@@ -79,7 +79,6 @@ class UIController extends GetxController {
   /// Locates the playing item by updating the selection and scrolling to it.
   Future<void> onLocateBtnPressed() async {
     if (!_isSelectedVkPlaying) {
-      // locate = true;
       await _setFilterPlaying();
     }
     scrollToPlayingIdx();
@@ -130,7 +129,7 @@ class UIController extends GetxController {
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
 
-    Get.find<DatabaseController>().updateSortedVkLists();
+    Get.find<DatabaseController>().sortVkLists();
     await _filterSelected();
   }
 
@@ -189,6 +188,52 @@ class UIController extends GetxController {
     playingVkIdx.value = vkIdx;
   }
 
+  Future<Map<String, String>> get playingStringMap async {
+    final db = Get.find<DatabaseController>();
+    String playingCate = categories[playingCategoryIdx.value];
+    String playingCv = cvNames[playingCvIdx.value];
+    List<String> tempVkTitleList = await db
+        .getSortedVkDataList(playingCate, playingCv)
+        .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
+    String playingVk = tempVkTitleList[playingVkIdx.value];
+
+    return {
+      'category': playingCate,
+      'cv': playingCv,
+      'vk': playingVk,
+    };
+  }
+
+  Map<String, String> get selectedStringMap {
+    String selectedCate = categories[selectedCategoryIdx.value];
+    String selectedCv = cvNames[selectedCvIdx.value];
+    String selectedVk = vkTitleList[selectedVkIdx.value];
+
+    return {
+      'category': selectedCate,
+      'cv': selectedCv,
+      'vk': selectedVk,
+    };
+  }
+
+  Future<void> setPlayingIdxByString(String cate, String cv, String vk,
+      {SortOrder? sortOrder}) async {
+    final db = Get.find<DatabaseController>();
+    sortOrder ??= playingSortOrder;
+    List<String> tempVkTitleList = await db
+        .getSortedVkDataList(cate, cv, sortOrder: sortOrder)
+        .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
+
+    _updatePlayingIdx(sortOrder, categories.indexOf(cate), cvNames.indexOf(cv),
+        tempVkTitleList.indexOf(vk));
+  }
+
+  void setSelectedIdxByString(String cate, String cv, String vk) {
+    selectedCategoryIdx.value = categories.indexOf(cate);
+    selectedCvIdx.value = cvNames.indexOf(cv);
+    selectedVkIdx.value = vkTitleList.indexOf(vk);
+  }
+
   bool isCurrentViIdxPlaying(int selectedViIdx) {
     return _isSelectedVkPlaying &&
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
@@ -211,8 +256,10 @@ class UIController extends GetxController {
     final filter = uiHistory['filter'];
 
     // filter vk
-    _updatePlayingIdx(SortOrder.values[filter['sortOrder']], filter['category'],
-        filter['cv'], uiHistory['vk']);
+    await setPlayingIdxByString(
+        filter['category'], filter['cv'], uiHistory['vk'],
+        sortOrder: SortOrder.values[filter['sortOrder']]);
+
     // vi
     Get.find<AudioController>().playingViIdx.value = uiHistory['vi'];
 

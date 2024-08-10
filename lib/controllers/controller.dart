@@ -33,14 +33,16 @@ class Controller extends GetxController {
   }
 
   Future<void> saveHistory() async {
+    final playingData = await ui.playingStringMap;
+
     Map<String, dynamic> lastPlayed = {
       'ui': {
         'filter': {
-          'category': ui.playingCategoryIdx.value,
-          'cv': ui.playingCvIdx.value,
+          'category': playingData['category'],
+          'cv': playingData['cv'],
           'sortOrder': ui.sortOrder.value.index
         },
-        'vk': ui.playingVkIdx.value,
+        'vk': playingData['vk'],
         'vi': audio.playingViIdx.value
       },
       'audio': {

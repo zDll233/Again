@@ -15,7 +15,7 @@ class DatabaseController extends GetxController {
   String? vkRootDirPath;
   late final JsonStorage storage;
 
-  var vkDataList = [];
+  List<TVoiceWorkData> vkDataList = [];
 
   Future<void> initializeStorage() async {
     const directoryPath = 'config';
@@ -92,56 +92,56 @@ class DatabaseController extends GetxController {
     final cate = ui.categories[cateIdx];
     final cv = ui.cvNames[cvIdx];
 
-    if (cate == "All" && cv == "All") {
-      await updateAllVkTitleList();
-    } else if (cate == "All") {
-      await updateVkTitleListWithCv(cv);
-    } else if (cv == "All") {
-      await updateVkTitleListWithCategory(cate);
-    } else {
-      await updateVkTitleListWithCvAndCategory(cv, cate);
-    }
+    vkDataList = await getVkDataList(cate, cv);
+    sortVkLists();
   }
 
-  Future<void> updateAllVkTitleList() async {
-    vkDataList = await database.selectAllVoiceWorks;
-    updateSortedVkLists();
-  }
-
-  Future<void> updateVkTitleListWithCv(String cvName) async {
-    vkDataList = await database.selectVkWithCv(cvName);
-    updateSortedVkLists();
-  }
-
-  Future<void> updateVkTitleListWithCategory(String category) async {
-    vkDataList = await database.selectVkWithCategory(category);
-    updateSortedVkLists();
-  }
-
-  Future<void> updateVkTitleListWithCvAndCategory(
-      String cvName, String category) async {
-    vkDataList = await database.selectVkWithCvAndCategory(cvName, category);
-    updateSortedVkLists();
-  }
-
-  void updateSortedVkLists() {
+  /// update vkTitle & vkCoverPath lists
+  void sortVkLists() {
     final ui = Get.find<UIController>();
-    switch (ui.sortOrder.value) {
-      case SortOrder.byTitle:
-        vkDataList.sort((a, b) => a.title.compareTo(b.title));
-        break;
-      case SortOrder.byCreatedAt:
-        vkDataList.sort((a, b) => (b.createdAt ?? DateTime(1970))
-            .compareTo(a.createdAt ?? DateTime(1970)));
-        break;
-    }
-
+    sortVkDataList();
     ui.vkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
     ui.vkCoverPathList
       ..clear()
       ..addAll(vkDataList.map((item) => item.coverPath));
+  }
+
+  Future<List<TVoiceWorkData>> getVkDataList(String cate, String cv) async {
+    if (cate == "All" && cv == "All") {
+      return await database.selectAllVoiceWorks;
+    } else if (cate == "All") {
+      return await database.selectVkWithCv(cv);
+    } else if (cv == "All") {
+      return await database.selectVkWithCategory(cate);
+    } else {
+      return await database.selectVkWithCvAndCategory(cv, cate);
+    }
+  }
+
+  void sortVkDataList({List<TVoiceWorkData>? ls, SortOrder? sortOrder}) {
+    final ui = Get.find<UIController>();
+    ls ??= vkDataList;
+    sortOrder ??= ui.sortOrder.value;
+    switch (sortOrder) {
+      case SortOrder.byTitle:
+        ls.sort((a, b) => compareNatural(a.title, b.title));
+        break;
+      case SortOrder.byCreatedAt:
+        ls.sort((a, b) => (b.createdAt ?? DateTime(1970))
+            .compareTo(a.createdAt ?? DateTime(1970)));
+        break;
+    }
+  }
+
+  Future<List<TVoiceWorkData>> getSortedVkDataList(String cate, String cv,
+      {SortOrder? sortOrder}) async {
+    final ui = Get.find<UIController>();
+    sortOrder ??= ui.sortOrder.value;
+    List<TVoiceWorkData> tempVkDataList = await getVkDataList(cate, cv);
+    sortVkDataList(ls: tempVkDataList, sortOrder: sortOrder);
+    return tempVkDataList;
   }
 
   Future<void> updateSelectedViList() async {
@@ -160,6 +160,10 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> onUpdatePressed() async {
+    final ui = Get.find<UIController>();
+    final playingData = await ui.playingStringMap;
+    final selectedData = ui.selectedStringMap;
+
     await database.transaction(() async {
       final tables = database.allTables.toList().reversed;
       for (final table in tables) {
@@ -167,5 +171,10 @@ class DatabaseController extends GetxController {
       }
     });
     await updateDatabase();
+
+    ui.setPlayingIdxByString(
+        playingData['category']!, playingData['cv']!, playingData['vk']!);
+    ui.setSelectedIdxByString(
+        selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
   }
 }
