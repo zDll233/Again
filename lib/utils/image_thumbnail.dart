@@ -12,15 +12,18 @@ class ImageThumbnail extends StatelessWidget {
   });
 
   Widget _buildImage(ImageProvider imageProvider) {
-    return Image(
-      image: ResizeImage(
-        imageProvider,
-        height: imageSize.toInt(),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(4.0),
+      child: Image(
+        image: ResizeImage(
+          imageProvider,
+          height: imageSize.toInt(),
+        ),
+        width: imageSize,
+        height: imageSize,
+        fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
       ),
-      width: imageSize,
-      height: imageSize,
-      fit: BoxFit.cover,
-      filterQuality: FilterQuality.high,
     );
   }
 
