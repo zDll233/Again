@@ -21,10 +21,15 @@ class Controller extends GetxController {
   @override
   void onInit() async {
     super.onInit();
-    await db.initializeStorage();
-    await _loadHistory();
+    await _initialize();
     _keyEventHandler = KeyEventHandler(audio, ui);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
+  }
+
+  Future<void> _initialize() async {
+    await db.initializeStorage();
+    await _loadHistory();
+    await db.updateViewList();
   }
 
   @override

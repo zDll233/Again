@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:again/controllers/audio_controller.dart';
 import 'package:again/controllers/database_controller.dart';
@@ -189,31 +190,36 @@ class UIController extends GetxController {
   }
 
   Future<Map<String, String>> get playingStringMap async {
-    final db = Get.find<DatabaseController>();
-    String playingCate = categories[playingCategoryIdx.value];
-    String playingCv = cvNames[playingCvIdx.value];
-    List<String> tempVkTitleList = await db
-        .getSortedVkDataList(playingCate, playingCv)
-        .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
-    String playingVk = tempVkTitleList[playingVkIdx.value];
+    try {
+      final db = Get.find<DatabaseController>();
+      String playingCate = categories[playingCategoryIdx.value];
+      String playingCv = cvNames[playingCvIdx.value];
+      List<String> tempVkTitleList = await db
+          .getSortedVkDataList(playingCate, playingCv)
+          .then(
+              (tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
+      String playingVk = tempVkTitleList[playingVkIdx.value];
 
-    return {
-      'category': playingCate,
-      'cv': playingCv,
-      'vk': playingVk,
-    };
+      return {
+        'category': playingCate,
+        'cv': playingCv,
+        'vk': playingVk,
+      };
+    } catch (_) {
+      return {};
+    }
   }
 
   Map<String, String> get selectedStringMap {
-    String selectedCate = categories[selectedCategoryIdx.value];
-    String selectedCv = cvNames[selectedCvIdx.value];
-    String selectedVk = vkTitleList[selectedVkIdx.value];
-
-    return {
-      'category': selectedCate,
-      'cv': selectedCv,
-      'vk': selectedVk,
-    };
+    try {
+      return {
+        'category': categories[selectedCategoryIdx.value],
+        'cv': cvNames[selectedCvIdx.value],
+        'vk': vkTitleList[selectedVkIdx.value],
+      };
+    } catch (_) {
+      return {};
+    }
   }
 
   Future<void> setPlayingIdxByString(String cate, String cv, String vk,
@@ -224,13 +230,13 @@ class UIController extends GetxController {
         .getSortedVkDataList(cate, cv, sortOrder: sortOrder)
         .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
 
-    _updatePlayingIdx(sortOrder, categories.indexOf(cate), cvNames.indexOf(cv),
-        tempVkTitleList.indexOf(vk));
+    _updatePlayingIdx(sortOrder, max(categories.indexOf(cate), 0),
+        max(cvNames.indexOf(cv), 0), tempVkTitleList.indexOf(vk));
   }
 
   void setSelectedIdxByString(String cate, String cv, String vk) {
-    selectedCategoryIdx.value = categories.indexOf(cate);
-    selectedCvIdx.value = cvNames.indexOf(cv);
+    selectedCategoryIdx.value = max(categories.indexOf(cate), 0);
+    selectedCvIdx.value = max(cvNames.indexOf(cv), 0);
     selectedVkIdx.value = vkTitleList.indexOf(vk);
   }
 

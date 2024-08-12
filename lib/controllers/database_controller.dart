@@ -13,20 +13,18 @@ class DatabaseController extends GetxController {
   final AppDatabase database = AppDatabase();
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
-  late final JsonStorage storage;
+  late final JsonStorage settings;
 
   List<TVoiceWorkData> vkDataList = [];
 
+  /// initialize updater to update db
   Future<void> initializeStorage() async {
     const directoryPath = 'config';
     const fileName = 'settings.json';
     final filePath = p.join(directoryPath, fileName);
-    storage = JsonStorage(filePath: filePath);
-    await _loadRootDirPath();
-  }
+    settings = JsonStorage(filePath: filePath);
 
-  Future<void> _loadRootDirPath() async {
-    final data = await storage.read();
+    final data = await settings.read();
     vkRootDirPath = data['vkRootDirPath'] ?? 'E:\\Media\\ACG\\音声';
 
     if (await Directory(vkRootDirPath!).exists()) {
@@ -52,12 +50,11 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> _saveRootDirPath(String path) async {
-    await storage.write({'vkRootDirPath': path});
+    await settings.write({'vkRootDirPath': path});
   }
 
   Future<void> updateDatabase() async {
     await voiceUpdater!.update();
-    await updateViewList();
   }
 
   Future<void> updateViewList() async {
@@ -171,10 +168,15 @@ class DatabaseController extends GetxController {
       }
     });
     await updateDatabase();
+    await updateViewList();
 
-    ui.setPlayingIdxByString(
-        playingData['category']!, playingData['cv']!, playingData['vk']!);
-    ui.setSelectedIdxByString(
-        selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
+    if (playingData.isNotEmpty) {
+      ui.setPlayingIdxByString(
+          playingData['category']!, playingData['cv']!, playingData['vk']!);
+    }
+    if (selectedData.isNotEmpty) {
+      ui.setSelectedIdxByString(
+          selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
+    }
   }
 }
