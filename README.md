@@ -37,3 +37,12 @@
 
 4. 点击右上角文件夹按钮选择音声作品根目录
 5. 退出应用自动保存进度，再次打开恢复上次播放内容
+
+## dev
+
+drift code generator
+
+```text
+dart run build_runner build
+dart run build_runner watch
+```
