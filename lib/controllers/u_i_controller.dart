@@ -19,10 +19,10 @@ enum SortOrder {
 
 class UIController extends GetxController {
   /// affect ui directly
-  final vkTitleList = <String>[].obs;
+  final selectedVkTitleList = <String>[].obs;
 
   /// affect ui directly
-  final vkCoverPathList = <String>[].obs;
+  final selectedVkCoverPathList = <String>[].obs;
   final selectedVkTitle = ''.obs;
   final selectedViPathList = <String>[];
 
@@ -125,31 +125,10 @@ class UIController extends GetxController {
   /// set filter playing idx value, update vk list
   ///
   /// filterSelected will open vi list when filter is playing
-
-  // Future<void> _setFilterPlaying() async {
-  //   sortOrder.value = playingSortOrder;
-  //   selectedCategoryIdx.value = playingCategoryIdx.value;
-  //   await onCvSelected(playingCvIdx.value);
-  // }
-
   Future<void> _setFilterPlaying() async {
-    await _setSelectedIdxBack2Playing();
-    final db = Get.find<DatabaseController>();
-    var vkDataList = await db.getSortedVkDataList(
-        categories[playingCategoryIdx.value], cvNames[playingCvIdx.value]);
-    var viDataList = await db.getSelectedViList;
-
-    db.updateVkLists(vkLs: vkDataList);
-    db.updateViLists(viLs: viDataList);
-  }
-
-  Future<void> _setSelectedIdxBack2Playing() async {
     sortOrder.value = playingSortOrder;
     selectedCategoryIdx.value = playingCategoryIdx.value;
-    selectedCvIdx.value = playingCvIdx.value;
-    selectedVkIdx.value = playingVkIdx.value;
-    final playingData = await playingStringMap;
-    selectedVkTitle.value = playingData['vk']!;
+    await onCvSelected(playingCvIdx.value);
   }
 
   /// Toggles the sort order and updates the title list.
@@ -190,7 +169,7 @@ class UIController extends GetxController {
   Future<void> onVkSelected(int selectedIdx) async {
     if (selectedIdx < 0) return;
     selectedVkIdx.value = selectedIdx;
-    selectedVkTitle.value = vkTitleList[selectedVkIdx.value];
+    selectedVkTitle.value = selectedVkTitleList[selectedVkIdx.value];
     await Get.find<DatabaseController>().updateViLists();
   }
 
@@ -243,7 +222,7 @@ class UIController extends GetxController {
       return {
         'category': categories[selectedCategoryIdx.value],
         'cv': cvNames[selectedCvIdx.value],
-        'vk': vkTitleList[selectedVkIdx.value],
+        'vk': selectedVkTitleList[selectedVkIdx.value],
       };
     } catch (_) {
       return {};
@@ -254,22 +233,19 @@ class UIController extends GetxController {
       {SortOrder? sortOrder}) async {
     final db = Get.find<DatabaseController>();
     sortOrder ??= playingSortOrder;
-    List<String> tempCategories = await db.getCategoryDataList
-        .then((cvLs) => cvLs.map((e) => e.description).toList());
-    List<String> tempCvNames = await db.getCvDataList
-        .then((cvLs) => cvLs.map((e) => e.cvName).toList());
+    // dbController 调用了这个函数，作用是获取db更新前的正在播放的信息，每次更新时选中列表不一定正在播放，故而查询数据库
     List<String> tempVkTitleList = await db
         .getSortedVkDataList(cate, cv, sortOrder: sortOrder)
         .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
 
-    _updatePlayingIdx(sortOrder, max(tempCategories.indexOf(cate), 0),
-        max(tempCvNames.indexOf(cv), 0), tempVkTitleList.indexOf(vk));
+    _updatePlayingIdx(sortOrder, max(categories.indexOf(cate), 0),
+        max(cvNames.indexOf(cv), 0), tempVkTitleList.indexOf(vk));
   }
 
   void setSelectedIdxByString(String cate, String cv, String vk) {
     selectedCategoryIdx.value = max(categories.indexOf(cate), 0);
     selectedCvIdx.value = max(cvNames.indexOf(cv), 0);
-    selectedVkIdx.value = vkTitleList.indexOf(vk);
+    selectedVkIdx.value = selectedVkTitleList.indexOf(vk);
   }
 
   bool isCurrentViIdxPlaying(int selectedViIdx) {
@@ -300,5 +276,7 @@ class UIController extends GetxController {
 
     // vi
     Get.find<AudioController>().playingViIdx.value = uiHistory['vi'];
+
+    await onLocateBtnPressed();
   }
 }

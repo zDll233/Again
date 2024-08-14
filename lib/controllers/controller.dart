@@ -29,8 +29,6 @@ class Controller extends GetxController {
   Future<void> _initialize() async {
     await db.initializeStorage();
     await _loadHistory();
-    await db.updateViewList();
-    await ui.onLocateBtnPressed();
   }
 
   @override
@@ -70,6 +68,7 @@ class Controller extends GetxController {
     if (data.isEmpty) return;
 
     try {
+      await db.updateFilterLists();
       await ui.loadHistory(data['ui']);
       await audio.loadHistory(data['audio']);
     } catch (_) {}

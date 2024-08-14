@@ -87,7 +87,7 @@ class DatabaseController extends GetxController {
       ..sort((a, b) => compareNatural(a.cvName, b.cvName));
   }
 
-  /// sort and update [ui.vkTitleList], [ui.vkCoverPathList]. If vkLs is null, get it from db according to playing filters.
+  /// sort and update [ui.selectedVkTitleList], [ui.vkCoverPathList]. If vkLs is null, get it from db according to playing filters.
   Future<void> updateVkLists({List<TVoiceWorkData>? vkLs}) async {
     final ui = Get.find<UIController>();
     final cateIdx = ui.selectedCategoryIdx.value;
@@ -118,10 +118,10 @@ class DatabaseController extends GetxController {
     final ui = Get.find<UIController>();
     ls ??= vkDataList;
     sortVkDataList(ls: ls);
-    ui.vkTitleList
+    ui.selectedVkTitleList
       ..clear()
       ..addAll(vkDataList.map((item) => item.title));
-    ui.vkCoverPathList
+    ui.selectedVkCoverPathList
       ..clear()
       ..addAll(vkDataList.map((item) => item.coverPath));
   }

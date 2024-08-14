@@ -17,7 +17,7 @@ class VoiceWorkPanel extends StatelessWidget {
     final Controller c = Get.find();
     return Obx(() => VoicePanel(
           title:
-              'VoiceWorks(${c.ui.vkTitleList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
+              'VoiceWorks(${c.ui.selectedVkTitleList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
           listView: FutureVoiceWorkListView(),
           icon: const Icon(Icons.refresh),
           onIconBtnPressed: c.db.onUpdatePressed,
@@ -33,9 +33,9 @@ class FutureVoiceWorkListView extends StatelessWidget {
 
   Future<List> fetchItems() async {
     List<VoiceWork> vkList = [];
-    for (int idx = 0; idx < ui.vkTitleList.length; idx++) {
+    for (int idx = 0; idx < ui.selectedVkTitleList.length; idx++) {
       vkList.add(VoiceWork(
-          title: ui.vkTitleList[idx], coverPath: ui.vkCoverPathList[idx]));
+          title: ui.selectedVkTitleList[idx], coverPath: ui.selectedVkCoverPathList[idx]));
     }
     return vkList;
   }
