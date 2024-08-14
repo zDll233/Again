@@ -30,6 +30,7 @@ class Controller extends GetxController {
     await db.initializeStorage();
     await _loadHistory();
     await db.updateViewList();
+    await ui.onLocateBtnPressed();
   }
 
   @override

@@ -13,18 +13,18 @@ class DatabaseController extends GetxController {
   final AppDatabase database = AppDatabase();
   VoiceUpdater? voiceUpdater;
   String? vkRootDirPath;
-  late final JsonStorage settings;
+  late final JsonStorage config;
 
   List<TVoiceWorkData> vkDataList = [];
 
   /// initialize updater to update db
   Future<void> initializeStorage() async {
     const directoryPath = 'config';
-    const fileName = 'settings.json';
+    const fileName = 'config.json';
     final filePath = p.join(directoryPath, fileName);
-    settings = JsonStorage(filePath: filePath);
+    config = JsonStorage(filePath: filePath);
 
-    final data = await settings.read();
+    final data = await config.read();
     vkRootDirPath = data['vkRootDirPath'] ?? 'E:\\Media\\ACG\\音声';
 
     if (await Directory(vkRootDirPath!).exists()) {
@@ -50,7 +50,7 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> _saveRootDirPath(String path) async {
-    await settings.write({'vkRootDirPath': path});
+    await config.write({'vkRootDirPath': path});
   }
 
   Future<void> updateDatabase() async {
@@ -59,28 +59,36 @@ class DatabaseController extends GetxController {
 
   Future<void> updateViewList() async {
     await updateFilterLists();
-    await updateVkTitleList();
-    await updateSelectedViList();
+    await updateVkLists();
+    await updateViLists();
   }
 
-  Future<void> updateFilterLists() async {
-    final cvDataList = await database.selectAllCv()
-      ..sort((a, b) => compareNatural(a.cvName, b.cvName));
-    final categoryDataList = await database.selectAllCategory()
-      ..sort((a, b) => compareNatural(a.description, b.description));
-
+  /// update [ui.categories], [ui.cvNames]. If cateLs or cvLs is null, get null ls from db. 
+  Future<void> updateFilterLists(
+      {List<TVoiceWorkCategoryData>? cateLs, List<TCVData>? cvLs}) async {
     final ui = Get.find<UIController>();
-    ui.cvNames
-      ..clear()
-      ..addAll(cvDataList.map((item) => item.cvName));
-
+    cateLs ??= await getCategoryDataList;
+    cvLs ??= await getCvDataList;
     ui.categories
       ..clear()
-      ..addAll(categoryDataList.map((item) => item.description));
+      ..addAll(cateLs.map((item) => item.description));
+    ui.cvNames
+      ..clear()
+      ..addAll(cvLs.map((item) => item.cvName));
   }
 
-  /// Updates the vkTitleList based on the selected category and cv.
-  Future<void> updateVkTitleList() async {
+  Future<List<TVoiceWorkCategoryData>> get getCategoryDataList async {
+    return await database.selectAllCategory()
+      ..sort((a, b) => compareNatural(a.description, b.description));
+  }
+
+  Future<List<TCVData>> get getCvDataList async {
+    return await database.selectAllCv()
+      ..sort((a, b) => compareNatural(a.cvName, b.cvName));
+  }
+
+  /// sort and update [ui.vkTitleList], [ui.vkCoverPathList]. If vkLs is null, get it from db according to playing filters.
+  Future<void> updateVkLists({List<TVoiceWorkData>? vkLs}) async {
     final ui = Get.find<UIController>();
     final cateIdx = ui.selectedCategoryIdx.value;
     final cvIdx = ui.selectedCvIdx.value;
@@ -89,23 +97,11 @@ class DatabaseController extends GetxController {
     final cate = ui.categories[cateIdx];
     final cv = ui.cvNames[cvIdx];
 
-    vkDataList = await getVkDataList(cate, cv);
-    sortVkLists();
+    vkDataList = vkLs ?? await _getVkDataList(cate, cv);
+    setSortedVkLists();
   }
 
-  /// update vkTitle & vkCoverPath lists
-  void sortVkLists() {
-    final ui = Get.find<UIController>();
-    sortVkDataList();
-    ui.vkTitleList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
-    ui.vkCoverPathList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.coverPath));
-  }
-
-  Future<List<TVoiceWorkData>> getVkDataList(String cate, String cv) async {
+  Future<List<TVoiceWorkData>> _getVkDataList(String cate, String cv) async {
     if (cate == "All" && cv == "All") {
       return await database.selectAllVoiceWorks;
     } else if (cate == "All") {
@@ -115,6 +111,19 @@ class DatabaseController extends GetxController {
     } else {
       return await database.selectVkWithCvAndCategory(cv, cate);
     }
+  }
+
+  /// update vkTitle & vkCoverPath lists
+  void setSortedVkLists({List<TVoiceWorkData>? ls}) {
+    final ui = Get.find<UIController>();
+    ls ??= vkDataList;
+    sortVkDataList(ls: ls);
+    ui.vkTitleList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.title));
+    ui.vkCoverPathList
+      ..clear()
+      ..addAll(vkDataList.map((item) => item.coverPath));
   }
 
   void sortVkDataList({List<TVoiceWorkData>? ls, SortOrder? sortOrder}) {
@@ -136,24 +145,29 @@ class DatabaseController extends GetxController {
       {SortOrder? sortOrder}) async {
     final ui = Get.find<UIController>();
     sortOrder ??= ui.sortOrder.value;
-    List<TVoiceWorkData> tempVkDataList = await getVkDataList(cate, cv);
+    List<TVoiceWorkData> tempVkDataList = await _getVkDataList(cate, cv);
     sortVkDataList(ls: tempVkDataList, sortOrder: sortOrder);
     return tempVkDataList;
   }
 
-  Future<void> updateSelectedViList() async {
+  /// update [ui.selectedViPathList], [ui.selectedViTitleList]. If viLs is null, get it from db
+  Future<void> updateViLists({List<TVoiceItemData>? viLs}) async {
     final ui = Get.find<UIController>();
-    final viDataList = await database
-        .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
-      ..sort((a, b) => compareNatural(a.title, b.title));
-
+    viLs ??= await getSelectedViList;
     ui.selectedViPathList
       ..clear()
-      ..addAll(viDataList.map((item) => item.filePath));
-
+      ..addAll(viLs.map((item) => item.filePath));
     ui.selectedViTitleList
       ..clear()
-      ..addAll(viDataList.map((item) => item.title));
+      ..addAll(viLs.map((item) => item.title));
+  }
+
+  /// select viDataList from db according to [selectedVkTitle]
+  Future<List<TVoiceItemData>> get getSelectedViList async {
+    final ui = Get.find<UIController>();
+    return await database
+        .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
+      ..sort((a, b) => compareNatural(a.title, b.title));
   }
 
   Future<void> onUpdatePressed() async {
