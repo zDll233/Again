@@ -10,8 +10,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import 'package:path/path.dart' as p;
-
 enum SortOrder {
   byTitle,
   byCreatedAt,
@@ -52,13 +50,16 @@ class UIController extends GetxController {
 
   final showLrcPanel = false.obs;
 
-  void openSelectedVkFolder() {
-    if (selectedViPathList.isNotEmpty) {
-      if (_isSelectedVkPlaying) {
-        selectPlayingViFile();
-      } else {
-        Process.run('explorer "${p.dirname(selectedViPathList[0])}"', []);
-      }
+  Future<void> revealInExplorerView() async {
+    final db = Get.find<DatabaseController>();
+    String vkDirPath = await db.database
+        .selectVoiceWorkData(selectedVkTitle.value)
+        .then((data) => data[0].diretoryPath);
+
+    if (_isSelectedVkPlaying) {
+      selectPlayingViFile();
+    } else {
+      Process.run('explorer /select, "$vkDirPath"', []);
     }
   }
 

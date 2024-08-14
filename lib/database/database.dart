@@ -107,6 +107,11 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // select
+  Future<List<TVoiceWorkData>> selectVoiceWorkData(String vkTitle) =>
+      (select(tVoiceWork)
+            ..where((tVoiceWork) => (tVoiceWork.title.equals(vkTitle))))
+          .get();
+
   Future<List<TVoiceWorkData>> get selectAllVoiceWorks =>
       select(tVoiceWork).get();
 
