@@ -40,7 +40,7 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> selectAndSaveDirectory() async {
-    final selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    final selectedDirectory = await FilePicker.platform.getDirectoryPath(dialogTitle: "请选择音声作品根目录");
     if (selectedDirectory != null) {
       vkRootDirPath = selectedDirectory;
       await _initializeVoiceUpdater();
