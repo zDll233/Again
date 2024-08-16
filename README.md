@@ -4,7 +4,7 @@
 
 <br/>
 
-<img src="docs/afed231cae1a2ab2b1a7543152539910.png" alt="主界面预览" width="800" />
+<img src="docs/8a28824d778d123a12d0fd84c5176b91.png" alt="主界面预览" width="800" />
 
 <br/>
 
