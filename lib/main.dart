@@ -75,7 +75,8 @@ class MyCustomScrollBehavior extends MaterialScrollBehavior {
         PointerDeviceKind.touch,
         PointerDeviceKind.stylus,
         PointerDeviceKind.invertedStylus,
-        // enable mouse darg
+        // enable mouse && trackpad
         PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad
       };
 }
