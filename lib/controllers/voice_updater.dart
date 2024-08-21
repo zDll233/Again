@@ -105,7 +105,7 @@ class VoiceUpdater {
         // cv vk
         for (var cvName in singleVkCvNames) {
           vcc.add(TVoiceCVCompanion(
-            vkTitle: Value(vkTitle),
+            voiceWorkPath: Value(entity.path),
             cvName: Value(cvName),
             rowid: const Value.absent(),
           ));
@@ -138,7 +138,7 @@ class VoiceUpdater {
         vic.add(TVoiceItemCompanion(
           title: Value(p.basenameWithoutExtension(entity.path)),
           filePath: Value(entity.path),
-          voiceWorkTitle: Value(p.basename(voiceWorkDir.path)),
+          voiceWorkPath: Value(voiceWorkDir.path),
           rowid: const Value.absent(),
         ));
       }

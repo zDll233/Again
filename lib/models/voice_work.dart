@@ -1,9 +1,17 @@
 class VoiceWork {
-  String title = '';
-  String coverPath = '';
+  String? title;
+  String? directoryPath;
+  String? coverPath;
+  String? category;
+  DateTime? createdAt;
 
   VoiceWork({
-    required this.title,
-    required this.coverPath,
+    this.title,
+    this.directoryPath,
+    this.coverPath,
+    this.category,
+    this.createdAt,
   });
+
+  get isNull => directoryPath == null;
 }

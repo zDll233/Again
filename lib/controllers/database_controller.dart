@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:again/controllers/u_i_controller.dart';
 import 'package:again/controllers/voice_updater.dart';
 import 'package:again/database/database.dart';
+import 'package:again/models/voice_work.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
@@ -173,9 +174,14 @@ class DatabaseController extends GetxController {
   /// select viDataList from db according to [selectedVkTitle]
   Future<List<TVoiceItemData>> get getSelectedViList async {
     final ui = Get.find<UIController>();
-    return await database
-        .selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
+    final vk = await getVkBytitle(ui.selectedVkTitle.value);
+    return vk.isNull
+        ? List<TVoiceItemData>.empty()
+        : await database.selectSingleWorkVoiceItemsWithString(vk.directoryPath!)
       ..sort((a, b) => compareNatural(a.title, b.title));
+
+    //   return await database.selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
+    // ..sort((a, b) => compareNatural(a.title, b.title));
   }
 
   Future<void> onUpdatePressed() async {
@@ -200,5 +206,18 @@ class DatabaseController extends GetxController {
       ui.setSelectedIdxByString(
           selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
     }
+
+    update();
+  }
+
+  Future<VoiceWork> getVkBytitle(String vkTitle) {
+    return database.selectVoiceWorkData(vkTitle).then((data) => data.isEmpty
+        ? VoiceWork()
+        : VoiceWork(
+            title: vkTitle,
+            directoryPath: data[0].diretoryPath,
+            coverPath: data[0].coverPath,
+            category: data[0].category,
+            createdAt: data[0].createdAt));
   }
 }

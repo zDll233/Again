@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:again/controllers/audio_controller.dart';
 import 'package:again/controllers/database_controller.dart';
+import 'package:again/models/voice_work.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -53,14 +54,12 @@ class UIController extends GetxController {
 
   Future<void> revealInExplorerView() async {
     final db = Get.find<DatabaseController>();
-    String vkDirPath = await db.database
-        .selectVoiceWorkData(selectedVkTitle.value)
-        .then((data) => data[0].diretoryPath);
+    VoiceWork vk = await db.getVkBytitle(selectedVkTitle.value);
 
     if (_isSelectedVkPlaying) {
       selectPlayingViFile();
     } else {
-      Process.run('explorer /select, "$vkDirPath"', []);
+      Process.run('explorer /select, "${vk.directoryPath}"', []);
     }
   }
 
@@ -96,9 +95,9 @@ class UIController extends GetxController {
 
   void _scrollToTop() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollToIndex(cateScrollController, 0);
-      scrollToIndex(cvScrollController, 0);
-      scrollToIndex(vkScrollController, 0);
+              scrollToIndex(cateScrollController, 0);
+              scrollToIndex(cvScrollController, 0);
+              scrollToIndex(vkScrollController, 0);
     });
   }
 

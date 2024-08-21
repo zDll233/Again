@@ -67,10 +67,12 @@ class Controller extends GetxController {
     final data = await _history.read();
     if (data.isEmpty) return;
 
+    await db.updateFilterLists();
     try {
-      await db.updateFilterLists();
       await ui.loadHistory(data['ui']);
       await audio.loadHistory(data['audio']);
-    } catch (_) {}
+    } catch (_) {
+      await db.updateVkLists();
+    }
   }
 }
