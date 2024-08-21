@@ -30,6 +30,7 @@ class UIController extends GetxController {
   final playingVkIdx = (-1).obs;
   final selectedVkIdx = (-1).obs;
 
+  final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
@@ -95,6 +96,7 @@ class UIController extends GetxController {
 
   void _scrollToTop() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToIndex(cateScrollController, 0);
       scrollToIndex(cvScrollController, 0);
       scrollToIndex(vkScrollController, 0);
     });
@@ -104,6 +106,7 @@ class UIController extends GetxController {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await viCompleter.future;
+        scrollToIndex(cateScrollController, playingCategoryIdx.value);
         scrollToIndex(cvScrollController, playingCvIdx.value);
         scrollToIndex(vkScrollController, playingVkIdx.value);
         scrollToIndex(

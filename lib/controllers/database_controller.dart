@@ -40,7 +40,8 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> selectAndSaveDirectory() async {
-    final selectedDirectory = await FilePicker.platform.getDirectoryPath(dialogTitle: "请选择音声作品根目录");
+    final selectedDirectory =
+        await FilePicker.platform.getDirectoryPath(dialogTitle: "请选择音声作品根目录");
     if (selectedDirectory != null) {
       vkRootDirPath = selectedDirectory;
       await _initializeVoiceUpdater();
@@ -63,7 +64,7 @@ class DatabaseController extends GetxController {
     await updateViLists();
   }
 
-  /// update [ui.categories], [ui.cvNames]. If cateLs or cvLs is null, get null ls from db. 
+  /// update [ui.categories], [ui.cvNames]. If cateLs or cvLs is null, get null ls from db.
   Future<void> updateFilterLists(
       {List<TVoiceWorkCategoryData>? cateLs, List<TCVData>? cvLs}) async {
     final ui = Get.find<UIController>();
@@ -71,10 +72,17 @@ class DatabaseController extends GetxController {
     cvLs ??= await getCvDataList;
     ui.categories
       ..clear()
-      ..addAll(cateLs.map((item) => item.description));
+      ..add("All")
+      ..addAll(cateLs
+          .where((item) => item.description != "All")
+          .map((item) => item.description));
+
     ui.cvNames
       ..clear()
-      ..addAll(cvLs.map((item) => item.cvName));
+      ..add("All")
+      ..addAll(cvLs
+          .where((item) => item.cvName != "All")
+          .map((item) => item.cvName));
   }
 
   Future<List<TVoiceWorkCategoryData>> get getCategoryDataList async {

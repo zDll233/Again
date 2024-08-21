@@ -47,6 +47,7 @@ class FutureFilterListView extends StatelessWidget {
                         selected: c.ui.selectedCategoryIdx.value == index,
                       ));
                 },
+                itemScrollController: c.ui.cateScrollController,
               )),
         ),
         SizedBox(
