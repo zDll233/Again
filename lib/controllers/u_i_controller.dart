@@ -236,13 +236,11 @@ class UIController extends GetxController {
   }
 
   Future<void> setPlayingIdxByString(String cate, String cv, String vk,
-      {SortOrder? sortOrder}) async {
-    sortOrder ??= playingSortOrder;
-    // dbController 也调用了这个函数，作用是获取db更新前的正在播放的信息，但每次更新时选中列表不一定正在播放，故而查询数据库
-    List<String> tempVkPathList = await playingVkPathList;
-
-    _updatePlayingIdx(sortOrder, max(categories.indexOf(cate), 0),
-        max(cvNames.indexOf(cv), 0), tempVkPathList.indexOf(vk));
+      {SortOrder? sort}) async {
+    playingSortOrder = sort ?? sortOrder.value;
+    playingCategoryIdx.value = max(categories.indexOf(cate), 0);
+    playingCvIdx.value = max(cvNames.indexOf(cv), 0);
+    playingVkIdx.value = (await playingVkPathList).indexOf(vk);
   }
 
   void setSelectedIdxByString(String cate, String cv, String vk) {
@@ -275,7 +273,7 @@ class UIController extends GetxController {
     // filter vk
     await setPlayingIdxByString(
         filter['category'], filter['cv'], uiHistory['vk'],
-        sortOrder: SortOrder.values[filter['sortOrder']]);
+        sort: SortOrder.values[filter['sortOrder']]);
 
     // vi
     Get.find<AudioController>().playingViIdx.value = uiHistory['vi'];
