@@ -5,8 +5,7 @@ import 'package:again/components/vk_menu_btn.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/u_i_controller.dart';
-import 'package:again/models/voice_work.dart';
-import 'package:again/utils/image_thumbnail.dart';
+import 'package:again/components/image_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -18,7 +17,7 @@ class VoiceWorkPanel extends StatelessWidget {
     final Controller c = Get.find();
     return Obx(() => VoicePanel(
           title:
-              'VoiceWorks(${c.ui.selectedVkTitleList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
+              'VoiceWorks(${c.ui.selectedVkList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
           listView: FutureVoiceWorkListView(),
           icon: const Icon(Icons.refresh),
           onIconBtnPressed: c.db.onUpdatePressed,
@@ -33,13 +32,7 @@ class FutureVoiceWorkListView extends StatelessWidget {
   final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    List<VoiceWork> vkList = [];
-    for (int idx = 0; idx < c.ui.selectedVkTitleList.length; idx++) {
-      vkList.add(VoiceWork(
-          title: c.ui.selectedVkTitleList[idx],
-          coverPath: c.ui.selectedVkCoverPathList[idx]));
-    }
-    return vkList;
+    return c.ui.selectedVkList.toList();
   }
 
   @override

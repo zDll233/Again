@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:again/controllers/audio_controller.dart';
 import 'package:again/controllers/database_controller.dart';
+import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
@@ -17,19 +18,45 @@ enum SortOrder {
 }
 
 class UIController extends GetxController {
-  /// affect ui directly
-  final selectedVkTitleList = <String>[].obs;
+  // category
+  final categories = ["All"].obs;
+  final playingCategoryIdx = 0.obs;
+  final selectedCategoryIdx = 0.obs;
+  String get playingCate => categories[playingCategoryIdx.value];
+  String get selectedCate => categories[selectedCategoryIdx.value];
 
-  /// affect ui directly
-  final selectedVkCoverPathList = <String>[].obs;
-  final selectedVkTitle = ''.obs;
-  final selectedViPathList = <String>[];
+  // cv
+  final cvNames = ["All"].obs;
+  final playingCvIdx = 0.obs;
+  final selectedCvIdx = 0.obs;
+  String get playingCv => cvNames[playingCvIdx.value];
+  String get selectedCv => cvNames[selectedCvIdx.value];
 
-  /// affect ui directly
-  final selectedViTitleList = <String>[].obs;
+  // sort
+  final sortOrder = SortOrder.byTitle.obs;
+  SortOrder playingSortOrder = SortOrder.byTitle;
 
+  // vk
+  final selectedVkList = <VoiceWork>[].obs;
   final playingVkIdx = (-1).obs;
   final selectedVkIdx = (-1).obs;
+  Future<List<String>> get playingVkPathList async => await Get.find<
+          DatabaseController>()
+      .getSortedVkDataList(playingCate, playingCv, sortOrder: playingSortOrder)
+      .then((vkDataList) => vkDataList.map((vk) => vk.directoryPath).toList());
+  List<String> get selectedVkPathList =>
+      selectedVkList.map((vkData) => vkData.directoryPath).toList();
+  Future<String> get playingVkPath async => playingVkIdx.value >= 0
+      ? await playingVkPathList
+          .then((vkPathList) => vkPathList[playingVkIdx.value])
+      : "";
+  String get selectedVkPath =>
+      selectedVkIdx.value >= 0 ? selectedVkPathList[selectedVkIdx.value] : "";
+
+  // vi
+  final selectedViList = <VoiceItem>[].obs;
+  List<String> get selectedViPathList =>
+      selectedViList.map((vi) => vi.filePath).toList();
 
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
@@ -37,24 +64,11 @@ class UIController extends GetxController {
   final viScrollController = ItemScrollController();
   late Completer viCompleter;
 
-  /// affect ui directly
-  final cvNames = ['All'].obs;
-  final playingCvIdx = 0.obs;
-  final selectedCvIdx = 0.obs;
-
-  /// affect ui directly
-  final categories = ['All'].obs;
-  final playingCategoryIdx = 0.obs;
-  final selectedCategoryIdx = 0.obs;
-
-  final sortOrder = SortOrder.byTitle.obs;
-  SortOrder playingSortOrder = SortOrder.byTitle;
-
   final showLrcPanel = false.obs;
 
   Future<void> revealInExplorerView() async {
     final db = Get.find<DatabaseController>();
-    VoiceWork vk = await db.getVkBytitle(selectedVkTitle.value);
+    VoiceWork vk = await db.getVkByPath(selectedVkPath);
 
     if (_isSelectedVkPlaying) {
       selectPlayingViFile();
@@ -64,13 +78,11 @@ class UIController extends GetxController {
   }
 
   void selectPlayingViFile() {
-    final AudioController audio = Get.find();
-    final playingViPath = audio.playingViPathList[audio.playingViIdx.value];
-
     // flutter will replace " with /" in arg list. weird
     // code below doesn't work
     // Process.run('explorer', ['/select,', '"$playingViPath"']); // wrap path in "" so that Windows can resolve it
-    Process.run('explorer /select, "$playingViPath"', []);
+    Process.run(
+        'explorer /select, "${Get.find<AudioController>().playingViPath}"', []);
   }
 
   /// Resets the filters and scrolls to the top.
@@ -95,9 +107,9 @@ class UIController extends GetxController {
 
   void _scrollToTop() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-              scrollToIndex(cateScrollController, 0);
-              scrollToIndex(cvScrollController, 0);
-              scrollToIndex(vkScrollController, 0);
+      scrollToIndex(cateScrollController, 0);
+      scrollToIndex(cvScrollController, 0);
+      scrollToIndex(vkScrollController, 0);
     });
   }
 
@@ -140,19 +152,19 @@ class UIController extends GetxController {
         ? SortOrder.byCreatedAt
         : SortOrder.byTitle;
 
-    Get.find<DatabaseController>().setSortedVkLists();
+    Get.find<DatabaseController>().setSortedVkList();
     await _filterSelected();
   }
 
   Future<void> onCategorySelected(int selectedIdx) async {
     selectedCategoryIdx.value = selectedIdx;
-    await Get.find<DatabaseController>().updateVkLists();
+    await Get.find<DatabaseController>().updateVkList();
     await _filterSelected();
   }
 
   Future<void> onCvSelected(int selectedIdx) async {
     selectedCvIdx.value = selectedIdx;
-    await Get.find<DatabaseController>().updateVkLists();
+    await Get.find<DatabaseController>().updateVkList();
     await _filterSelected();
   }
 
@@ -164,16 +176,16 @@ class UIController extends GetxController {
       await onVkSelected(playingVkIdx.value);
     } else {
       selectedVkIdx.value = -1;
-      selectedVkTitle.value = '';
-      selectedViTitleList.clear();
+      selectedViList.clear();
     }
   }
 
   Future<void> onVkSelected(int selectedIdx) async {
     if (selectedIdx < 0) return;
+
+    final DatabaseController db = Get.find();
     selectedVkIdx.value = selectedIdx;
-    selectedVkTitle.value = selectedVkTitleList[selectedVkIdx.value];
-    await Get.find<DatabaseController>().updateViLists();
+    await db.updateViList();
   }
 
   void onViSelected(int idx) {
@@ -184,11 +196,11 @@ class UIController extends GetxController {
     }
 
     audio.playingViIdx.value = idx;
-    audio.playingViPathList = selectedViPathList.toList();
+    audio.playingViPathList = selectedViPathList;
 
     _updatePlayingIdx(sortOrder.value, selectedCategoryIdx.value,
         selectedCvIdx.value, selectedVkIdx.value);
-    audio.play(DeviceFileSource(audio.playingViPathList[idx]));
+    audio.play(DeviceFileSource(audio.playingViPath));
   }
 
   void _updatePlayingIdx(
@@ -201,19 +213,10 @@ class UIController extends GetxController {
 
   Future<Map<String, String>> get playingStringMap async {
     try {
-      final db = Get.find<DatabaseController>();
-      String playingCate = categories[playingCategoryIdx.value];
-      String playingCv = cvNames[playingCvIdx.value];
-      List<String> tempVkTitleList = await db
-          .getSortedVkDataList(playingCate, playingCv)
-          .then(
-              (tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
-      String playingVk = tempVkTitleList[playingVkIdx.value];
-
       return {
         'category': playingCate,
         'cv': playingCv,
-        'vk': playingVk,
+        'vk': await playingVkPath,
       };
     } catch (_) {
       return {};
@@ -223,9 +226,9 @@ class UIController extends GetxController {
   Map<String, String> get selectedStringMap {
     try {
       return {
-        'category': categories[selectedCategoryIdx.value],
-        'cv': cvNames[selectedCvIdx.value],
-        'vk': selectedVkTitleList[selectedVkIdx.value],
+        'category': selectedCate,
+        'cv': selectedCv,
+        'vk': selectedVkPath,
       };
     } catch (_) {
       return {};
@@ -234,21 +237,18 @@ class UIController extends GetxController {
 
   Future<void> setPlayingIdxByString(String cate, String cv, String vk,
       {SortOrder? sortOrder}) async {
-    final db = Get.find<DatabaseController>();
     sortOrder ??= playingSortOrder;
-    // dbController 调用了这个函数，作用是获取db更新前的正在播放的信息，每次更新时选中列表不一定正在播放，故而查询数据库
-    List<String> tempVkTitleList = await db
-        .getSortedVkDataList(cate, cv, sortOrder: sortOrder)
-        .then((tempVkDataList) => tempVkDataList.map((e) => e.title).toList());
+    // dbController 也调用了这个函数，作用是获取db更新前的正在播放的信息，但每次更新时选中列表不一定正在播放，故而查询数据库
+    List<String> tempVkPathList = await playingVkPathList;
 
     _updatePlayingIdx(sortOrder, max(categories.indexOf(cate), 0),
-        max(cvNames.indexOf(cv), 0), tempVkTitleList.indexOf(vk));
+        max(cvNames.indexOf(cv), 0), tempVkPathList.indexOf(vk));
   }
 
   void setSelectedIdxByString(String cate, String cv, String vk) {
     selectedCategoryIdx.value = max(categories.indexOf(cate), 0);
     selectedCvIdx.value = max(cvNames.indexOf(cv), 0);
-    selectedVkIdx.value = selectedVkTitleList.indexOf(vk);
+    selectedVkIdx.value = selectedVkPathList.indexOf(vk);
   }
 
   bool isCurrentViIdxPlaying(int selectedViIdx) {

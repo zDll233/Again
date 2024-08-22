@@ -30,8 +30,7 @@ class LyricPanel extends StatelessWidget {
   }
 
   Widget _lrcPanelBuilder(BuildContext context) {
-    String playingViPath =
-        c.audio.playingViPathList[c.audio.playingViIdx.value];
+    String playingViPath = c.audio.playingViPath;
     return Column(
       children: [
         SizedBox(

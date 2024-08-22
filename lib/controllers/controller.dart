@@ -72,7 +72,7 @@ class Controller extends GetxController {
       await ui.loadHistory(data['ui']);
       await audio.loadHistory(data['audio']);
     } catch (_) {
-      await db.updateVkLists();
+      await db.updateVkList();
     }
   }
 }

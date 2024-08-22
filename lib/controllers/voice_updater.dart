@@ -90,7 +90,7 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
-          diretoryPath: Value(entity.path),
+          directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),
           createdAt: Value(await entity.stat().then((v) => v.changed)),

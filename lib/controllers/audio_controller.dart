@@ -21,7 +21,8 @@ class AudioController extends GetxController {
   var lastVolume = 1.0;
 
   final playingViIdx = (-1).obs;
-  var playingViPathList = [];
+  List<String> playingViPathList = [];
+  String get playingViPath => playingViPathList[playingViIdx.value];
 
   final loopMode = LoopMode.allLoop.obs;
 
@@ -41,7 +42,10 @@ class AudioController extends GetxController {
       await logFile.create(recursive: true);
     }
     _logger = Logger(
-        printer: PrettyPrinter(methodCount: 2, colors: false, dateTimeFormat: DateTimeFormat.dateAndTime),
+        printer: PrettyPrinter(
+            methodCount: 2,
+            colors: false,
+            dateTimeFormat: DateTimeFormat.dateAndTime),
         level: Level.error,
         output: FileOutput(file: logFile));
   }
@@ -162,12 +166,11 @@ class AudioController extends GetxController {
     if (audioHistory.isEmpty) return;
 
     setVolume(audioHistory['volume']);
-    playingViPathList = Get.find<UIController>().selectedViPathList.toList();
+    playingViPathList = Get.find<UIController>().selectedViPathList;
     loopMode.value = LoopMode.values[audioHistory['loopMode']];
 
     try {
-      await player
-          .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
+      await player.setSource(DeviceFileSource(playingViPath));
       await player.seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {
       _logger.e('Error loading last audio: $e');

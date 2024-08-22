@@ -33,7 +33,7 @@ class VkMenuBtn extends StatelessWidget {
             final Size size = button.size;
 
             VoiceWork updatedVoiceWork =
-                await c.db.getVkBytitle(voiceWork.title!);
+                await c.db.getVkByPath(voiceWork.directoryPath);
             if (buttonContext.mounted) {
               _showPopupMenu(buttonContext, updatedVoiceWork, offset, size);
             }
@@ -46,7 +46,7 @@ class VkMenuBtn extends StatelessWidget {
   void _showPopupMenu(
       BuildContext context, VoiceWork vk, Offset offset, Size size) {
     // 动态获取菜单项
-    List<String> cvList = vk.title!.split('-')[0].split('&');
+    List<String> cvList = vk.title.split('-')[0].split('&');
     final screenSize = MediaQuery.of(context).size;
     double left = offset.dx + size.width;
     double top = offset.dy;
@@ -91,19 +91,17 @@ class VkMenuBtn extends StatelessWidget {
 
   Future<void> _selectCategory(String cate) async {
     VoiceWork vk = await Get.find<DatabaseController>()
-        .getVkBytitle(c.ui.selectedVkTitleList[selectedIndex]);
+        .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath);
 
-    if (vk.category != null && vk.directoryPath != null) {
-      // 将路径中的 vk.category 替换为新的 cate
-      String newDirectoryPath =
-          vk.directoryPath!.replaceFirst(vk.category!, cate);
+    // 将路径中的 vk.category 替换为新的 cate
+    String newDirectoryPath =
+        vk.directoryPath.replaceFirst(vk.category, cate);
 
-      Directory oldDirectory = Directory(vk.directoryPath!);
+    Directory oldDirectory = Directory(vk.directoryPath);
 
-      try {
-        await moveDirectory(oldDirectory, newDirectoryPath);
-        c.db.onUpdatePressed();
-      } catch (_) {}
-    }
+    try {
+      await moveDirectory(oldDirectory, newDirectoryPath);
+      c.db.onUpdatePressed();
+    } catch (_) {}
   }
 }

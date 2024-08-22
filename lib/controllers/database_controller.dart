@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:again/controllers/u_i_controller.dart';
 import 'package:again/controllers/voice_updater.dart';
 import 'package:again/database/database.dart';
+import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:collection/collection.dart';
@@ -61,8 +62,8 @@ class DatabaseController extends GetxController {
 
   Future<void> updateViewList() async {
     await updateFilterLists();
-    await updateVkLists();
-    await updateViLists();
+    await updateVkList();
+    await updateViList();
   }
 
   /// update [ui.categories], [ui.cvNames]. If cateLs or cvLs is null, get null ls from db.
@@ -96,18 +97,14 @@ class DatabaseController extends GetxController {
       ..sort((a, b) => compareNatural(a.cvName, b.cvName));
   }
 
-  /// sort and update [ui.selectedVkTitleList], [ui.vkCoverPathList]. If vkLs is null, get it from db according to playing filters.
-  Future<void> updateVkLists({List<TVoiceWorkData>? vkLs}) async {
+  /// sort and update [ui.selectedVkList]. If vkLs is null, get it from db according to playing filters.
+  Future<void> updateVkList({List<TVoiceWorkData>? vkLs}) async {
     final ui = Get.find<UIController>();
-    final cateIdx = ui.selectedCategoryIdx.value;
-    final cvIdx = ui.selectedCvIdx.value;
-    if (cateIdx < 0 || cvIdx < 0) return;
-
-    final cate = ui.categories[cateIdx];
-    final cv = ui.cvNames[cvIdx];
+    final cate = ui.selectedCate;
+    final cv = ui.selectedCv;
 
     vkDataList = vkLs ?? await _getVkDataList(cate, cv);
-    setSortedVkLists();
+    setSortedVkList();
   }
 
   Future<List<TVoiceWorkData>> _getVkDataList(String cate, String cv) async {
@@ -123,16 +120,13 @@ class DatabaseController extends GetxController {
   }
 
   /// update vkTitle & vkCoverPath lists
-  void setSortedVkLists({List<TVoiceWorkData>? ls}) {
+  void setSortedVkList({List<TVoiceWorkData>? ls}) {
     final ui = Get.find<UIController>();
     ls ??= vkDataList;
     sortVkDataList(ls: ls);
-    ui.selectedVkTitleList
+    ui.selectedVkList
       ..clear()
-      ..addAll(vkDataList.map((item) => item.title));
-    ui.selectedVkCoverPathList
-      ..clear()
-      ..addAll(vkDataList.map((item) => item.coverPath));
+      ..addAll(VoiceWork.vkDataList2VkList(vkDataList));
   }
 
   void sortVkDataList({List<TVoiceWorkData>? ls, SortOrder? sortOrder}) {
@@ -159,29 +153,21 @@ class DatabaseController extends GetxController {
     return tempVkDataList;
   }
 
-  /// update [ui.selectedViPathList], [ui.selectedViTitleList]. If viLs is null, get it from db
-  Future<void> updateViLists({List<TVoiceItemData>? viLs}) async {
+  /// update [ui.selectedViList]. If viLs is null, get it from db
+  Future<void> updateViList({List<TVoiceItemData>? viLs}) async {
     final ui = Get.find<UIController>();
     viLs ??= await getSelectedViList;
-    ui.selectedViPathList
+    ui.selectedViList
       ..clear()
-      ..addAll(viLs.map((item) => item.filePath));
-    ui.selectedViTitleList
-      ..clear()
-      ..addAll(viLs.map((item) => item.title));
+      ..addAll(VoiceItem.viDataList2ViList(viLs));
   }
 
   /// select viDataList from db according to [selectedVkTitle]
   Future<List<TVoiceItemData>> get getSelectedViList async {
     final ui = Get.find<UIController>();
-    final vk = await getVkBytitle(ui.selectedVkTitle.value);
-    if (vk.hasDirectoryPath) {
-      return await database
-          .selectSingleWorkVoiceItemsWithString(vk.directoryPath!)
-        ..sort((a, b) => compareNatural(a.title, b.title));
-    } else {
-      return List<TVoiceItemData>.empty();
-    }
+    final vk = await getVkByPath(ui.selectedVkPath);
+    return await database.selectSingleWorkVoiceItemsWithString(vk.directoryPath)
+      ..sort((a, b) => compareNatural(a.title, b.title));
   }
 
   Future<void> onUpdatePressed() async {
@@ -210,14 +196,12 @@ class DatabaseController extends GetxController {
     update();
   }
 
-  Future<VoiceWork> getVkBytitle(String vkTitle) {
-    return database.selectVoiceWorkData(vkTitle).then((data) => data.isEmpty
-        ? VoiceWork()
-        : VoiceWork(
-            title: vkTitle,
-            directoryPath: data[0].diretoryPath,
-            coverPath: data[0].coverPath,
-            category: data[0].category,
-            createdAt: data[0].createdAt));
+  Future<VoiceWork> getVkByPath(String vkPath) {
+    return database.selectVoiceWorkData(vkPath).then((data) => VoiceWork(
+        title: data[0].title,
+        directoryPath: vkPath,
+        coverPath: data[0].coverPath,
+        category: data[0].category,
+        createdAt: data[0].createdAt));
   }
 }

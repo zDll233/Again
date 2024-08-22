@@ -13,7 +13,7 @@ part 'database.g.dart';
 class TVoiceItem extends Table {
   TextColumn get title => text()();
   TextColumn get filePath => text()();
-  TextColumn get voiceWorkPath => text().references(TVoiceWork, #diretoryPath)();
+  TextColumn get voiceWorkPath => text().references(TVoiceWork, #directoryPath)();
 
   @override
   Set<Column> get primaryKey => {filePath};
@@ -21,14 +21,14 @@ class TVoiceItem extends Table {
 
 class TVoiceWork extends Table {
   TextColumn get title => text()();
-  TextColumn get diretoryPath => text()();
+  TextColumn get directoryPath => text()();
   TextColumn get coverPath => text()();
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
 
   @override
-  Set<Column> get primaryKey => {diretoryPath};
+  Set<Column> get primaryKey => {directoryPath};
 }
 
 class TVoiceWorkCategory extends Table {
@@ -46,7 +46,7 @@ class TCV extends Table {
 }
 
 class TVoiceCV extends Table {
-  TextColumn get voiceWorkPath => text().references(TVoiceWork, #diretoryPath)();
+  TextColumn get voiceWorkPath => text().references(TVoiceWork, #directoryPath)();
   TextColumn get cvName => text().references(TCV, #cvName)();
 
   @override
@@ -107,9 +107,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // select
-  Future<List<TVoiceWorkData>> selectVoiceWorkData(String vkTitle) =>
+  Future<List<TVoiceWorkData>> selectVoiceWorkData(String vkPath) =>
       (select(tVoiceWork)
-            ..where((tVoiceWork) => (tVoiceWork.title.equals(vkTitle))))
+            ..where((tVoiceWork) => (tVoiceWork.directoryPath.equals(vkPath))))
           .get();
 
   Future<List<TVoiceWorkData>> get selectAllVoiceWorks =>
@@ -142,7 +142,7 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TVoiceWorkData>> selectVkWithCv(String cvName) async {
     var query = await (select(tVoiceWork).join([
       innerJoin(
-          tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.diretoryPath)),
+          tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.directoryPath)),
     ])
           ..where(tVoiceCV.cvName.equals(cvName)))
         .get();
@@ -167,7 +167,7 @@ class AppDatabase extends _$AppDatabase {
       String cvName, String category) async {
     var query = await (select(tVoiceWork).join([
       innerJoin(
-          tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.diretoryPath)),
+          tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.directoryPath)),
       innerJoin(tVoiceWorkCategory,
           tVoiceWorkCategory.description.equalsExp(tVoiceWork.category)),
     ])
