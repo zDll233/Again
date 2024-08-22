@@ -175,13 +175,13 @@ class DatabaseController extends GetxController {
   Future<List<TVoiceItemData>> get getSelectedViList async {
     final ui = Get.find<UIController>();
     final vk = await getVkBytitle(ui.selectedVkTitle.value);
-    return vk.isNull
-        ? List<TVoiceItemData>.empty()
-        : await database.selectSingleWorkVoiceItemsWithString(vk.directoryPath!)
-      ..sort((a, b) => compareNatural(a.title, b.title));
-
-    //   return await database.selectSingleWorkVoiceItemsWithString(ui.selectedVkTitle.value)
-    // ..sort((a, b) => compareNatural(a.title, b.title));
+    if (vk.hasDirectoryPath) {
+      return await database
+          .selectSingleWorkVoiceItemsWithString(vk.directoryPath!)
+        ..sort((a, b) => compareNatural(a.title, b.title));
+    } else {
+      return List<TVoiceItemData>.empty();
+    }
   }
 
   Future<void> onUpdatePressed() async {

@@ -13,5 +13,5 @@ class VoiceWork {
     this.createdAt,
   });
 
-  get isNull => directoryPath == null;
+  bool get hasDirectoryPath => directoryPath != null;
 }
