@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:path/path.dart' as path;
 
 Future<File> moveFile(File sourceFile, String newPath) async {
   try {
@@ -14,18 +15,17 @@ Future<File> moveFile(File sourceFile, String newPath) async {
 
 Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
   try {
-    return await sourceDir.rename(newPath);
-  } on FileSystemException catch (_) {
     final newDir = Directory(newPath);
     await newDir.create(recursive: true);
 
-    await for (var entity in sourceDir.list(recursive: true)) {
+    await for (var entity in sourceDir.list(recursive: false)) {
+      final entityName = path.basename(entity.path);
+      final newEntityPath = path.join(newDir.path, entityName);
+
       if (entity is File) {
-        final newFilePath = '${newDir.path}/${entity.uri.pathSegments.last}';
-        await moveFile(entity, newFilePath);
+        await moveFile(entity, newEntityPath);
       } else if (entity is Directory) {
-        final newSubDirPath = '${newDir.path}/${entity.uri.pathSegments.last}';
-        await moveDirectory(entity, newSubDirPath);
+        await moveDirectory(entity, newEntityPath);
       }
     }
 
@@ -33,5 +33,7 @@ Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
     await sourceDir.delete(recursive: true);
 
     return newDir;
+  } catch (_) {
+    return await sourceDir.rename(newPath);
   }
 }
