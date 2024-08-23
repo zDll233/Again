@@ -15,6 +15,8 @@ Future<File> moveFile(File sourceFile, String newPath) async {
 
 Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
   try {
+    return await sourceDir.rename(newPath);
+  } catch (_) {
     final newDir = Directory(newPath);
     await newDir.create(recursive: true);
 
@@ -33,7 +35,5 @@ Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
     await sourceDir.delete(recursive: true);
 
     return newDir;
-  } catch (_) {
-    return await sourceDir.rename(newPath);
   }
 }

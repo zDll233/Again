@@ -43,7 +43,8 @@ class VoiceUpdater {
     }
   }
 
-  List<String> getCVList(String vkTitle) {
+  /// parse vk.title to get cv list
+  static List<String> getCvList(String vkTitle) {
     return vkTitle.split('-')[0].split('&');
   }
 
@@ -97,7 +98,7 @@ class VoiceUpdater {
           rowid: const Value.absent(),
         ));
 
-        List<String> singleVkCvNames = getCVList(vkTitle);
+        List<String> singleVkCvNames = getCvList(vkTitle);
 
         // cv
         cvNames.addAll(singleVkCvNames);

@@ -40,16 +40,20 @@ class UIController extends GetxController {
   final selectedVkList = <VoiceWork>[].obs;
   final playingVkIdx = (-1).obs;
   final selectedVkIdx = (-1).obs;
+
   Future<List<String>> get playingVkPathList async => await Get.find<
           DatabaseController>()
       .getSortedVkDataList(playingCate, playingCv, sortOrder: playingSortOrder)
       .then((vkDataList) => vkDataList.map((vk) => vk.directoryPath).toList());
+
   List<String> get selectedVkPathList =>
-      selectedVkList.map((vkData) => vkData.directoryPath).toList();
+      selectedVkList.map((vkData) => vkData.directoryPath!).toList();
+
   Future<String> get playingVkPath async => playingVkIdx.value >= 0
       ? await playingVkPathList
           .then((vkPathList) => vkPathList[playingVkIdx.value])
       : "";
+
   String get selectedVkPath =>
       selectedVkIdx.value >= 0 ? selectedVkPathList[selectedVkIdx.value] : "";
 
@@ -254,16 +258,14 @@ class UIController extends GetxController {
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
   }
 
-  bool get _isSelectedVkPlaying {
-    return _isFilterPlaying && playingVkIdx.value == selectedVkIdx.value;
-  }
+  bool get _isSelectedVkPlaying =>
+      _isFilterPlaying && playingVkIdx.value == selectedVkIdx.value;
 
-  bool get _isFilterPlaying {
-    return selectedCvIdx.value == playingCvIdx.value &&
-        selectedCategoryIdx.value == playingCategoryIdx.value &&
-        sortOrder.value == playingSortOrder &&
-        Get.find<AudioController>().playingViIdx.value >= 0;
-  }
+  bool get _isFilterPlaying =>
+      selectedCvIdx.value == playingCvIdx.value &&
+      selectedCategoryIdx.value == playingCategoryIdx.value &&
+      sortOrder.value == playingSortOrder &&
+      Get.find<AudioController>().playingViIdx.value >= 0;
 
   Future<void> loadHistory(Map<String, dynamic> uiHistory) async {
     if (uiHistory.isEmpty) return;

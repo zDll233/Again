@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/database_controller.dart';
+import 'package:again/controllers/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/utils/move_file.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class VkMenuBtn extends StatelessWidget {
             final Size size = button.size;
 
             VoiceWork updatedVoiceWork =
-                await c.db.getVkByPath(voiceWork.directoryPath);
+                await c.db.getVkByPath(voiceWork.directoryPath!);
             if (buttonContext.mounted) {
               _showPopupMenu(buttonContext, updatedVoiceWork, offset, size);
             }
@@ -46,7 +47,7 @@ class VkMenuBtn extends StatelessWidget {
   void _showPopupMenu(
       BuildContext context, VoiceWork vk, Offset offset, Size size) {
     // 动态获取菜单项
-    List<String> cvList = vk.title.split('-')[0].split('&');
+    List<String> cvList = VoiceUpdater.getCvList(vk.title!);
     final screenSize = MediaQuery.of(context).size;
     double left = offset.dx + size.width;
     double top = offset.dy;
@@ -91,13 +92,13 @@ class VkMenuBtn extends StatelessWidget {
 
   Future<void> _selectCategory(String cate) async {
     VoiceWork vk = await Get.find<DatabaseController>()
-        .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath);
+        .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath!);
 
     // 将路径中的 vk.category 替换为新的 cate
     String newDirectoryPath =
-        vk.directoryPath.replaceFirst(vk.category, cate);
+        vk.directoryPath!.replaceFirst(vk.category!, cate);
 
-    Directory oldDirectory = Directory(vk.directoryPath);
+    Directory oldDirectory = Directory(vk.directoryPath!);
 
     try {
       await moveDirectory(oldDirectory, newDirectoryPath);
