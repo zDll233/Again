@@ -4,6 +4,7 @@ import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/controllers/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
+import 'package:again/utils/log.dart';
 import 'package:again/utils/move_file.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -103,6 +104,8 @@ class VkMenuBtn extends StatelessWidget {
     try {
       await moveDirectory(oldDirectory, newDirectoryPath);
       c.db.onUpdatePressed();
-    } catch (_) {}
+    } catch (e) {
+      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath: $e.");
+    }
   }
 }

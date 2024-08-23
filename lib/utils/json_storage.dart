@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:convert';
 
+import 'package:again/utils/log.dart';
+
 class JsonStorage {
   final String filePath;
 
@@ -11,7 +13,8 @@ class JsonStorage {
       final file = File(filePath);
       final contents = await file.readAsString();
       return json.decode(contents) as Map<String, dynamic>;
-    } catch (_) {
+    } catch (e) {
+      Log.error("Error reading $filePath: $e.");
       return {};
     }
   }

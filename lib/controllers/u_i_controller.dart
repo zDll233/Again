@@ -6,6 +6,7 @@ import 'package:again/controllers/audio_controller.dart';
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
+import 'package:again/utils/log.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -222,7 +223,8 @@ class UIController extends GetxController {
         'cv': playingCv,
         'vk': await playingVkPath,
       };
-    } catch (_) {
+    } catch (e) {
+      Log.debug("Error getting playingStringMap: $e");
       return {};
     }
   }
@@ -235,6 +237,7 @@ class UIController extends GetxController {
         'vk': selectedVkPath,
       };
     } catch (_) {
+      Log.debug("Error getting selectedStringMap: $e");
       return {};
     }
   }
