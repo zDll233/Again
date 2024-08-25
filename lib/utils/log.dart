@@ -15,15 +15,19 @@ class Log {
       logFile.createSync(recursive: true);
     }
 
-    _logger = Logger(
-      filter: ProductionFilter(),
-      printer: SimplePrinter(printTime: true, colors: false),
-      output: MultiOutput([
-        FileOutput(file: logFile),
-        ConsoleOutput(),
-      ]),
-      level: kDebugMode ? Level.trace : Level.info,
-    );
+    _logger = kDebugMode
+        ? Logger(
+            filter: DevelopmentFilter(),
+            printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime),
+            output: ConsoleOutput(),
+            level: Level.trace,
+          )
+        : Logger(
+            filter: ProductionFilter(),
+            printer: SimplePrinter(printTime: true, colors: false),
+            output: FileOutput(file: logFile),
+            level: Level.info,
+          );
   }
 
   factory Log() {

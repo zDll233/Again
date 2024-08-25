@@ -171,7 +171,7 @@ class LyricPanel extends StatelessWidget {
         return '';
       }
     } catch (e) {
-      Log.error("Uncaught error in getting lyric content: $e.");
+      Log.error("Uncaught error in getting lyric content. $e.");
       return '';
     }
   }

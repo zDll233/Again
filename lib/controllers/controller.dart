@@ -75,7 +75,7 @@ class Controller extends GetxController {
     } catch (e) {
       await db.updateVkList();
 
-      Log.error("Error loading history: $e.");
+      Log.error("Error loading history. $e.");
     }
   }
 }

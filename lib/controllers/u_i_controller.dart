@@ -224,7 +224,7 @@ class UIController extends GetxController {
         'vk': await playingVkPath,
       };
     } catch (e) {
-      Log.debug("Error getting playingStringMap: $e");
+      Log.debug("Error getting playingStringMap. $e");
       return {};
     }
   }
@@ -237,7 +237,7 @@ class UIController extends GetxController {
         'vk': selectedVkPath,
       };
     } catch (_) {
-      Log.debug("Error getting selectedStringMap: $e");
+      Log.debug("Error getting selectedStringMap. $e");
       return {};
     }
   }

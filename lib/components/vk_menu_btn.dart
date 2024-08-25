@@ -105,7 +105,7 @@ class VkMenuBtn extends StatelessWidget {
       await moveDirectory(oldDirectory, newDirectoryPath);
       c.db.onUpdatePressed();
     } catch (e) {
-      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath: $e.");
+      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath. $e.");
     }
   }
 }
