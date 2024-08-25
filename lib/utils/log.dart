@@ -17,7 +17,7 @@ class Log {
 
     _logger = Logger(
       filter: ProductionFilter(),
-      printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime),
+      printer: SimplePrinter(printTime: true, colors: false),
       output: MultiOutput([
         FileOutput(file: logFile),
         ConsoleOutput(),
@@ -33,7 +33,6 @@ class Log {
   // 提供静态方法获取 Logger 实例
   static Logger get logger => _instance._logger;
 
-  // 封装 Logger 的方法
   static void trace(String message) {
     _instance._logger.t(message);
   }
@@ -46,7 +45,7 @@ class Log {
     _instance._logger.i(message);
   }
 
-  static void waring(String message) {
+  static void warning(String message) {
     _instance._logger.w(message);
   }
 
