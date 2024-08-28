@@ -27,7 +27,7 @@ class DatabaseController extends GetxController {
     config = JsonStorage(filePath: filePath);
 
     final data = await config.read();
-    vkRootDirPath = data['vkRootDirPath'] ?? 'E:\\Media\\ACG\\音声';
+    vkRootDirPath = data['vkRootDirPath'] ?? '';
 
     if (await Directory(vkRootDirPath!).exists()) {
       await _initializeVoiceUpdater();

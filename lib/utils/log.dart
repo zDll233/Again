@@ -17,14 +17,14 @@ class Log {
 
     _logger = kDebugMode
         ? Logger(
-            filter: DevelopmentFilter(),
             printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime),
-            output: ConsoleOutput(),
-            level: Level.trace,
           )
         : Logger(
             filter: ProductionFilter(),
-            printer: SimplePrinter(printTime: true, colors: false),
+            printer: PrettyPrinter(
+                methodCount: 0,
+                colors: false,
+                dateTimeFormat: DateTimeFormat.dateAndTime),
             output: FileOutput(file: logFile),
             level: Level.info,
           );
