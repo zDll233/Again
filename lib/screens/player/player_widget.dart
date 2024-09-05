@@ -74,7 +74,7 @@ class PlayerWidget extends StatelessWidget {
         child: SliderTheme(
           data: SliderTheme.of(context).copyWith(
             trackHeight: 1.0,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0),
             overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
           ),
           child: Slider(
