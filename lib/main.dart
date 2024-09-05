@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:again/controllers/controller.dart';
 import 'package:again/screens/player/player_widget.dart';
@@ -50,6 +51,7 @@ class MyApp extends StatelessWidget {
           dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
           brightness: Brightness.dark,
         )),
+        scrollBehavior: MyCustomScrollBehavior(),
         home: Scaffold(
             backgroundColor: Colors.transparent,
             body: FocusScope(
@@ -63,4 +65,18 @@ class MyApp extends StatelessWidget {
               ),
             )));
   }
+}
+
+class MyCustomScrollBehavior extends MaterialScrollBehavior {
+  // Override behavior methods and getters like dragDevices
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        // default
+        PointerDeviceKind.touch,
+        PointerDeviceKind.stylus,
+        PointerDeviceKind.invertedStylus,
+        // enable mouse && trackpad
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad
+      };
 }

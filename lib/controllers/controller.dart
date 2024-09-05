@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:again/controllers/key_event_handler.dart';
 import 'package:again/utils/json_storage.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
@@ -67,10 +68,14 @@ class Controller extends GetxController {
     final data = await _history.read();
     if (data.isEmpty) return;
 
+    await db.updateFilterLists();
     try {
-      await db.updateFilterLists();
       await ui.loadHistory(data['ui']);
       await audio.loadHistory(data['audio']);
-    } catch (_) {}
+    } catch (e) {
+      await db.updateVkList();
+
+      Log.error("Error loading history. $e.");
+    }
   }
 }

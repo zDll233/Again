@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:again/controllers/controller.dart';
+import 'package:again/utils/log.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
@@ -30,8 +31,7 @@ class LyricPanel extends StatelessWidget {
   }
 
   Widget _lrcPanelBuilder(BuildContext context) {
-    String playingViPath =
-        c.audio.playingViPathList[c.audio.playingViIdx.value];
+    String playingViPath = c.audio.playingViPath;
     return Column(
       children: [
         SizedBox(
@@ -170,7 +170,8 @@ class LyricPanel extends StatelessWidget {
         readLyric = false;
         return '';
       }
-    } catch (_) {
+    } catch (e) {
+      Log.error("Uncaught error in getting lyric content. $e.");
       return '';
     }
   }

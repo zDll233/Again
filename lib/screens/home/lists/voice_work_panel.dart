@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:again/components/future_list.dart';
+import 'package:again/components/vk_menu_btn.dart';
 import 'package:again/components/voice_panel.dart';
 import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/u_i_controller.dart';
-import 'package:again/models/voice_work.dart';
-import 'package:again/utils/image_thumbnail.dart';
+import 'package:again/components/image_thumbnail.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -17,7 +17,7 @@ class VoiceWorkPanel extends StatelessWidget {
     final Controller c = Get.find();
     return Obx(() => VoicePanel(
           title:
-              'VoiceWorks(${c.ui.selectedVkTitleList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
+              'VoiceWorks(${c.ui.selectedVkList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
           listView: FutureVoiceWorkListView(),
           icon: const Icon(Icons.refresh),
           onIconBtnPressed: c.db.onUpdatePressed,
@@ -29,15 +29,10 @@ class VoiceWorkPanel extends StatelessWidget {
 class FutureVoiceWorkListView extends StatelessWidget {
   FutureVoiceWorkListView({super.key});
 
-  final ui = Get.find<UIController>();
+  final Controller c = Get.find();
 
   Future<List> fetchItems() async {
-    List<VoiceWork> vkList = [];
-    for (int idx = 0; idx < ui.selectedVkTitleList.length; idx++) {
-      vkList.add(VoiceWork(
-          title: ui.selectedVkTitleList[idx], coverPath: ui.selectedVkCoverPathList[idx]));
-    }
-    return vkList;
+    return c.ui.selectedVkList.toList();
   }
 
   @override
@@ -51,37 +46,15 @@ class FutureVoiceWorkListView extends StatelessWidget {
                     padding: const EdgeInsets.only(left: 15.0, right: 5.0),
                     child: Text(vk.title),
                   ),
-                  trailing: vkMenu(context, vk.title),
-                  onTap: () => ui.onVkSelected(index),
-                  selected: ui.selectedVkIdx.value == index,
+                  trailing: VkMenuBtn(voiceWork: vk, selectedIndex: index),
+                  onTap: () => c.ui.onVkSelected(index),
+                  selected: c.ui.selectedVkIdx.value == index,
                   contentPadding: const EdgeInsets.only(
                       top: 5.0, bottom: 5.0, left: 20.0, right: 10.0),
                   horizontalTitleGap: 0.0,
                 ));
           },
-          itemScrollController: ui.vkScrollController,
+          itemScrollController: c.ui.vkScrollController,
         ));
-  }
-
-  void selectCv(String cvName) {
-    final cvIndex = ui.cvNames.indexOf(cvName);
-    ui.onCvSelected(cvIndex);
-    ui.scrollToIndex(ui.cvScrollController, cvIndex);
-  }
-
-  Widget vkMenu(BuildContext context, String vkTitle) {
-    List<String> cvList = vkTitle.split('-')[0].split('&');
-    return TooltipVisibility(
-      visible: false,
-      child: PopupMenuButton<String>(
-        onSelected: (String value) => selectCv(value),
-        itemBuilder: (BuildContext context) {
-          return cvList
-              .map((cvName) =>
-                  PopupMenuItem<String>(value: cvName, child: Text(cvName)))
-              .toList();
-        },
-      ),
-    );
   }
 }

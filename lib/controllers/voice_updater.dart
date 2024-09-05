@@ -43,7 +43,8 @@ class VoiceUpdater {
     }
   }
 
-  List<String> getCVList(String vkTitle) {
+  /// parse vk.title to get cv list
+  static List<String> getCvList(String vkTitle) {
     return vkTitle.split('-')[0].split('&');
   }
 
@@ -90,14 +91,14 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
-          diretoryPath: Value(entity.path),
+          directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),
           createdAt: Value(await entity.stat().then((v) => v.changed)),
           rowid: const Value.absent(),
         ));
 
-        List<String> singleVkCvNames = getCVList(vkTitle);
+        List<String> singleVkCvNames = getCvList(vkTitle);
 
         // cv
         cvNames.addAll(singleVkCvNames);
@@ -105,7 +106,7 @@ class VoiceUpdater {
         // cv vk
         for (var cvName in singleVkCvNames) {
           vcc.add(TVoiceCVCompanion(
-            vkTitle: Value(vkTitle),
+            voiceWorkPath: Value(entity.path),
             cvName: Value(cvName),
             rowid: const Value.absent(),
           ));
@@ -138,7 +139,7 @@ class VoiceUpdater {
         vic.add(TVoiceItemCompanion(
           title: Value(p.basenameWithoutExtension(entity.path)),
           filePath: Value(entity.path),
-          voiceWorkTitle: Value(p.basename(voiceWorkDir.path)),
+          voiceWorkPath: Value(voiceWorkDir.path),
           rowid: const Value.absent(),
         ));
       }

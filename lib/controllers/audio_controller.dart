@@ -1,11 +1,8 @@
-import 'dart:io';
-
 import 'package:again/controllers/u_i_controller.dart';
+import 'package:again/utils/log.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import 'package:path/path.dart' as p;
 import 'package:get/get.dart';
-import 'package:logger/logger.dart';
 
 enum LoopMode {
   allLoop,
@@ -21,29 +18,15 @@ class AudioController extends GetxController {
   var lastVolume = 1.0;
 
   final playingViIdx = (-1).obs;
-  var playingViPathList = [];
+  List<String> playingViPathList = [];
+  String get playingViPath => playingViPathList[playingViIdx.value];
 
   final loopMode = LoopMode.allLoop.obs;
-
-  late final Logger _logger;
 
   @override
   void onInit() {
     super.onInit();
     _initPlayer();
-    _initLogger();
-  }
-
-  Future<void> _initLogger() async {
-    final String logPath = p.join('debug', 'audio.log');
-    final File logFile = File(logPath);
-    if (!await logFile.exists()) {
-      await logFile.create(recursive: true);
-    }
-    _logger = Logger(
-        printer: PrettyPrinter(methodCount: 2, colors: false, dateTimeFormat: DateTimeFormat.dateAndTime),
-        level: Level.error,
-        output: FileOutput(file: logFile));
   }
 
   void _initPlayer() {
@@ -77,7 +60,7 @@ class AudioController extends GetxController {
       await player.setSource(source);
       await player.resume();
     } catch (e) {
-      _logger.e('Error playing audio: $e');
+      Log.error("Error playing audio. $e");
     }
   }
 
@@ -100,7 +83,7 @@ class AudioController extends GetxController {
     try {
       player.resume();
     } catch (e) {
-      _logger.e('Error resuming audio: $e');
+      Log.error("Error resuming audio. $e");
     }
   }
 
@@ -108,7 +91,7 @@ class AudioController extends GetxController {
     try {
       player.pause();
     } catch (e) {
-      _logger.e('Error pausing audio: $e');
+      Log.error("Error pausing audio. $e");
     }
   }
 
@@ -117,7 +100,7 @@ class AudioController extends GetxController {
       player.stop();
       position.value = Duration.zero;
     } catch (e) {
-      _logger.e('Error stopping audio: $e');
+      Log.error("Error stopping audio. $e");
     }
   }
 
@@ -153,7 +136,6 @@ class AudioController extends GetxController {
 
   @override
   void onClose() {
-    _logger.close();
     player.dispose();
     super.onClose();
   }
@@ -162,15 +144,14 @@ class AudioController extends GetxController {
     if (audioHistory.isEmpty) return;
 
     setVolume(audioHistory['volume']);
-    playingViPathList = Get.find<UIController>().selectedViPathList.toList();
+    playingViPathList = Get.find<UIController>().selectedViPathList;
     loopMode.value = LoopMode.values[audioHistory['loopMode']];
 
     try {
-      await player
-          .setSource(DeviceFileSource(playingViPathList[playingViIdx.value]));
+      await player.setSource(DeviceFileSource(playingViPath));
       await player.seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {
-      _logger.e('Error loading last audio: $e');
+      Log.error("Error loading audio history. $e");
     }
   }
 }
