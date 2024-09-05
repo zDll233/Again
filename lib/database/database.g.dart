@@ -1,5 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
+// ignore_for_file: invalid_use_of_internal_member, unnecessary_null_comparison
+
 part of 'database.dart';
 
 // ignore_for_file: type=lint
@@ -1106,40 +1108,25 @@ typedef $$TVoiceWorkCategoryTableUpdateCompanionBuilder
   Value<int> rowid,
 });
 
-class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TVoiceWorkCategoryTable,
-    TVoiceWorkCategoryData,
-    $$TVoiceWorkCategoryTableFilterComposer,
-    $$TVoiceWorkCategoryTableOrderingComposer,
-    $$TVoiceWorkCategoryTableCreateCompanionBuilder,
-    $$TVoiceWorkCategoryTableUpdateCompanionBuilder> {
-  $$TVoiceWorkCategoryTableTableManager(
-      _$AppDatabase db, $TVoiceWorkCategoryTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$TVoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$TVoiceWorkCategoryTableOrderingComposer(
-              ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> description = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceWorkCategoryCompanion(
-            description: description,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String description,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceWorkCategoryCompanion.insert(
-            description: description,
-            rowid: rowid,
-          ),
-        ));
+final class $$TVoiceWorkCategoryTableReferences extends BaseReferences<
+    _$AppDatabase, $TVoiceWorkCategoryTable, TVoiceWorkCategoryData> {
+  $$TVoiceWorkCategoryTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TVoiceWorkTable, List<TVoiceWorkData>>
+      _tVoiceWorkRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.tVoiceWork,
+              aliasName: $_aliasNameGenerator(
+                  db.tVoiceWorkCategory.description, db.tVoiceWork.category));
+
+  $$TVoiceWorkTableProcessedTableManager get tVoiceWorkRefs {
+    final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
+        .filter((f) => f.category.description($_item.description));
+
+    final cache = $_typedResult.readTableOrNull(_tVoiceWorkRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$TVoiceWorkCategoryTableFilterComposer
@@ -1173,6 +1160,85 @@ class $$TVoiceWorkCategoryTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
+class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TVoiceWorkCategoryTable,
+    TVoiceWorkCategoryData,
+    $$TVoiceWorkCategoryTableFilterComposer,
+    $$TVoiceWorkCategoryTableOrderingComposer,
+    $$TVoiceWorkCategoryTableCreateCompanionBuilder,
+    $$TVoiceWorkCategoryTableUpdateCompanionBuilder,
+    (TVoiceWorkCategoryData, $$TVoiceWorkCategoryTableReferences),
+    TVoiceWorkCategoryData,
+    PrefetchHooks Function({bool tVoiceWorkRefs})> {
+  $$TVoiceWorkCategoryTableTableManager(
+      _$AppDatabase db, $TVoiceWorkCategoryTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TVoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
+          orderingComposer: $$TVoiceWorkCategoryTableOrderingComposer(
+              ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> description = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceWorkCategoryCompanion(
+            description: description,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String description,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceWorkCategoryCompanion.insert(
+            description: description,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$TVoiceWorkCategoryTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({tVoiceWorkRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (tVoiceWorkRefs) db.tVoiceWork],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (tVoiceWorkRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$TVoiceWorkCategoryTableReferences
+                            ._tVoiceWorkRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$TVoiceWorkCategoryTableReferences(db, table, p0)
+                                .tVoiceWorkRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.category == item.description),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TVoiceWorkCategoryTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TVoiceWorkCategoryTable,
+    TVoiceWorkCategoryData,
+    $$TVoiceWorkCategoryTableFilterComposer,
+    $$TVoiceWorkCategoryTableOrderingComposer,
+    $$TVoiceWorkCategoryTableCreateCompanionBuilder,
+    $$TVoiceWorkCategoryTableUpdateCompanionBuilder,
+    (TVoiceWorkCategoryData, $$TVoiceWorkCategoryTableReferences),
+    TVoiceWorkCategoryData,
+    PrefetchHooks Function({bool tVoiceWorkRefs})>;
 typedef $$TVoiceWorkTableCreateCompanionBuilder = TVoiceWorkCompanion Function({
   required String title,
   required String diretoryPath,
@@ -1190,55 +1256,54 @@ typedef $$TVoiceWorkTableUpdateCompanionBuilder = TVoiceWorkCompanion Function({
   Value<int> rowid,
 });
 
-class $$TVoiceWorkTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TVoiceWorkTable,
-    TVoiceWorkData,
-    $$TVoiceWorkTableFilterComposer,
-    $$TVoiceWorkTableOrderingComposer,
-    $$TVoiceWorkTableCreateCompanionBuilder,
-    $$TVoiceWorkTableUpdateCompanionBuilder> {
-  $$TVoiceWorkTableTableManager(_$AppDatabase db, $TVoiceWorkTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$TVoiceWorkTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceWorkTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> title = const Value.absent(),
-            Value<String> diretoryPath = const Value.absent(),
-            Value<String> coverPath = const Value.absent(),
-            Value<String> category = const Value.absent(),
-            Value<DateTime?> createdAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceWorkCompanion(
-            title: title,
-            diretoryPath: diretoryPath,
-            coverPath: coverPath,
-            category: category,
-            createdAt: createdAt,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String title,
-            required String diretoryPath,
-            required String coverPath,
-            required String category,
-            Value<DateTime?> createdAt = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceWorkCompanion.insert(
-            title: title,
-            diretoryPath: diretoryPath,
-            coverPath: coverPath,
-            category: category,
-            createdAt: createdAt,
-            rowid: rowid,
-          ),
-        ));
+final class $$TVoiceWorkTableReferences
+    extends BaseReferences<_$AppDatabase, $TVoiceWorkTable, TVoiceWorkData> {
+  $$TVoiceWorkTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TVoiceWorkCategoryTable _categoryTable(_$AppDatabase db) =>
+      db.tVoiceWorkCategory.createAlias($_aliasNameGenerator(
+          db.tVoiceWork.category, db.tVoiceWorkCategory.description));
+
+  $$TVoiceWorkCategoryTableProcessedTableManager? get category {
+    if ($_item.category == null) return null;
+    final manager =
+        $$TVoiceWorkCategoryTableTableManager($_db, $_db.tVoiceWorkCategory)
+            .filter((f) => f.description($_item.category));
+    final item = $_typedResult.readTableOrNull(_categoryTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static MultiTypedResultKey<$TVoiceItemTable, List<TVoiceItemData>>
+      _tVoiceItemRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.tVoiceItem,
+              aliasName: $_aliasNameGenerator(
+                  db.tVoiceWork.title, db.tVoiceItem.voiceWorkTitle));
+
+  $$TVoiceItemTableProcessedTableManager get tVoiceItemRefs {
+    final manager = $$TVoiceItemTableTableManager($_db, $_db.tVoiceItem)
+        .filter((f) => f.voiceWorkTitle.title($_item.title));
+
+    final cache = $_typedResult.readTableOrNull(_tVoiceItemRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$TVoiceCVTable, List<TVoiceCVData>>
+      _tVoiceCVRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.tVoiceCV,
+          aliasName:
+              $_aliasNameGenerator(db.tVoiceWork.title, db.tVoiceCV.vkTitle));
+
+  $$TVoiceCVTableProcessedTableManager get tVoiceCVRefs {
+    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV)
+        .filter((f) => f.vkTitle.title($_item.title));
+
+    final cache = $_typedResult.readTableOrNull(_tVoiceCVRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$TVoiceWorkTableFilterComposer
@@ -1347,6 +1412,145 @@ class $$TVoiceWorkTableOrderingComposer
   }
 }
 
+class $$TVoiceWorkTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TVoiceWorkTable,
+    TVoiceWorkData,
+    $$TVoiceWorkTableFilterComposer,
+    $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableCreateCompanionBuilder,
+    $$TVoiceWorkTableUpdateCompanionBuilder,
+    (TVoiceWorkData, $$TVoiceWorkTableReferences),
+    TVoiceWorkData,
+    PrefetchHooks Function(
+        {bool category, bool tVoiceItemRefs, bool tVoiceCVRefs})> {
+  $$TVoiceWorkTableTableManager(_$AppDatabase db, $TVoiceWorkTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TVoiceWorkTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TVoiceWorkTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> title = const Value.absent(),
+            Value<String> diretoryPath = const Value.absent(),
+            Value<String> coverPath = const Value.absent(),
+            Value<String> category = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceWorkCompanion(
+            title: title,
+            diretoryPath: diretoryPath,
+            coverPath: coverPath,
+            category: category,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String title,
+            required String diretoryPath,
+            required String coverPath,
+            required String category,
+            Value<DateTime?> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceWorkCompanion.insert(
+            title: title,
+            diretoryPath: diretoryPath,
+            coverPath: coverPath,
+            category: category,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$TVoiceWorkTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: (
+              {category = false,
+              tVoiceItemRefs = false,
+              tVoiceCVRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [
+                if (tVoiceItemRefs) db.tVoiceItem,
+                if (tVoiceCVRefs) db.tVoiceCV
+              ],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (category) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.category,
+                    referencedTable:
+                        $$TVoiceWorkTableReferences._categoryTable(db),
+                    referencedColumn: $$TVoiceWorkTableReferences
+                        ._categoryTable(db)
+                        .description,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (tVoiceItemRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$TVoiceWorkTableReferences
+                            ._tVoiceItemRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$TVoiceWorkTableReferences(db, table, p0)
+                                .tVoiceItemRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.voiceWorkTitle == item.title),
+                        typedResults: items),
+                  if (tVoiceCVRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$TVoiceWorkTableReferences._tVoiceCVRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$TVoiceWorkTableReferences(db, table, p0)
+                                .tVoiceCVRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.vkTitle == item.title),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TVoiceWorkTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TVoiceWorkTable,
+    TVoiceWorkData,
+    $$TVoiceWorkTableFilterComposer,
+    $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableCreateCompanionBuilder,
+    $$TVoiceWorkTableUpdateCompanionBuilder,
+    (TVoiceWorkData, $$TVoiceWorkTableReferences),
+    TVoiceWorkData,
+    PrefetchHooks Function(
+        {bool category, bool tVoiceItemRefs, bool tVoiceCVRefs})>;
 typedef $$TVoiceItemTableCreateCompanionBuilder = TVoiceItemCompanion Function({
   required String title,
   required String filePath,
@@ -1360,47 +1564,23 @@ typedef $$TVoiceItemTableUpdateCompanionBuilder = TVoiceItemCompanion Function({
   Value<int> rowid,
 });
 
-class $$TVoiceItemTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TVoiceItemTable,
-    TVoiceItemData,
-    $$TVoiceItemTableFilterComposer,
-    $$TVoiceItemTableOrderingComposer,
-    $$TVoiceItemTableCreateCompanionBuilder,
-    $$TVoiceItemTableUpdateCompanionBuilder> {
-  $$TVoiceItemTableTableManager(_$AppDatabase db, $TVoiceItemTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$TVoiceItemTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceItemTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> title = const Value.absent(),
-            Value<String> filePath = const Value.absent(),
-            Value<String> voiceWorkTitle = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceItemCompanion(
-            title: title,
-            filePath: filePath,
-            voiceWorkTitle: voiceWorkTitle,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String title,
-            required String filePath,
-            required String voiceWorkTitle,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceItemCompanion.insert(
-            title: title,
-            filePath: filePath,
-            voiceWorkTitle: voiceWorkTitle,
-            rowid: rowid,
-          ),
-        ));
+final class $$TVoiceItemTableReferences
+    extends BaseReferences<_$AppDatabase, $TVoiceItemTable, TVoiceItemData> {
+  $$TVoiceItemTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TVoiceWorkTable _voiceWorkTitleTable(_$AppDatabase db) =>
+      db.tVoiceWork.createAlias($_aliasNameGenerator(
+          db.tVoiceItem.voiceWorkTitle, db.tVoiceWork.title));
+
+  $$TVoiceWorkTableProcessedTableManager? get voiceWorkTitle {
+    if ($_item.voiceWorkTitle == null) return null;
+    final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
+        .filter((f) => f.title($_item.voiceWorkTitle));
+    final item = $_typedResult.readTableOrNull(_voiceWorkTitleTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 }
 
 class $$TVoiceItemTableFilterComposer
@@ -1455,6 +1635,104 @@ class $$TVoiceItemTableOrderingComposer
   }
 }
 
+class $$TVoiceItemTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TVoiceItemTable,
+    TVoiceItemData,
+    $$TVoiceItemTableFilterComposer,
+    $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableCreateCompanionBuilder,
+    $$TVoiceItemTableUpdateCompanionBuilder,
+    (TVoiceItemData, $$TVoiceItemTableReferences),
+    TVoiceItemData,
+    PrefetchHooks Function({bool voiceWorkTitle})> {
+  $$TVoiceItemTableTableManager(_$AppDatabase db, $TVoiceItemTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TVoiceItemTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TVoiceItemTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> title = const Value.absent(),
+            Value<String> filePath = const Value.absent(),
+            Value<String> voiceWorkTitle = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceItemCompanion(
+            title: title,
+            filePath: filePath,
+            voiceWorkTitle: voiceWorkTitle,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String title,
+            required String filePath,
+            required String voiceWorkTitle,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceItemCompanion.insert(
+            title: title,
+            filePath: filePath,
+            voiceWorkTitle: voiceWorkTitle,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$TVoiceItemTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({voiceWorkTitle = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (voiceWorkTitle) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.voiceWorkTitle,
+                    referencedTable:
+                        $$TVoiceItemTableReferences._voiceWorkTitleTable(db),
+                    referencedColumn: $$TVoiceItemTableReferences
+                        ._voiceWorkTitleTable(db)
+                        .title,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TVoiceItemTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TVoiceItemTable,
+    TVoiceItemData,
+    $$TVoiceItemTableFilterComposer,
+    $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableCreateCompanionBuilder,
+    $$TVoiceItemTableUpdateCompanionBuilder,
+    (TVoiceItemData, $$TVoiceItemTableReferences),
+    TVoiceItemData,
+    PrefetchHooks Function({bool voiceWorkTitle})>;
 typedef $$TCVTableCreateCompanionBuilder = TCVCompanion Function({
   required String cvName,
   Value<int> rowid,
@@ -1464,38 +1742,23 @@ typedef $$TCVTableUpdateCompanionBuilder = TCVCompanion Function({
   Value<int> rowid,
 });
 
-class $$TCVTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TCVTable,
-    TCVData,
-    $$TCVTableFilterComposer,
-    $$TCVTableOrderingComposer,
-    $$TCVTableCreateCompanionBuilder,
-    $$TCVTableUpdateCompanionBuilder> {
-  $$TCVTableTableManager(_$AppDatabase db, $TCVTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer: $$TCVTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TCVTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> cvName = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TCVCompanion(
-            cvName: cvName,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String cvName,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TCVCompanion.insert(
-            cvName: cvName,
-            rowid: rowid,
-          ),
-        ));
+final class $$TCVTableReferences
+    extends BaseReferences<_$AppDatabase, $TCVTable, TCVData> {
+  $$TCVTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$TVoiceCVTable, List<TVoiceCVData>>
+      _tVoiceCVRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.tVoiceCV,
+          aliasName: $_aliasNameGenerator(db.tcv.cvName, db.tVoiceCV.cvName));
+
+  $$TVoiceCVTableProcessedTableManager get tVoiceCVRefs {
+    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV)
+        .filter((f) => f.cvName.cvName($_item.cvName));
+
+    final cache = $_typedResult.readTableOrNull(_tVoiceCVRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$TCVTableFilterComposer
@@ -1529,6 +1792,80 @@ class $$TCVTableOrderingComposer
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
 
+class $$TCVTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TCVTable,
+    TCVData,
+    $$TCVTableFilterComposer,
+    $$TCVTableOrderingComposer,
+    $$TCVTableCreateCompanionBuilder,
+    $$TCVTableUpdateCompanionBuilder,
+    (TCVData, $$TCVTableReferences),
+    TCVData,
+    PrefetchHooks Function({bool tVoiceCVRefs})> {
+  $$TCVTableTableManager(_$AppDatabase db, $TCVTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer: $$TCVTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TCVTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> cvName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TCVCompanion(
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String cvName,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TCVCompanion.insert(
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$TCVTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({tVoiceCVRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (tVoiceCVRefs) db.tVoiceCV],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (tVoiceCVRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$TCVTableReferences._tVoiceCVRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$TCVTableReferences(db, table, p0).tVoiceCVRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.cvName == item.cvName),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TCVTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TCVTable,
+    TCVData,
+    $$TCVTableFilterComposer,
+    $$TCVTableOrderingComposer,
+    $$TCVTableCreateCompanionBuilder,
+    $$TCVTableUpdateCompanionBuilder,
+    (TCVData, $$TCVTableReferences),
+    TCVData,
+    PrefetchHooks Function({bool tVoiceCVRefs})>;
 typedef $$TVoiceCVTableCreateCompanionBuilder = TVoiceCVCompanion Function({
   required String vkTitle,
   required String cvName,
@@ -1540,43 +1877,36 @@ typedef $$TVoiceCVTableUpdateCompanionBuilder = TVoiceCVCompanion Function({
   Value<int> rowid,
 });
 
-class $$TVoiceCVTableTableManager extends RootTableManager<
-    _$AppDatabase,
-    $TVoiceCVTable,
-    TVoiceCVData,
-    $$TVoiceCVTableFilterComposer,
-    $$TVoiceCVTableOrderingComposer,
-    $$TVoiceCVTableCreateCompanionBuilder,
-    $$TVoiceCVTableUpdateCompanionBuilder> {
-  $$TVoiceCVTableTableManager(_$AppDatabase db, $TVoiceCVTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          filteringComposer:
-              $$TVoiceCVTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceCVTableOrderingComposer(ComposerState(db, table)),
-          updateCompanionCallback: ({
-            Value<String> vkTitle = const Value.absent(),
-            Value<String> cvName = const Value.absent(),
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceCVCompanion(
-            vkTitle: vkTitle,
-            cvName: cvName,
-            rowid: rowid,
-          ),
-          createCompanionCallback: ({
-            required String vkTitle,
-            required String cvName,
-            Value<int> rowid = const Value.absent(),
-          }) =>
-              TVoiceCVCompanion.insert(
-            vkTitle: vkTitle,
-            cvName: cvName,
-            rowid: rowid,
-          ),
-        ));
+final class $$TVoiceCVTableReferences
+    extends BaseReferences<_$AppDatabase, $TVoiceCVTable, TVoiceCVData> {
+  $$TVoiceCVTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $TVoiceWorkTable _vkTitleTable(_$AppDatabase db) =>
+      db.tVoiceWork.createAlias(
+          $_aliasNameGenerator(db.tVoiceCV.vkTitle, db.tVoiceWork.title));
+
+  $$TVoiceWorkTableProcessedTableManager? get vkTitle {
+    if ($_item.vkTitle == null) return null;
+    final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
+        .filter((f) => f.title($_item.vkTitle));
+    final item = $_typedResult.readTableOrNull(_vkTitleTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $TCVTable _cvNameTable(_$AppDatabase db) => db.tcv
+      .createAlias($_aliasNameGenerator(db.tVoiceCV.cvName, db.tcv.cvName));
+
+  $$TCVTableProcessedTableManager? get cvName {
+    if ($_item.cvName == null) return null;
+    final manager = $$TCVTableTableManager($_db, $_db.tcv)
+        .filter((f) => f.cvName($_item.cvName));
+    final item = $_typedResult.readTableOrNull(_cvNameTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
 }
 
 class $$TVoiceCVTableFilterComposer
@@ -1634,6 +1964,107 @@ class $$TVoiceCVTableOrderingComposer
     return composer;
   }
 }
+
+class $$TVoiceCVTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TVoiceCVTable,
+    TVoiceCVData,
+    $$TVoiceCVTableFilterComposer,
+    $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableCreateCompanionBuilder,
+    $$TVoiceCVTableUpdateCompanionBuilder,
+    (TVoiceCVData, $$TVoiceCVTableReferences),
+    TVoiceCVData,
+    PrefetchHooks Function({bool vkTitle, bool cvName})> {
+  $$TVoiceCVTableTableManager(_$AppDatabase db, $TVoiceCVTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$TVoiceCVTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$TVoiceCVTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<String> vkTitle = const Value.absent(),
+            Value<String> cvName = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceCVCompanion(
+            vkTitle: vkTitle,
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String vkTitle,
+            required String cvName,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TVoiceCVCompanion.insert(
+            vkTitle: vkTitle,
+            cvName: cvName,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) =>
+                  (e.readTable(table), $$TVoiceCVTableReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: ({vkTitle = false, cvName = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (vkTitle) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.vkTitle,
+                    referencedTable:
+                        $$TVoiceCVTableReferences._vkTitleTable(db),
+                    referencedColumn:
+                        $$TVoiceCVTableReferences._vkTitleTable(db).title,
+                  ) as T;
+                }
+                if (cvName) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.cvName,
+                    referencedTable: $$TVoiceCVTableReferences._cvNameTable(db),
+                    referencedColumn:
+                        $$TVoiceCVTableReferences._cvNameTable(db).cvName,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$TVoiceCVTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TVoiceCVTable,
+    TVoiceCVData,
+    $$TVoiceCVTableFilterComposer,
+    $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableCreateCompanionBuilder,
+    $$TVoiceCVTableUpdateCompanionBuilder,
+    (TVoiceCVData, $$TVoiceCVTableReferences),
+    TVoiceCVData,
+    PrefetchHooks Function({bool vkTitle, bool cvName})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
