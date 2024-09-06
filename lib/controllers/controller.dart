@@ -40,6 +40,7 @@ class Controller extends GetxController {
     final scriptFile = File(scriptPath);
 
     if (!await scriptFile.exists()) {
+      await scriptFile.create(recursive: true);
       scriptFile.writeAsString(generateScript());
       Log.info('Generated script $scriptPath');
     }
