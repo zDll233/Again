@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:again/controllers/key_event_handler.dart';
+import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter/services.dart';
@@ -30,6 +32,17 @@ class Controller extends GetxController {
   Future<void> _initialize() async {
     await db.initializeStorage();
     await _loadHistory();
+    initializeScript();
+  }
+
+  Future<void> initializeScript() async {
+    final scriptPath = p.join("scripts", "recycle.ps1");
+    final scriptFile = File(scriptPath);
+
+    if (!await scriptFile.exists()) {
+      scriptFile.writeAsString(generateScript());
+      Log.info('Generated script $scriptPath');
+    }
   }
 
   @override
@@ -75,7 +88,7 @@ class Controller extends GetxController {
     } catch (e) {
       await db.updateVkList();
 
-      Log.error("Error loading history. $e.");
+      Log.error("Error loading history.\n$e.");
     }
   }
 }

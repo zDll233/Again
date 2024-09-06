@@ -17,7 +17,8 @@ class Log {
 
     _logger = kDebugMode
         ? Logger(
-            printer: PrettyPrinter(dateTimeFormat: DateTimeFormat.dateAndTime),
+            printer: PrettyPrinter(
+                methodCount: 5, dateTimeFormat: DateTimeFormat.dateAndTime),
           )
         : Logger(
             filter: ProductionFilter(),

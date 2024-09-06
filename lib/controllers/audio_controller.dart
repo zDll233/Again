@@ -60,7 +60,7 @@ class AudioController extends GetxController {
       await player.setSource(source);
       await player.resume();
     } catch (e) {
-      Log.error("Error playing audio. $e");
+      Log.error("Error playing audio.\n$e");
     }
   }
 
@@ -83,7 +83,7 @@ class AudioController extends GetxController {
     try {
       player.resume();
     } catch (e) {
-      Log.error("Error resuming audio. $e");
+      Log.error("Error resuming audio.\n$e");
     }
   }
 
@@ -91,7 +91,7 @@ class AudioController extends GetxController {
     try {
       player.pause();
     } catch (e) {
-      Log.error("Error pausing audio. $e");
+      Log.error("Error pausing audio.\n$e");
     }
   }
 
@@ -100,7 +100,7 @@ class AudioController extends GetxController {
       player.stop();
       position.value = Duration.zero;
     } catch (e) {
-      Log.error("Error stopping audio. $e");
+      Log.error("Error stopping audio.\n$e");
     }
   }
 
@@ -151,7 +151,7 @@ class AudioController extends GetxController {
       await player.setSource(DeviceFileSource(playingViPath));
       await player.seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {
-      Log.error("Error loading audio history. $e");
+      Log.error("Error loading audio history.\n$e");
     }
   }
 }

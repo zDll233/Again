@@ -9,6 +9,8 @@ import 'package:again/utils/move_file.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'package:path/path.dart' as p;
+
 class VkMenuBtn extends StatelessWidget {
   late final VoiceWork voiceWork;
   late final int selectedIndex;
@@ -47,6 +49,8 @@ class VkMenuBtn extends StatelessWidget {
 
   void _showPopupMenu(
       BuildContext context, VoiceWork vk, Offset offset, Size size) {
+    if (vk.title == null) return;
+
     // 动态获取菜单项
     List<String> cvList = VoiceUpdater.getCvList(vk.title!);
     final screenSize = MediaQuery.of(context).size;
@@ -69,19 +73,48 @@ class VkMenuBtn extends StatelessWidget {
             .where((cate) => cate != "All" && cate != vk.category)
             .map((cate) =>
                 PopupMenuItem<String>(value: cate, child: Text(cate))),
+        const PopupMenuDivider(),
+        const PopupMenuItem<String>(value: "delete", child: Text("移至回收站")),
       ],
     ).then((selectedValue) {
       if (selectedValue != null) {
-        _onPopMenuSelected(selectedValue);
+        _onPopMenuSelected(selectedValue, vk);
       }
     });
   }
 
-  void _onPopMenuSelected(String value) {
-    if (c.ui.cvNames.contains(value)) {
+  void _onPopMenuSelected(String value, VoiceWork vk) {
+    if (value == "delete") {
+      _deleteSelectedVkDir(vk);
+    } else if (c.ui.cvNames.contains(value)) {
       _selectCv(value);
     } else if (c.ui.categories.contains(value)) {
       _selectCategory(value);
+    }
+  }
+
+  Future<void> _deleteSelectedVkDir(VoiceWork vk) async {
+    final scriptPath = p.join("scripts", "recycle.ps1");
+    if (!await File(scriptPath).exists()) {
+      Log.error("Error deleting ${vk.title}. Cannot find $scriptPath");
+      return;
+    }
+
+    try {
+      String filePath = vk.directoryPath!;
+      List<String> arguments = [
+        '-ExecutionPolicy',
+        'Bypass',
+        '-File',
+        scriptPath,
+        filePath
+      ];
+      ProcessResult result = await Process.run('powershell', arguments);
+      Log.info("Deleted ${vk.title}.\n"
+          "exitcode:${result.exitCode}, stdout:${result.stdout}, stderr:${result.stderr}.");
+      await Get.find<DatabaseController>().onUpdatePressed();
+    } catch (e) {
+      Log.error("Error deleting VoiceWork directory.\n$e");
     }
   }
 
@@ -103,9 +136,9 @@ class VkMenuBtn extends StatelessWidget {
 
     try {
       await moveDirectory(oldDirectory, newDirectoryPath);
-      c.db.onUpdatePressed();
+      await c.db.onUpdatePressed();
     } catch (e) {
-      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath. $e.");
+      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath.\n$e.");
     }
   }
 }
