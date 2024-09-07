@@ -104,6 +104,16 @@ class AudioController extends GetxController {
     }
   }
 
+  Future<void> release() async {
+    try {
+      await player.release();
+      position.value = Duration.zero;
+      duration.value = Duration.zero;
+    } catch (e) {
+      Log.error("Error releasing audio resource.\n$e");
+    }
+  }
+
   void onMutePressed() {
     if (volume.value != 0) {
       lastVolume = volume.value;

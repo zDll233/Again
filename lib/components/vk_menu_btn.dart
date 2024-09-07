@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:again/controllers/controller.dart';
-import 'package:again/controllers/database_controller.dart';
 import 'package:again/controllers/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/utils/generate_script.dart';
@@ -102,22 +101,29 @@ class VkMenuBtn extends StatelessWidget {
     }
 
     try {
-      String filePath = voiceWork.directoryPath!;
+      String vkPath = voiceWork.directoryPath!;
+
+      if (await c.ui.isCurrentVkPlaying(vkPath)) {
+        await c.audio.release();
+        c.ui.playingVkIdx.value = -1;
+        c.audio.playingViIdx.value = -1;
+      }
+
       List<String> arguments = [
         '-ExecutionPolicy',
         'Bypass',
         '-File',
         scriptPath,
-        filePath
+        vkPath
       ];
 
       ProcessResult result = await Process.run('powershell', arguments);
 
-      Log.info("Deleted ${voiceWork.title}.\n"
+      Log.info("Delete ${voiceWork.title}.\n"
           "exitcode:${result.exitCode}.\n"
           "stdout:${result.stdout}\n"
           "stderr:${result.stderr}");
-      await Get.find<DatabaseController>().onUpdatePressed();
+      c.db.onUpdatePressed();
     } catch (e) {
       Log.error("Error deleting VoiceWork directory.\n$e");
     }
@@ -130,7 +136,7 @@ class VkMenuBtn extends StatelessWidget {
   }
 
   Future<void> _selectCategory(String cate) async {
-    VoiceWork voiceWork = await Get.find<DatabaseController>()
+    VoiceWork voiceWork = await c.db
         .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath!);
 
     // 将路径中的 voiceWork.category 替换为新的 cate

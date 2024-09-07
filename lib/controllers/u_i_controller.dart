@@ -265,6 +265,8 @@ class UIController extends GetxController {
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
   }
 
+  Future<bool> isCurrentVkPlaying(String vkPath) async => await playingVkPath == vkPath;
+
   bool get _isSelectedVkPlaying =>
       _isFilterPlaying && playingVkIdx.value == selectedVkIdx.value;
 
