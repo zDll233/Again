@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:again/controllers/controller.dart';
 import 'package:again/screens/player/player_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -14,8 +15,11 @@ import 'screens/window_title_bar.dart';
 
 void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await WindowsSingleInstance.ensureSingleInstance(args, 'again',
-      onSecondWindow: null);
+
+  if (!kDebugMode) {
+    await WindowsSingleInstance.ensureSingleInstance(args, 'again',
+        onSecondWindow: null);
+  }
 
   // for window acrylic, mica or transparency effects
   await Window.initialize();

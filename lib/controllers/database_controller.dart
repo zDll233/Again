@@ -30,6 +30,7 @@ class DatabaseController extends GetxController {
     if (!await Directory(vkRootDirPath!).exists()) {
       await selectAndSaveRootDirectory();
     }
+    await _initializeVoiceUpdater();
   }
 
   Future<void> _initializeVoiceUpdater() async {
