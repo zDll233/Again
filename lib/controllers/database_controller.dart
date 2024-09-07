@@ -27,10 +27,11 @@ class DatabaseController extends GetxController {
     final data = await config.read();
     vkRootDirPath = data['vkRootDirPath'] ?? '';
 
-    if (!await Directory(vkRootDirPath!).exists()) {
+    if (await Directory(vkRootDirPath!).exists()) {
+      await _initializeVoiceUpdater();
+    } else {
       await selectAndSaveRootDirectory();
     }
-    await _initializeVoiceUpdater();
   }
 
   Future<void> _initializeVoiceUpdater() async {
