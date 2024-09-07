@@ -27,7 +27,7 @@ class WindowButtons extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-            onPressed: c.db.selectAndSaveDirectory,
+            onPressed: c.db.selectAndSaveRootDirectory,
             icon: const Icon(
               Icons.folder_open,
               size: 20,

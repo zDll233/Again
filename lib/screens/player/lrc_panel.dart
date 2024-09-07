@@ -101,9 +101,9 @@ class LyricPanel extends StatelessWidget {
       child: Text(
         hasLyric
             ? readLyric
-                ? "Can't read lyric file"
-                : "Incorrect lyric format"
-            : "No lyric",
+                ? 'Cannot read lyric file'
+                : 'Incorrect lyric format'
+            : 'No lyric',
       ),
     );
   }

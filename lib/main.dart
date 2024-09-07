@@ -34,7 +34,7 @@ void main(List<String> args) async {
         ..minSize = initialSize
         ..size = initialSize
         ..alignment = Alignment.center
-        ..title = "Again"
+        ..title = 'Again'
         ..show();
     });
   }

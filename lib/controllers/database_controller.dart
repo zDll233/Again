@@ -27,11 +27,8 @@ class DatabaseController extends GetxController {
     final data = await config.read();
     vkRootDirPath = data['vkRootDirPath'] ?? '';
 
-    if (await Directory(vkRootDirPath!).exists()) {
-      await _initializeVoiceUpdater();
-      await updateDatabase();
-    } else {
-      await selectAndSaveDirectory();
+    if (!await Directory(vkRootDirPath!).exists()) {
+      await selectAndSaveRootDirectory();
     }
   }
 
@@ -39,9 +36,9 @@ class DatabaseController extends GetxController {
     voiceUpdater = VoiceUpdater(vkRootDirPath!);
   }
 
-  Future<void> selectAndSaveDirectory() async {
+  Future<void> selectAndSaveRootDirectory() async {
     final selectedDirectory =
-        await FilePicker.platform.getDirectoryPath(dialogTitle: "请选择音声作品根目录");
+        await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
     if (selectedDirectory != null) {
       vkRootDirPath = selectedDirectory;
       await _initializeVoiceUpdater();
