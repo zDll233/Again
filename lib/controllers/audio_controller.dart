@@ -109,6 +109,8 @@ class AudioController extends GetxController {
       await player.release();
       position.value = Duration.zero;
       duration.value = Duration.zero;
+      playingViIdx.value = -1;
+      Get.find<UIController>().playingVkIdx.value = -1;
     } catch (e) {
       Log.error('Error releasing audio resource.\n$e');
     }

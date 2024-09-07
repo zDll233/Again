@@ -7,12 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:get/get.dart';
+import 'package:windows_single_instance/windows_single_instance.dart';
 
 import 'screens/home/home.dart';
 import 'screens/window_title_bar.dart';
 
-void main() async {
+void main(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
+  await WindowsSingleInstance.ensureSingleInstance(args, 'again',
+      onSecondWindow: null);
+
   // for window acrylic, mica or transparency effects
   await Window.initialize();
   Window.setEffect(

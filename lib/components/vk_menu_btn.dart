@@ -106,8 +106,6 @@ class VkMenuBtn extends StatelessWidget {
 
       if (await c.ui.isCurrentVkPlaying(vkPath)) {
         await c.audio.release();
-        c.ui.playingVkIdx.value = -1;
-        c.audio.playingViIdx.value = -1;
       }
 
       List<String> arguments = [
@@ -149,8 +147,6 @@ class VkMenuBtn extends StatelessWidget {
     try {
       if (await c.ui.isCurrentVkPlaying(oldDirectory.path)) {
         await c.audio.release();
-        c.ui.playingVkIdx.value = -1;
-        c.audio.playingViIdx.value = -1;
       }
 
       await moveDirectory(oldDirectory, newDirectoryPath);
