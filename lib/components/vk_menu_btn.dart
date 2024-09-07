@@ -4,6 +4,7 @@ import 'package:again/controllers/controller.dart';
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/controllers/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
+import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/log.dart';
 import 'package:again/utils/move_file.dart';
 import 'package:flutter/material.dart';
@@ -36,10 +37,8 @@ class VkMenuBtn extends StatelessWidget {
                 button.localToGlobal(Offset.zero, ancestor: overlay);
             final Size size = button.size;
 
-            VoiceWork updatedVoiceWork =
-                await c.db.getVkByPath(voiceWork.directoryPath!);
             if (buttonContext.mounted) {
-              _showPopupMenu(buttonContext, updatedVoiceWork, offset, size);
+              _showPopupMenu(buttonContext, offset, size);
             }
           },
         );
@@ -47,12 +46,14 @@ class VkMenuBtn extends StatelessWidget {
     );
   }
 
-  void _showPopupMenu(
-      BuildContext context, VoiceWork vk, Offset offset, Size size) {
-    if (vk.title == null) return;
+  void _showPopupMenu(BuildContext context, Offset offset, Size size) {
+    if (voiceWork.title == null) {
+      Log.error("Failed to show popupmenu, selected vkTitle is null.");
+      return;
+    }
 
     // 动态获取菜单项
-    List<String> cvList = VoiceUpdater.getCvList(vk.title!);
+    List<String> cvList = VoiceUpdater.getCvList(voiceWork.title!);
     final screenSize = MediaQuery.of(context).size;
     double left = offset.dx + size.width;
     double top = offset.dy;
@@ -70,7 +71,7 @@ class VkMenuBtn extends StatelessWidget {
             PopupMenuItem<String>(value: cvName, child: Text(cvName))),
         const PopupMenuDivider(),
         ...c.ui.categories
-            .where((cate) => cate != "All" && cate != vk.category)
+            .where((cate) => cate != "All" && cate != voiceWork.category)
             .map((cate) =>
                 PopupMenuItem<String>(value: cate, child: Text(cate))),
         const PopupMenuDivider(),
@@ -78,14 +79,14 @@ class VkMenuBtn extends StatelessWidget {
       ],
     ).then((selectedValue) {
       if (selectedValue != null) {
-        _onPopMenuSelected(selectedValue, vk);
+        _onPopMenuSelected(selectedValue);
       }
     });
   }
 
-  void _onPopMenuSelected(String value, VoiceWork vk) {
+  void _onPopMenuSelected(String value) {
     if (value == "delete") {
-      _deleteSelectedVkDir(vk);
+      _deleteSelectedVkDir();
     } else if (c.ui.cvNames.contains(value)) {
       _selectCv(value);
     } else if (c.ui.categories.contains(value)) {
@@ -93,15 +94,15 @@ class VkMenuBtn extends StatelessWidget {
     }
   }
 
-  Future<void> _deleteSelectedVkDir(VoiceWork vk) async {
-    final scriptPath = p.join("scripts", "recycle.ps1");
+  Future<void> _deleteSelectedVkDir() async {
+    final scriptPath = p.join("scripts", "delete.ps1");
     if (!await File(scriptPath).exists()) {
-      Log.error("Error deleting ${vk.title}. Cannot find $scriptPath");
-      return;
+      Log.error("Error deleting ${voiceWork.title}. Cannot find $scriptPath");
+      await generateDeleteScript();
     }
 
     try {
-      String filePath = vk.directoryPath!;
+      String filePath = voiceWork.directoryPath!;
       List<String> arguments = [
         '-ExecutionPolicy',
         'Bypass',
@@ -109,9 +110,13 @@ class VkMenuBtn extends StatelessWidget {
         scriptPath,
         filePath
       ];
+
       ProcessResult result = await Process.run('powershell', arguments);
-      Log.info("Deleted ${vk.title}.\n"
-          "exitcode:${result.exitCode}, stdout:${result.stdout}, stderr:${result.stderr}.");
+
+      Log.info("Deleted ${voiceWork.title}.\n"
+          "exitcode:${result.exitCode}.\n"
+          "stdout:${result.stdout}\n"
+          "stderr:${result.stderr}");
       await Get.find<DatabaseController>().onUpdatePressed();
     } catch (e) {
       Log.error("Error deleting VoiceWork directory.\n$e");
@@ -125,20 +130,21 @@ class VkMenuBtn extends StatelessWidget {
   }
 
   Future<void> _selectCategory(String cate) async {
-    VoiceWork vk = await Get.find<DatabaseController>()
+    VoiceWork voiceWork = await Get.find<DatabaseController>()
         .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath!);
 
-    // 将路径中的 vk.category 替换为新的 cate
+    // 将路径中的 voiceWork.category 替换为新的 cate
     String newDirectoryPath =
-        vk.directoryPath!.replaceFirst(vk.category!, cate);
+        voiceWork.directoryPath!.replaceFirst(voiceWork.category!, cate);
 
-    Directory oldDirectory = Directory(vk.directoryPath!);
+    Directory oldDirectory = Directory(voiceWork.directoryPath!);
 
     try {
       await moveDirectory(oldDirectory, newDirectoryPath);
       await c.db.onUpdatePressed();
     } catch (e) {
-      Log.error("Error moving ${vk.directoryPath} to $newDirectoryPath.\n$e.");
+      Log.error(
+          "Error moving ${voiceWork.directoryPath} to $newDirectoryPath.\n$e.");
     }
   }
 }

@@ -51,8 +51,10 @@ class UIController extends GetxController {
       selectedVkList.map((vkData) => vkData.directoryPath!).toList();
 
   Future<String> get playingVkPath async => playingVkIdx.value >= 0
-      ? await playingVkPathList
-          .then((vkPathList) => vkPathList[playingVkIdx.value])
+      ? await playingVkPathList.then((vkPathList) =>
+          playingVkIdx.value < vkPathList.length
+              ? vkPathList[playingVkIdx.value]
+              : "")
       : "";
 
   String get selectedVkPath =>
@@ -224,7 +226,7 @@ class UIController extends GetxController {
         'vk': await playingVkPath,
       };
     } catch (e) {
-      Log.error("Error getting playingStringMap.\n$e.\n"
+      Log.debug("Error getting playingStringMap.\n$e.\n"
           "playingCategoryIdx: ${playingCategoryIdx.value}\n"
           "playingCvIdx: ${playingCvIdx.value}");
       return {};
@@ -239,7 +241,7 @@ class UIController extends GetxController {
         'vk': selectedVkPath,
       };
     } catch (_) {
-      Log.error("Error getting selectedStringMap.\n$e");
+      Log.debug("Error getting selectedStringMap.\n$e");
       return {};
     }
   }

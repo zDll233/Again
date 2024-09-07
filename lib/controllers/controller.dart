@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:again/controllers/key_event_handler.dart';
 import 'package:again/utils/generate_script.dart';
@@ -35,15 +34,8 @@ class Controller extends GetxController {
     initializeScript();
   }
 
-  Future<void> initializeScript() async {
-    final scriptPath = p.join("scripts", "recycle.ps1");
-    final scriptFile = File(scriptPath);
-
-    if (!await scriptFile.exists()) {
-      await scriptFile.create(recursive: true);
-      scriptFile.writeAsString(generateScript());
-      Log.info('Generated script $scriptPath');
-    }
+  void initializeScript() {
+    generateDeleteScript();
   }
 
   @override
