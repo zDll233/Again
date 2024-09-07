@@ -29,7 +29,7 @@ class VoiceUpdater {
     '.webp',
   ];
 
-  Future<void> update() async {
+  Future<void> insert() async {
     await insertVoiceWorkCategories(); // categories
     await for (var collectionDir in rootDir.list()) {
       if (collectionDir is Directory) {

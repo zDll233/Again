@@ -40,6 +40,6 @@ Future<void> generateDeleteScript() async {
   if (!await scriptFile.exists()) {
     await scriptFile.create(recursive: true);
     scriptFile.writeAsString(recycleScript);
-    Log.info('Generated script $scriptPath');
+    Log.info('Generate script "$scriptPath"');
   }
 }

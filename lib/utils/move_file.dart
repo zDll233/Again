@@ -7,7 +7,8 @@ Future<File> moveFile(File sourceFile, String newPath) async {
   try {
     return await sourceFile.rename(newPath);
   } on FileSystemException catch (e) {
-    Log.error("Error renaming file ${sourceFile.path} to $newPath, start to copy and delete it.\n$e.");
+    Log.error(
+        'Error renaming file "${sourceFile.path}" to "$newPath", start to copy and delete it.\n$e.');
     // if rename fails, copy the source file and then delete it
     final newFile = await sourceFile.copy(newPath);
     await sourceFile.delete();
@@ -19,7 +20,8 @@ Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
   try {
     return await sourceDir.rename(newPath);
   } catch (e) {
-    Log.error("Error renaming directory ${sourceDir.path} to $newPath, start to copy and delete it.\n$e.");
+    Log.error(
+        'Error renaming directory "${sourceDir.path}" to "$newPath", start to copy and delete it.\n$e.');
 
     final newDir = Directory(newPath);
     await newDir.create(recursive: true);

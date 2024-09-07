@@ -21,9 +21,7 @@ class DatabaseController extends GetxController {
 
   /// initialize updater to update db
   Future<void> initializeStorage() async {
-    const directoryPath = 'config';
-    const fileName = 'config.json';
-    final filePath = p.join(directoryPath, fileName);
+    final filePath = p.join('config', 'config.json');
     config = JsonStorage(filePath: filePath);
 
     final data = await config.read();
@@ -57,7 +55,13 @@ class DatabaseController extends GetxController {
   }
 
   Future<void> updateDatabase() async {
-    await voiceUpdater!.update();
+    await database.transaction(() async {
+      final tables = database.allTables.toList().reversed;
+      for (final table in tables) {
+        await database.delete(table).go();
+      }
+    });
+    await voiceUpdater!.insert();
   }
 
   Future<void> updateViewList() async {
@@ -177,12 +181,6 @@ class DatabaseController extends GetxController {
     final playingData = await ui.playingStringMap;
     final selectedData = ui.selectedStringMap;
 
-    await database.transaction(() async {
-      final tables = database.allTables.toList().reversed;
-      for (final table in tables) {
-        await database.delete(table).go();
-      }
-    });
     await updateDatabase();
     await updateViewList();
 

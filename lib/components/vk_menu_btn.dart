@@ -47,7 +47,7 @@ class VkMenuBtn extends StatelessWidget {
 
   void _showPopupMenu(BuildContext context, Offset offset, Size size) {
     if (voiceWork.title == null) {
-      Log.error("Failed to show popupmenu, selected vkTitle is null.");
+      Log.error('Failed to show popupmenu, selected vkTitle is null.');
       return;
     }
 
@@ -74,7 +74,7 @@ class VkMenuBtn extends StatelessWidget {
             .map((cate) =>
                 PopupMenuItem<String>(value: cate, child: Text(cate))),
         const PopupMenuDivider(),
-        const PopupMenuItem<String>(value: "delete", child: Text("移至回收站")),
+        const PopupMenuItem<String>(value: 'delete', child: Text('移至回收站')),
       ],
     ).then((selectedValue) {
       if (selectedValue != null) {
@@ -96,7 +96,8 @@ class VkMenuBtn extends StatelessWidget {
   Future<void> _deleteSelectedVkDir() async {
     final scriptPath = p.join("scripts", "delete.ps1");
     if (!await File(scriptPath).exists()) {
-      Log.error("Error deleting ${voiceWork.title}. Cannot find $scriptPath");
+      Log.error(
+          'Error deleting "${voiceWork.title}". Cannot find "$scriptPath"');
       await generateDeleteScript();
     }
 
@@ -119,13 +120,13 @@ class VkMenuBtn extends StatelessWidget {
 
       ProcessResult result = await Process.run('powershell', arguments);
 
-      Log.info("Delete ${voiceWork.title}.\n"
-          "exitcode:${result.exitCode}.\n"
-          "stdout:${result.stdout}\n"
-          "stderr:${result.stderr}");
+      Log.info('Delete ${voiceWork.title}.\n'
+          'exitcode: ${result.exitCode}.\n'
+          'stdout: ${result.stdout}\n'
+          'stderr: ${result.stderr}');
       c.db.onUpdatePressed();
     } catch (e) {
-      Log.error("Error deleting VoiceWork directory.\n$e");
+      Log.error('Error deleting VoiceWork directory.\n$e');
     }
   }
 
@@ -146,11 +147,19 @@ class VkMenuBtn extends StatelessWidget {
     Directory oldDirectory = Directory(voiceWork.directoryPath!);
 
     try {
+      if (await c.ui.isCurrentVkPlaying(oldDirectory.path)) {
+        await c.audio.release();
+        c.ui.playingVkIdx.value = -1;
+        c.audio.playingViIdx.value = -1;
+      }
+
       await moveDirectory(oldDirectory, newDirectoryPath);
+      Log.info(
+          'Move "${voiceWork.title}" from "${voiceWork.category}" to "$cate".');
       await c.db.onUpdatePressed();
     } catch (e) {
       Log.error(
-          "Error moving ${voiceWork.directoryPath} to $newDirectoryPath.\n$e.");
+          'Error moving "${oldDirectory.path}" to "$newDirectoryPath".\n$e.');
     }
   }
 }

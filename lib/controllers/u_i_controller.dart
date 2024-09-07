@@ -226,9 +226,9 @@ class UIController extends GetxController {
         'vk': await playingVkPath,
       };
     } catch (e) {
-      Log.debug("Error getting playingStringMap.\n$e.\n"
-          "playingCategoryIdx: ${playingCategoryIdx.value}\n"
-          "playingCvIdx: ${playingCvIdx.value}");
+      Log.debug('Error getting playingStringMap.\n$e.\n'
+          'playingCategoryIdx: ${playingCategoryIdx.value}\n'
+          'playingCvIdx: ${playingCvIdx.value}');
       return {};
     }
   }
@@ -241,7 +241,7 @@ class UIController extends GetxController {
         'vk': selectedVkPath,
       };
     } catch (_) {
-      Log.debug("Error getting selectedStringMap.\n$e");
+      Log.debug('Error getting selectedStringMap.\n$e');
       return {};
     }
   }
@@ -265,7 +265,8 @@ class UIController extends GetxController {
         selectedViIdx == Get.find<AudioController>().playingViIdx.value;
   }
 
-  Future<bool> isCurrentVkPlaying(String vkPath) async => await playingVkPath == vkPath;
+  Future<bool> isCurrentVkPlaying(String vkPath) async =>
+      await playingVkPath == vkPath;
 
   bool get _isSelectedVkPlaying =>
       _isFilterPlaying && playingVkIdx.value == selectedVkIdx.value;

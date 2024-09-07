@@ -13,7 +13,8 @@ part 'database.g.dart';
 class TVoiceItem extends Table {
   TextColumn get title => text()();
   TextColumn get filePath => text()();
-  TextColumn get voiceWorkPath => text().references(TVoiceWork, #directoryPath)();
+  TextColumn get voiceWorkPath =>
+      text().references(TVoiceWork, #directoryPath)();
 
   @override
   Set<Column> get primaryKey => {filePath};
@@ -46,7 +47,8 @@ class TCV extends Table {
 }
 
 class TVoiceCV extends Table {
-  TextColumn get voiceWorkPath => text().references(TVoiceWork, #directoryPath)();
+  TextColumn get voiceWorkPath =>
+      text().references(TVoiceWork, #directoryPath)();
   TextColumn get cvName => text().references(TCV, #cvName)();
 
   @override
@@ -185,9 +187,7 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
 
-    const directoryPath = 'data/storage';
-    const fileName = 'again_voiceworks.db';
-    final filePath = p.join(directoryPath, fileName);
+    final filePath = p.join('data', 'storage', 'again_voiceworks.db');
 
     final file = File(filePath);
 

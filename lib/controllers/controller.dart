@@ -66,9 +66,7 @@ class Controller extends GetxController {
   }
 
   Future<void> _loadHistory() async {
-    const directoryPath = 'history';
-    const fileName = 'last_played.json';
-    final filePath = p.join(directoryPath, fileName);
+    final filePath = p.join('history', 'last_played.json');
 
     _history = JsonStorage(filePath: filePath);
     final data = await _history.read();
@@ -81,7 +79,7 @@ class Controller extends GetxController {
     } catch (e) {
       await db.updateVkList();
 
-      Log.error("Error loading history.\n$e.");
+      Log.error('Error loading history.\n$e.');
     }
   }
 }
