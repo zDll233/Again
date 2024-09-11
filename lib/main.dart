@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
@@ -14,24 +15,27 @@ import 'screens/home/home.dart';
 import 'screens/window_title_bar.dart';
 
 void main(List<String> args) async {
+  await setupWindow(args);
+  runApp(const ProviderScope(child: MyApp()));
+}
+
+Future<void> setupWindow(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (!kDebugMode) {
-    await WindowsSingleInstance.ensureSingleInstance(args, 'again',
-        onSecondWindow: null);
-  }
-
-  // for window acrylic, mica or transparency effects
-  await Window.initialize();
-  Window.setEffect(
-    effect: WindowEffect.transparent,
-    color: const Color(0xCC222222),
-  );
-
-  runApp(const MyApp());
-
-  // custom titlebar/buttons
   if (Platform.isWindows) {
+    if (!kDebugMode) {
+      await WindowsSingleInstance.ensureSingleInstance(args, 'again',
+          onSecondWindow: null);
+    }
+
+    // for window acrylic, mica or transparency effects
+    await Window.initialize();
+    Window.setEffect(
+      effect: WindowEffect.transparent,
+      color: const Color(0xCC222222),
+    );
+
+    // custom titlebar/buttons
     doWhenWindowReady(() {
       const initialSize = Size(1040, 690);
       appWindow
