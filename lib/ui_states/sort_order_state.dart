@@ -15,11 +15,6 @@ class SortOrderState extends ListState<SortOrder> {
       super.playingIndex = 0,
       super.selectedIndex = 0});
 
-  @override
-  SortOrder get playingItem => values[playingIndex];
-
-  @override
-  SortOrder get selectedItem => values[selectedIndex];
 
   @override
   SortOrderState copyWith(
@@ -37,29 +32,6 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   SortOrderState build() {
     Log.debug('SortOrderState rebuilded.');
     return SortOrderState();
-  }
-
-  @override
-  void updateValues(List<SortOrder> newValues) {
-    state = state.copyWith(values: newValues);
-  }
-
-  @override
-  void updatePlayingIndex(int newIndex) {
-    state = state.copyWith(playingIndex: newIndex);
-  }
-
-  @override
-  void updateSelectedIndex(int newIndex) {
-    state = state.copyWith(selectedIndex: newIndex);
-  }
-
-  @override
-  void updateState(SortOrderState newState) {
-    state = state.copyWith(
-        values: newState.values,
-        playingIndex: newState.playingIndex,
-        selectedIndex: newState.playingIndex);
   }
 
   @override

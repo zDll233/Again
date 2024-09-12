@@ -13,12 +13,6 @@ class VoiceWorkState extends ListState<VoiceWork> {
   });
 
   @override
-  VoiceWork get playingItem => values[playingIndex];
-
-  @override
-  VoiceWork get selectedItem => values[selectedIndex];
-
-  @override
   VoiceWorkState copyWith({
     List<VoiceWork>? values,
     int? playingIndex,
@@ -58,31 +52,6 @@ class VoiceWorkNotifier extends ListStateNotifier<VoiceWorkState, VoiceWork> {
     Log.debug('VoiceWorkState rebuilded.');
     return VoiceWorkState();
   }
-
-  @override
-  void updateValues(List<VoiceWork> newValues) {
-    state = state.copyWith(values: newValues);
-  }
-
-  @override
-  void updatePlayingIndex(int newIndex) {
-    state = state.copyWith(playingIndex: newIndex);
-  }
-
-  @override
-  void updateSelectedIndex(int newIndex) {
-    state = state.copyWith(selectedIndex: newIndex);
-  }
-
-  @override
-  void updateState(VoiceWorkState newState) {
-    state = state.copyWith(
-        values: newState.values,
-        playingIndex: newState.playingIndex,
-        selectedIndex: newState.playingIndex);
-  }
-
-  Future<void> onVkSelected(int selectedIndex) async {}
 
   @override
   Future<void> onSelected(int selectedIndex) async {

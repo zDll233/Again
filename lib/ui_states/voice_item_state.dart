@@ -11,12 +11,6 @@ class VoiceItemState extends ListState<VoiceItem> {
   });
 
   @override
-  VoiceItem get playingItem => values[playingIndex];
-
-  @override
-  VoiceItem get selectedItem => values[selectedIndex];
-
-  @override
   VoiceItemState copyWith({
     List<VoiceItem>? values,
     int? playingIndex,
@@ -41,31 +35,6 @@ class VoiceItemNotifier extends ListStateNotifier<VoiceItemState, VoiceItem> {
     Log.debug('VoiceItemState rebuilded.');
     return VoiceItemState();
   }
-
-  @override
-  void updateValues(List<VoiceItem> newValues) {
-    state = state.copyWith(values: newValues);
-  }
-
-  @override
-  void updatePlayingIndex(int newIndex) {
-    state = state.copyWith(playingIndex: newIndex);
-  }
-
-  @override
-  void updateSelectedIndex(int newIndex) {
-    state = state.copyWith(selectedIndex: newIndex);
-  }
-
-  @override
-  void updateState(VoiceItemState newState) {
-    state = state.copyWith(
-        values: newState.values,
-        playingIndex: newState.playingIndex,
-        selectedIndex: newState.playingIndex);
-  }
-
-  Future<void> onVkSelected(int selectedIndex) async {}
 
   @override
   Future<void> onSelected(int selectedIndex) async {
