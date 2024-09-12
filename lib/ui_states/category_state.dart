@@ -1,10 +1,11 @@
 import 'package:again/controllers/database_controller.dart';
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/ui_states/state_interface.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
-class CvState extends ListState<String> {
-  CvState({
+class CategoryState extends ListState<String> {
+  CategoryState({
     super.values = const ["All"],
     super.playingIndex = 0,
     super.selectedIndex = 0,
@@ -17,12 +18,12 @@ class CvState extends ListState<String> {
   String get selectedItem => values[selectedIndex];
 
   @override
-  CvState copyWith({
+  CategoryState copyWith({
     List<String>? values,
     int? playingIndex,
     int? selectedIndex,
   }) {
-    return CvState(
+    return CategoryState(
       values: values ?? this.values,
       playingIndex: playingIndex ?? this.playingIndex,
       selectedIndex: selectedIndex ?? this.selectedIndex,
@@ -30,10 +31,11 @@ class CvState extends ListState<String> {
   }
 }
 
-class CvNotifier extends ListStateNotifier<CvState, String> {
+class CategoryNotifier extends ListStateNotifier<CategoryState, String> {
   @override
-  CvState build() {
-    return CvState();
+  CategoryState build() {
+    Log.debug('CategoryState rebuilded.');
+    return CategoryState();
   }
 
   @override
@@ -42,7 +44,7 @@ class CvNotifier extends ListStateNotifier<CvState, String> {
   }
 
   @override
-  void updatePlayingIdx(int newIndex) {
+  void updatePlayingIndex(int newIndex) {
     state = state.copyWith(playingIndex: newIndex);
   }
 
@@ -52,7 +54,7 @@ class CvNotifier extends ListStateNotifier<CvState, String> {
   }
 
   @override
-  void updateState(CvState newState) {
+  void updateState(CategoryState newState) {
     state = state.copyWith(
         values: newState.values,
         playingIndex: newState.playingIndex,
@@ -60,11 +62,12 @@ class CvNotifier extends ListStateNotifier<CvState, String> {
   }
 
   @override
-  Future<void> onItemSelected(int selectedIndex) async {
+  Future<void> onSelected(int selectedIndex) async {
     updateSelectedIndex(selectedIndex);
     await Get.find<DatabaseController>().updateVkList();
     // TODO: await _filterSelected();
   }
 }
 
-final cvProvider = NotifierProvider<CvNotifier, CvState>(CvNotifier.new);
+final categoryProvider =
+    NotifierProvider<CategoryNotifier, CategoryState>(CategoryNotifier.new);

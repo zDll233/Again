@@ -1,5 +1,6 @@
 import 'package:again/controllers/database_controller.dart';
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/ui_states/state_interface.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
@@ -34,6 +35,7 @@ class SortOrderState extends ListState<SortOrder> {
 class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   @override
   SortOrderState build() {
+    Log.debug('SortOrderState rebuilded.');
     return SortOrderState();
   }
 
@@ -43,7 +45,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   }
 
   @override
-  void updatePlayingIdx(int newIndex) {
+  void updatePlayingIndex(int newIndex) {
     state = state.copyWith(playingIndex: newIndex);
   }
 
@@ -61,7 +63,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   }
 
   @override
-  Future<void> onItemSelected(int selectedIndex) async {
+  Future<void> onSelected(int selectedIndex) async {
     int length = state.values.length;
     int temp = state.selectedIndex + 1;
     updateSelectedIndex(temp < length ? temp : 0);

@@ -1,5 +1,6 @@
 import 'package:again/models/voice_item.dart';
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/ui_states/state_interface.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VoiceItemState extends ListState<VoiceItem> {
@@ -37,6 +38,7 @@ class VoiceItemState extends ListState<VoiceItem> {
 class VoiceItemNotifier extends ListStateNotifier<VoiceItemState, VoiceItem> {
   @override
   VoiceItemState build() {
+    Log.debug('VoiceItemState rebuilded.');
     return VoiceItemState();
   }
 
@@ -46,7 +48,7 @@ class VoiceItemNotifier extends ListStateNotifier<VoiceItemState, VoiceItem> {
   }
 
   @override
-  void updatePlayingIdx(int newIndex) {
+  void updatePlayingIndex(int newIndex) {
     state = state.copyWith(playingIndex: newIndex);
   }
 
@@ -66,7 +68,7 @@ class VoiceItemNotifier extends ListStateNotifier<VoiceItemState, VoiceItem> {
   Future<void> onVkSelected(int selectedIndex) async {}
 
   @override
-  Future<void> onItemSelected(int selectedIndex) async {
+  Future<void> onSelected(int selectedIndex) async {
     // TODO: onItemSelected
       
 /*     final AudioController audio = Get.find();

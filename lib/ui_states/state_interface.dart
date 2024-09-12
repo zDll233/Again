@@ -29,9 +29,9 @@ abstract class ListState<ValueType> extends BaseState {
 /// `State`: state type. `ValueType`: state.values type
 abstract class ListStateNotifier<State, ValueType> extends Notifier<State> {
   void updateValues(List<ValueType> newValues);
-  void updatePlayingIdx(int newIndex);
+  void updatePlayingIndex(int newIndex);
   void updateSelectedIndex(int newIndex);
   void updateState(State newState);
 
-  Future<void> onItemSelected(int selectedIndex);
+  Future<void> onSelected(int selectedIndex);
 }

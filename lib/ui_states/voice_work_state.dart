@@ -1,6 +1,7 @@
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/ui_states/state_interface.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
@@ -54,6 +55,7 @@ class VoiceWorkState extends ListState<VoiceWork> {
 class VoiceWorkNotifier extends ListStateNotifier<VoiceWorkState, VoiceWork> {
   @override
   VoiceWorkState build() {
+    Log.debug('VoiceWorkState rebuilded.');
     return VoiceWorkState();
   }
 
@@ -63,7 +65,7 @@ class VoiceWorkNotifier extends ListStateNotifier<VoiceWorkState, VoiceWork> {
   }
 
   @override
-  void updatePlayingIdx(int newIndex) {
+  void updatePlayingIndex(int newIndex) {
     state = state.copyWith(playingIndex: newIndex);
   }
 
@@ -83,7 +85,7 @@ class VoiceWorkNotifier extends ListStateNotifier<VoiceWorkState, VoiceWork> {
   Future<void> onVkSelected(int selectedIndex) async {}
 
   @override
-  Future<void> onItemSelected(int selectedIndex) async {
+  Future<void> onSelected(int selectedIndex) async {
     if (selectedIndex < 0) return;
 
     final DatabaseController db = Get.find();

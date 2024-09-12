@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:again/ui/states/category_state.dart';
-import 'package:again/ui/states/cv_state.dart';
-import 'package:again/ui/states/sort_order_state.dart';
-import 'package:again/ui/states/state_interface.dart';
-import 'package:again/ui/states/voice_item_state.dart';
-import 'package:again/ui/states/voice_work_state.dart';
+import 'package:again/ui_states/category_state.dart';
+import 'package:again/ui_states/cv_state.dart';
+import 'package:again/ui_states/sort_order_state.dart';
+import 'package:again/ui_states/state_interface.dart';
+import 'package:again/ui_states/voice_item_state.dart';
+import 'package:again/ui_states/voice_work_state.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 
