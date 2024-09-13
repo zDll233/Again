@@ -1,6 +1,6 @@
 import 'package:again/audio/audio_state.dart';
-import 'package:again/ui_states/voice_item_state.dart';
-import 'package:again/ui_states/voice_work_state.dart';
+import 'package:again/ui/states/voice_item_state.dart';
+import 'package:again/ui/states/voice_work_state.dart';
 import 'package:again/utils/log.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

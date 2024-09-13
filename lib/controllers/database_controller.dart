@@ -168,10 +168,8 @@ class DatabaseController extends GetxController {
   /// select viDataList from db according to [selectedVkTitle]
   Future<List<TVoiceItemData>> get getSelectedViList async {
     final ui = Get.find<UIController>();
-    final vk = await getVkByPath(ui.selectedVkPath);
-    return !vk.hasDirectoryPath
-        ? List<TVoiceItemData>.empty()
-        : await database.selectSingleWorkVoiceItemsWithString(vk.directoryPath!)
+    return await database
+        .selectSingleWorkVoiceItemsWithString(ui.selectedVkPath)
       ..sort((a, b) => compareNatural(a.title, b.title));
   }
 

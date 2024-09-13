@@ -1,7 +1,7 @@
 import 'package:again/audio/audio_state_notifier.dart';
 import 'package:again/models/voice_item.dart';
-import 'package:again/ui_states/state_interface.dart';
-import 'package:again/ui_states/u_i_service.dart';
+import 'package:again/ui/states/state_interface.dart';
+import 'package:again/ui/u_i_service.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

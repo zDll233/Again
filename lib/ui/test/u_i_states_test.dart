@@ -1,4 +1,4 @@
-import 'package:again/ui_states/voice_work_state.dart';
+import 'package:again/ui/states/voice_work_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: depend_on_referenced_packages

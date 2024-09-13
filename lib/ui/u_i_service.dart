@@ -1,13 +1,19 @@
-import 'package:again/ui_states/category_state.dart';
-import 'package:again/ui_states/cv_state.dart';
-import 'package:again/ui_states/sort_order_state.dart';
-import 'package:again/ui_states/voice_item_state.dart';
-import 'package:again/ui_states/voice_work_state.dart';
+import 'dart:async';
+
+import 'package:again/ui/states/u_i_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class UIService {
   final Ref ref;
   UIService(this.ref);
+
+  late Completer viCompleter;
+
+  final cateScrollController = ItemScrollController();
+  final cvScrollController = ItemScrollController();
+  final vkScrollController = ItemScrollController();
+  final viScrollController = ItemScrollController();
 
   bool get isFilterPlaying {
     final sortOrder = ref.read(sortOrderProvider);
