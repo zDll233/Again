@@ -1,4 +1,4 @@
-import 'package:again/ui_states/voice_work_state.dart';
+import 'package:again/audio/audio_state_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: depend_on_referenced_packages
@@ -11,17 +11,14 @@ class ProviderShareState extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Consumer(builder: (context, ref, _) {
-        final voiceWork = ref.watch(voiceWorkProvider);
-        // final ui = ref.watch(uiProvider);
+        final audio = ref.watch(audioProvider);
 
         return Column(
           children: [
             ElevatedButton(
-              onPressed: () =>
-                  ref.read(voiceWorkProvider.notifier).updatePlayingIndex(1),
-              child: Text('${voiceWork.playingIndex}'),
+              onPressed: () => ref.watch(audioProvider.notifier).updateVolume(0),
+              child: Text(audio.volume.toInt().toString()),
             ),
-            // Text('${ui.voiceWorkState.playingIndex}'),
           ],
         );
       }),
@@ -30,19 +27,15 @@ class ProviderShareState extends StatelessWidget {
 }
 
 void main() {
-  testWidgets('same state in multiple notifiers', (tester) async {
+  testWidgets('audio state test', (tester) async {
     await tester.pumpWidget(const ProviderScope(child: ProviderShareState()));
 
-    // The default value is `-1`, as declared in our provider
-    expect(find.text('-1'), findsNWidgets(1));
-    expect(find.text('1'), findsNothing);
+    expect(find.text('1'), findsOneWidget);
 
     // change the state and re-render
     await tester.tap(find.byType(ElevatedButton));
     await tester.pump();
 
-    // The state have properly changed
-    expect(find.text('-1'), findsNothing);
-    expect(find.text('1'), findsNWidgets(1));
+    expect(find.text('0'), findsOneWidget);
   });
 }

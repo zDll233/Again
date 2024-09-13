@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
-import 'screens/home/home.dart';
+import 'screens/home/list_home.dart';
 import 'screens/window_title_bar.dart';
 
 void main(List<String> args) async {
@@ -71,7 +71,7 @@ class MyApp extends StatelessWidget {
               child: Column(
                 children: [
                   const WindowTitleBar(),
-                  Home(),
+                  ListHome(),
                   PlayerWidget(player: c.audio.player)
                 ],
               ),

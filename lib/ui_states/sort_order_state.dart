@@ -1,6 +1,6 @@
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/ui_states/state_interface.dart';
-import 'package:again/utils/log.dart';
+import 'package:again/ui_states/u_i_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
@@ -30,7 +30,6 @@ class SortOrderState extends ListState<SortOrder> {
 class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   @override
   SortOrderState build() {
-    Log.debug('SortOrderState rebuilded.');
     return SortOrderState();
   }
 
@@ -40,7 +39,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     int temp = state.selectedIndex + 1;
     updateSelectedIndex(temp < length ? temp : 0);
     await Get.find<DatabaseController>().updateVkList();
-    // TODO: await _filterSelected();
+    await UIService(ref).filterSelected();
   }
 }
 

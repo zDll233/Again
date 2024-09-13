@@ -4,8 +4,8 @@ import 'package:again/screens/player/lrc_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class Home extends StatelessWidget {
-  Home({
+class ListHome extends StatelessWidget {
+  ListHome({
     super.key,
   });
 
