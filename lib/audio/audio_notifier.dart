@@ -62,6 +62,14 @@ class AudioNotifier extends Notifier<AudioState> {
     state = newState;
   }
 
+  void seek(Duration newPosition) {
+    try {
+      _player.seek(newPosition);
+    } catch (e) {
+      Log.error('Error seeking audio.\n$e');
+    }
+  }
+
   Future<void> play(Source source) async {
     try {
       await _player.setSource(source);

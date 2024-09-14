@@ -1,15 +1,19 @@
 import 'dart:async';
-import 'package:again/controllers/audio_controller.dart';
-import 'package:again/controllers/u_i_controller.dart';
+import 'package:again/audio/audio_notifier.dart';
+import 'package:again/audio/audio_providers.dart';
+import 'package:again/ui/u_i_providers.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class KeyEventHandler {
-  final AudioController audio;
-  final UIController ui;
   Timer? _seekTimer;
   Timer? _volumeTimer;
+  final Ref ref;
+  late final AudioNotifier audioNotifier;
 
-  KeyEventHandler(this.audio, this.ui);
+  KeyEventHandler(this.ref) {
+    audioNotifier = ref.read(audioProvider.notifier);
+  }
 
   bool handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {
@@ -31,16 +35,16 @@ class KeyEventHandler {
   bool _handleControlKeyDownEvent(KeyDownEvent event) {
     switch (event.logicalKey) {
       case LogicalKeyboardKey.arrowLeft:
-        audio.playPrev();
+        audioNotifier.playPrev();
         return true;
       case LogicalKeyboardKey.arrowRight:
-        audio.playNext();
+        audioNotifier.playNext();
         return true;
       case LogicalKeyboardKey.arrowUp:
-        ui.showLrcPanel.value = true;
+        ref.read(miscUIProvider.notifier).showLyricPanel();
         return true;
       case LogicalKeyboardKey.arrowDown:
-        ui.showLrcPanel.value = false;
+        ref.read(miscUIProvider.notifier).hideLyricPanel();
         return true;
       default:
         return false;
@@ -50,7 +54,7 @@ class KeyEventHandler {
   bool _handleNonControlKeyDownEvent(KeyDownEvent event) {
     switch (event.logicalKey) {
       case LogicalKeyboardKey.space:
-        audio.onPausePressed();
+        audioNotifier.onPausePressed();
         return true;
       case LogicalKeyboardKey.arrowLeft:
         _startTimer(_seekTimer, () => updateProgress(-10000),
@@ -89,12 +93,14 @@ class KeyEventHandler {
   }
 
   void updateProgress(int deltaMilliseconds) {
-    audio.player.seek(Duration(
-        milliseconds: audio.position.value.inMilliseconds + deltaMilliseconds));
+    audioNotifier.seek(Duration(
+        milliseconds: ref.read(audioProvider).position.inMilliseconds +
+            deltaMilliseconds));
   }
 
   void updateVolume(double deltaVolume) {
-    audio.setVolume((audio.volume.value + deltaVolume).clamp(0.0, 1.0));
+    audioNotifier.setVolume(
+        (ref.read(audioProvider).volume + deltaVolume).clamp(0.0, 1.0));
   }
 
   void _startTimer(

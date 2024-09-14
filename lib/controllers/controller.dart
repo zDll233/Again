@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'dart:async';
 
 import 'package:again/utils/key_event_handler.dart';
@@ -18,14 +20,14 @@ class Controller extends GetxController {
   final db = Get.put(DatabaseController());
 
   late final JsonStorage _history;
-  late final KeyEventHandler _keyEventHandler;
+  // late final KeyEventHandler _keyEventHandler;
 
   @override
   void onInit() async {
     super.onInit();
     await _initialize();
-    _keyEventHandler = KeyEventHandler(audio, ui);
-    HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
+    // _keyEventHandler = KeyEventHandler(audio, ui);
+    // HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
   }
 
   Future<void> _initialize() async {
@@ -40,7 +42,8 @@ class Controller extends GetxController {
 
   @override
   void onClose() {
-    HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
+    // HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
+    super.onClose();
   }
 
   Future<void> saveHistory() async {

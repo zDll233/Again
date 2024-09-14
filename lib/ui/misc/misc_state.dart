@@ -1,18 +1,18 @@
 import 'package:again/ui/state_interface.dart';
 
 class MiscState extends BaseState {
-  final bool showLrcPanel;
+  final bool showLyricPanel;
 
   MiscState({
-    required this.showLrcPanel,
+    this.showLyricPanel = false,
   });
 
   @override
   MiscState copyWith({
-    bool? showLrcPanel,
+    bool? showLyricPanel,
   }) {
     return MiscState(
-      showLrcPanel: showLrcPanel ?? this.showLrcPanel,
+      showLyricPanel: showLyricPanel ?? this.showLyricPanel,
     );
   }
 }

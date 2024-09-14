@@ -4,6 +4,8 @@ import 'package:again/ui/filter/cv/cv_notifier.dart';
 import 'package:again/ui/filter/cv/cv_state.dart';
 import 'package:again/ui/filter/sort_oder/sort_order_notifier.dart';
 import 'package:again/ui/filter/sort_oder/sort_order_state.dart';
+import 'package:again/ui/misc/misc_notifier.dart';
+import 'package:again/ui/misc/misc_state.dart';
 import 'package:again/ui/voice_item/voice_item_notifier.dart';
 import 'package:again/ui/voice_item/voice_item_state.dart';
 import 'package:again/ui/voice_work/voice_work_notifier.dart';
@@ -23,3 +25,6 @@ final voiceWorkProvider =
 
 final voiceItemProvider =
     NotifierProvider<VoiceItemNotifier, VoiceItemState>(VoiceItemNotifier.new);
+
+final miscUIProvider =
+    NotifierProvider<MiscNotifier, MiscState>(MiscNotifier.new);
