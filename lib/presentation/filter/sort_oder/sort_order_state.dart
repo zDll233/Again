@@ -1,4 +1,4 @@
-import 'package:again/feature/state_interface.dart';
+import 'package:again/presentation/state_interface.dart';
 
 enum SortOrder {
   byTitle,

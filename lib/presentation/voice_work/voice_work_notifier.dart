@@ -1,7 +1,7 @@
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/feature/state_interface.dart';
-import 'package:again/feature/voice_work/voice_work_state.dart';
+import 'package:again/presentation/state_interface.dart';
+import 'package:again/presentation/voice_work/voice_work_state.dart';
 
 class VoiceWorkNotifier
     extends VariableListStateNotifier<VoiceWorkState, VoiceWork> {

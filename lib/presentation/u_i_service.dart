@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:again/models/voice_work.dart';
-import 'package:again/feature/u_i_providers.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/utils/log.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -104,8 +106,93 @@ class UIService {
     setAllSelectedIndex2Playing();
   }
 
-  onLocateBtnPressed() {
-    // TODO
+  Future<void> revealInExplorerView() async {
+    // final db = Get.find<DatabaseController>();
+    // VoiceWork vk = await db.getVkByPath(selectedVkPath);
+
+    if (isVoiceWorkPlaying) {
+      selectPlayingVoiceItem();
+    } else {
+      Process.run(
+          'explorer /select, "${ref.read(voiceWorkProvider).selectedVoiceWorkPath}"',
+          []);
+    }
+  }
+
+  void selectPlayingVoiceItem() {
+    // flutter will replace " with /" in arg list. weird
+    // code below doesn't work
+    // Process.run('explorer', ['/select,', '"$playingViPath"']); // wrap path in "" so that Windows can resolve it
+    Process.run(
+        'explorer /select, "${ref.read(voiceItemProvider).playingVoiceItemPath}"',
+        []);
+  }
+
+  /// Resets the filters and scrolls to the top.
+  Future<void> onRemoveFilterPressed() async {
+    await _resetFilters();
+    _scrollToTop();
+  }
+
+  /// reset category & cv, except sortOrder
+  Future<void> _resetFilters() async {
+    ref.read(categoryProvider.notifier).updateSelectedIndex(0);
+    await ref.read(cvProvider.notifier).onSelected(0);
+  }
+
+  void _scrollToTop() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToIndex(cateScrollController, 0);
+      scrollToIndex(cvScrollController, 0);
+      scrollToIndex(vkScrollController, 0);
+    });
+  }
+
+  void scrollToIndex(ItemScrollController controller, int index,
+      {int duration = 200, Curve curve = Curves.linear}) {
+    if (index >= 0 && controller.isAttached) {
+      controller.scrollTo(
+        index: index,
+        duration: Duration(milliseconds: duration),
+        curve: curve,
+      );
+    }
+  }
+
+  /// Locates the playing item by updating the selection and scrolling to it.
+  Future<void> onLocateBtnPressed() async {
+    if (!isVoiceWorkPlaying) {
+      await _setFilterPlaying();
+    }
+    scrollToPlayingIdx();
+  }
+
+  /// set filter playing idx value, update vk list
+  ///
+  /// filterSelected will open vi list when filter is playing
+  Future<void> _setFilterPlaying() async {
+    // sortOrder.value = playingSortOrder;
+    // selectedCategoryIdx.value = playingCategoryIdx.value;
+    // await onCvSelected(playingCvIdx.value);
+    ref.read(sortOrderProvider.notifier).setSelectedIndex2Playing();
+    ref.read(categoryProvider.notifier).setSelectedIndex2Playing();
+    await ref
+        .read(cvProvider.notifier)
+        .onSelected(ref.read(cvProvider).playingIndex);
+  }
+
+  void scrollToPlayingIdx() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await viCompleter.future;
+        scrollToIndex(
+            cateScrollController, ref.read(categoryProvider).playingIndex);
+        scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
+        scrollToIndex(
+            vkScrollController, ref.read(voiceWorkProvider).playingIndex);
+        scrollToIndex(
+            viScrollController, ref.read(voiceItemProvider).playingIndex);
+      });
+    });
   }
 }
-

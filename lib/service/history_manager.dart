@@ -1,8 +1,8 @@
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/audio/audio_state.dart';
 import 'package:again/config/config.dart';
-import 'package:again/feature/u_i_providers.dart';
-import 'package:again/feature/u_i_service.dart';
+import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/presentation/u_i_service.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

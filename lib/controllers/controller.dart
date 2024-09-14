@@ -2,7 +2,7 @@
 
 import 'dart:async';
 
-import 'package:again/utils/key_event_handler.dart';
+import 'package:again/service/key_event_handler.dart';
 import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:again/utils/log.dart';

@@ -1,24 +1,22 @@
-import 'package:again/feature/state_interface.dart';
+import 'package:again/presentation/state_interface.dart';
 
-class CategoryState extends ListState<String> {
-  CategoryState({
+class CvState extends ListState<String> {
+  CvState({
     super.values = const ["All"],
     super.playingIndex = 0,
     super.selectedIndex = 0,
   });
 
   @override
-  CategoryState copyWith({
+  CvState copyWith({
     List<String>? values,
     int? playingIndex,
     int? selectedIndex,
   }) {
-    return CategoryState(
+    return CvState(
       values: values ?? this.values,
       playingIndex: playingIndex ?? this.playingIndex,
       selectedIndex: selectedIndex ?? this.selectedIndex,
     );
   }
 }
-
-

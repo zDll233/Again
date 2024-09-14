@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:again/audio/audio_notifier.dart';
 import 'package:again/audio/audio_providers.dart';
-import 'package:again/feature/u_i_providers.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

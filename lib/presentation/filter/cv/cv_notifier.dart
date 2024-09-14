@@ -1,12 +1,12 @@
-import 'package:again/feature/u_i_providers.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
-import 'package:again/feature/filter/category/category_state.dart';
-import 'package:again/feature/state_interface.dart';
+import 'package:again/presentation/filter/cv/cv_state.dart';
+import 'package:again/presentation/state_interface.dart';
 
-class CategoryNotifier extends ListStateNotifier<CategoryState, String> {
+class CvNotifier extends ListStateNotifier<CvState, String> {
   @override
-  CategoryState build() {
-    return CategoryState();
+  CvState build() {
+    return CvState();
   }
 
   @override

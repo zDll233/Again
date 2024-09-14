@@ -1,7 +1,7 @@
-import 'package:again/feature/u_i_providers.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
-import 'package:again/feature/filter/sort_oder/sort_order_state.dart';
-import 'package:again/feature/state_interface.dart';
+import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/presentation/state_interface.dart';
 
 class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   @override

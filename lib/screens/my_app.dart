@@ -6,7 +6,7 @@ import 'package:again/screens/player/player_widget.dart';
 import 'package:again/screens/window_title_bar.dart';
 import 'package:again/service/history_manager.dart';
 import 'package:again/utils/generate_script.dart';
-import 'package:again/utils/key_event_handler.dart';
+import 'package:again/service/key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
