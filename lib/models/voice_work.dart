@@ -1,18 +1,18 @@
 import 'package:again/database/database.dart';
 
 class VoiceWork {
-  String? title;
-  String? directoryPath;
-  String? coverPath;
-  String? category;
+  String title;
+  String directoryPath;
+  String coverPath;
+  String category;
   DateTime? createdAt;
 
   VoiceWork({
-    this.title,
-    this.directoryPath,
-    this.coverPath,
-    this.category,
-    this.createdAt,
+    required this.title,
+    required this.directoryPath,
+    required this.coverPath,
+    required this.category,
+    required this.createdAt,
   });
 
   static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
@@ -28,5 +28,23 @@ class VoiceWork {
     return vkDataList.map((vkData) => vkData2Vk(vkData)).toList();
   }
 
-  bool get hasDirectoryPath => directoryPath != null;
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is VoiceWork &&
+        other.title == title &&
+        other.directoryPath == directoryPath &&
+        other.coverPath == coverPath &&
+        other.category == category &&
+        other.createdAt == createdAt;
+  }
+
+  @override
+  int get hashCode =>
+      title.hashCode ^
+      directoryPath.hashCode ^
+      coverPath.hashCode ^
+      category.hashCode ^
+      createdAt.hashCode;
 }

@@ -21,4 +21,18 @@ class VoiceItem {
   static List<VoiceItem> viDataList2ViList(List<TVoiceItemData> viDataList) {
     return viDataList.map((viData) => viData2Vi(viData)).toList();
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is VoiceItem &&
+        other.title == title &&
+        other.filePath == filePath &&
+        other.voiceWorkPath == voiceWorkPath;
+  }
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ filePath.hashCode ^ voiceWorkPath.hashCode;
 }

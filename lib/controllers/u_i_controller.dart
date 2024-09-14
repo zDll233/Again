@@ -48,7 +48,7 @@ class UIController extends GetxController {
       .then((vkDataList) => vkDataList.map((vk) => vk.directoryPath).toList());
 
   List<String> get selectedVkPathList =>
-      selectedVkList.map((vkData) => vkData.directoryPath!).toList();
+      selectedVkList.map((vkData) => vkData.directoryPath).toList();
 
   Future<String> get playingVkPath async => playingVkIdx.value >= 0
       ? await playingVkPathList.then((vkPathList) =>

@@ -153,9 +153,9 @@ class DatabaseNotifier extends Notifier<DatabaseState> {
 
   Future<VoiceWork> getVkByPath(String vkPath) async {
     final data = await _database.selectVoiceWorkData(vkPath);
-    return data.isEmpty
+    return /* data.isEmpty
         ? VoiceWork()
-        : VoiceWork(
+        : */ VoiceWork(
             title: data[0].title,
             directoryPath: vkPath,
             coverPath: data[0].coverPath,
@@ -165,7 +165,6 @@ class DatabaseNotifier extends Notifier<DatabaseState> {
   }
 
   Future<void> onUpdatePressed() async {
-    // TODO: onUpdatePressed
     final uiService = UIService(ref);
 
     final playingData = await uiService.playingStringMap;

@@ -25,13 +25,13 @@ class VoiceWorkState extends VariableListState<VoiceWork> {
   }
 
   List<String> get playingVoiceWorkPathList =>
-      playingValues.map((voiceWork) => voiceWork.directoryPath!).toList();
+      playingValues.map((voiceWork) => voiceWork.directoryPath).toList();
 
   List<String> get selectedVoiceWorkPathList =>
-      values.map((voiceWork) => voiceWork.directoryPath!).toList();
+      values.map((voiceWork) => voiceWork.directoryPath).toList();
 
-  String get playingVoiceWorkPath => playingItem.directoryPath!;
+  String get playingVoiceWorkPath => playingItem.directoryPath;
 
-  String get selectedVoiceWorkPath => selectedItem.directoryPath!;
+  String get selectedVoiceWorkPath => selectedItem.directoryPath;
 }
 

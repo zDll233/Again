@@ -192,13 +192,15 @@ class DatabaseController extends GetxController {
   }
 
   Future<VoiceWork> getVkByPath(String vkPath) {
-    return database.selectVoiceWorkData(vkPath).then((data) => data.isEmpty
-        ? VoiceWork()
-        : VoiceWork(
-            title: data[0].title,
-            directoryPath: vkPath,
-            coverPath: data[0].coverPath,
-            category: data[0].category,
-            createdAt: data[0].createdAt));
+    return database.selectVoiceWorkData(vkPath).then(
+        (data) => /* data.isEmpty
+        ? VoiceWork(title: '')
+        : */
+            VoiceWork(
+                title: data[0].title,
+                directoryPath: vkPath,
+                coverPath: data[0].coverPath,
+                category: data[0].category,
+                createdAt: data[0].createdAt));
   }
 }

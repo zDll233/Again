@@ -46,13 +46,7 @@ class VkMenuBtn extends StatelessWidget {
   }
 
   void _showPopupMenu(BuildContext context, Offset offset, Size size) {
-    if (voiceWork.title == null) {
-      Log.error('Failed to show popupmenu, selected vkTitle is null.');
-      return;
-    }
-
-    // 动态获取菜单项
-    List<String> cvList = VoiceUpdater.getCvList(voiceWork.title!);
+    List<String> cvList = VoiceUpdater.getCvList(voiceWork.title);
     final screenSize = MediaQuery.of(context).size;
     double left = offset.dx + size.width;
     double top = offset.dy;
@@ -102,7 +96,7 @@ class VkMenuBtn extends StatelessWidget {
     }
 
     try {
-      String vkPath = voiceWork.directoryPath!;
+      String vkPath = voiceWork.directoryPath;
 
       if (await c.ui.isCurrentVkPlaying(vkPath)) {
         await c.audio.release();
@@ -136,13 +130,13 @@ class VkMenuBtn extends StatelessWidget {
 
   Future<void> _selectCategory(String cate) async {
     VoiceWork voiceWork = await c.db
-        .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath!);
+        .getVkByPath(c.ui.selectedVkList[selectedIndex].directoryPath);
 
     // 将路径中的 voiceWork.category 替换为新的 cate
     String newDirectoryPath =
-        voiceWork.directoryPath!.replaceFirst(voiceWork.category!, cate);
+        voiceWork.directoryPath.replaceFirst(voiceWork.category, cate);
 
-    Directory oldDirectory = Directory(voiceWork.directoryPath!);
+    Directory oldDirectory = Directory(voiceWork.directoryPath);
 
     try {
       if (await c.ui.isCurrentVkPlaying(oldDirectory.path)) {
