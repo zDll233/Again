@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:again/models/voice_work.dart';
-import 'package:again/feature/filter/sort_oder/sort_order_state.dart';
 import 'package:again/feature/u_i_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -84,9 +83,9 @@ class UIService {
   }
 
   Future<void> setPlayingIdxByString(String cate, String cv, VoiceWork vk,
-      {SortOrder? sort}) async {
+      {int? sort}) async {
     if (sort != null) {
-      ref.read(sortOrderProvider.notifier).updatePlayingIndexByValue(sort);
+      ref.read(sortOrderProvider.notifier).updatePlayingIndex(sort);
     }
     ref.read(categoryProvider.notifier).updatePlayingIndexByValue(cate);
     ref.read(cvProvider.notifier).updatePlayingIndexByValue(cv);
@@ -104,4 +103,9 @@ class UIService {
     ref.read(voiceItemProvider.notifier).updatePlayingValues();
     setAllSelectedIndex2Playing();
   }
+
+  onLocateBtnPressed() {
+    // TODO
+  }
 }
+

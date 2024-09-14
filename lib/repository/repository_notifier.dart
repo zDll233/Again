@@ -7,7 +7,6 @@ import 'package:again/repository/repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/feature/filter/sort_oder/sort_order_state.dart';
-import 'package:again/feature/u_i_service.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -163,7 +162,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   Future<void> onUpdatePressed() async {
-    final uiService = UIService(ref);
+    final uiService = ref.read(uiServiceProvider);
 
     final playingData = await uiService.playingStringMap;
     final selectedData = uiService.selectedStringMap;

@@ -1,7 +1,7 @@
+import 'package:again/feature/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/feature/filter/sort_oder/sort_order_state.dart';
 import 'package:again/feature/state_interface.dart';
-import 'package:again/feature/u_i_service.dart';
 
 class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   @override
@@ -20,6 +20,6 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     int temp = state.selectedIndex + 1;
     updateSelectedIndex(temp < length ? temp : 0);
     ref.read(repositoryProvider.notifier).updateVkList();
-    await UIService(ref).filterSelected();
+    await ref.read(uiServiceProvider).filterSelected();
   }
 }

@@ -6,3 +6,7 @@ import 'package:path/path.dart' as p;
 final configProvider = Provider<JsonStorage>((ref) {
   return JsonStorage(filePath: p.join('config', 'config.json'));
 });
+
+final historyProvider = Provider<JsonStorage>((ref) {
+  return JsonStorage(filePath: p.join('history', 'last_played.json'));
+});

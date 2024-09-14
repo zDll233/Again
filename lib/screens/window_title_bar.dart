@@ -1,8 +1,11 @@
 import 'dart:io';
-import 'package:again/controllers/controller.dart';
+// import 'package:again/controllers/controller.dart';
+import 'package:again/repository/repository_providers.dart';
+import 'package:again/service/history_manager.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+// import 'package:get/get.dart';
 
 final buttonColors = WindowButtonColors(
   iconNormal: const Color.fromRGBO(255, 255, 255, 0.5),
@@ -19,15 +22,17 @@ final closeButtonColors = WindowButtonColors(
   iconMouseOver: const Color.fromRGBO(255, 255, 255, 1.0),
 );
 
-class WindowButtons extends StatelessWidget {
+class WindowButtons extends ConsumerWidget {
   const WindowButtons({super.key});
   @override
-  Widget build(BuildContext context) {
-    final Controller c = Get.find();
+  Widget build(BuildContext context, WidgetRef ref) {
+    // final Controller c = Get.find();
     return Row(
       children: [
         IconButton(
-            onPressed: c.db.selectAndSaveRootDirectory,
+            onPressed: ref
+                .read(repositoryProvider.notifier)
+                .selectAndSaveRootDirectory,
             icon: const Icon(
               Icons.folder_open,
               size: 20,
@@ -38,7 +43,7 @@ class WindowButtons extends StatelessWidget {
         CloseWindowButton(
           colors: closeButtonColors,
           onPressed: () async {
-            await c.saveHistory();
+            await ref.read(historyManagerProvider).saveHistory();
             appWindow.close();
           },
         ),

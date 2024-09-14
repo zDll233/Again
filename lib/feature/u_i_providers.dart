@@ -6,6 +6,7 @@ import 'package:again/feature/filter/sort_oder/sort_order_notifier.dart';
 import 'package:again/feature/filter/sort_oder/sort_order_state.dart';
 import 'package:again/feature/misc/misc_notifier.dart';
 import 'package:again/feature/misc/misc_state.dart';
+import 'package:again/feature/u_i_service.dart';
 import 'package:again/feature/voice_item/voice_item_notifier.dart';
 import 'package:again/feature/voice_item/voice_item_state.dart';
 import 'package:again/feature/voice_work/voice_work_notifier.dart';
@@ -28,3 +29,5 @@ final voiceItemProvider =
 
 final miscUIProvider =
     NotifierProvider<MiscNotifier, MiscState>(MiscNotifier.new);
+
+final uiServiceProvider = Provider.autoDispose((ref) => UIService(ref));

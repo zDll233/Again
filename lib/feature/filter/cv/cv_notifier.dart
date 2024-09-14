@@ -1,7 +1,7 @@
+import 'package:again/feature/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/feature/filter/cv/cv_state.dart';
 import 'package:again/feature/state_interface.dart';
-import 'package:again/feature/u_i_service.dart';
 
 class CvNotifier extends ListStateNotifier<CvState, String> {
   @override
@@ -13,6 +13,6 @@ class CvNotifier extends ListStateNotifier<CvState, String> {
   Future<void> onSelected(int selectedIndex) async {
     updateSelectedIndex(selectedIndex);
     ref.read(repositoryProvider.notifier).updateVkList();
-    await UIService(ref).filterSelected();
+    await ref.read(uiServiceProvider).filterSelected();
   }
 }

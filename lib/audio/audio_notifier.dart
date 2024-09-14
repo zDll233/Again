@@ -62,7 +62,11 @@ class AudioNotifier extends Notifier<AudioState> {
     state = newState;
   }
 
-  void seek(Duration newPosition) {
+  Future<void> setSource(String playablePath) async {
+    await _player.setSource(DeviceFileSource(playablePath));
+  }
+
+  Future<void> seek(Duration newPosition) async{
     try {
       _player.seek(newPosition);
     } catch (e) {
@@ -181,9 +185,8 @@ class AudioNotifier extends Notifier<AudioState> {
     updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
 
     try {
-      await _player.setSource(
-          DeviceFileSource(ref.read(voiceItemProvider).playingVoiceItemPath));
-      await _player.seek(Duration(milliseconds: audioHistory['position']));
+      await setSource(ref.read(voiceItemProvider).playingVoiceItemPath);
+      await seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {
       Log.error('Error loading audio history.\n$e');
     }

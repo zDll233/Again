@@ -1,8 +1,11 @@
 import 'dart:ui';
 import 'package:again/controllers/controller.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/screens/list_lyric_switch.dart';
 import 'package:again/screens/player/player_widget.dart';
 import 'package:again/screens/window_title_bar.dart';
+import 'package:again/service/history_manager.dart';
+import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,10 +22,22 @@ class _MyAppState extends ConsumerState<MyApp> {
   late final KeyEventHandler _keyEventHandler;
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
+
+    await _initialize();
     _keyEventHandler = KeyEventHandler(ref as Ref<Object?>);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
+  }
+
+  Future<void> _initialize() async {
+    await ref.read(repositoryProvider.notifier).initializeStorage();
+    await ref.read(historyManagerProvider).loadHistory();
+    initializeScript();
+  }
+
+  void initializeScript() {
+    generateDeleteScript();
   }
 
   @override
