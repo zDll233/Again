@@ -45,7 +45,7 @@ class FutureVoiceWorkListView extends ConsumerWidget {
             padding: const EdgeInsets.only(left: 15.0, right: 5.0),
             child: Text(vk.title),
           ),
-          trailing: VkMenuBtn(voiceWork: vk, selectedIndex: index),
+          trailing: VkMenuBtn(voiceWork: vk),
           onTap: () => ref.read(voiceWorkProvider.notifier).onSelected(index),
           selected: ref.watch(voiceWorkProvider).selectedIndex == index,
           contentPadding: const EdgeInsets.only(
