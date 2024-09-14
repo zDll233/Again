@@ -9,11 +9,12 @@ import 'package:again/repository/repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RepositoryNotifier extends Notifier<RepositoryState> {
+class RepositoryNotifier extends AsyncNotifier<RepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
@@ -98,8 +99,14 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
 
   /// update and sort [VoiceWork.values]. If vkLs is null, get it from db according to playing filters.
   Future<void> updateVkList({List<TVoiceWorkData>? vkLs}) async {
-    final cate = ref.read(categoryProvider).playingItem;
-    final cv = ref.read(cvProvider).playingItem;
+    String cate = '';
+    String cv = '';
+    try {
+      cate = ref.read(categoryProvider).selectedItem;
+      cv = ref.read(cvProvider).selectedItem;
+    } catch (e) {
+      Log.debug('$e');
+    }
     vkLs ??= await _getVkDataList(cate, cv);
     setSortedVkList(vkLs);
   }
@@ -145,7 +152,12 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   Future<List<TVoiceItemData>> get _getSelectedViList async {
-    final vkPath = ref.read(voiceWorkProvider).selectedVoiceWorkPath;
+    String vkPath = '';
+    try {
+      vkPath = ref.read(voiceWorkProvider).selectedVoiceWorkPath;
+    } catch (e) {
+      Log.debug('$e');
+    }
     return await _database.selectSingleWorkVoiceItemsWithString(vkPath)
       ..sort((a, b) => compareNatural(a.title, b.title));
   }

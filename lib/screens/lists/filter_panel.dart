@@ -57,7 +57,7 @@ class FutureFilterListView extends ConsumerWidget {
               return ListTile(
                 title: Text(title),
                 onTap: () => ref.read(cvProvider.notifier).onSelected(index),
-                selected: ref.watch(cvProvider).playingIndex == index,
+                selected: ref.watch(cvProvider).selectedIndex == index,
               );
             },
             itemScrollController:

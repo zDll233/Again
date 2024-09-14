@@ -42,7 +42,7 @@ class FutureVoiceItemListView extends ConsumerWidget {
         return ListTile(
           title: Text(vi.title),
           onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
-          selected: ref.watch(voiceItemProvider).playingItem == vi,
+          selected: ref.watch(voiceItemProvider).playingIndex == index && uiService.isVoiceItemPlaying,
         );
       },
       itemScrollController: uiService.viScrollController,

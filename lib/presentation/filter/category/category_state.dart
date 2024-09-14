@@ -2,7 +2,7 @@ import 'package:again/presentation/state_interface.dart';
 
 class CategoryState extends ListState<String> {
   CategoryState({
-    super.values = const ["All"],
+    super.values = const [],
     super.playingIndex = 0,
     super.selectedIndex = 0,
   });
