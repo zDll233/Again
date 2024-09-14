@@ -55,15 +55,15 @@ class _MyAppState extends ConsumerState<MyApp> {
           brightness: Brightness.dark,
         )),
         scrollBehavior: MyCustomScrollBehavior(),
-        home: Scaffold(
+        home: const Scaffold(
             backgroundColor: Colors.transparent,
             body: FocusScope(
               canRequestFocus: false,
               child: Column(
                 children: [
-                  const WindowTitleBar(),
+                  WindowTitleBar(),
                   ListLyricSwitch(),
-                  const PlayerWidget()
+                  PlayerWidget()
                 ],
               ),
             )));

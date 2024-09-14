@@ -3,18 +3,14 @@ import 'dart:async';
 import 'package:again/components/future_list.dart';
 import 'package:again/components/vk_menu_btn.dart';
 import 'package:again/components/voice_panel.dart';
-import 'package:again/controllers/controller.dart';
-import 'package:again/controllers/u_i_controller.dart';
 import 'package:again/components/image_thumbnail.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class VoiceWorkPanel extends StatelessWidget {
   const VoiceWorkPanel({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final Controller c = Get.find();
     return Obx(() => VoicePanel(
           title:
               'VoiceWorks(${c.ui.selectedVkList.length}): ${c.ui.sortOrder.value == SortOrder.byTitle ? 'title' : 'time'}',
@@ -27,9 +23,8 @@ class VoiceWorkPanel extends StatelessWidget {
 }
 
 class FutureVoiceWorkListView extends StatelessWidget {
-  FutureVoiceWorkListView({super.key});
+  const FutureVoiceWorkListView({super.key});
 
-  final Controller c = Get.find();
 
   Future<List> fetchItems() async {
     return c.ui.selectedVkList.toList();

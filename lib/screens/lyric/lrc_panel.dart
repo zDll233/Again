@@ -1,37 +1,38 @@
 import 'dart:io';
 
-import 'package:again/controllers/controller.dart';
+import 'package:again/audio/audio_providers.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/utils/log.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
-bool hasLyric = false;
-bool readLyric = false;
+class LyricPanel extends ConsumerStatefulWidget {
+  const LyricPanel({
+    super.key,
+  });
 
-class LyricPanel extends StatelessWidget {
-  LyricPanel({super.key});
+  @override
+  ConsumerState<LyricPanel> createState() => _LyricPanleState();
+}
 
-  final Controller c = Get.find();
-
+class _LyricPanleState extends ConsumerState<LyricPanel> {
+  bool hasLyric = false;
+  bool readLyric = false;
   final lyricUi = UINetease(
       otherMainColor: Colors.white60, highLightTextColor: Colors.purple[200]);
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return c.audio.playingViIdx.value >= 0 &&
-              c.audio.playingViPathList.isNotEmpty
-          ? _lrcPanelBuilder(context)
-          : _emptyBuilder();
-    });
+    return ref.watch(voiceItemProvider).isPlaying
+        ? _lrcPanelBuilder(context)
+        : _emptyBuilder();
   }
 
   Widget _lrcPanelBuilder(BuildContext context) {
-    String playingViPath = c.audio.playingViPath;
+    String playingViPath = ref.watch(voiceItemProvider).playingVoiceItemPath;
     return Column(
       children: [
         SizedBox(
@@ -52,7 +53,7 @@ class LyricPanel extends StatelessWidget {
         maxWidth: MediaQuery.of(context).size.width * 0.70,
       ),
       child: TextButton(
-        onPressed: c.ui.selectPlayingViFile,
+        onPressed: ref.read(uiServiceProvider).selectPlayingVoiceItem,
         child: Text(
           p.basenameWithoutExtension(playingViPath),
           style: Theme.of(context).textTheme.headlineMedium,
@@ -69,6 +70,8 @@ class LyricPanel extends StatelessWidget {
       builder: (context, snapshot) {
         final appSize = MediaQuery.of(context).size;
         final size = Size(appSize.width * 0.70, appSize.height - 210.0);
+        final isPlaying = ref.watch(audioProvider).isPlaying;
+        final position = ref.watch(audioProvider).position;
 
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -77,20 +80,20 @@ class LyricPanel extends StatelessWidget {
         } else {
           final lrcContent = snapshot.data ?? '';
           final lyricModel = _getLrcModel(lrcContent);
-          return Obx(() => LyricsReader(
-                model: lyricModel,
-                position: c.audio.position.value.inMilliseconds,
-                playing: c.audio.playerState.value == PlayerState.playing,
-                size: size,
-                emptyBuilder: _emptyBuilder,
-                selectLineBuilder: (position, flashBack, confirmPlay) =>
-                    _lineIndicator(context, position, flashBack,
-                        confirmPlay), // 传递 context
-                lyricUi: lyricUi,
-                waitMilliseconds: 5000,
-                canScrollBack: c.audio.playerState.value == PlayerState.playing,
-                canFlashBack: true,
-              ));
+          return LyricsReader(
+            model: lyricModel,
+            position: position.inMilliseconds,
+            playing: isPlaying,
+            size: size,
+            emptyBuilder: _emptyBuilder,
+            selectLineBuilder: (position, flashBack, confirmPlay) =>
+                _lineIndicator(
+                    context, position, flashBack, confirmPlay), // 传递 context
+            lyricUi: lyricUi,
+            waitMilliseconds: 5000,
+            canScrollBack: isPlaying,
+            canFlashBack: true,
+          );
         }
       },
     );
@@ -110,6 +113,8 @@ class LyricPanel extends StatelessWidget {
 
   Widget _lineIndicator(BuildContext context, int position,
       VoidCallback flashBack, VoidCallback confirmPlay) {
+    final audioNotifier = ref.read(audioProvider.notifier);
+    final isPlaying = ref.watch(audioProvider).isPlaying;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -140,10 +145,10 @@ class LyricPanel extends StatelessWidget {
                 Duration(milliseconds: position).toString().split('.').first,
                 style: Theme.of(context).textTheme.bodyMedium),
             onPressed: () {
-              c.audio.player.seek(Duration(milliseconds: position));
+              audioNotifier.seek(Duration(milliseconds: position));
               confirmPlay.call();
-              if (c.audio.playerState.value != PlayerState.playing) {
-                c.audio.resume();
+              if (!isPlaying) {
+                audioNotifier.resume();
               }
             },
           ),

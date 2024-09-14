@@ -41,4 +41,6 @@ class AudioState extends BaseState {
       loopMode: loopMode ?? this.loopMode,
     );
   }
+
+  bool get isPlaying => playerState == PlayerState.playing;
 }

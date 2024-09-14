@@ -28,7 +28,7 @@ class ListLyricSwitch extends ConsumerWidget {
             duration: const Duration(milliseconds: 300),
             child: Visibility(
               visible: showLyricPanel,
-              child: LyricPanel(),
+              child: const LyricPanel(),
             ),
           )
         ],
