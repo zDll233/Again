@@ -164,7 +164,6 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  // TODO: load audio history.
   Future<void> loadHistory(Map<String, dynamic> audioHistory) async {
     if (audioHistory.isEmpty) return;
 
@@ -182,6 +181,3 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 }
-
-final audioProvider =
-    NotifierProvider<AudioNotifier, AudioState>(AudioNotifier.new);

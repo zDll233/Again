@@ -10,6 +10,11 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     return SortOrderState();
   }
 
+  void updateSelectedSortOrder(SortOrder sortOrder) {
+    int index = state.values.indexOf(sortOrder);
+    updateSelectedIndex(index);
+  }
+
   @override
   Future<void> onSelected(int selectedIndex) async {
     // TODO: DatabaseController

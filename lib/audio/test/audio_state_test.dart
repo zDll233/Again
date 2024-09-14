@@ -1,4 +1,4 @@
-import 'package:again/audio/audio_state_notifier.dart';
+import 'package:again/audio/audio_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 // ignore: depend_on_referenced_packages

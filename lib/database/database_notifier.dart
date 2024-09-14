@@ -7,12 +7,12 @@ import 'package:again/database/database_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/presentation/u_i_service.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../presentation/u_i_providers.dart';
-
 
 class DatabaseNotifier extends Notifier<DatabaseState> {
   late final AppDatabase _database;
@@ -151,35 +151,36 @@ class DatabaseNotifier extends Notifier<DatabaseState> {
       ..sort((a, b) => compareNatural(a.title, b.title));
   }
 
-  // Future<VoiceWork> getVkByPath(String vkPath) async {
-  //   final data = await _database.selectVoiceWorkData(vkPath);
-  //   return data.isEmpty
-  //       ? VoiceWork()
-  //       : VoiceWork(
-  //           title: data[0].title,
-  //           directoryPath: vkPath,
-  //           coverPath: data[0].coverPath,
-  //           category: data[0].category,
-  //           createdAt: data[0].createdAt,
-  //         );
-  // }
+  Future<VoiceWork> getVkByPath(String vkPath) async {
+    final data = await _database.selectVoiceWorkData(vkPath);
+    return data.isEmpty
+        ? VoiceWork()
+        : VoiceWork(
+            title: data[0].title,
+            directoryPath: vkPath,
+            coverPath: data[0].coverPath,
+            category: data[0].category,
+            createdAt: data[0].createdAt,
+          );
+  }
 
   Future<void> onUpdatePressed() async {
     // TODO: onUpdatePressed
-    // final playingData = await ui.playingStringMap;
-    // final selectedData = ui.selectedStringMap;
+    final uiService = UIService(ref);
 
-    // await updateDatabase();
-    // await updateViewList();
+    final playingData = await uiService.playingStringMap;
+    final selectedData = uiService.selectedStringMap;
 
-    // if (playingData.isNotEmpty) {
-    //   ui.setPlayingIdxByString(
-    //       playingData['category']!, playingData['cv']!, playingData['vk']!);
-    // }
-    // if (selectedData.isNotEmpty) {
-    //   ui.setSelectedIdxByString(
-    //       selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
-    // }
+    await updateDatabase();
+    await updateViewList();
+
+    if (playingData.isNotEmpty) {
+      uiService.setPlayingIdxByString(
+          playingData['category']!, playingData['cv']!, playingData['vk']!);
+    }
+    if (selectedData.isNotEmpty) {
+      uiService.setSelectedIdxByString(
+          selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
+    }
   }
 }
-

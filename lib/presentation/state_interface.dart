@@ -66,8 +66,16 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     state = state.copyWith(playingIndex: newIndex) as State;
   }
 
+  void updatePlayingIndexByValue(ValueType newItem) {
+    updatePlayingIndex(state.values.indexOf(newItem));
+  }
+
   void updateSelectedIndex(int newIndex) {
     state = state.copyWith(selectedIndex: newIndex) as State;
+  }
+
+  void updateSelectedIndexByValue(ValueType newItem) {
+    updateSelectedIndex(state.values.indexOf(newItem));
   }
 
   void updateState(State newState) {

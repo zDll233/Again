@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:again/models/voice_work.dart';
+import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -52,5 +55,48 @@ class UIService {
     ref.read(cvProvider.notifier).setSelectedIndex2Playing();
     ref.read(voiceWorkProvider.notifier).setSelectedIndex2Playing();
     ref.read(voiceItemProvider.notifier).setSelectedIndex2Playing();
+  }
+
+  Future<Map<String, dynamic>> get playingStringMap async {
+    try {
+      return {
+        'category': ref.read(categoryProvider).playingItem,
+        'cv': ref.read(cvProvider).playingItem,
+        'vk': ref.read(voiceWorkProvider).playingItem,
+      };
+    } catch (e) {
+      Log.debug('Error getting playingStringMap.\n$e.');
+      return {};
+    }
+  }
+
+  Map<String, dynamic> get selectedStringMap {
+    try {
+      return {
+        'category': ref.read(categoryProvider).selectedItem,
+        'cv': ref.read(cvProvider).selectedItem,
+        'vk': ref.read(voiceWorkProvider).selectedItem,
+      };
+    } catch (e) {
+      Log.debug('Error getting selectedStringMap.\n$e');
+      return {};
+    }
+  }
+
+  Future<void> setPlayingIdxByString(String cate, String cv, VoiceWork vk,
+      {SortOrder? sort}) async {
+    // TODO: index = -1?
+    if (sort != null) {
+      ref.read(sortOrderProvider.notifier).updatePlayingIndexByValue(sort);
+    }
+    ref.read(categoryProvider.notifier).updatePlayingIndexByValue(cate);
+    ref.read(cvProvider.notifier).updatePlayingIndexByValue(cv);
+    ref.read(voiceWorkProvider.notifier).updatePlayingIndexByValue(vk);
+  }
+
+  void setSelectedIdxByString(String cate, String cv, VoiceWork vk) {
+    ref.read(categoryProvider.notifier).updateSelectedIndexByValue(cate);
+    ref.read(cvProvider.notifier).updateSelectedIndexByValue(cv);
+    ref.read(voiceWorkProvider.notifier).updateSelectedIndexByValue(vk);
   }
 }

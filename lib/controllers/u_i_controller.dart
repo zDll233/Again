@@ -240,7 +240,7 @@ class UIController extends GetxController {
         'cv': selectedCv,
         'vk': selectedVkPath,
       };
-    } catch (_) {
+    } catch (e) {
       Log.debug('Error getting selectedStringMap.\n$e');
       return {};
     }
