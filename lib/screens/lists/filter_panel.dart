@@ -1,68 +1,68 @@
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
-import 'package:again/controllers/controller.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class FilterPanel extends StatelessWidget {
+class FilterPanel extends ConsumerWidget {
   const FilterPanel({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Controller c = Get.find();
+  Widget build(BuildContext context, WidgetRef ref) {
     return VoicePanel(
       title: 'Filter',
-      listView: FutureFilterListView(),
+      listView: const FutureFilterListView(),
       icon: const Icon(Icons.remove),
-      onIconBtnPressed: c.ui.onRemoveFilterPressed,
+      onIconBtnPressed: ref.read(uiServiceProvider).onRemoveFilterPressed,
     );
   }
 }
 
-class FutureFilterListView extends StatelessWidget {
-  FutureFilterListView({super.key});
+class FutureFilterListView extends ConsumerWidget {
+  const FutureFilterListView({super.key});
 
-  final Controller c = Get.find();
-
-  Future<List> fetchcategoryItems() async {
-    return c.ui.categories.toList();
+  Future<List> fetchcategoryItems(WidgetRef ref) async {
+    return ref.watch(categoryProvider).values;
   }
 
-  Future<List> fetchCvItems() async {
-    return c.ui.cvNames.toList();
+  Future<List> fetchCvItems(WidgetRef ref) async {
+    return ref.watch(cvProvider).values;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
       children: [
         SizedBox(
           width: 100,
-          child: Obx(() => FutureListView(
-                future: fetchcategoryItems(),
-                itemBuilder: (context, category, index) {
-                  return Obx(() => ListTile(
-                        title: Text(category),
-                        onTap: () => c.ui.onCategorySelected(index),
-                        selected: c.ui.selectedCategoryIdx.value == index,
-                      ));
-                },
-                itemScrollController: c.ui.cateScrollController,
-              )),
+          child: FutureListView(
+            future: fetchcategoryItems(ref),
+            itemBuilder: (context, category, index) {
+              return ListTile(
+                title: Text(category),
+                onTap: () =>
+                    ref.read(categoryProvider.notifier).onSelected(index),
+                selected: ref.watch(categoryProvider).selectedIndex == index,
+              );
+            },
+            itemScrollController:
+                ref.read(uiServiceProvider).cateScrollController,
+          ),
         ),
         SizedBox(
           width: 150,
-          child: Obx(() => FutureListView(
-                future: fetchCvItems(),
-                itemBuilder: (context, title, index) {
-                  return Obx(() => ListTile(
-                        title: Text(title),
-                        onTap: () => c.ui.onCvSelected(index),
-                        selected: c.ui.selectedCvIdx.value == index,
-                      ));
-                },
-                itemScrollController: c.ui.cvScrollController,
-              )),
+          child: FutureListView(
+            future: fetchCvItems(ref),
+            itemBuilder: (context, title, index) {
+              return ListTile(
+                title: Text(title),
+                onTap: () => ref.read(cvProvider.notifier).onSelected(index),
+                selected: ref.watch(cvProvider).playingIndex == index,
+              );
+            },
+            itemScrollController:
+                ref.read(uiServiceProvider).cvScrollController,
+          ),
         )
       ],
     );
