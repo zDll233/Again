@@ -1,11 +1,11 @@
 import 'package:again/controllers/controller.dart';
-import 'package:again/screens/home/lists/lists_view.dart';
-import 'package:again/screens/player/lrc_panel.dart';
+import 'package:again/screens/lists/lists_view.dart';
+import 'package:again/screens/lyric/lrc_panel.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class ListHome extends StatelessWidget {
-  ListHome({
+class ListLyricSwitch extends StatelessWidget {
+  ListLyricSwitch({
     super.key,
   });
 

@@ -1,6 +1,6 @@
-import 'package:again/screens/home/lists/filter_panel.dart';
-import 'package:again/screens/home/lists/voice_work_panel.dart';
-import 'package:again/screens/home/lists/voice_item_panel.dart';
+import 'package:again/screens/lists/filter_panel.dart';
+import 'package:again/screens/lists/voice_work_panel.dart';
+import 'package:again/screens/lists/voice_item_panel.dart';
 import 'package:flutter/material.dart';
 
 class ListsView extends StatelessWidget {
