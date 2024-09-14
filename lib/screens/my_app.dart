@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'package:again/controllers/controller.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/screens/list_lyric_switch.dart';
 import 'package:again/screens/player/player_widget.dart';
@@ -10,7 +9,6 @@ import 'package:again/service/key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 class MyApp extends ConsumerStatefulWidget {
   const MyApp({super.key});
@@ -48,8 +46,6 @@ class _MyAppState extends ConsumerState<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    Get.lazyPut(() => Controller());
-    final Controller c = Get.find();
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
@@ -67,7 +63,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                 children: [
                   const WindowTitleBar(),
                   ListLyricSwitch(),
-                  PlayerWidget(player: c.audio.player)
+                  const PlayerWidget()
                 ],
               ),
             )));

@@ -1,11 +1,9 @@
 import 'dart:io';
-// import 'package:again/controllers/controller.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/service/history_manager.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-// import 'package:get/get.dart';
 
 final buttonColors = WindowButtonColors(
   iconNormal: const Color.fromRGBO(255, 255, 255, 0.5),

@@ -1,53 +1,62 @@
+import 'package:again/audio/audio_notifier.dart';
+import 'package:again/audio/audio_providers.dart';
+import 'package:again/audio/audio_state.dart';
 import 'package:again/components/rectangle_overlay_shape.dart';
-import 'package:again/controllers/audio_controller.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:again/controllers/controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class PlayerWidget extends StatelessWidget {
-  final AudioPlayer player;
+class PlayerWidget extends ConsumerStatefulWidget {
   static const double _iconSize = 45.0;
-  final Controller c = Get.find();
 
-  PlayerWidget({
-    required this.player,
+  const PlayerWidget({
     super.key,
   });
 
   @override
+  ConsumerState<PlayerWidget> createState() => _PlayerWidgetState();
+}
+
+class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
+  late final AudioNotifier audioNotifier;
+  @override
+  void initState() {
+    audioNotifier = ref.read(audioProvider.notifier);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final appWidth = MediaQuery.of(context).size.width;
-    return Obx(
-      () => SizedBox(
-        height: 100,
-        child: Stack(
-          children: [
-            MoveWindow(),
-            Positioned(
-              top: 10,
-              child: _buildProgressBar(context, appWidth),
-            ),
-            Positioned(
-              left: 20,
-              bottom: 25,
-              child: _buildTimeDisplay(context),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 5,
-              child: _buildPlaybackControls(),
-            ),
-            Positioned(
-              right: 10,
-              bottom: 15,
-              child: _buildVolumeControl(context),
-            ),
-          ],
-        ),
+    return SizedBox(
+      height: 100,
+      child: Stack(
+        children: [
+          MoveWindow(),
+          Positioned(
+            top: 10,
+            child: _buildProgressBar(context, appWidth),
+          ),
+          Positioned(
+            left: 20,
+            bottom: 25,
+            child: _buildTimeDisplay(context),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 5,
+            child: _buildPlaybackControls(),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 15,
+            child: _buildVolumeControl(context),
+          ),
+        ],
       ),
     );
   }
@@ -63,9 +72,9 @@ class PlayerWidget extends StatelessWidget {
           } else if (scrollDelta < 0) {
             milliseconds = 10000;
           }
-          c.audio.player.seek(Duration(
-              milliseconds:
-                  c.audio.position.value.inMilliseconds + milliseconds));
+          audioNotifier.seek(Duration(
+              milliseconds: ref.watch(audioProvider).position.inMilliseconds +
+                  milliseconds));
         }
       },
       child: SizedBox(
@@ -80,10 +89,10 @@ class PlayerWidget extends StatelessWidget {
           child: Slider(
             focusNode: FocusNode(canRequestFocus: false),
             onChanged: (value) {
-              final duration = c.audio.duration.value;
+              final duration = ref.watch(audioProvider).duration;
               if (duration != Duration.zero) {
                 final position = value * duration.inMilliseconds;
-                player.seek(Duration(milliseconds: position.round()));
+                audioNotifier.seek(Duration(milliseconds: position.round()));
               }
             },
             value: _getProgressBarValue(),
@@ -94,13 +103,14 @@ class PlayerWidget extends StatelessWidget {
   }
 
   double _getProgressBarValue() {
-    if (c.audio.position.value != Duration.zero &&
-        c.audio.duration.value != Duration.zero &&
-        c.audio.position.value.inMilliseconds > 0 &&
-        c.audio.position.value.inMilliseconds <
-            c.audio.duration.value.inMilliseconds) {
-      return c.audio.position.value.inMilliseconds /
-          c.audio.duration.value.inMilliseconds;
+    final duration = ref.watch(audioProvider).duration;
+    final position = ref.watch(audioProvider).position;
+
+    if (position != Duration.zero &&
+        duration != Duration.zero &&
+        position.inMilliseconds > 0 &&
+        position.inMilliseconds < duration.inMilliseconds) {
+      return position.inMilliseconds / duration.inMilliseconds;
     } else {
       return 0.0;
     }
@@ -114,10 +124,13 @@ class PlayerWidget extends StatelessWidget {
   }
 
   String _getTimeDisplayText() {
-    if (c.audio.position.value != Duration.zero) {
-      return '${c.audio.position.value.toString().split('.').first} / ${c.audio.duration.value.toString().split('.').first}';
-    } else if (c.audio.duration.value != Duration.zero) {
-      return c.audio.duration.value.toString().split('.').first;
+    final duration = ref.watch(audioProvider).duration;
+    final position = ref.watch(audioProvider).position;
+
+    if (position != Duration.zero) {
+      return '${position.toString().split('.').first} / ${duration.toString().split('.').first}';
+    } else if (duration != Duration.zero) {
+      return duration.toString().split('.').first;
     } else {
       return '';
     }
@@ -144,9 +157,9 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildShowLryicButton() {
     return IconButton(
       key: const Key('lyric_button'),
-      onPressed: c.ui.showLrcPanel.toggle,
-      iconSize: _iconSize * 0.5,
-      icon: c.ui.showLrcPanel.value
+      onPressed: ref.read(miscUIProvider.notifier).toggleShowLyricPanel,
+      iconSize: PlayerWidget._iconSize * 0.5,
+      icon: ref.watch(miscUIProvider).showLyricPanel
           ? const Icon(Icons.arrow_drop_down)
           : const Icon(Icons.arrow_drop_up),
     );
@@ -155,8 +168,10 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildPrevButton() {
     return IconButton(
       key: const Key('prev_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playPrev : null,
-      iconSize: _iconSize,
+      onPressed: ref.read(voiceItemProvider).playingIndex >= 0
+          ? audioNotifier.playPrev
+          : null,
+      iconSize: PlayerWidget._iconSize,
       icon: const Icon(Icons.skip_previous),
       padding: const EdgeInsets.all(2.5),
     );
@@ -165,9 +180,11 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildPlayPauseButton() {
     return IconButton(
       key: const Key('play_pause_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.switchPauseResume : null,
-      iconSize: _iconSize,
-      icon: c.audio.playerState.value == PlayerState.playing
+      onPressed: ref.read(voiceItemProvider).playingIndex >= 0
+          ? audioNotifier.switchPauseResume
+          : null,
+      iconSize: PlayerWidget._iconSize,
+      icon: ref.watch(audioProvider).playerState == PlayerState.playing
           ? const Icon(Icons.pause)
           : const Icon(Icons.play_arrow),
       padding: const EdgeInsets.all(2.5),
@@ -177,8 +194,10 @@ class PlayerWidget extends StatelessWidget {
   Widget _buildNextButton() {
     return IconButton(
       key: const Key('next_button'),
-      onPressed: c.audio.playingViIdx >= 0 ? c.audio.playNext : null,
-      iconSize: _iconSize,
+      onPressed: ref.read(voiceItemProvider).playingIndex >= 0
+          ? audioNotifier.playNext
+          : null,
+      iconSize: PlayerWidget._iconSize,
       icon: const Icon(Icons.skip_next),
       padding: const EdgeInsets.all(2.5),
     );
@@ -187,9 +206,9 @@ class PlayerWidget extends StatelessWidget {
   _buildLoopModeButton() {
     return IconButton(
       key: const Key('loop_mode'),
-      onPressed: c.audio.onLoopModePressed,
-      iconSize: _iconSize * 0.5,
-      icon: c.audio.loopMode.value == LoopMode.allLoop
+      onPressed: audioNotifier.onLoopModePressed,
+      iconSize: PlayerWidget._iconSize * 0.5,
+      icon: ref.watch(audioProvider).loopMode == LoopMode.allLoop
           ? const Icon(Icons.repeat)
           : const Icon(Icons.repeat_one),
     );
@@ -200,10 +219,11 @@ class PlayerWidget extends StatelessWidget {
       onPointerSignal: (pointerSignal) {
         if (pointerSignal is PointerScrollEvent) {
           final scrollDelta = pointerSignal.scrollDelta.dy;
+          final volume = ref.read(audioProvider).volume;
           if (scrollDelta > 0) {
-            c.audio.setVolume((c.audio.volume.value - 0.1).clamp(0.0, 1.0));
+            audioNotifier.setVolume((volume - 0.1).clamp(0.0, 1.0));
           } else if (scrollDelta < 0) {
-            c.audio.setVolume((c.audio.volume.value + 0.1).clamp(0.0, 1.0));
+            audioNotifier.setVolume((volume + 0.1).clamp(0.0, 1.0));
           }
         }
       },
@@ -212,8 +232,8 @@ class PlayerWidget extends StatelessWidget {
         child: Row(
           children: [
             IconButton(
-              onPressed: c.audio.onMutePressed,
-              icon: c.audio.volume.value == 0
+              onPressed: audioNotifier.onMutePressed,
+              icon: ref.watch(audioProvider).volume == 0
                   ? const Icon(Icons.volume_off)
                   : const Icon(Icons.volume_up),
             ),
@@ -227,11 +247,11 @@ class PlayerWidget extends StatelessWidget {
                         shapeSize: const Size(10.0, 40.0)),
                     overlayColor: Colors.transparent),
                 child: Slider(
-                  value: c.audio.volume.value,
+                  value: ref.watch(audioProvider).volume,
                   min: 0.0,
                   max: 1.0,
                   onChanged: (double value) {
-                    c.audio.setVolume(value);
+                    audioNotifier.setVolume(value);
                   },
                 ),
               ),
