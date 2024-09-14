@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:again/controllers/u_i_controller.dart';
-import 'package:again/controllers/voice_updater.dart';
+import 'package:again/repository/voice_updater.dart';
 import 'package:again/repository/database/database.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';

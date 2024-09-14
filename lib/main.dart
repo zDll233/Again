@@ -8,11 +8,6 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:windows_single_instance/windows_single_instance.dart';
 
-void main(List<String> args) async {
-  await setupWindow(args);
-  runApp(const ProviderScope(child: MyApp()));
-}
-
 Future<void> setupWindow(List<String> args) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -40,4 +35,9 @@ Future<void> setupWindow(List<String> args) async {
         ..show();
     });
   }
+}
+
+void main(List<String> args) async {
+  await setupWindow(args);
+  runApp(const ProviderScope(child: MyApp()));
 }
