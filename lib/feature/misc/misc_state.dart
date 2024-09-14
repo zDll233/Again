@@ -1,4 +1,4 @@
-import 'package:again/ui/state_interface.dart';
+import 'package:again/feature/state_interface.dart';
 
 class MiscState extends BaseState {
   final bool showLyricPanel;

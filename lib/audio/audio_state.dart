@@ -1,4 +1,4 @@
-import 'package:again/ui/state_interface.dart';
+import 'package:again/feature/state_interface.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 enum LoopMode {

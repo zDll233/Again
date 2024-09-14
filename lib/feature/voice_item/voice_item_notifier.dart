@@ -1,8 +1,8 @@
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/models/voice_item.dart';
-import 'package:again/ui/state_interface.dart';
-import 'package:again/ui/u_i_service.dart';
-import 'package:again/ui/voice_item/voice_item_state.dart';
+import 'package:again/feature/state_interface.dart';
+import 'package:again/feature/u_i_service.dart';
+import 'package:again/feature/voice_item/voice_item_state.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class VoiceItemNotifier

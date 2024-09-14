@@ -1,5 +1,5 @@
 import 'package:again/models/voice_work.dart';
-import 'package:again/ui/state_interface.dart';
+import 'package:again/feature/state_interface.dart';
 
 class VoiceWorkState extends VariableListState<VoiceWork> {
   VoiceWorkState({

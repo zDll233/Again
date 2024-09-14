@@ -1,4 +1,4 @@
-import 'package:again/ui/misc/misc_state.dart';
+import 'package:again/feature/misc/misc_state.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class MiscNotifier extends Notifier<MiscState> {
