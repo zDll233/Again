@@ -1,4 +1,4 @@
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/presentation/state_interface.dart';
 
 class MiscState extends BaseState {
   final bool showLrcPanel;

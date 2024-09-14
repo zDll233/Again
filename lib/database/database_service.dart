@@ -5,7 +5,7 @@ import 'package:again/controllers/voice_updater.dart';
 import 'package:again/database/database.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/ui/states/u_i_state.dart';
+import 'package:again/presentation/misc/u_i_state.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -1,6 +1,6 @@
 import 'package:again/controllers/database_controller.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/ui/states/state_interface.dart';
+import 'package:again/presentation/state_interface.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 
