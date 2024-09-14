@@ -1,8 +1,5 @@
-import 'package:again/controllers/database_controller.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/state_interface.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get/get.dart';
 
 class VoiceWorkState extends VariableListState<VoiceWork> {
   VoiceWorkState({
@@ -38,22 +35,3 @@ class VoiceWorkState extends VariableListState<VoiceWork> {
   String get selectedVoiceWorkPath => selectedItem.directoryPath!;
 }
 
-class VoiceWorkNotifier extends VariableListStateNotifier<VoiceWorkState, VoiceWork> {
-  @override
-  VoiceWorkState build() {
-    return VoiceWorkState();
-  }
-
-  @override
-  Future<void> onSelected(int selectedIndex) async {
-    if (selectedIndex < 0) return;
-
-    // TODO: DatabaseController
-    final DatabaseController db = Get.find();
-    updateSelectedIndex(selectedIndex);
-    await db.updateViList();
-  }
-}
-
-final voiceWorkProvider =
-    NotifierProvider<VoiceWorkNotifier, VoiceWorkState>(VoiceWorkNotifier.new);
