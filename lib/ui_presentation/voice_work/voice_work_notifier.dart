@@ -1,7 +1,7 @@
-import 'package:again/database/database_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/presentation/state_interface.dart';
-import 'package:again/presentation/voice_work/voice_work_state.dart';
+import 'package:again/ui_presentation/state_interface.dart';
+import 'package:again/ui_presentation/voice_work/voice_work_state.dart';
 
 class VoiceWorkNotifier
     extends VariableListStateNotifier<VoiceWorkState, VoiceWork> {
@@ -15,6 +15,6 @@ class VoiceWorkNotifier
     if (selectedIndex < 0) return;
 
     updateSelectedIndex(selectedIndex);
-    ref.read(databaseProvider.notifier).updateViList();
+    ref.read(repositoryProvider.notifier).updateViList();
   }
 }

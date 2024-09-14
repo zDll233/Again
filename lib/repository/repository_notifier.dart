@@ -2,26 +2,26 @@ import 'dart:io';
 
 import 'package:again/config/config.dart';
 import 'package:again/controllers/voice_updater.dart';
-import 'package:again/database/database.dart';
-import 'package:again/database/database_state.dart';
+import 'package:again/repository/database/database.dart';
+import 'package:again/repository/repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
-import 'package:again/presentation/u_i_service.dart';
+import 'package:again/ui_presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/ui_presentation/u_i_service.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../presentation/u_i_providers.dart';
+import '../ui_presentation/u_i_providers.dart';
 
-class DatabaseNotifier extends Notifier<DatabaseState> {
+class RepositoryNotifier extends Notifier<RepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
   @override
-  DatabaseState build() {
+  RepositoryState build() {
     _database = AppDatabase();
-    return DatabaseState();
+    return RepositoryState();
   }
 
   Future<void> initializeStorage() async {
