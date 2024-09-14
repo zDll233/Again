@@ -2,53 +2,50 @@ import 'dart:async';
 
 import 'package:again/components/future_list.dart';
 import 'package:again/components/voice_panel.dart';
-import 'package:again/controllers/controller.dart';
+import 'package:again/presentation/u_i_providers.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class VoiceItemPanel extends StatelessWidget {
+class VoiceItemPanel extends ConsumerWidget {
   const VoiceItemPanel({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final Controller c = Get.find();
-    return Obx(() => VoicePanel(
-          title: 'VoiceItems(${c.ui.selectedViList.length})',
-          listView: FutureVoiceItemListView(),
-          icon: const Icon(Icons.location_searching),
-          onIconBtnPressed: c.ui.onLocateBtnPressed,
-          onTextBtnPressed: c.ui.revealInExplorerView,
-        ));
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiService = ref.read(uiServiceProvider);
+    return VoicePanel(
+      title: 'VoiceItems(${ref.watch(voiceItemProvider).values.length})',
+      listView: const FutureVoiceItemListView(),
+      icon: const Icon(Icons.location_searching),
+      onIconBtnPressed: uiService.onLocateBtnPressed,
+      onTextBtnPressed: uiService.revealInExplorerView,
+    );
   }
 }
 
-class FutureVoiceItemListView extends StatelessWidget {
-  FutureVoiceItemListView({super.key});
+class FutureVoiceItemListView extends ConsumerWidget {
+  const FutureVoiceItemListView({super.key});
 
-  final Controller c = Get.find();
-
-  Future<List> fetchItems() async {
-    c.ui.viCompleter = Completer();
-    return c.ui.selectedViList.toList();
+  Future<List> fetchItems(WidgetRef ref) async {
+    ref.read(uiServiceProvider).viCompleter = Completer();
+    return ref.watch(voiceItemProvider).values;
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final uiService = ref.watch(uiServiceProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      c.ui.viCompleter.complete();
+      uiService.viCompleter.complete();
     });
-    return Obx(
-      () => FutureListView(
-        future: fetchItems(),
-        itemBuilder: (context, vi, index) {
-          return Obx(() => ListTile(
-                title: Text(vi.title),
-                onTap: () => c.ui.onViSelected(index),
-                selected: c.ui.isCurrentViIdxPlaying(index),
-              ));
-        },
-        itemScrollController: c.ui.viScrollController,
-      ),
+    return FutureListView(
+      future: fetchItems(ref),
+      itemBuilder: (context, vi, index) {
+        return ListTile(
+          title: Text(vi.title),
+          onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
+          selected: ref.watch(voiceItemProvider).playingItem == vi,
+        );
+      },
+      itemScrollController: uiService.viScrollController,
     );
   }
 }
