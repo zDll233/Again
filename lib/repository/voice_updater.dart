@@ -1,17 +1,16 @@
 import 'dart:io';
 
-import 'package:again/controllers/database_controller.dart';
 import 'package:again/repository/database/database.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:drift/drift.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_instance/get_instance.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class VoiceUpdater {
-  VoiceUpdater(String root) : rootDir = Directory(root);
+  VoiceUpdater(String root, this.ref) : rootDir = Directory(root);
 
   late Directory rootDir;
-  final DatabaseController db = Get.find();
+  final Ref ref;
 
   static const List<String> audioExtensions = [
     '.mp3',
@@ -61,7 +60,7 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await db.database.insertMultipleVoiceWorkCategories(vkcc);
+    await ref.read(databaseProvider).insertMultipleVoiceWorkCategories(vkcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
@@ -115,7 +114,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await db.database.insertMultipleVoiceWorks(vkc);
+    await ref.read(databaseProvider).insertMultipleVoiceWorks(vkc);
 
     // cv
     for (var cvName in cvNames) {
@@ -124,10 +123,10 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await db.database.insertMultipleCvs(cvc);
+    await ref.read(databaseProvider).insertMultipleCvs(cvc);
 
     // cv vk
-    await db.database.insertMultipleVoiceCvs(vcc);
+    await ref.read(databaseProvider).insertMultipleVoiceCvs(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
@@ -144,6 +143,6 @@ class VoiceUpdater {
         ));
       }
     }
-    await db.database.insertMultipleVoiceItems(vic);
+    await ref.read(databaseProvider).insertMultipleVoiceItems(vic);
   }
 }

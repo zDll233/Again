@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:again/config/config.dart';
+import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/repository/voice_updater.dart';
 import 'package:again/repository/database/database.dart';
 import 'package:again/repository/repository_state.dart';
@@ -11,15 +13,13 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../presentation/u_i_providers.dart';
-
 class RepositoryNotifier extends Notifier<RepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
   @override
   RepositoryState build() {
-    _database = AppDatabase();
+    _database = ref.read(databaseProvider);
     return RepositoryState();
   }
 
@@ -35,7 +35,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   Future<void> _initializeVoiceUpdater(String path) async {
-    _voiceUpdater = VoiceUpdater(path);
+    _voiceUpdater = VoiceUpdater(path, ref);
   }
 
   Future<void> selectAndSaveRootDirectory() async {
