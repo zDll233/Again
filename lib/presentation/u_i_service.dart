@@ -85,7 +85,6 @@ class UIService {
 
   Future<void> setPlayingIdxByString(String cate, String cv, VoiceWork vk,
       {SortOrder? sort}) async {
-    // TODO: index = -1?
     if (sort != null) {
       ref.read(sortOrderProvider.notifier).updatePlayingIndexByValue(sort);
     }
@@ -98,5 +97,11 @@ class UIService {
     ref.read(categoryProvider.notifier).updateSelectedIndexByValue(cate);
     ref.read(cvProvider.notifier).updateSelectedIndexByValue(cv);
     ref.read(voiceWorkProvider.notifier).updateSelectedIndexByValue(vk);
+  }
+
+  void cachePlayingState() {
+    ref.read(voiceWorkProvider.notifier).updatePlayingValues();
+    ref.read(voiceItemProvider.notifier).updatePlayingValues();
+    setAllSelectedIndex2Playing();
   }
 }

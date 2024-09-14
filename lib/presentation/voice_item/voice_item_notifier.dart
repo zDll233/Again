@@ -5,12 +5,12 @@ import 'package:again/presentation/u_i_service.dart';
 import 'package:again/presentation/voice_item/voice_item_state.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-class VoiceItemNotifier extends VariableListStateNotifier<VoiceItemState, VoiceItem> {
+class VoiceItemNotifier
+    extends VariableListStateNotifier<VoiceItemState, VoiceItem> {
   @override
   VoiceItemState build() {
     return VoiceItemState();
   }
-
 
   @override
   Future<void> onSelected(int selectedIndex) async {
@@ -23,11 +23,7 @@ class VoiceItemNotifier extends VariableListStateNotifier<VoiceItemState, VoiceI
     }
 
     updatePlayingIndex(selectedIndex);
-
-    // TODO: update playingValues
-
-    uiService.setAllSelectedIndex2Playing();
-    audio.play(
-        DeviceFileSource(state.playingVoiceItemPath));
+    uiService.cachePlayingState();
+    audio.play(DeviceFileSource(state.playingVoiceItemPath));
   }
 }
