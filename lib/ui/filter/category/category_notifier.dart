@@ -1,7 +1,7 @@
 import 'package:again/repository/repository_providers.dart';
-import 'package:again/ui_presentation/filter/category/category_state.dart';
-import 'package:again/ui_presentation/state_interface.dart';
-import 'package:again/ui_presentation/u_i_service.dart';
+import 'package:again/ui/filter/category/category_state.dart';
+import 'package:again/ui/state_interface.dart';
+import 'package:again/ui/u_i_service.dart';
 
 class CategoryNotifier extends ListStateNotifier<CategoryState, String> {
   @override
