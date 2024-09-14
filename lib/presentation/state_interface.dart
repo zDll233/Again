@@ -59,7 +59,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   }
 
   void clearValues() {
-    state.values.clear();
+    state = state.copyWith(values: const []) as State;
   }
 
   void updatePlayingIndex(int newIndex) {

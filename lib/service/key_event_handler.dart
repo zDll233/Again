@@ -8,7 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class KeyEventHandler {
   Timer? _seekTimer;
   Timer? _volumeTimer;
-  final Ref ref;
+  final WidgetRef ref;
   late final AudioNotifier audioNotifier;
 
   KeyEventHandler(this.ref) {

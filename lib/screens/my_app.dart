@@ -20,11 +20,11 @@ class _MyAppState extends ConsumerState<MyApp> {
   late final KeyEventHandler _keyEventHandler;
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
 
-    await _initialize();
-    _keyEventHandler = KeyEventHandler(ref as Ref<Object?>);
+    _initialize();
+    _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
   }
 
@@ -60,11 +60,7 @@ class _MyAppState extends ConsumerState<MyApp> {
             body: FocusScope(
               canRequestFocus: false,
               child: Column(
-                children: [
-                  WindowTitleBar(),
-                  ListLyricSwitch(),
-                  PlayerWidget()
-                ],
+                children: [WindowTitleBar(), ListLyricSwitch(), PlayerWidget()],
               ),
             )));
   }

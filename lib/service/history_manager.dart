@@ -32,7 +32,7 @@ class HistoryManager {
       'audio': {
         'position': audioState.position.inMilliseconds,
         'volume': audioState.volume,
-        'loopMode': audioState.loopMode
+        'loopMode': audioState.loopMode.index
       },
     };
     await ref.read(historyProvider).write(lastPlayed);
