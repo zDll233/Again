@@ -1,9 +1,9 @@
 import 'dart:async';
 
-import 'package:again/components/future_list.dart';
-import 'package:again/components/vk_menu_btn.dart';
-import 'package:again/components/voice_panel.dart';
-import 'package:again/components/image_thumbnail.dart';
+import 'package:again/screens/components/future_list.dart';
+import 'package:again/screens/components/vk_menu_btn.dart';
+import 'package:again/screens/components/voice_panel.dart';
+import 'package:again/screens/components/image_thumbnail.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';

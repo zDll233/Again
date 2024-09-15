@@ -1,5 +1,5 @@
-import 'package:again/components/future_list.dart';
-import 'package:again/components/voice_panel.dart';
+import 'package:again/screens/components/future_list.dart';
+import 'package:again/screens/components/voice_panel.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

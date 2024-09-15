@@ -1,7 +1,7 @@
 import 'package:again/audio/audio_notifier.dart';
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/audio/audio_state.dart';
-import 'package:again/components/rectangle_overlay_shape.dart';
+import 'package:again/screens/components/rectangle_overlay_shape.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
