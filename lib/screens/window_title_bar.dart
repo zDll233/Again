@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:again/repository/repository_providers.dart';
-import 'package:again/service/history_manager.dart';
+import 'package:again/services/history_manager.dart';
 import 'package:bitsdojo_window/bitsdojo_window.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

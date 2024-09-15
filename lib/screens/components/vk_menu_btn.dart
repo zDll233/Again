@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
-import 'package:again/repository/voice_updater.dart';
+import 'package:again/services/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/log.dart';
