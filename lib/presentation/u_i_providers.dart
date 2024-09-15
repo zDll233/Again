@@ -30,4 +30,4 @@ final voiceItemProvider =
 final miscUIProvider =
     NotifierProvider<MiscNotifier, MiscState>(MiscNotifier.new);
 
-final uiServiceProvider = Provider.autoDispose((ref) => UIService(ref));
+final uiServiceProvider = Provider((ref) => UIService(ref));

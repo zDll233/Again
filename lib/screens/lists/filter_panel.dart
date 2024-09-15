@@ -22,11 +22,11 @@ class FutureFilterListView extends ConsumerWidget {
   const FutureFilterListView({super.key});
 
   Future<List> fetchcategoryItems(WidgetRef ref) async {
-    return ref.watch(categoryProvider).values;
+    return ref.watch(categoryProvider.select((state) => state.values));
   }
 
   Future<List> fetchCvItems(WidgetRef ref) async {
-    return ref.watch(cvProvider).values;
+    return ref.watch(cvProvider.select((state) => state.values));
   }
 
   @override
@@ -35,35 +35,45 @@ class FutureFilterListView extends ConsumerWidget {
       children: [
         SizedBox(
           width: 100,
-          child: FutureListView(
-            future: fetchcategoryItems(ref),
-            itemBuilder: (context, category, index) {
-              return ListTile(
-                title: Text(category),
-                onTap: () =>
-                    ref.read(categoryProvider.notifier).onSelected(index),
-                selected: ref.watch(categoryProvider).selectedIndex == index,
-              );
+          child: Consumer(
+            builder: (_, WidgetRef ref, __) {
+              final selectedIndex = ref.watch(
+                  categoryProvider.select((state) => state.selectedIndex));
+              return FutureListView(
+                  future: fetchcategoryItems(ref),
+                  itemBuilder: (context, category, index) {
+                    return ListTile(
+                      title: Text(category),
+                      onTap: () =>
+                          ref.read(categoryProvider.notifier).onSelected(index),
+                      selected: selectedIndex == index,
+                    );
+                  },
+                  itemScrollController:
+                      ref.read(uiServiceProvider).cateScrollController);
             },
-            itemScrollController:
-                ref.read(uiServiceProvider).cateScrollController,
           ),
         ),
         SizedBox(
-          width: 150,
-          child: FutureListView(
-            future: fetchCvItems(ref),
-            itemBuilder: (context, title, index) {
-              return ListTile(
-                title: Text(title),
-                onTap: () => ref.read(cvProvider.notifier).onSelected(index),
-                selected: ref.watch(cvProvider).selectedIndex == index,
-              );
-            },
-            itemScrollController:
-                ref.read(uiServiceProvider).cvScrollController,
-          ),
-        )
+            width: 150,
+            child: Consumer(
+              builder: (_, WidgetRef ref, __) {
+                final selectedIndex = ref
+                    .watch(cvProvider.select((state) => state.selectedIndex));
+                return FutureListView(
+                    future: fetchCvItems(ref),
+                    itemBuilder: (context, title, index) {
+                      return ListTile(
+                        title: Text(title),
+                        onTap: () =>
+                            ref.read(cvProvider.notifier).onSelected(index),
+                        selected: selectedIndex == index,
+                      );
+                    },
+                    itemScrollController:
+                        ref.read(uiServiceProvider).cvScrollController);
+              },
+            ))
       ],
     );
   }

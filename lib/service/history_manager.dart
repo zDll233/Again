@@ -19,26 +19,31 @@ class HistoryManager {
   }
 
   Future<void> saveHistory() async {
-    final playingItems = _uiService.playingItems;
-    final audioState = ref.read(audioProvider);
+    try {
+      final playingItems = _uiService.playingItems;
+      final audioState = ref.read(audioProvider);
 
-    Map<String, dynamic> lastPlayed = {
-      'ui': {
-        'filter': {
-          'sortOrder': playingItems['sortOrder'].toString(),
-          'category': playingItems['category'] as String,
-          'cv': playingItems['cv'] as String,
+      Map<String, dynamic> lastPlayed = {
+        'ui': {
+          'filter': {
+            'sortOrder': playingItems['sortOrder'].toString(),
+            'category': playingItems['category'] as String,
+            'cv': playingItems['cv'] as String,
+          },
+          'voiceWork':
+              playingItems['voiceWork'].toMap() as Map<String, dynamic>,
+          'voiceItem': playingItems['voiceItem'].toMap() as Map<String, dynamic>
         },
-        'voiceWork': playingItems['voiceWork'].toMap() as Map<String, dynamic>,
-        'voiceItem': playingItems['voiceItem'].toMap() as Map<String, dynamic>
-      },
-      'audio': {
-        'position': audioState.position.inMilliseconds,
-        'volume': audioState.volume,
-        'loopMode': audioState.loopMode.index
-      },
-    };
-    await ref.read(historyProvider).write(lastPlayed);
+        'audio': {
+          'position': audioState.position.inMilliseconds,
+          'volume': audioState.volume,
+          'loopMode': audioState.loopMode.index
+        },
+      };
+      await ref.read(historyProvider).write(lastPlayed);
+    } catch (e) {
+      Log.error('Error saving history.\n$e');
+    }
   }
 
   Future<void> loadHistory() async {

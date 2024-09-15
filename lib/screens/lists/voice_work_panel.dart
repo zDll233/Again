@@ -15,10 +15,11 @@ class VoiceWorkPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sortOrderIndex = ref.watch(sortOrderProvider).selectedIndex;
+    final sortOrderIndex =
+        ref.watch(sortOrderProvider.select((state) => state.selectedIndex));
     return VoicePanel(
       title:
-          'VoiceWorks(${ref.watch(voiceWorkProvider).values.length}): ${ref.watch(sortOrderProvider).selectedItem == SortOrder.byTitle ? 'title' : 'time'}',
+          'VoiceWorks(${ref.watch(voiceWorkProvider.select((state) => state.values)).length}): ${SortOrder.values[sortOrderIndex] == SortOrder.byTitle ? 'title' : 'time'}',
       listView: const FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
       onIconBtnPressed: ref.read(repositoryProvider.notifier).onUpdatePressed,
@@ -32,7 +33,7 @@ class FutureVoiceWorkListView extends ConsumerWidget {
   const FutureVoiceWorkListView({super.key});
 
   Future<List> fetchItems(WidgetRef ref) async {
-    return ref.watch(voiceWorkProvider).values;
+    return ref.watch(voiceWorkProvider.select((state) => state.values));
   }
 
   @override
@@ -40,6 +41,8 @@ class FutureVoiceWorkListView extends ConsumerWidget {
     return FutureListView(
       future: fetchItems(ref),
       itemBuilder: (context, vk, index) {
+        final selectedindex =
+            ref.watch(voiceWorkProvider.select((state) => state.selectedIndex));
         return ListTile(
           leading: ImageThumbnail(imagePath: vk.coverPath),
           title: Padding(
@@ -48,7 +51,7 @@ class FutureVoiceWorkListView extends ConsumerWidget {
           ),
           trailing: VkMenuBtn(voiceWork: vk),
           onTap: () => ref.read(voiceWorkProvider.notifier).onSelected(index),
-          selected: ref.watch(voiceWorkProvider).selectedIndex == index,
+          selected: selectedindex == index,
           contentPadding: const EdgeInsets.only(
               top: 5.0, bottom: 5.0, left: 20.0, right: 10.0),
           horizontalTitleGap: 0.0,

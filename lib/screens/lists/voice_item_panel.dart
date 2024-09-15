@@ -11,9 +11,10 @@ class VoiceItemPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final uiService = ref.read(uiServiceProvider);
+    final uiService = ref.watch(uiServiceProvider);
     return VoicePanel(
-      title: 'VoiceItems(${ref.watch(voiceItemProvider).values.length})',
+      title:
+          'VoiceItems(${ref.watch(voiceItemProvider.select((state) => state.values)).length})',
       listView: const FutureVoiceItemListView(),
       icon: const Icon(Icons.location_searching),
       onIconBtnPressed: uiService.onLocateBtnPressed,
@@ -26,13 +27,15 @@ class FutureVoiceItemListView extends ConsumerWidget {
   const FutureVoiceItemListView({super.key});
 
   Future<List> fetchItems(WidgetRef ref) async {
-    ref.read(uiServiceProvider).viCompleter = Completer();
-    return ref.watch(voiceItemProvider).values;
+    ref.watch(uiServiceProvider).viCompleter = Completer();
+    return ref.watch(voiceItemProvider.select((state) => state.values));
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiService = ref.watch(uiServiceProvider);
+    final playingIndex =
+        ref.watch(voiceItemProvider.select((state) => state.playingIndex));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       uiService.viCompleter.complete();
     });
@@ -42,7 +45,7 @@ class FutureVoiceItemListView extends ConsumerWidget {
         return ListTile(
           title: Text(vi.title),
           onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
-          selected: ref.watch(voiceItemProvider).playingIndex == index && uiService.isVoiceItemPlaying,
+          selected: playingIndex == index && uiService.isVoiceItemPlaying,
         );
       },
       itemScrollController: uiService.viScrollController,
