@@ -24,6 +24,12 @@ class VoiceItemState extends VariableListState<VoiceItem> {
     );
   }
 
+  @override
+  bool get isPlaying =>
+      playingValues.isNotEmpty &&
+      playingIndex >= 0 &&
+      playingIndex < playingValues.length;
+
   List<String> get playingVoiceItemPathList =>
       playingValues.map((voiceItem) => voiceItem.filePath).toList();
 
@@ -34,5 +40,3 @@ class VoiceItemState extends VariableListState<VoiceItem> {
 
   String get selectedVoiceItemPath => selectedItem.filePath;
 }
-
-

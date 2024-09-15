@@ -140,8 +140,12 @@ class AudioNotifier extends Notifier<AudioState> {
       await _player.release();
       updatePosition(Duration.zero);
       updateDuration(Duration.zero);
-      ref.watch(voiceWorkProvider.notifier).updatePlayingIndex(-1);
-      ref.watch(voiceItemProvider.notifier).updatePlayingIndex(-1);
+      ref.watch(voiceWorkProvider.notifier)
+        ..updatePlayingIndex(-1)
+        ..clearPlayingValues();
+      ref.watch(voiceItemProvider.notifier)
+        ..updatePlayingIndex(-1)
+        ..clearPlayingValues();
     } catch (e) {
       Log.error('Error releasing audio resource.\n$e');
     }

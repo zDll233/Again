@@ -101,39 +101,47 @@ class UIService {
   }
 
   void setPlayingIndexByMap(Map<String, dynamic> playingItems) {
-    ref
-        .read(sortOrderProvider.notifier)
-        .updatePlayingIndexByValue(playingItems['sortOrder'] as SortOrder);
-    ref
-        .read(categoryProvider.notifier)
-        .updatePlayingIndexByValue(playingItems['category'] as String);
-    ref
-        .read(cvProvider.notifier)
-        .updatePlayingIndexByValue(playingItems['cv'] as String);
-    ref
-        .read(voiceWorkProvider.notifier)
-        .updatePlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
-    ref
-        .read(voiceItemProvider.notifier)
-        .updatePlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
+    try {
+      ref
+          .read(sortOrderProvider.notifier)
+          .updatePlayingIndexByValue(playingItems['sortOrder'] as SortOrder);
+      ref
+          .read(categoryProvider.notifier)
+          .updatePlayingIndexByValue(playingItems['category'] as String);
+      ref
+          .read(cvProvider.notifier)
+          .updatePlayingIndexByValue(playingItems['cv'] as String);
+      ref
+          .read(voiceWorkProvider.notifier)
+          .updatePlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
+      ref
+          .read(voiceItemProvider.notifier)
+          .updatePlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
+    } catch (e) {
+      Log.debug('Error setting playingIndex by map.\n$e');
+    }
   }
 
   void setSelectedIndexByMap(Map<String, dynamic> selectedItems) {
-    ref
-        .read(sortOrderProvider.notifier)
-        .updateSelectedIndexByValue(selectedItems['sortOrder'] as SortOrder);
-    ref
-        .read(categoryProvider.notifier)
-        .updateSelectedIndexByValue(selectedItems['category'] as String);
-    ref
-        .read(cvProvider.notifier)
-        .updateSelectedIndexByValue(selectedItems['cv'] as String);
-    ref
-        .read(voiceWorkProvider.notifier)
-        .updateSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
-    ref
-        .read(voiceItemProvider.notifier)
-        .updateSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
+    try {
+      ref
+          .read(sortOrderProvider.notifier)
+          .updateSelectedIndexByValue(selectedItems['sortOrder'] as SortOrder);
+      ref
+          .read(categoryProvider.notifier)
+          .updateSelectedIndexByValue(selectedItems['category'] as String);
+      ref
+          .read(cvProvider.notifier)
+          .updateSelectedIndexByValue(selectedItems['cv'] as String);
+      ref
+          .read(voiceWorkProvider.notifier)
+          .updateSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
+      ref
+          .read(voiceItemProvider.notifier)
+          .updateSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
+    } catch (e) {
+      Log.debug('Error setting selectedIndex by map.\n$e');
+    }
   }
 
   void cachePlayingState() {

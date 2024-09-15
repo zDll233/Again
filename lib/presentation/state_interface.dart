@@ -99,4 +99,8 @@ abstract class VariableListStateNotifier<
   void restorePlayingValues() {
     state = state.copyWith(values: state.playingValues) as State;
   }
+
+  void clearPlayingValues() {
+    state = state.copyWith(playingValues: const []) as State;
+  }
 }

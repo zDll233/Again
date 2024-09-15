@@ -11,7 +11,8 @@ class ListLyricSwitch extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final showLyricPanel = ref.watch(miscUIProvider).showLyricPanel;
+    final showLyricPanel =
+        ref.watch(miscUIProvider.select((state) => state.showLyricPanel));
     return Expanded(
       child: Stack(
         children: [
