@@ -15,14 +15,15 @@ class VoiceWorkPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sortOrderIndex = ref.watch(sortOrderProvider).selectedIndex;
     return VoicePanel(
       title:
           'VoiceWorks(${ref.watch(voiceWorkProvider).values.length}): ${ref.watch(sortOrderProvider).selectedItem == SortOrder.byTitle ? 'title' : 'time'}',
       listView: const FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
       onIconBtnPressed: ref.read(repositoryProvider.notifier).onUpdatePressed,
-      // TODO: 没传参数?
-      onTextBtnPressed: () => ref.read(sortOrderProvider.notifier).onSelected,
+      onTextBtnPressed: () =>
+          ref.read(sortOrderProvider.notifier).onSelected(sortOrderIndex),
     );
   }
 }
