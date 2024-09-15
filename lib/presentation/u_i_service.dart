@@ -61,7 +61,6 @@ class UIService {
     ref.read(categoryProvider.notifier).cachePlayingIndex();
     ref.read(cvProvider.notifier).cachePlayingIndex();
     ref.read(voiceWorkProvider.notifier).cachePlayingIndex();
-    ref.read(voiceItemProvider.notifier).cachePlayingIndex();
   }
 
   void restoreAllPlayingIndex() {
@@ -69,8 +68,6 @@ class UIService {
     ref.read(categoryProvider.notifier).restorePlayingIndex();
     ref.read(cvProvider.notifier).restorePlayingIndex();
     ref.read(voiceWorkProvider.notifier).restorePlayingIndex();
-
-    //好像没必要restore voiceItem
   }
 
   Map<String, dynamic> get playingItems {

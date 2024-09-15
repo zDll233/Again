@@ -21,6 +21,15 @@ class AudioNotifier extends Notifier<AudioState> {
     _player.onPlayerStateChanged.listen((s) {
       updatePlayState(s);
     });
+
+    _player.onPlayerComplete.listen((event) {
+      state.loopMode == LoopMode.allLoop
+          ? ref.read(voiceItemProvider).playingIndex ==
+                  ref.read(voiceItemProvider).playingValues.length - 1
+              ? stop()
+              : playNext()
+          : _changeTrack(0);
+    });
   }
 
   void dispose() {
@@ -66,7 +75,7 @@ class AudioNotifier extends Notifier<AudioState> {
     await _player.setSource(DeviceFileSource(playablePath));
   }
 
-  Future<void> seek(Duration newPosition) async{
+  Future<void> seek(Duration newPosition) async {
     try {
       _player.seek(newPosition);
     } catch (e) {

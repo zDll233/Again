@@ -13,6 +13,18 @@ class VoiceItemNotifier
   }
 
   @override
+  /// update `playingIndex` and `selectedIndex` both
+  void updatePlayingIndex(int newIndex) {
+    state = state.copyWith(playingIndex: newIndex, selectedIndex: newIndex);
+  }
+
+  @override
+  @Deprecated('`updatePlayingIndex` updates `playingIndex` and `selectedIndex` both, use `updatePlayingIndex` instead')
+  void updateSelectedIndex(int newIndex) {
+    updatePlayingIndex(newIndex);
+  }
+
+  @override
   Future<void> onSelected(int selectedIndex) async {
     final uiService = ref.read(uiServiceProvider);
     final audioNotifier = ref.read(audioProvider.notifier);
@@ -23,7 +35,7 @@ class VoiceItemNotifier
       return;
     }
 
-    updateSelectedIndex(selectedIndex);
+    updatePlayingIndex(selectedIndex);
     uiService.cachePlayingState();
     audioNotifier.play(DeviceFileSource(state.playingVoiceItemPath));
   }
