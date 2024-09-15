@@ -35,4 +35,20 @@ class VoiceItem {
   @override
   int get hashCode =>
       title.hashCode ^ filePath.hashCode ^ voiceWorkPath.hashCode;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'filePath': filePath,
+      'voiceWorkPath': voiceWorkPath,
+    };
+  }
+
+  static VoiceItem fromMap(Map<String, dynamic> map) {
+    return VoiceItem(
+      title: map['title'],
+      filePath: map['filePath'],
+      voiceWorkPath: map['voiceWorkPath'],
+    );
+  }
 }

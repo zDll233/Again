@@ -47,4 +47,26 @@ class VoiceWork {
       coverPath.hashCode ^
       category.hashCode ^
       createdAt.hashCode;
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'directoryPath': directoryPath,
+      'coverPath': coverPath,
+      'category': category,
+      'createdAt': createdAt?.millisecondsSinceEpoch,
+    };
+  }
+
+  factory VoiceWork.fromMap(Map<String, dynamic> map) {
+    return VoiceWork(
+      title: map['title'],
+      directoryPath: map['directoryPath'],
+      coverPath: map['coverPath'],
+      category: map['category'],
+      createdAt: map['createdAt'] == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
+    );
+  }
 }

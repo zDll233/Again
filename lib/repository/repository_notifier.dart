@@ -176,19 +176,17 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   Future<void> onUpdatePressed() async {
     final uiService = ref.read(uiServiceProvider);
 
-    final playingData = await uiService.playingStringMap;
-    final selectedData = uiService.selectedStringMap;
+    final playingItems = uiService.playingItems;
+    final selectedItems = uiService.selectedItems;
 
     await updateDatabase();
     await updateViewList();
 
-    if (playingData.isNotEmpty) {
-      uiService.setPlayingIdxByString(
-          playingData['category']!, playingData['cv']!, playingData['vk']!);
+    if (playingItems.isNotEmpty) {
+      uiService.setPlayingIndexByMap(playingItems);
     }
-    if (selectedData.isNotEmpty) {
-      uiService.setSelectedIdxByString(
-          selectedData['category']!, selectedData['cv']!, selectedData['vk']!);
+    if (selectedItems.isNotEmpty) {
+      uiService.setSelectedIndexByMap(selectedItems);
     }
   }
 }

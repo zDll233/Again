@@ -1,6 +1,9 @@
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/audio/audio_state.dart';
 import 'package:again/config/config.dart';
+import 'package:again/models/voice_item.dart';
+import 'package:again/models/voice_work.dart';
+import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/presentation/u_i_service.dart';
 import 'package:again/repository/repository_providers.dart';
@@ -16,18 +19,18 @@ class HistoryManager {
   }
 
   Future<void> saveHistory() async {
-    final playingData = await _uiService.playingStringMap;
+    final playingItems = _uiService.playingItems;
     final audioState = ref.read(audioProvider);
 
     Map<String, dynamic> lastPlayed = {
       'ui': {
         'filter': {
-          'category': playingData['category'],
-          'cv': playingData['cv'],
-          'sortOrder': ref.read(sortOrderProvider).playingIndex
+          'sortOrder': playingItems['sortOrder'].toString(),
+          'category': playingItems['category'] as String,
+          'cv': playingItems['cv'] as String,
         },
-        'vk': playingData['vk'],
-        'vi': ref.read(voiceItemProvider).playingIndex
+        'voiceWork': playingItems['voiceWork'].toMap() as Map<String, dynamic>,
+        'voiceItem': playingItems['voiceItem'].toMap() as Map<String, dynamic>
       },
       'audio': {
         'position': audioState.position.inMilliseconds,
@@ -43,7 +46,6 @@ class HistoryManager {
     await repositoryNotifier.updateFilterLists();
 
     final data = await ref.read(historyProvider).read();
-    // if (data.isEmpty) return;
 
     try {
       await loadUIHistory(data['ui']);
@@ -58,16 +60,26 @@ class HistoryManager {
     if (uiHistory.isEmpty) return;
 
     final filter = uiHistory['filter'];
+    final repositoryNotifier = ref.read(repositoryProvider.notifier);
 
-    // filter vk
-    await _uiService.setPlayingIdxByString(
-        filter['category'], filter['cv'], uiHistory['vk'],
-        sort: filter['sortOrder']);
+    ref.read(sortOrderProvider.notifier).updateSelectedIndexByValue(
+        SortOrderExtension.fromString(filter['sortOrder']));
+    ref
+        .read(categoryProvider.notifier)
+        .updateSelectedIndexByValue(filter['category'] as String);
+    ref
+        .read(cvProvider.notifier)
+        .updateSelectedIndexByValue(filter['cv'] as String);
+    await repositoryNotifier.updateVkList();
+    ref
+        .read(voiceWorkProvider.notifier)
+        .updateSelectedIndexByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
+    await repositoryNotifier.updateViList();
+    ref
+        .read(voiceItemProvider.notifier)
+        .updateSelectedIndexByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
 
-    // vi
-    ref.read(voiceItemProvider.notifier).updatePlayingIndex(uiHistory['vi']);
-
-    await _uiService.onLocateBtnPressed();
+    ref.read(uiServiceProvider).cachePlayingState();
   }
 
   Future<void> loadAudioHistory(Map<String, dynamic> audioHistory) async {
@@ -77,7 +89,6 @@ class HistoryManager {
     audioNotifier
       ..setVolume(audioHistory['volume'])
       ..updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
-    ref.read(voiceItemProvider.notifier).cachePlayingValues();
 
     try {
       await audioNotifier

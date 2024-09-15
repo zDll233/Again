@@ -23,7 +23,9 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
 
-    _initialize().whenComplete(() => null);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _initialize();
+    });
 
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);

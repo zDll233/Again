@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
+import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter/widgets.dart';
@@ -23,12 +25,8 @@ class UIService {
     final sortOrder = ref.read(sortOrderProvider);
     final category = ref.read(categoryProvider);
     final cv = ref.read(cvProvider);
-    final voiceItem = ref.read(voiceItemProvider);
 
-    return sortOrder.isPlaying &&
-        category.isPlaying &&
-        cv.isPlaying &&
-        voiceItem.isPlaying;
+    return sortOrder.isPlaying && category.isPlaying && cv.isPlaying;
   }
 
   bool get isVoiceWorkPlaying =>
@@ -51,11 +49,11 @@ class UIService {
   }
 
   void setAllSelectedIndex2Playing() {
-    ref.read(sortOrderProvider.notifier).setSelectedIndex2Playing();
-    ref.read(categoryProvider.notifier).setSelectedIndex2Playing();
-    ref.read(cvProvider.notifier).setSelectedIndex2Playing();
-    ref.read(voiceWorkProvider.notifier).setSelectedIndex2Playing();
-    ref.read(voiceItemProvider.notifier).setSelectedIndex2Playing();
+    ref.read(sortOrderProvider.notifier).restorePlayingIndex();
+    ref.read(categoryProvider.notifier).restorePlayingIndex();
+    ref.read(cvProvider.notifier).restorePlayingIndex();
+    ref.read(voiceWorkProvider.notifier).restorePlayingIndex();
+    ref.read(voiceItemProvider.notifier).restorePlayingIndex();
   }
 
   void cacheAllPlayingIndex() {
@@ -66,46 +64,79 @@ class UIService {
     ref.read(voiceItemProvider.notifier).cachePlayingIndex();
   }
 
-  Future<Map<String, dynamic>> get playingStringMap async {
+  void restoreAllPlayingIndex() {
+    ref.read(sortOrderProvider.notifier).restorePlayingIndex();
+    ref.read(categoryProvider.notifier).restorePlayingIndex();
+    ref.read(cvProvider.notifier).restorePlayingIndex();
+    ref.read(voiceWorkProvider.notifier).restorePlayingIndex();
+
+    //好像没必要restore voiceItem
+  }
+
+  Map<String, dynamic> get playingItems {
     try {
       return {
+        'sortOrder': ref.read(sortOrderProvider).playingItem,
         'category': ref.read(categoryProvider).playingItem,
         'cv': ref.read(cvProvider).playingItem,
-        'vk': ref.read(voiceWorkProvider).playingItem,
+        'voiceWork': ref.read(voiceWorkProvider).playingItem,
+        'voiceItem': ref.read(voiceItemProvider).playingItem
       };
     } catch (e) {
-      Log.debug('Error getting playingStringMap.\n$e.');
+      Log.debug('Error getting playingItems.\n$e.');
       return {};
     }
   }
 
-  Map<String, dynamic> get selectedStringMap {
+  Map<String, dynamic> get selectedItems {
     try {
       return {
+        'sortOrder': ref.read(sortOrderProvider).selectedItem,
         'category': ref.read(categoryProvider).selectedItem,
         'cv': ref.read(cvProvider).selectedItem,
-        'vk': ref.read(voiceWorkProvider).selectedItem,
+        'voiceWork': ref.read(voiceWorkProvider).selectedItem,
+        'voiceItem': ref.read(voiceItemProvider).selectedItem
       };
     } catch (e) {
-      Log.debug('Error getting selectedStringMap.\n$e');
+      Log.debug('Error getting selectedItems.\n$e');
       return {};
     }
   }
 
-  Future<void> setPlayingIdxByString(String cate, String cv, VoiceWork vk,
-      {int? sort}) async {
-    if (sort != null) {
-      ref.read(sortOrderProvider.notifier).updatePlayingIndex(sort);
-    }
-    ref.read(categoryProvider.notifier).updatePlayingIndexByValue(cate);
-    ref.read(cvProvider.notifier).updatePlayingIndexByValue(cv);
-    ref.read(voiceWorkProvider.notifier).updatePlayingIndexByValue(vk);
+  void setPlayingIndexByMap(Map<String, dynamic> playingItems) {
+    ref
+        .read(sortOrderProvider.notifier)
+        .updatePlayingIndexByValue(playingItems['sortOrder'] as SortOrder);
+    ref
+        .read(categoryProvider.notifier)
+        .updatePlayingIndexByValue(playingItems['category'] as String);
+    ref
+        .read(cvProvider.notifier)
+        .updatePlayingIndexByValue(playingItems['cv'] as String);
+    ref
+        .read(voiceWorkProvider.notifier)
+        .updatePlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
+    ref
+        .read(voiceItemProvider.notifier)
+        .updatePlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
   }
 
-  void setSelectedIdxByString(String cate, String cv, VoiceWork vk) {
-    ref.read(categoryProvider.notifier).updateSelectedIndexByValue(cate);
-    ref.read(cvProvider.notifier).updateSelectedIndexByValue(cv);
-    ref.read(voiceWorkProvider.notifier).updateSelectedIndexByValue(vk);
+  void setSelectedIndexByMap(Map<String, dynamic> selectedItems) {
+    ref
+        .read(sortOrderProvider.notifier)
+        .updateSelectedIndexByValue(selectedItems['sortOrder'] as SortOrder);
+    ref
+        .read(categoryProvider.notifier)
+        .updateSelectedIndexByValue(selectedItems['category'] as String);
+    ref
+        .read(cvProvider.notifier)
+        .updateSelectedIndexByValue(selectedItems['cv'] as String);
+    ref
+        .read(voiceWorkProvider.notifier)
+        .updateSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
+    ref
+        .read(voiceItemProvider.notifier)
+        .updateSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
   }
 
   void cachePlayingState() {
@@ -114,10 +145,13 @@ class UIService {
     cacheAllPlayingIndex();
   }
 
-  Future<void> revealInExplorerView() async {
-    // final db = Get.find<DatabaseController>();
-    // VoiceWork vk = await db.getVkByPath(selectedVkPath);
+  void restorePlayingState() {
+    ref.read(voiceWorkProvider.notifier).restorePlayingValues();
+    ref.read(voiceItemProvider.notifier).restorePlayingValues();
+    restoreAllPlayingIndex();
+  }
 
+  Future<void> revealInExplorerView() async {
     if (isVoiceWorkPlaying) {
       selectPlayingVoiceItem();
     } else {
@@ -167,40 +201,26 @@ class UIService {
     }
   }
 
-  /// Locates the playing item by updating the selection and scrolling to it.
-  Future<void> onLocateBtnPressed() async {
+  /// Locates the playing item by restoring PlayingStates and scrolling to it.
+  void onLocateBtnPressed() {
     if (!isVoiceWorkPlaying) {
-      await _setFilterPlaying();
+      restorePlayingState();
     }
     scrollToPlayingIdx();
   }
 
-  /// set filter playing idx value, update vk list
-  ///
-  /// filterSelected will open vi list when filter is playing
-  Future<void> _setFilterPlaying() async {
-    // sortOrder.value = playingSortOrder;
-    // selectedCategoryIdx.value = playingCategoryIdx.value;
-    // await onCvSelected(playingCvIdx.value);
-    ref.read(sortOrderProvider.notifier).setSelectedIndex2Playing();
-    ref.read(categoryProvider.notifier).setSelectedIndex2Playing();
-    await ref
-        .read(cvProvider.notifier)
-        .onSelected(ref.read(cvProvider).playingIndex);
-  }
-
   void scrollToPlayingIdx() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await viCompleter.future;
-        scrollToIndex(
-            cateScrollController, ref.read(categoryProvider).playingIndex);
-        scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
-        scrollToIndex(
-            vkScrollController, ref.read(voiceWorkProvider).playingIndex);
-        scrollToIndex(
-            viScrollController, ref.read(voiceItemProvider).playingIndex);
-      });
+      // WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // await viCompleter.future;
+      scrollToIndex(
+          cateScrollController, ref.read(categoryProvider).playingIndex);
+      scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
+      scrollToIndex(
+          vkScrollController, ref.read(voiceWorkProvider).playingIndex);
+      scrollToIndex(
+          viScrollController, ref.read(voiceItemProvider).playingIndex);
+      // });
     });
   }
 }

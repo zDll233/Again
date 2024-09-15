@@ -5,12 +5,19 @@ enum SortOrder {
   byCreatedAt,
 }
 
+extension SortOrderExtension on SortOrder {
+  static SortOrder fromString(String value) {
+    return SortOrder.values.firstWhere(
+      (e) => e.toString() == value,
+    );
+  }
+}
+
 class SortOrderState extends ListState<SortOrder> {
   SortOrderState(
       {super.values = SortOrder.values,
       super.playingIndex = 0,
       super.selectedIndex = 0});
-
 
   @override
   SortOrderState copyWith(

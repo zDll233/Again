@@ -82,7 +82,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     state = newState;
   }
 
-  void setSelectedIndex2Playing() => updateSelectedIndex(state.playingIndex);
+  void restorePlayingIndex() => updateSelectedIndex(state.playingIndex);
 
   void cachePlayingIndex() => updatePlayingIndex(state.selectedIndex);
 
@@ -94,5 +94,9 @@ abstract class VariableListStateNotifier<
     ValueType> extends ListStateNotifier<State, ValueType> {
   void cachePlayingValues() {
     state = state.copyWith(playingValues: state.values) as State;
+  }
+
+  void restorePlayingValues() {
+    state = state.copyWith(values: state.playingValues) as State;
   }
 }
