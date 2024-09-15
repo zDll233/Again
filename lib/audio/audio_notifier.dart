@@ -181,7 +181,7 @@ class AudioNotifier extends Notifier<AudioState> {
 
     setVolume(audioHistory['volume']);
 
-    ref.read(voiceItemProvider.notifier).updatePlayingValues();
+    ref.read(voiceItemProvider.notifier).cachePlayingValues();
     updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
 
     try {

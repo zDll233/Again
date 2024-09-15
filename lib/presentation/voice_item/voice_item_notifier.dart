@@ -15,15 +15,16 @@ class VoiceItemNotifier
   @override
   Future<void> onSelected(int selectedIndex) async {
     final uiService = ref.read(uiServiceProvider);
-    final audio = ref.read(audioProvider.notifier);
+    final audioNotifier = ref.read(audioProvider.notifier);
 
-    if (uiService.isVoiceItemPlaying && selectedIndex == state.playingIndex) {
-      audio.switchPauseResume();
+    /// 选中的VoiceItem正在播放则暂停并返回
+    if (uiService.isVoiceWorkPlaying && state.playingIndex == selectedIndex) {
+      audioNotifier.switchPauseResume();
       return;
     }
 
-    updatePlayingIndex(selectedIndex);
+    updateSelectedIndex(selectedIndex);
     uiService.cachePlayingState();
-    audio.play(DeviceFileSource(state.playingVoiceItemPath));
+    audioNotifier.play(DeviceFileSource(state.playingVoiceItemPath));
   }
 }

@@ -23,7 +23,8 @@ class _MyAppState extends ConsumerState<MyApp> {
   void initState() {
     super.initState();
 
-    _initialize();
+    _initialize().whenComplete(() => null);
+
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
   }

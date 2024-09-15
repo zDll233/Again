@@ -39,12 +39,12 @@ class HistoryManager {
   }
 
   Future<void> loadHistory() async {
-    final data = await ref.read(historyProvider).read();
-    if (data.isEmpty) return;
-
     final repositoryNotifier = ref.read(repositoryProvider.notifier);
-
     await repositoryNotifier.updateFilterLists();
+
+    final data = await ref.read(historyProvider).read();
+    // if (data.isEmpty) return;
+
     try {
       await loadUIHistory(data['ui']);
       await loadAudioHistory(data['audio']);
@@ -77,7 +77,7 @@ class HistoryManager {
     audioNotifier
       ..setVolume(audioHistory['volume'])
       ..updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
-    ref.read(voiceItemProvider.notifier).updatePlayingValues();
+    ref.read(voiceItemProvider.notifier).cachePlayingValues();
 
     try {
       await audioNotifier

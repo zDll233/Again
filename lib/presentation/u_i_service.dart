@@ -58,6 +58,14 @@ class UIService {
     ref.read(voiceItemProvider.notifier).setSelectedIndex2Playing();
   }
 
+  void cacheAllPlayingIndex() {
+    ref.read(sortOrderProvider.notifier).cachePlayingIndex();
+    ref.read(categoryProvider.notifier).cachePlayingIndex();
+    ref.read(cvProvider.notifier).cachePlayingIndex();
+    ref.read(voiceWorkProvider.notifier).cachePlayingIndex();
+    ref.read(voiceItemProvider.notifier).cachePlayingIndex();
+  }
+
   Future<Map<String, dynamic>> get playingStringMap async {
     try {
       return {
@@ -101,9 +109,9 @@ class UIService {
   }
 
   void cachePlayingState() {
-    ref.read(voiceWorkProvider.notifier).updatePlayingValues();
-    ref.read(voiceItemProvider.notifier).updatePlayingValues();
-    setAllSelectedIndex2Playing();
+    ref.read(voiceWorkProvider.notifier).cachePlayingValues();
+    ref.read(voiceItemProvider.notifier).cachePlayingValues();
+    cacheAllPlayingIndex();
   }
 
   Future<void> revealInExplorerView() async {

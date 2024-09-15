@@ -14,7 +14,7 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RepositoryNotifier extends AsyncNotifier<RepositoryState> {
+class RepositoryNotifier extends Notifier<RepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
