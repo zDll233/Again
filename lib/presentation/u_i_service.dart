@@ -216,16 +216,16 @@ class UIService {
 
   void scrollToPlayingIdx() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // await viCompleter.future;
-      scrollToIndex(
-          cateScrollController, ref.read(categoryProvider).playingIndex);
-      scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
-      scrollToIndex(
-          vkScrollController, ref.read(voiceWorkProvider).playingIndex);
-      scrollToIndex(
-          viScrollController, ref.read(voiceItemProvider).playingIndex);
-      // });
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        await viCompleter.future;
+        scrollToIndex(
+            cateScrollController, ref.read(categoryProvider).playingIndex);
+        scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
+        scrollToIndex(
+            vkScrollController, ref.read(voiceWorkProvider).playingIndex);
+        scrollToIndex(
+            viScrollController, ref.read(voiceItemProvider).playingIndex);
+      });
     });
   }
 }

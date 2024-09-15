@@ -84,7 +84,9 @@ class HistoryManager {
         .read(voiceItemProvider.notifier)
         .updateSelectedIndexByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
 
-    ref.read(uiServiceProvider).cachePlayingState();
+    ref.read(uiServiceProvider)
+      ..cachePlayingState()
+      ..onLocateBtnPressed();
   }
 
   Future<void> loadAudioHistory(Map<String, dynamic> audioHistory) async {

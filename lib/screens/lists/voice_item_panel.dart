@@ -27,7 +27,7 @@ class FutureVoiceItemListView extends ConsumerWidget {
   const FutureVoiceItemListView({super.key});
 
   Future<List> fetchItems(WidgetRef ref) async {
-    ref.watch(uiServiceProvider).viCompleter = Completer();
+    ref.read(uiServiceProvider).viCompleter = Completer();
     return ref.watch(voiceItemProvider.select((state) => state.values));
   }
 
