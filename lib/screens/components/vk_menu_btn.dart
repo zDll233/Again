@@ -105,7 +105,9 @@ class _VkMenuBtnState extends ConsumerState<VkMenuBtn> {
     }
 
     try {
-      if (ref.read(voiceWorkProvider).playingItem == widget.voiceWork) {
+      final voiceWorkState = ref.read(voiceWorkProvider);
+      if (voiceWorkState.isPlaying &&
+          voiceWorkState.playingItem == widget.voiceWork) {
         await ref.read(audioProvider.notifier).release();
       }
 
@@ -144,7 +146,9 @@ class _VkMenuBtnState extends ConsumerState<VkMenuBtn> {
     Directory oldDirectory = Directory(widget.voiceWork.directoryPath);
 
     try {
-      if (ref.read(voiceWorkProvider).playingItem == widget.voiceWork) {
+      final voiceWorkState = ref.read(voiceWorkProvider);
+      if (voiceWorkState.isPlaying &&
+          voiceWorkState.playingItem == widget.voiceWork) {
         await ref.read(audioProvider.notifier).release();
       }
 
@@ -152,6 +156,11 @@ class _VkMenuBtnState extends ConsumerState<VkMenuBtn> {
       Log.info(
           'Move "${widget.voiceWork.title}" from "${widget.voiceWork.category}" to "$cate".');
       ref.read(repositoryProvider.notifier).onUpdatePressed();
+      if (ref.read(uiServiceProvider).isFilterPlaying) {
+        ref
+            .read(voiceWorkProvider.notifier)
+            .removeItemInPlayingValues(widget.voiceWork);
+      }
     } catch (e) {
       Log.error(
           'Error moving "${oldDirectory.path}" to "$newDirectoryPath".\n$e.');

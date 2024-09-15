@@ -86,6 +86,11 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
 
   void cachePlayingIndex() => updatePlayingIndex(state.selectedIndex);
 
+  void removeItemInValues(ValueType value) {
+    final newValues = state.values.toList()..remove(value);
+    updateValues(newValues);
+  }
+
   Future<void> onSelected(int selectedIndex);
 }
 
@@ -102,5 +107,10 @@ abstract class VariableListStateNotifier<
 
   void clearPlayingValues() {
     state = state.copyWith(playingValues: const []) as State;
+  }
+
+  void removeItemInPlayingValues(ValueType value) {
+    final newValues = state.playingValues.toList()..remove(value);
+    state = state.copyWith(playingValues: newValues) as State;
   }
 }
