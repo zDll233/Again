@@ -11,7 +11,7 @@ class CvNotifier extends ListStateNotifier<CvState, String> {
 
   @override
   Future<void> onSelected(int selectedIndex) async {
-    updateSelectedIndex(selectedIndex);
+    setSelectedIndex(selectedIndex);
     await ref.read(repositoryProvider.notifier).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }

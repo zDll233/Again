@@ -13,7 +13,7 @@ class FilterPanel extends ConsumerWidget {
       title: 'Filter',
       listView: const FutureFilterListView(),
       icon: const Icon(Icons.remove),
-      onIconBtnPressed: ref.read(uiServiceProvider).onRemoveFilterPressed,
+      onIconBtnPressed: ref.read(uiServiceProvider).onResetFilterPressed,
     );
   }
 }

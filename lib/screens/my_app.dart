@@ -32,7 +32,7 @@ class _MyAppState extends ConsumerState<MyApp> {
   }
 
   Future<void> _initialize() async {
-    await ref.read(repositoryProvider.notifier).initializeStorage();
+    await ref.read(repositoryProvider.notifier).initialize();
     await ref.read(historyManagerProvider).loadHistory();
     initializeScript();
   }

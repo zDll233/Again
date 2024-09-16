@@ -184,14 +184,18 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   }
 
   Widget _buildPrevButton() {
-    return IconButton(
-      key: const Key('prev_button'),
-      onPressed: ref.read(voiceItemProvider).playingIndex >= 0
-          ? audioNotifier.playPrev
-          : null,
-      iconSize: PlayerWidget._iconSize,
-      icon: const Icon(Icons.skip_previous),
-      padding: const EdgeInsets.all(2.5),
+    return Consumer(
+      builder: (_, WidgetRef ref, __) {
+        final isPlaying =
+            ref.watch(voiceItemProvider.select((state) => state.isPlaying));
+        return IconButton(
+          key: const Key('prev_button'),
+          onPressed: isPlaying ? audioNotifier.playPrev : null,
+          iconSize: PlayerWidget._iconSize,
+          icon: const Icon(Icons.skip_previous),
+          padding: const EdgeInsets.all(2.5),
+        );
+      },
     );
   }
 
@@ -200,11 +204,11 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
       builder: (_, WidgetRef ref, __) {
         final playerState =
             ref.watch(audioProvider.select((state) => state.playerState));
+        final isPlaying =
+            ref.watch(voiceItemProvider.select((state) => state.isPlaying));
         return IconButton(
           key: const Key('play_pause_button'),
-          onPressed: ref.read(voiceItemProvider).playingIndex >= 0
-              ? audioNotifier.switchPauseResume
-              : null,
+          onPressed: isPlaying ? audioNotifier.switchPauseResume : null,
           iconSize: PlayerWidget._iconSize,
           icon: playerState == PlayerState.playing
               ? const Icon(Icons.pause)
@@ -216,14 +220,18 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   }
 
   Widget _buildNextButton() {
-    return IconButton(
-      key: const Key('next_button'),
-      onPressed: ref.read(voiceItemProvider).playingIndex >= 0
-          ? audioNotifier.playNext
-          : null,
-      iconSize: PlayerWidget._iconSize,
-      icon: const Icon(Icons.skip_next),
-      padding: const EdgeInsets.all(2.5),
+    return Consumer(
+      builder: (_, WidgetRef ref, __) {
+        final isPlaying =
+            ref.watch(voiceItemProvider.select((state) => state.isPlaying));
+        return IconButton(
+          key: const Key('next_button'),
+          onPressed: isPlaying ? audioNotifier.playNext : null,
+          iconSize: PlayerWidget._iconSize,
+          icon: const Icon(Icons.skip_next),
+          padding: const EdgeInsets.all(2.5),
+        );
+      },
     );
   }
 

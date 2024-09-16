@@ -14,7 +14,46 @@ class VoiceWorkNotifier
   Future<void> onSelected(int selectedIndex) async {
     if (selectedIndex < 0) return;
 
-    updateSelectedIndex(selectedIndex);
+    setSelectedIndex(selectedIndex);
+
     ref.read(repositoryProvider.notifier).updateViList();
+  }
+
+  void addItemInPlayingValues(VoiceWork value) {
+    List<VoiceWork> newValues = state.playingValues.toList()..add(value);
+    ref.read(repositoryProvider.notifier).sortVoiceWorkList(newValues);
+    state = state.copyWith(playingValues: newValues);
+  }
+
+  void setCachedSelectedItem(VoiceWork? newItem) {
+    state = state.copyWith(cachedSelectedItem: newItem);
+  }
+
+  @override
+
+  /// set selectedIndex and cache selectedItem
+  void setSelectedIndex(int newIndex) {
+    state = state.copyWith(selectedIndex: newIndex);
+    _cacheSelectedItem();
+  }
+
+  @override
+  void setSelectedIndexByValue(VoiceWork newItem) {
+    setSelectedIndex(state.values.indexOf(newItem));
+  }
+
+  void _cacheSelectedItem() {
+    setCachedSelectedItem(state.selectedIndex >= 0 ? state.selectedItem : null);
+  }
+
+  void _restoreCachedPlayingItem() {
+    setCachedSelectedItem(state.cachedPlayingItem);
+  }
+
+  @override
+  void restorePlayingState() {
+    restorePlayingValues();
+    restorePlayingIndex();
+    _restoreCachedPlayingItem();
   }
 }

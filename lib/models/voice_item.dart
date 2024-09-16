@@ -51,4 +51,16 @@ class VoiceItem {
       voiceWorkPath: map['voiceWorkPath'],
     );
   }
+
+  VoiceItem copyWith({
+    String? title,
+    String? filePath,
+    String? voiceWorkPath,
+  }) {
+    return VoiceItem(
+      title: title ?? this.title,
+      filePath: filePath ?? this.filePath,
+      voiceWorkPath: voiceWorkPath ?? this.voiceWorkPath,
+    );
+  }
 }

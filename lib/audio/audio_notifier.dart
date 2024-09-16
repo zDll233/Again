@@ -106,8 +106,11 @@ class AudioNotifier extends Notifier<AudioState> {
       return;
     }
 
-    ref.read(voiceItemProvider.notifier).updatePlayingIndex(temp);
-    play(DeviceFileSource(ref.read(voiceItemProvider).playingVoiceItemPath));
+    ref.read(voiceItemProvider.notifier)
+      ..setPlayingIndex(temp)
+      ..cachePlayingItem();
+    play(DeviceFileSource(
+        ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!));
   }
 
   void pause() {
@@ -140,12 +143,8 @@ class AudioNotifier extends Notifier<AudioState> {
       await _player.release();
       updatePosition(Duration.zero);
       updateDuration(Duration.zero);
-      ref.watch(voiceWorkProvider.notifier)
-        ..updatePlayingIndex(-1)
-        ..clearPlayingValues();
-      ref.watch(voiceItemProvider.notifier)
-        ..updatePlayingIndex(-1)
-        ..clearPlayingValues();
+      ref.read(voiceWorkProvider.notifier).clearPlayingState();
+      ref.read(voiceItemProvider.notifier).clearPlayingState();
     } catch (e) {
       Log.error('Error releasing audio resource.\n$e');
     }
@@ -184,7 +183,7 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void onPausePressed() {
-    if (ref.read(voiceItemProvider).isPlaying) {
+    if (ref.read(voiceItemProvider).isSelectedItemPlaying) {
       switchPauseResume();
     }
   }
@@ -198,7 +197,7 @@ class AudioNotifier extends Notifier<AudioState> {
     updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
 
     try {
-      await setSource(ref.read(voiceItemProvider).playingVoiceItemPath);
+      await setSource(ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!);
       await seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {
       Log.error('Error loading audio history.\n$e');

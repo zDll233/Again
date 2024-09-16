@@ -1,8 +1,7 @@
 import 'dart:io';
 
+import 'package:again/const/const.dart';
 import 'package:again/utils/log.dart';
-
-import 'package:path/path.dart' as p;
 
 /// scripts/recycle.ps1
 const String recycleScript = '''
@@ -32,9 +31,8 @@ function Remove-Item-ToRecycleBin(\$path) {
 Remove-Item-ToRecycleBin -Path "\$path"
 ''';
 
-
 Future<void> generateDeleteScript() async {
-  final scriptPath = p.join("scripts", "delete.ps1");
+  final scriptPath = deleteScriptPath;
   final scriptFile = File(scriptPath);
 
   if (!await scriptFile.exists()) {

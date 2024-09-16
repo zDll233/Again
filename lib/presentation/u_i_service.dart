@@ -21,53 +21,31 @@ class UIService {
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
 
-  bool get isFilterPlaying {
+  bool get isSelectedFilterPlaying {
     final sortOrder = ref.read(sortOrderProvider);
     final category = ref.read(categoryProvider);
     final cv = ref.read(cvProvider);
 
-    return sortOrder.isPlaying && category.isPlaying && cv.isPlaying;
+    return sortOrder.isSelectedItemPlaying &&
+        category.isSelectedItemPlaying &&
+        cv.isSelectedItemPlaying;
   }
 
-  bool get isVoiceWorkPlaying =>
-      isFilterPlaying && ref.read(voiceWorkProvider).isPlaying;
-
-  bool get isVoiceItemPlaying =>
-      isVoiceWorkPlaying && ref.read(voiceItemProvider).isPlaying;
+  bool get isSelectedVoiceWorkPlaying =>
+      isSelectedFilterPlaying &&
+      ref.read(voiceWorkProvider).isSelectedItemPlaying;
 
   Future<void> filterSelected() async {
     final voiceWorkNotifier = ref.read(voiceWorkProvider.notifier);
 
-    if (isFilterPlaying) {
+    if (isSelectedFilterPlaying) {
       await voiceWorkNotifier
           .onSelected(ref.read(voiceWorkProvider).playingIndex);
     } else {
-      voiceWorkNotifier.updateSelectedIndex(-1);
+      voiceWorkNotifier.setSelectedIndex(-1);
       final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
       voiceItemNotifier.clearValues();
     }
-  }
-
-  void setAllSelectedIndex2Playing() {
-    ref.read(sortOrderProvider.notifier).restorePlayingIndex();
-    ref.read(categoryProvider.notifier).restorePlayingIndex();
-    ref.read(cvProvider.notifier).restorePlayingIndex();
-    ref.read(voiceWorkProvider.notifier).restorePlayingIndex();
-    ref.read(voiceItemProvider.notifier).restorePlayingIndex();
-  }
-
-  void cacheAllPlayingIndex() {
-    ref.read(sortOrderProvider.notifier).cachePlayingIndex();
-    ref.read(categoryProvider.notifier).cachePlayingIndex();
-    ref.read(cvProvider.notifier).cachePlayingIndex();
-    ref.read(voiceWorkProvider.notifier).cachePlayingIndex();
-  }
-
-  void restoreAllPlayingIndex() {
-    ref.read(sortOrderProvider.notifier).restorePlayingIndex();
-    ref.read(categoryProvider.notifier).restorePlayingIndex();
-    ref.read(cvProvider.notifier).restorePlayingIndex();
-    ref.read(voiceWorkProvider.notifier).restorePlayingIndex();
   }
 
   Map<String, dynamic> get playingItems {
@@ -76,8 +54,8 @@ class UIService {
         'sortOrder': ref.read(sortOrderProvider).playingItem,
         'category': ref.read(categoryProvider).playingItem,
         'cv': ref.read(cvProvider).playingItem,
-        'voiceWork': ref.read(voiceWorkProvider).playingItem,
-        'voiceItem': ref.read(voiceItemProvider).playingItem
+        'voiceWork': ref.read(voiceWorkProvider).cachedPlayingItem!,
+        'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem!
       };
     } catch (e) {
       Log.debug('Error getting playingItems.\n$e.');
@@ -91,8 +69,7 @@ class UIService {
         'sortOrder': ref.read(sortOrderProvider).selectedItem,
         'category': ref.read(categoryProvider).selectedItem,
         'cv': ref.read(cvProvider).selectedItem,
-        'voiceWork': ref.read(voiceWorkProvider).selectedItem,
-        'voiceItem': ref.read(voiceItemProvider).selectedItem
+        'voiceWork': ref.read(voiceWorkProvider).cachedSelectedItem!,
       };
     } catch (e) {
       Log.debug('Error getting selectedItems.\n$e');
@@ -104,19 +81,19 @@ class UIService {
     try {
       ref
           .read(sortOrderProvider.notifier)
-          .updatePlayingIndexByValue(playingItems['sortOrder'] as SortOrder);
+          .setPlayingIndexByValue(playingItems['sortOrder'] as SortOrder);
       ref
           .read(categoryProvider.notifier)
-          .updatePlayingIndexByValue(playingItems['category'] as String);
+          .setPlayingIndexByValue(playingItems['category'] as String);
       ref
           .read(cvProvider.notifier)
-          .updatePlayingIndexByValue(playingItems['cv'] as String);
+          .setPlayingIndexByValue(playingItems['cv'] as String);
       ref
           .read(voiceWorkProvider.notifier)
-          .updatePlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
+          .setPlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
       ref
           .read(voiceItemProvider.notifier)
-          .updatePlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
+          .setPlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
     } catch (e) {
       Log.debug('Error setting playingIndex by map.\n$e');
     }
@@ -126,42 +103,43 @@ class UIService {
     try {
       ref
           .read(sortOrderProvider.notifier)
-          .updateSelectedIndexByValue(selectedItems['sortOrder'] as SortOrder);
+          .setSelectedIndexByValue(selectedItems['sortOrder'] as SortOrder);
       ref
           .read(categoryProvider.notifier)
-          .updateSelectedIndexByValue(selectedItems['category'] as String);
+          .setSelectedIndexByValue(selectedItems['category'] as String);
       ref
           .read(cvProvider.notifier)
-          .updateSelectedIndexByValue(selectedItems['cv'] as String);
+          .setSelectedIndexByValue(selectedItems['cv'] as String);
       ref
           .read(voiceWorkProvider.notifier)
-          .updateSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
-      ref
-          .read(voiceItemProvider.notifier)
-          .updateSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
+          .setSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
     } catch (e) {
       Log.debug('Error setting selectedIndex by map.\n$e');
     }
   }
 
-  void cachePlayingState() {
-    ref.read(voiceWorkProvider.notifier).cachePlayingValues();
-    ref.read(voiceItemProvider.notifier).cachePlayingValues();
-    cacheAllPlayingIndex();
+  void cacheAllPlayingState() {
+    ref.read(sortOrderProvider.notifier).cachePlayingState();
+    ref.read(categoryProvider.notifier).cachePlayingState();
+    ref.read(cvProvider.notifier).cachePlayingState();
+    ref.read(voiceWorkProvider.notifier).cachePlayingState();
+    ref.read(voiceItemProvider.notifier).cachePlayingState();
   }
 
-  void restorePlayingState() {
-    ref.read(voiceWorkProvider.notifier).restorePlayingValues();
-    ref.read(voiceItemProvider.notifier).restorePlayingValues();
-    restoreAllPlayingIndex();
+  void restoreAllPlayingState() {
+    ref.read(sortOrderProvider.notifier).restorePlayingState();
+    ref.read(categoryProvider.notifier).restorePlayingState();
+    ref.read(cvProvider.notifier).restorePlayingState();
+    ref.read(voiceWorkProvider.notifier).restorePlayingState();
+    ref.read(voiceItemProvider.notifier).restorePlayingState();
   }
 
   Future<void> revealInExplorerView() async {
-    if (isVoiceWorkPlaying) {
+    if (isSelectedVoiceWorkPlaying) {
       selectPlayingVoiceItem();
     } else {
       Process.run(
-          'explorer /select, "${ref.read(voiceWorkProvider).selectedVoiceWorkPath}"',
+          'explorer /select, "${ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath}"',
           []);
     }
   }
@@ -171,20 +149,16 @@ class UIService {
     // code below doesn't work
     // Process.run('explorer', ['/select,', '"$playingViPath"']); // wrap path in "" so that Windows can resolve it
     Process.run(
-        'explorer /select, "${ref.read(voiceItemProvider).playingVoiceItemPath}"',
+        'explorer /select, "${ref.read(voiceItemProvider).cachedPlayingVoiceItemPath}"',
         []);
   }
 
   /// Resets the filters and scrolls to the top.
-  Future<void> onRemoveFilterPressed() async {
-    await _resetFilters();
-    _scrollToTop();
-  }
-
-  /// reset category & cv, except sortOrder
-  Future<void> _resetFilters() async {
-    ref.read(categoryProvider.notifier).updateSelectedIndex(0);
+  Future<void> onResetFilterPressed() async {
+    ref.read(categoryProvider.notifier).setSelectedIndex(0);
     await ref.read(cvProvider.notifier).onSelected(0);
+
+    _scrollToTop();
   }
 
   void _scrollToTop() {
@@ -208,13 +182,13 @@ class UIService {
 
   /// Locates the playing item by restoring PlayingStates and scrolling to it.
   void onLocateBtnPressed() {
-    if (!isVoiceWorkPlaying) {
-      restorePlayingState();
+    if (!isSelectedVoiceWorkPlaying) {
+      restoreAllPlayingState();
     }
-    scrollToPlayingIdx();
+    scrollToPlayingIndex();
   }
 
-  void scrollToPlayingIdx() {
+  void scrollToPlayingIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         await viCompleter.future;

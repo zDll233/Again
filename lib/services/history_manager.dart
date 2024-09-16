@@ -1,6 +1,6 @@
 import 'package:again/audio/audio_providers.dart';
 import 'package:again/audio/audio_state.dart';
-import 'package:again/config/config.dart';
+import 'package:again/const/const.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
@@ -62,31 +62,37 @@ class HistoryManager {
   }
 
   Future<void> loadUIHistory(Map<String, dynamic> uiHistory) async {
-    if (uiHistory.isEmpty) return;
+    try {
+      if (uiHistory.isEmpty) return;
 
-    final filter = uiHistory['filter'];
-    final repositoryNotifier = ref.read(repositoryProvider.notifier);
+      final filter = uiHistory['filter'];
+      final repositoryNotifier = ref.read(repositoryProvider.notifier);
 
-    ref.read(sortOrderProvider.notifier).updateSelectedIndexByValue(
-        SortOrderExtension.fromString(filter['sortOrder']));
-    ref
-        .read(categoryProvider.notifier)
-        .updateSelectedIndexByValue(filter['category'] as String);
-    ref
-        .read(cvProvider.notifier)
-        .updateSelectedIndexByValue(filter['cv'] as String);
-    await repositoryNotifier.updateVkList();
-    ref
-        .read(voiceWorkProvider.notifier)
-        .updateSelectedIndexByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
-    await repositoryNotifier.updateViList();
-    ref
-        .read(voiceItemProvider.notifier)
-        .updateSelectedIndexByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
+      ref.read(sortOrderProvider.notifier).setSelectedIndexByValue(
+          SortOrderExtension.fromString(filter['sortOrder']));
+      ref
+          .read(categoryProvider.notifier)
+          .setSelectedIndexByValue(filter['category'] as String);
+      ref
+          .read(cvProvider.notifier)
+          .setSelectedIndexByValue(filter['cv'] as String);
+      // voiceWork
+      await repositoryNotifier.updateVkList();
+      ref
+          .read(voiceWorkProvider.notifier)
+          .setSelectedIndexByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
+      // voiceItem
+      await repositoryNotifier.updateViList();
+      ref
+          .read(voiceItemProvider.notifier)
+          .setSelectedIndexByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
 
-    ref.read(uiServiceProvider)
-      ..cachePlayingState()
-      ..onLocateBtnPressed();
+      ref.read(uiServiceProvider)
+        ..cacheAllPlayingState()
+        ..onLocateBtnPressed();
+    } catch (e) {
+      Log.error('Error loading UI history.\n$e');
+    }
   }
 
   Future<void> loadAudioHistory(Map<String, dynamic> audioHistory) async {
@@ -99,7 +105,7 @@ class HistoryManager {
 
     try {
       await audioNotifier
-          .setSource(ref.read(voiceItemProvider).playingVoiceItemPath);
+          .setSource(ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!);
       await audioNotifier
           .seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {

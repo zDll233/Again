@@ -10,16 +10,15 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   }
 
   void updateSelectedSortOrder(SortOrder sortOrder) {
-    int index = state.values.indexOf(sortOrder);
-    updateSelectedIndex(index);
+    setSelectedIndex(sortOrder.index);
   }
 
   @override
   Future<void> onSelected(int selectedIndex) async {
     int length = state.values.length;
     int temp = state.selectedIndex + 1;
-    updateSelectedIndex(temp < length ? temp : 0);
-    ref.read(repositoryProvider.notifier).updateVkList();
+    setSelectedIndex(temp < length ? temp : 0);
+    await ref.read(repositoryProvider.notifier).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }
 }

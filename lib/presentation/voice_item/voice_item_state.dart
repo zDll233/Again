@@ -3,6 +3,7 @@ import 'package:again/presentation/state_interface.dart';
 
 class VoiceItemState extends VariableListState<VoiceItem> {
   VoiceItemState({
+    super.cachedPlayingItem,
     super.playingValues = const [],
     super.values = const [],
     super.playingIndex = -1,
@@ -11,12 +12,14 @@ class VoiceItemState extends VariableListState<VoiceItem> {
 
   @override
   VoiceItemState copyWith({
+    VoiceItem? cachedPlayingItem,
     List<VoiceItem>? playingValues,
     List<VoiceItem>? values,
     int? playingIndex,
     int? selectedIndex,
   }) {
     return VoiceItemState(
+      cachedPlayingItem: cachedPlayingItem ?? this.cachedPlayingItem,
       playingValues: playingValues ?? this.playingValues,
       values: values ?? this.values,
       playingIndex: playingIndex ?? this.playingIndex,
@@ -24,19 +27,7 @@ class VoiceItemState extends VariableListState<VoiceItem> {
     );
   }
 
-  @override
-  bool get isPlaying =>
-      playingValues.isNotEmpty &&
-      playingIndex >= 0 &&
-      playingIndex < playingValues.length;
-
-  List<String> get playingVoiceItemPathList =>
-      playingValues.map((voiceItem) => voiceItem.filePath).toList();
-
-  List<String> get selectedVoiceItemPathList =>
-      values.map((voiceItem) => voiceItem.filePath).toList();
-
-  String get playingVoiceItemPath => playingItem.filePath;
+  String? get cachedPlayingVoiceItemPath => cachedPlayingItem?.filePath;
 
   String get selectedVoiceItemPath => selectedItem.filePath;
 }

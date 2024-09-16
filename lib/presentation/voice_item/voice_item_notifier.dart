@@ -13,30 +13,32 @@ class VoiceItemNotifier
   }
 
   @override
-  /// update `playingIndex` and `selectedIndex` both
-  void updatePlayingIndex(int newIndex) {
-    state = state.copyWith(playingIndex: newIndex, selectedIndex: newIndex);
-  }
-
-  @override
-  @Deprecated('`updatePlayingIndex` updates `playingIndex` and `selectedIndex` both, use `updatePlayingIndex` instead')
-  void updateSelectedIndex(int newIndex) {
-    updatePlayingIndex(newIndex);
-  }
-
-  @override
   Future<void> onSelected(int selectedIndex) async {
     final uiService = ref.read(uiServiceProvider);
     final audioNotifier = ref.read(audioProvider.notifier);
 
-    /// 选中的VoiceItem正在播放则暂停并返回
-    if (uiService.isVoiceWorkPlaying && state.playingIndex == selectedIndex) {
+    /// 选中的VoiceItem正在播放则暂停播放并返回
+    if (state.playingIndex == selectedIndex &&
+        uiService.isSelectedVoiceWorkPlaying) {
       audioNotifier.switchPauseResume();
       return;
     }
 
-    updatePlayingIndex(selectedIndex);
-    uiService.cachePlayingState();
-    audioNotifier.play(DeviceFileSource(state.playingVoiceItemPath));
+    setPlayingIndex(selectedIndex);
+
+    uiService.cacheAllPlayingState();
+    audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
+  }
+
+  @override
+  void setPlayingIndex(int newIndex) {
+    state = state.copyWith(playingIndex: newIndex, selectedIndex: newIndex);
+  }
+
+  @override
+  @Deprecated(
+      '`updatePlayingIndex` updates `playingIndex` and `selectedIndex` both, use `updatePlayingIndex` instead')
+  void setSelectedIndex(int newIndex) {
+    setPlayingIndex(newIndex);
   }
 }

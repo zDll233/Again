@@ -18,7 +18,7 @@ class ProviderShareState extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () =>
-                  ref.read(voiceWorkProvider.notifier).updatePlayingIndex(1),
+                  ref.read(voiceWorkProvider.notifier).setPlayingIndex(1),
               child: Text('${voiceWork.playingIndex}'),
             ),
             // Text('${ui.voiceWorkState.playingIndex}'),

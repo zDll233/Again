@@ -69,4 +69,29 @@ class VoiceWork {
           : DateTime.fromMillisecondsSinceEpoch(map['createdAt']),
     );
   }
+
+  VoiceWork copyWith({
+    String? title,
+    String? directoryPath,
+    String? coverPath,
+    String? category,
+    DateTime? createdAt,
+  }) {
+    return VoiceWork(
+      title: title ?? this.title,
+      directoryPath: directoryPath ?? this.directoryPath,
+      coverPath: coverPath ?? this.coverPath,
+      category: category ?? this.category,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  VoiceWork replaceCategory(String newCategory) {
+    final newDirectoryPath = directoryPath.replaceFirst(category, newCategory);
+    final newCoverPath = coverPath.replaceFirst(category, newCategory);
+    return copyWith(
+        directoryPath: newDirectoryPath,
+        coverPath: newCoverPath,
+        category: newCategory);
+  }
 }
