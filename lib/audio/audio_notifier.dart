@@ -181,7 +181,7 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void onPausePressed() {
-    if (ref.read(voiceItemProvider).isSelectedItemPlaying) {
+    if (ref.read(voiceItemProvider).isPlaying) {
       switchPauseResume();
     }
   }
