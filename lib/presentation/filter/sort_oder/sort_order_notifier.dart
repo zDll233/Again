@@ -13,7 +13,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   Future<void> onSelected(int selectedIndex) async {
     int length = state.values.length;
     int temp = state.selectedIndex + 1;
-    cacheSelectedItem(temp < length ? temp : 0);
+    cacheSelectedIndexAndItem(temp < length ? temp : 0);
     await ref.read(repositoryProvider.notifier).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }

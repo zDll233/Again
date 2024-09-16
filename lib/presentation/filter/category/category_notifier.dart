@@ -11,7 +11,7 @@ class CategoryNotifier extends ListStateNotifier<CategoryState, String> {
 
   @override
   Future<void> onSelected(int selectedIndex) async {
-    cacheSelectedItem(selectedIndex);
+    cacheSelectedIndexAndItem(selectedIndex);
     await ref.read(repositoryProvider.notifier).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }

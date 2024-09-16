@@ -68,24 +68,24 @@ class HistoryManager {
       final filter = uiHistory['filter'];
       final repositoryNotifier = ref.read(repositoryProvider.notifier);
 
-      ref.read(sortOrderProvider.notifier).cacheSelectedItemByValue(
+      ref.read(sortOrderProvider.notifier).cacheSelectedIndexAndItemByValue(
           SortOrderExtension.fromString(filter['sortOrder']));
       ref
           .read(categoryProvider.notifier)
-          .cacheSelectedItemByValue(filter['category'] as String);
+          .cacheSelectedIndexAndItemByValue(filter['category'] as String);
       ref
           .read(cvProvider.notifier)
-          .cacheSelectedItemByValue(filter['cv'] as String);
+          .cacheSelectedIndexAndItemByValue(filter['cv'] as String);
       // voiceWork
       await repositoryNotifier.updateVkList();
       ref
           .read(voiceWorkProvider.notifier)
-          .cacheSelectedItemByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
+          .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
       // voiceItem
       await repositoryNotifier.updateViList();
       ref
           .read(voiceItemProvider.notifier)
-          .cacheSelectedItemByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
+          .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
 
       ref.read(uiServiceProvider)
         ..cacheAllPlayingState()

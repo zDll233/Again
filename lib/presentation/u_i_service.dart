@@ -42,7 +42,7 @@ class UIService {
       await voiceWorkNotifier
           .onSelected(ref.read(voiceWorkProvider).playingIndex);
     } else {
-      voiceWorkNotifier.cacheSelectedItem(-1);
+      voiceWorkNotifier.cacheSelectedIndexAndItem(-1);
 
       final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
       voiceItemNotifier.clearValues();
@@ -160,7 +160,7 @@ class UIService {
 
   /// Resets the filters and scrolls to the top.
   Future<void> onResetFilterPressed() async {
-    ref.read(categoryProvider.notifier).cacheSelectedItem(0);
+    ref.read(categoryProvider.notifier).cacheSelectedIndexAndItem(0);
     await ref.read(cvProvider.notifier).onSelected(0);
 
     _scrollToTop();

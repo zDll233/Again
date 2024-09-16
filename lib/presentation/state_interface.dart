@@ -111,16 +111,6 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     setSelectedIndex(state.values.indexOf(newItem));
   }
 
-  void removeItemInValues(ValueType value) {
-    final newValues = state.values.toList()..remove(value);
-    setValues(newValues);
-  }
-
-  // state
-  void updateState(State newState) {
-    state = newState;
-  }
-
   // cachedPlayingItem
   @protected
   void setCachedPlayingItem(ValueType? newItem) {
@@ -133,13 +123,13 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     state = state.copyWith(cachedSelectedItem: newItem) as State;
   }
 
-  void cacheSelectedItem(int selectedIndex) {
+  void cacheSelectedIndexAndItem(int selectedIndex) {
     setSelectedIndex(selectedIndex);
     setCachedSelectedItem(
         state.isSelectedIndexValid ? state.selectedItem : null);
   }
 
-  void cacheSelectedItemByValue(ValueType newItem) {
+  void cacheSelectedIndexAndItemByValue(ValueType newItem) {
     setSelectedIndexByValue(newItem);
     setCachedSelectedItem(
         state.isSelectedIndexValid ? state.selectedItem : null);
@@ -166,19 +156,13 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   @protected
   void restorePlayingIndex() => setSelectedIndex(state.playingIndex);
   @protected
-  void restoreCachedPlayingItem() => setCachedSelectedItem(state.cachedPlayingItem);
+  void restoreCachedPlayingItem() =>
+      setCachedSelectedItem(state.cachedPlayingItem);
 
-  // clearPlayingState
+  // clear playing state
   void clearPlayingState() {
     setPlayingIndex(-1);
     setCachedPlayingItem(null);
-  }
-
-  // clearSelectedState
-  void clearSelectedState() {
-    clearValues();
-    setSelectedIndex(-1);
-    setCachedSelectedItem(null);
   }
 }
 
@@ -188,15 +172,6 @@ abstract class VariableListStateNotifier<
   // playingValues
   void setPlayingValues(List<ValueType> newValues) {
     state = state.copyWith(playingValues: newValues) as State;
-  }
-
-  void clearPlayingValues() {
-    setPlayingValues(const []);
-  }
-
-  void removeItemInPlayingValues(ValueType value) {
-    final newValues = state.playingValues.toList()..remove(value);
-    setPlayingValues(newValues);
   }
 
   /// `values`通常不等于`playingValues`,该函数根据`newItem`在`playingValues`的位置更新playingIndex
@@ -231,14 +206,9 @@ abstract class VariableListStateNotifier<
     setValues(state.playingValues);
   }
 
-  @protected
-  void updatePlayingIndexByCache() {
-    if (state.cachedPlayingItem != null) {
-      final index =
-          state.playingValues.indexOf(state.cachedPlayingItem as ValueType);
-      setPlayingIndex(index);
-    } else {
-      setPlayingIndex(-1);
-    }
+  @override
+  void clearPlayingState() {
+    super.clearPlayingState();
+    setPlayingValues(const []);
   }
 }

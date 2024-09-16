@@ -24,7 +24,7 @@ class VoiceItemNotifier
       return;
     }
 
-    cacheSelectedItem(selectedIndex);
+    cacheSelectedIndexAndItem(selectedIndex);
 
     uiService.cacheAllPlayingState();
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));

@@ -14,7 +14,7 @@ class VoiceWorkNotifier
   Future<void> onSelected(int selectedIndex) async {
     if (selectedIndex < 0) return;
 
-    cacheSelectedItem(selectedIndex);
+    cacheSelectedIndexAndItem(selectedIndex);
 
     ref.read(repositoryProvider.notifier).updateViList();
   }
