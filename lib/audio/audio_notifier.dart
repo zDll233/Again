@@ -106,9 +106,7 @@ class AudioNotifier extends Notifier<AudioState> {
       return;
     }
 
-    ref.read(voiceItemProvider.notifier)
-      ..setPlayingIndex(temp)
-      ..cachePlayingItem();
+    ref.read(voiceItemProvider.notifier).updatePlayingCache(temp);
     play(DeviceFileSource(
         ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!));
   }
@@ -185,22 +183,6 @@ class AudioNotifier extends Notifier<AudioState> {
   void onPausePressed() {
     if (ref.read(voiceItemProvider).isSelectedItemPlaying) {
       switchPauseResume();
-    }
-  }
-
-  Future<void> loadHistory(Map<String, dynamic> audioHistory) async {
-    if (audioHistory.isEmpty) return;
-
-    setVolume(audioHistory['volume']);
-
-    ref.read(voiceItemProvider.notifier).cachePlayingValues();
-    updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
-
-    try {
-      await setSource(ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!);
-      await seek(Duration(milliseconds: audioHistory['position']));
-    } catch (e) {
-      Log.error('Error loading audio history.\n$e');
     }
   }
 }

@@ -24,21 +24,15 @@ class VoiceItemNotifier
       return;
     }
 
-    setPlayingIndex(selectedIndex);
+    cacheSelectedItem(selectedIndex);
 
     uiService.cacheAllPlayingState();
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
   }
 
-  @override
-  void setPlayingIndex(int newIndex) {
-    state = state.copyWith(playingIndex: newIndex, selectedIndex: newIndex);
-  }
-
-  @override
-  @Deprecated(
-      '`updatePlayingIndex` updates `playingIndex` and `selectedIndex` both, use `updatePlayingIndex` instead')
-  void setSelectedIndex(int newIndex) {
-    setPlayingIndex(newIndex);
+  void updatePlayingCache(int playingIndex) {
+    setPlayingIndex(playingIndex);
+    setCachedPlayingItem(
+        state.isPlayingIndexValid ? state.playingValues[playingIndex] : null);
   }
 }

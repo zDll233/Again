@@ -2,10 +2,9 @@ import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/state_interface.dart';
 
 class VoiceWorkState extends VariableListState<VoiceWork> {
-  VoiceWork? cachedSelectedItem;
   VoiceWorkState({
     super.cachedPlayingItem,
-    this.cachedSelectedItem,
+    super.cachedSelectedItem,
     super.playingValues = const [],
     super.values = const [],
     super.playingIndex = -1,
@@ -34,6 +33,4 @@ class VoiceWorkState extends VariableListState<VoiceWork> {
   String? get cachedPlayingVoiceWorkPath => cachedPlayingItem?.directoryPath;
 
   String? get cachedSelectedVoiceWorkPath => cachedSelectedItem?.directoryPath;
-
-
 }

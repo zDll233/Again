@@ -98,8 +98,8 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
     String cate = '';
     String cv = '';
     try {
-      cate = ref.read(categoryProvider).selectedItem;
-      cv = ref.read(cvProvider).selectedItem;
+      cate = ref.read(categoryProvider).cachedSelectedItem!;
+      cv = ref.read(cvProvider).cachedSelectedItem!;
     } catch (e) {
       Log.debug('$e');
     }
@@ -121,7 +121,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   List<VoiceWork> sortVoiceWorkList(List<VoiceWork> vkLs, {SortOrder? sort}) {
-    switch (sort ?? ref.read(sortOrderProvider).selectedItem) {
+    switch (sort ?? ref.read(sortOrderProvider).cachedSelectedItem!) {
       case SortOrder.byTitle:
         vkLs.sort((a, b) => compareNatural(a.title, b.title));
         break;
@@ -163,7 +163,8 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
     await updateViewList();
 
     // 更新`playingValues`
-    await updateVoiceWorkPlayingValues();
+    await updateVoiceWorkPlayingValues(
+        playingItems['category'], playingItems['cv']);
 
     if (playingItems.isNotEmpty) {
       uiService.setPlayingIndexByMap(playingItems);
@@ -173,13 +174,11 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
     }
   }
 
-  Future<void> updateVoiceWorkPlayingValues() async {
-    final cate = ref.read(categoryProvider).playingItem;
-    final cv = ref.read(cvProvider).playingItem;
+  Future<void> updateVoiceWorkPlayingValues(String cate, String cv) async {
     final playingVkLs = await getVkDataList(cate, cv);
     final sortedList = sortVoiceWorkList(
         VoiceWork.vkDataList2VkList(playingVkLs),
-        sort: ref.read(sortOrderProvider).playingItem);
+        sort: ref.read(sortOrderProvider).cachedPlayingItem!);
     ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
   }
 }

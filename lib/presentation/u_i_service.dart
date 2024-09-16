@@ -42,7 +42,8 @@ class UIService {
       await voiceWorkNotifier
           .onSelected(ref.read(voiceWorkProvider).playingIndex);
     } else {
-      voiceWorkNotifier.setSelectedIndex(-1);
+      voiceWorkNotifier.cacheSelectedItem(-1);
+
       final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
       voiceItemNotifier.clearValues();
     }
@@ -51,9 +52,9 @@ class UIService {
   Map<String, dynamic> get playingItems {
     try {
       return {
-        'sortOrder': ref.read(sortOrderProvider).playingItem,
-        'category': ref.read(categoryProvider).playingItem,
-        'cv': ref.read(cvProvider).playingItem,
+        'sortOrder': ref.read(sortOrderProvider).cachedPlayingItem!,
+        'category': ref.read(categoryProvider).cachedPlayingItem!,
+        'cv': ref.read(cvProvider).cachedPlayingItem!,
         'voiceWork': ref.read(voiceWorkProvider).cachedPlayingItem!,
         'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem!
       };
@@ -66,10 +67,11 @@ class UIService {
   Map<String, dynamic> get selectedItems {
     try {
       return {
-        'sortOrder': ref.read(sortOrderProvider).selectedItem,
-        'category': ref.read(categoryProvider).selectedItem,
-        'cv': ref.read(cvProvider).selectedItem,
+        'sortOrder': ref.read(sortOrderProvider).cachedSelectedItem!,
+        'category': ref.read(categoryProvider).cachedSelectedItem!,
+        'cv': ref.read(cvProvider).cachedSelectedItem!,
         'voiceWork': ref.read(voiceWorkProvider).cachedSelectedItem!,
+        'voiceItem': ref.read(voiceItemProvider).cachedSelectedItem!,
       };
     } catch (e) {
       Log.debug('Error getting selectedItems.\n$e');
@@ -113,6 +115,9 @@ class UIService {
       ref
           .read(voiceWorkProvider.notifier)
           .setSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
+      ref
+          .read(voiceItemProvider.notifier)
+          .setSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
     } catch (e) {
       Log.debug('Error setting selectedIndex by map.\n$e');
     }
@@ -155,7 +160,7 @@ class UIService {
 
   /// Resets the filters and scrolls to the top.
   Future<void> onResetFilterPressed() async {
-    ref.read(categoryProvider.notifier).setSelectedIndex(0);
+    ref.read(categoryProvider.notifier).cacheSelectedItem(0);
     await ref.read(cvProvider.notifier).onSelected(0);
 
     _scrollToTop();

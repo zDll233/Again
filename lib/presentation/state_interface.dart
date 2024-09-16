@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 abstract class BaseState {
@@ -9,23 +10,35 @@ abstract class ListState<ValueType> extends BaseState {
   final List<ValueType> values;
   final int playingIndex;
   final int selectedIndex;
-
+  final ValueType? cachedPlayingItem;
+  final ValueType? cachedSelectedItem;
   ListState({
+    required this.cachedPlayingItem,
+    required this.cachedSelectedItem,
     required this.values,
     required this.playingIndex,
     required this.selectedIndex,
   });
 
+  @protected
   ValueType get playingItem => values[playingIndex];
+  @protected
   ValueType get selectedItem => values[selectedIndex];
 
-  bool get isPlaying =>
-      values.isNotEmpty && playingIndex >= 0 && playingIndex < values.length;
+  bool get isPlayingIndexValid =>
+      playingIndex >= 0 && playingIndex < values.length;
+
+  bool get isSelectedIndexValid =>
+      selectedIndex >= 0 && selectedIndex < values.length;
+
+  bool get isPlaying => isPlayingIndexValid && cachedPlayingItem != null;
 
   bool get isSelectedItemPlaying => isPlaying && playingIndex == selectedIndex;
 
   @override
   ListState<ValueType> copyWith({
+    ValueType? cachedPlayingItem,
+    ValueType? cachedSelectedItem,
     List<ValueType>? values,
     int? playingIndex,
     int? selectedIndex,
@@ -35,10 +48,10 @@ abstract class ListState<ValueType> extends BaseState {
 /// `VoiceWork`和`VoiveItem`正在播放的列表可以不和选中列表`values`相同，故需要`playingValues`和`cachedPlayingItem`
 abstract class VariableListState<ValueType> extends ListState<ValueType> {
   final List<ValueType> playingValues;
-  final ValueType? cachedPlayingItem;
   VariableListState(
       {required this.playingValues,
-      this.cachedPlayingItem,
+      super.cachedPlayingItem,
+      super.cachedSelectedItem,
       required super.values,
       required super.playingIndex,
       required super.selectedIndex});
@@ -47,7 +60,8 @@ abstract class VariableListState<ValueType> extends ListState<ValueType> {
   ValueType get playingItem => playingValues[playingIndex];
 
   @override
-  bool get isPlaying => cachedPlayingItem != null && playingIndex >= 0;
+  bool get isPlayingIndexValid =>
+      playingIndex >= 0 && playingIndex < playingValues.length;
 
   @override
   bool get isSelectedItemPlaying => isPlaying && playingIndex == selectedIndex;
@@ -55,6 +69,7 @@ abstract class VariableListState<ValueType> extends ListState<ValueType> {
   @override
   VariableListState<ValueType> copyWith({
     ValueType? cachedPlayingItem,
+    ValueType? cachedSelectedItem,
     List<ValueType>? playingValues,
     List<ValueType>? values,
     int? playingIndex,
@@ -67,6 +82,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     extends Notifier<State> {
   Future<void> onSelected(int selectedIndex);
 
+  // values
   void setValues(List<ValueType> newValues) {
     state = state.copyWith(values: newValues) as State;
   }
@@ -75,6 +91,8 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     state = state.copyWith(values: const []) as State;
   }
 
+  // index
+  @protected
   void setPlayingIndex(int newIndex) {
     state = state.copyWith(playingIndex: newIndex) as State;
   }
@@ -84,6 +102,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     setPlayingIndex(state.values.indexOf(newItem));
   }
 
+  @protected
   void setSelectedIndex(int newIndex) {
     state = state.copyWith(selectedIndex: newIndex) as State;
   }
@@ -92,29 +111,81 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     setSelectedIndex(state.values.indexOf(newItem));
   }
 
+  void removeItemInValues(ValueType value) {
+    final newValues = state.values.toList()..remove(value);
+    setValues(newValues);
+  }
+
+  // state
   void updateState(State newState) {
     state = newState;
   }
 
-  void restorePlayingIndex() => setSelectedIndex(state.playingIndex);
+  // cachedPlayingItem
+  @protected
+  void setCachedPlayingItem(ValueType? newItem) {
+    state = state.copyWith(cachedPlayingItem: newItem) as State;
+  }
 
-  void restorePlayingState() => restorePlayingIndex();
+  // cachedSelectedItem
+  @protected
+  void setCachedSelectedItem(ValueType? newItem) {
+    state = state.copyWith(cachedSelectedItem: newItem) as State;
+  }
 
+  void cacheSelectedItem(int selectedIndex) {
+    setSelectedIndex(selectedIndex);
+    setCachedSelectedItem(
+        state.isSelectedIndexValid ? state.selectedItem : null);
+  }
+
+  void cacheSelectedItemByValue(ValueType newItem) {
+    setSelectedIndexByValue(newItem);
+    setCachedSelectedItem(
+        state.isSelectedIndexValid ? state.selectedItem : null);
+  }
+
+  // cache: copy selected to playing
+  void cachePlayingState() {
+    cachePlayingIndex();
+    // 最后缓存playingItem
+    cachePlayingItem();
+  }
+
+  @protected
   void cachePlayingIndex() => setPlayingIndex(state.selectedIndex);
+  @protected
+  void cachePlayingItem() => setCachedPlayingItem(state.cachedSelectedItem);
 
-  void cachePlayingState() => cachePlayingIndex();
+  // restore: copy playing to selected
+  void restorePlayingState() {
+    restorePlayingIndex();
+    restoreCachedPlayingItem();
+  }
 
-  void clearPlayingState() => setPlayingIndex(-1);
+  @protected
+  void restorePlayingIndex() => setSelectedIndex(state.playingIndex);
+  @protected
+  void restoreCachedPlayingItem() => setCachedSelectedItem(state.cachedPlayingItem);
 
-  void removeItemInValues(ValueType value) {
-    final newValues = state.values.toList()..remove(value);
-    setValues(newValues);
+  // clearPlayingState
+  void clearPlayingState() {
+    setPlayingIndex(-1);
+    setCachedPlayingItem(null);
+  }
+
+  // clearSelectedState
+  void clearSelectedState() {
+    clearValues();
+    setSelectedIndex(-1);
+    setCachedSelectedItem(null);
   }
 }
 
 abstract class VariableListStateNotifier<
     State extends VariableListState<ValueType>,
     ValueType> extends ListStateNotifier<State, ValueType> {
+  // playingValues
   void setPlayingValues(List<ValueType> newValues) {
     state = state.copyWith(playingValues: newValues) as State;
   }
@@ -134,18 +205,7 @@ abstract class VariableListStateNotifier<
     setPlayingIndex(state.playingValues.indexOf(newItem));
   }
 
-  void setCachedPlayingItem(ValueType? newItem) {
-    state = state.copyWith(cachedPlayingItem: newItem) as State;
-  }
-
-  void cachePlayingValues() {
-    setPlayingValues(state.values);
-  }
-
-  void cachePlayingItem() {
-    setCachedPlayingItem(state.playingIndex >= 0 ? state.playingItem : null);
-  }
-
+  // cache
   @override
   void cachePlayingState() {
     cachePlayingIndex();
@@ -153,16 +213,25 @@ abstract class VariableListStateNotifier<
     cachePlayingItem();
   }
 
-  void restorePlayingValues() {
-    setValues(state.playingValues);
+  @protected
+  void cachePlayingValues() {
+    setPlayingValues(state.values);
   }
 
+  // restore
   @override
   void restorePlayingState() {
     restorePlayingValues();
     restorePlayingIndex();
+    restoreCachedPlayingItem();
   }
 
+  @protected
+  void restorePlayingValues() {
+    setValues(state.playingValues);
+  }
+
+  @protected
   void updatePlayingIndexByCache() {
     if (state.cachedPlayingItem != null) {
       final index =
@@ -171,12 +240,5 @@ abstract class VariableListStateNotifier<
     } else {
       setPlayingIndex(-1);
     }
-  }
-
-  @override
-  void clearPlayingState() {
-    clearPlayingValues();
-    setPlayingIndex(-1);
-    setCachedPlayingItem(null);
   }
 }

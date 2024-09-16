@@ -28,8 +28,6 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
     ];
     ProcessResult result = await Process.run('powershell', arguments);
 
-    // updateVoiceWorkPlayingValues(ref, movedVoiceWork);
-
     ref.read(repositoryProvider.notifier).onUpdatePressed();
     Log.info('Delete ${movedVoiceWork.title}.\n'
         'exitcode: ${result.exitCode}.\n'
@@ -50,7 +48,6 @@ Future<void> changeCategory(
   try {
     await releasePlayingItems(ref, movedVoiceWork);
     await moveDirectory(oldDirectory, newDirectoryPath);
-    // updateVoiceWorkPlayingValues(ref, movedVoiceWork, newCategory: newCategory);
 
     ref.read(repositoryProvider.notifier).onUpdatePressed();
 
@@ -68,26 +65,5 @@ Future<void> releasePlayingItems(
   if (voiceWorkState.isPlaying &&
       voiceWorkState.cachedPlayingItem == movedVoiceWork) {
     await ref.read(audioProvider.notifier).release();
-  }
-}
-
-void updateVoiceWorkPlayingValues(WidgetRef ref, VoiceWork movedVoiceWork,
-    {String? newCategory}) {
-  final voiceWorkState = ref.read(voiceWorkProvider);
-  // 被移动的VoiceWork所属的SortOrder、Cv与Playing一致， 更新 playingValues
-  if (voiceWorkState.isPlaying &&
-      ref.read(sortOrderProvider).isSelectedItemPlaying &&
-      ref.read(cvProvider).isSelectedItemPlaying) {
-    final playingCategory = voiceWorkState.cachedPlayingItem!.category;
-    final voiceWorkNotifier = ref.read(voiceWorkProvider.notifier);
-    // 移出 playingValues
-    if (playingCategory == movedVoiceWork.category) {
-      voiceWorkNotifier.removeItemInPlayingValues(movedVoiceWork);
-    }
-    // 移入 playingValues
-    else if (newCategory != null && playingCategory == newCategory) {
-      final newVoiceWork = movedVoiceWork.replaceCategory(newCategory);
-      voiceWorkNotifier.addItemInPlayingValues(newVoiceWork);
-    }
   }
 }

@@ -4,6 +4,7 @@ import 'package:again/presentation/state_interface.dart';
 class VoiceItemState extends VariableListState<VoiceItem> {
   VoiceItemState({
     super.cachedPlayingItem,
+    super.cachedSelectedItem,
     super.playingValues = const [],
     super.values = const [],
     super.playingIndex = -1,
@@ -13,6 +14,7 @@ class VoiceItemState extends VariableListState<VoiceItem> {
   @override
   VoiceItemState copyWith({
     VoiceItem? cachedPlayingItem,
+    VoiceItem? cachedSelectedItem,
     List<VoiceItem>? playingValues,
     List<VoiceItem>? values,
     int? playingIndex,
@@ -20,6 +22,7 @@ class VoiceItemState extends VariableListState<VoiceItem> {
   }) {
     return VoiceItemState(
       cachedPlayingItem: cachedPlayingItem ?? this.cachedPlayingItem,
+      cachedSelectedItem: cachedSelectedItem ?? this.cachedSelectedItem,
       playingValues: playingValues ?? this.playingValues,
       values: values ?? this.values,
       playingIndex: playingIndex ?? this.playingIndex,
