@@ -23,16 +23,23 @@ class VoiceItemPanel extends ConsumerWidget {
   }
 }
 
-class FutureVoiceItemListView extends ConsumerWidget {
+class FutureVoiceItemListView extends ConsumerStatefulWidget {
   const FutureVoiceItemListView({super.key});
 
+  @override
+  ConsumerState<FutureVoiceItemListView> createState() =>
+      _FutureVoiceItemListViewState();
+}
+
+class _FutureVoiceItemListViewState
+    extends ConsumerState<FutureVoiceItemListView> {
   Future<List> fetchItems(WidgetRef ref) async {
     ref.read(uiServiceProvider).viCompleter = Completer();
     return ref.watch(voiceItemProvider.select((state) => state.values));
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final uiService = ref.watch(uiServiceProvider);
     final playingIndex =
         ref.watch(voiceItemProvider.select((state) => state.playingIndex));
@@ -44,7 +51,11 @@ class FutureVoiceItemListView extends ConsumerWidget {
       itemBuilder: (context, vi, index) {
         return ListTile(
           title: Text(vi.title),
-          onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
+          onTap: () {
+            setState(() {
+              ref.read(voiceItemProvider.notifier).onSelected(index);
+            });
+          },
           selected:
               playingIndex == index && uiService.isSelectedVoiceWorkPlaying,
         );
