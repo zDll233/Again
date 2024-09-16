@@ -67,7 +67,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     extends Notifier<State> {
   Future<void> onSelected(int selectedIndex);
 
-  void updateValues(List<ValueType> newValues) {
+  void setValues(List<ValueType> newValues) {
     state = state.copyWith(values: newValues) as State;
   }
 
@@ -108,20 +108,24 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
 
   void removeItemInValues(ValueType value) {
     final newValues = state.values.toList()..remove(value);
-    updateValues(newValues);
+    setValues(newValues);
   }
 }
 
 abstract class VariableListStateNotifier<
     State extends VariableListState<ValueType>,
     ValueType> extends ListStateNotifier<State, ValueType> {
+  void setPlayingValues(List<ValueType> newValues) {
+    state = state.copyWith(playingValues: newValues) as State;
+  }
+
   void clearPlayingValues() {
-    state = state.copyWith(playingValues: const []) as State;
+    setPlayingValues(const []);
   }
 
   void removeItemInPlayingValues(ValueType value) {
     final newValues = state.playingValues.toList()..remove(value);
-    state = state.copyWith(playingValues: newValues) as State;
+    setPlayingValues(newValues);
   }
 
   /// `values`通常不等于`playingValues`,该函数根据`newItem`在`playingValues`的位置更新playingIndex
@@ -135,7 +139,7 @@ abstract class VariableListStateNotifier<
   }
 
   void cachePlayingValues() {
-    state = state.copyWith(playingValues: state.values) as State;
+    setPlayingValues(state.values);
   }
 
   void cachePlayingItem() {
@@ -150,7 +154,7 @@ abstract class VariableListStateNotifier<
   }
 
   void restorePlayingValues() {
-    state = state.copyWith(values: state.playingValues) as State;
+    setValues(state.playingValues);
   }
 
   @override

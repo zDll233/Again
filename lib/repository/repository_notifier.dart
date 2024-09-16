@@ -75,10 +75,10 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
 
     ref
         .read(categoryProvider.notifier)
-        .updateValues(['All'] + cateLs.map((e) => e.description).toList());
+        .setValues(['All'] + cateLs.map((e) => e.description).toList());
     ref
         .read(cvProvider.notifier)
-        .updateValues(['All'] + cvLs.map((e) => e.cvName).toList());
+        .setValues(['All'] + cvLs.map((e) => e.cvName).toList());
   }
 
   Future<List<TVoiceWorkCategoryData>> get _getCategoryDataList async {
@@ -105,7 +105,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
     }
     vkLs ??= await getVkDataList(cate, cv);
     final sortedList = sortVoiceWorkList(VoiceWork.vkDataList2VkList(vkLs));
-    ref.read(voiceWorkProvider.notifier).updateValues(sortedList);
+    ref.read(voiceWorkProvider.notifier).setValues(sortedList);
   }
 
   Future<List<TVoiceWorkData>> getVkDataList(String cate, String cv) async {
@@ -136,7 +136,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   /// update [VoiceItemState.values]. If viLs is null, get it from db
   Future<void> updateViList({List<TVoiceItemData>? viLs}) async {
     viLs ??= await _getSelectedViList;
-    ref.read(voiceItemProvider.notifier).updateValues(
+    ref.read(voiceItemProvider.notifier).setValues(
           VoiceItem.viDataList2ViList(viLs),
         );
   }
@@ -162,11 +162,24 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
     await _updateDatabase();
     await updateViewList();
 
+    // 更新`playingValues`
+    await updateVoiceWorkPlayingValues();
+
     if (playingItems.isNotEmpty) {
       uiService.setPlayingIndexByMap(playingItems);
     }
     if (selectedItems.isNotEmpty) {
       uiService.setSelectedIndexByMap(selectedItems);
     }
+  }
+
+  Future<void> updateVoiceWorkPlayingValues() async {
+    final cate = ref.read(categoryProvider).playingItem;
+    final cv = ref.read(cvProvider).playingItem;
+    final playingVkLs = await getVkDataList(cate, cv);
+    final sortedList = sortVoiceWorkList(
+        VoiceWork.vkDataList2VkList(playingVkLs),
+        sort: ref.read(sortOrderProvider).playingItem);
+    ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
   }
 }

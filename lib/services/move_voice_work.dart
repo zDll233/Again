@@ -28,7 +28,7 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
     ];
     ProcessResult result = await Process.run('powershell', arguments);
 
-    updateVoiceWorkPlayingValues(ref, movedVoiceWork);
+    // updateVoiceWorkPlayingValues(ref, movedVoiceWork);
 
     ref.read(repositoryProvider.notifier).onUpdatePressed();
     Log.info('Delete ${movedVoiceWork.title}.\n'
@@ -50,7 +50,7 @@ Future<void> changeCategory(
   try {
     await releasePlayingItems(ref, movedVoiceWork);
     await moveDirectory(oldDirectory, newDirectoryPath);
-    updateVoiceWorkPlayingValues(ref, movedVoiceWork, newCategory: newCategory);
+    // updateVoiceWorkPlayingValues(ref, movedVoiceWork, newCategory: newCategory);
 
     ref.read(repositoryProvider.notifier).onUpdatePressed();
 
