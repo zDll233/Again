@@ -3,6 +3,11 @@ import 'package:again/screens/lists/voice_work_panel.dart';
 import 'package:again/screens/lists/voice_item_panel.dart';
 import 'package:flutter/material.dart';
 
+const _verticalDivider = VerticalDivider(
+  width: 5.0,
+  color: Color(0x80B3B0F6),
+);
+
 class ListsView extends StatelessWidget {
   const ListsView({
     super.key,
@@ -10,9 +15,6 @@ class ListsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double dividerWidth = 5.0;
-    const Color dividerColor = Color(0x80B3B0F6);
-
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -20,21 +22,15 @@ class ListsView extends StatelessWidget {
           width: 250,
           child: FilterPanel(),
         ),
-        VerticalDivider(
-          width: dividerWidth,
-          color: dividerColor,
-        ),
+        _verticalDivider,
         Flexible(
           flex: 16,
           child: VoiceWorkPanel(),
         ),
-        VerticalDivider(
-          width: dividerWidth,
-          color: dividerColor,
-        ),
+        _verticalDivider,
         Flexible(
           flex: 10,
-            child: VoiceItemPanel(),
+          child: VoiceItemPanel(),
         ),
       ],
     );
