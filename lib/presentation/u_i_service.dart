@@ -12,7 +12,7 @@ class UIService {
   final Ref ref;
   UIService(this.ref);
 
-  late Completer viCompleter;
+  Completer viCompleter = Completer();
 
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();

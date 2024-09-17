@@ -1,71 +1,38 @@
 import 'dart:ui';
-import 'package:again/repository/repository_providers.dart';
+import 'package:again/screens/initialization.dart';
 import 'package:again/screens/list_lyric_switch.dart';
 import 'package:again/screens/player/player_widget.dart';
 import 'package:again/screens/window_title_bar.dart';
-import 'package:again/services/history_manager.dart';
-import 'package:again/utils/generate_script.dart';
-import 'package:again/services/key_event_handler.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyApp extends ConsumerStatefulWidget {
+class MyApp extends StatelessWidget {
   const MyApp({super.key});
-  @override
-  ConsumerState<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends ConsumerState<MyApp> {
-  late final KeyEventHandler _keyEventHandler;
-
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _initialize();
-    });
-
-    _keyEventHandler = KeyEventHandler(ref);
-    HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
-  }
-
-  Future<void> _initialize() async {
-    await ref.read(repositoryProvider.notifier).initialize();
-    await ref.read(historyManagerProvider).loadHistory();
-    initializeScript();
-  }
-
-  void initializeScript() {
-    generateDeleteScript();
-  }
-
-  @override
-  void dispose() {
-    HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.purple,
-          dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-          brightness: Brightness.dark,
-        )),
-        scrollBehavior: MyCustomScrollBehavior(),
-        home: const Scaffold(
-            backgroundColor: Colors.transparent,
-            body: FocusScope(
-              canRequestFocus: false,
-              child: Column(
-                children: [WindowTitleBar(), ListLyricSwitch(), PlayerWidget()],
-              ),
-            )));
+    return Initialization(
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.purple,
+            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+            brightness: Brightness.dark,
+          )),
+          scrollBehavior: MyCustomScrollBehavior(),
+          home: const Scaffold(
+              backgroundColor: Colors.transparent,
+              body: FocusScope(
+                canRequestFocus: false,
+                child: Column(
+                  children: [
+                    WindowTitleBar(),
+                    ListLyricSwitch(),
+                    PlayerWidget()
+                  ],
+                ),
+              ))),
+    );
   }
 }
 

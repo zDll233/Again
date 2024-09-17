@@ -99,9 +99,7 @@ class HistoryManager {
             .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(voiceItemMap));
       }
 
-      ref.read(uiServiceProvider)
-        ..cacheAllPlayingState()
-        ..onLocateBtnPressed();
+      ref.read(uiServiceProvider).cacheAllPlayingState();
     } catch (e) {
       Log.error('Error loading UI history.\n$e');
     }

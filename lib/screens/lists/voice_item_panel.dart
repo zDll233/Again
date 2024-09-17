@@ -33,6 +33,14 @@ class FutureVoiceItemListView extends ConsumerStatefulWidget {
 
 class _FutureVoiceItemListViewState
     extends ConsumerState<FutureVoiceItemListView> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(uiServiceProvider).scrollToPlayingIndex();
+    });
+  }
+
   Future<List> fetchItems(WidgetRef ref) async {
     ref.read(uiServiceProvider).viCompleter = Completer();
     return ref.watch(voiceItemProvider.select((state) => state.values));
