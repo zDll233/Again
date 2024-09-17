@@ -133,7 +133,7 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
-  Future<List<TVoiceItemData>> selectSingleWorkVoiceItemsWithString(
+  Future<List<TVoiceItemData>> selectSingleWorkVoiceItemsWithPath(
       String vkPath) {
     return (select(tVoiceItem)
           ..where((voiceItem) => voiceItem.voiceWorkPath.equals(vkPath)))

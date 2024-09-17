@@ -9,7 +9,6 @@ import 'package:again/repository/repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
-import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -94,16 +93,11 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   /// update and sort [VoiceWork.values]. If vkLs is null, get it from db according to playing filters.
-  Future<void> updateVkList({List<TVoiceWorkData>? vkLs}) async {
-    String cate = '';
-    String cv = '';
-    try {
-      cate = ref.read(categoryProvider).cachedSelectedItem!;
-      cv = ref.read(cvProvider).cachedSelectedItem!;
-    } catch (e) {
-      Log.debug('$e');
-    }
-    vkLs ??= await getVkDataList(cate, cv);
+  Future<void> updateVkList() async {
+    final cate = ref.read(categoryProvider).cachedSelectedItem!;
+    final cv = ref.read(cvProvider).cachedSelectedItem!;
+
+    final vkLs = await getVkDataList(cate, cv);
     final sortedList = sortVoiceWorkList(VoiceWork.vkDataList2VkList(vkLs));
     ref.read(voiceWorkProvider.notifier).setValues(sortedList);
   }
@@ -134,51 +128,55 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   }
 
   /// update [VoiceItemState.values]. If viLs is null, get it from db
-  Future<void> updateViList({List<TVoiceItemData>? viLs}) async {
-    viLs ??= await _getSelectedViList;
+  Future<void> updateViList() async {
+    var vkPath = ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath ?? '';
+    final viLs = await getViList(vkPath);
     ref.read(voiceItemProvider.notifier).setValues(
-          VoiceItem.viDataList2ViList(viLs),
+          (viLs),
         );
   }
 
-  Future<List<TVoiceItemData>> get _getSelectedViList async {
-    String vkPath = '';
-    try {
-      final voiceWorkState = ref.read(voiceWorkProvider);
-      vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
-    } catch (e) {
-      Log.debug('error `_getSelectedViList`\n$e');
-    }
-    return await _database.selectSingleWorkVoiceItemsWithString(vkPath)
+  Future<List<VoiceItem>> getViList(String vkPath) async {
+    final viDataLs = await _database.selectSingleWorkVoiceItemsWithPath(vkPath)
       ..sort((a, b) => compareNatural(a.title, b.title));
+    return VoiceItem.viDataList2ViList(viDataLs);
   }
 
   Future<void> onUpdatePressed() async {
     final uiService = ref.read(uiServiceProvider);
 
-    final playingItems = uiService.playingItems;
-    final selectedItems = uiService.selectedItems;
+    final playingItems = uiService.cachedPlayingItems;
+    final selectedItems = uiService.cachedSelectedItems;
 
     await _updateDatabase();
     await updateViewList();
 
-    // 更新`playingValues`
-    await updateVoiceWorkPlayingValues(
-        playingItems['category'], playingItems['cv']);
+    // 先更新`playingValues`
+    await updatePlayingValues(playingItems['category'], playingItems['cv'],
+        playingItems['voiceWork']);
 
+    // 再更新`playingIndex`
     if (playingItems.isNotEmpty) {
-      uiService.setPlayingIndexByMap(playingItems);
+      uiService.setPlayingIndexByCache(playingItems);
     }
     if (selectedItems.isNotEmpty) {
-      uiService.setSelectedIndexByMap(selectedItems);
+      uiService.setSelectedIndexByCache(selectedItems);
     }
   }
 
-  Future<void> updateVoiceWorkPlayingValues(String cate, String cv) async {
-    final playingVkLs = await getVkDataList(cate, cv);
-    final sortedList = sortVoiceWorkList(
-        VoiceWork.vkDataList2VkList(playingVkLs),
-        sort: ref.read(sortOrderProvider).cachedPlayingItem!);
-    ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
+  Future<void> updatePlayingValues(
+      String cate, String cv, VoiceWork? voiceWork) async {
+    if (ref.read(voiceWorkProvider).isPlaying) {
+      // voiceWorkState.playingValues
+      final playingVkLs = await getVkDataList(cate, cv);
+      final sortedList = sortVoiceWorkList(
+          VoiceWork.vkDataList2VkList(playingVkLs),
+          sort: ref.read(sortOrderProvider).cachedPlayingItem!);
+      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
+
+      // voiceItemState.playingValues
+      final viLs = await getViList(voiceWork?.directoryPath ?? '');
+      ref.read(voiceItemProvider.notifier).setPlayingValues(viLs);
+    }
   }
 }

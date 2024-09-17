@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:again/models/voice_item.dart';
-import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/utils/log.dart';
@@ -49,14 +47,14 @@ class UIService {
     }
   }
 
-  Map<String, dynamic> get playingItems {
+  Map<String, dynamic> get cachedPlayingItems {
     try {
       return {
         'sortOrder': ref.read(sortOrderProvider).cachedPlayingItem!,
         'category': ref.read(categoryProvider).cachedPlayingItem!,
-        'cv': ref.read(cvProvider).cachedPlayingItem!,
-        'voiceWork': ref.read(voiceWorkProvider).cachedPlayingItem!,
-        'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem!
+        'cv': ref.read(cvProvider).cachedPlayingItem,
+        'voiceWork': ref.read(voiceWorkProvider).cachedPlayingItem,
+        'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem
       };
     } catch (e) {
       Log.debug('Error getting playingItems.\n$e.');
@@ -64,14 +62,14 @@ class UIService {
     }
   }
 
-  Map<String, dynamic> get selectedItems {
+  Map<String, dynamic> get cachedSelectedItems {
     try {
       return {
         'sortOrder': ref.read(sortOrderProvider).cachedSelectedItem!,
         'category': ref.read(categoryProvider).cachedSelectedItem!,
         'cv': ref.read(cvProvider).cachedSelectedItem!,
-        'voiceWork': ref.read(voiceWorkProvider).cachedSelectedItem!,
-        'voiceItem': ref.read(voiceItemProvider).cachedSelectedItem!,
+        'voiceWork': ref.read(voiceWorkProvider).cachedSelectedItem,
+        'voiceItem': ref.read(voiceItemProvider).cachedSelectedItem,
       };
     } catch (e) {
       Log.debug('Error getting selectedItems.\n$e');
@@ -79,7 +77,7 @@ class UIService {
     }
   }
 
-  void setPlayingIndexByMap(Map<String, dynamic> playingItems) {
+  void setPlayingIndexByCache(Map<String, dynamic> playingItems) {
     try {
       ref
           .read(sortOrderProvider.notifier)
@@ -92,16 +90,16 @@ class UIService {
           .setPlayingIndexByValue(playingItems['cv'] as String);
       ref
           .read(voiceWorkProvider.notifier)
-          .setPlayingIndexByValue(playingItems['voiceWork'] as VoiceWork);
+          .setPlayingIndexByValue(playingItems['voiceWork']);
       ref
           .read(voiceItemProvider.notifier)
-          .setPlayingIndexByValue(playingItems['voiceItem'] as VoiceItem);
+          .setPlayingIndexByValue(playingItems['voiceItem']);
     } catch (e) {
       Log.debug('Error setting playingIndex by map.\n$e');
     }
   }
 
-  void setSelectedIndexByMap(Map<String, dynamic> selectedItems) {
+  void setSelectedIndexByCache(Map<String, dynamic> selectedItems) {
     try {
       ref
           .read(sortOrderProvider.notifier)
@@ -114,10 +112,10 @@ class UIService {
           .setSelectedIndexByValue(selectedItems['cv'] as String);
       ref
           .read(voiceWorkProvider.notifier)
-          .setSelectedIndexByValue(selectedItems['voiceWork'] as VoiceWork);
+          .setSelectedIndexByValue(selectedItems['voiceWork']);
       ref
           .read(voiceItemProvider.notifier)
-          .setSelectedIndexByValue(selectedItems['voiceItem'] as VoiceItem);
+          .setSelectedIndexByValue(selectedItems['voiceItem']);
     } catch (e) {
       Log.debug('Error setting selectedIndex by map.\n$e');
     }

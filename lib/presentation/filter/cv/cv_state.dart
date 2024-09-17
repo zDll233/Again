@@ -2,8 +2,8 @@ import 'package:again/presentation/state_interface.dart';
 
 class CvState extends ListState<String> {
   CvState({
-    super.cachedPlayingItem,
-    super.cachedSelectedItem,
+    super.cachedPlayingItem = 'All',
+    super.cachedSelectedItem = 'All',
     super.values = const [],
     super.playingIndex = 0,
     super.selectedIndex = 0,

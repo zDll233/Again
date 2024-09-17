@@ -98,8 +98,8 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   }
 
   /// 该函数根据`newItem`在`values`的位置更新playingIndex
-  void setPlayingIndexByValue(ValueType newItem) {
-    setPlayingIndex(state.values.indexOf(newItem));
+  void setPlayingIndexByValue(ValueType? newItem) {
+    setPlayingIndex(newItem != null ? state.values.indexOf(newItem) : -1);
   }
 
   @protected
@@ -107,8 +107,8 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
     state = state.copyWith(selectedIndex: newIndex) as State;
   }
 
-  void setSelectedIndexByValue(ValueType newItem) {
-    setSelectedIndex(state.values.indexOf(newItem));
+  void setSelectedIndexByValue(ValueType? newItem) {
+    setSelectedIndex(newItem != null ? state.values.indexOf(newItem) : -1);
   }
 
   // cachedPlayingItem
@@ -176,8 +176,9 @@ abstract class VariableListStateNotifier<
 
   /// `values`通常不等于`playingValues`,该函数根据`newItem`在`playingValues`的位置更新playingIndex
   @override
-  void setPlayingIndexByValue(ValueType newItem) {
-    setPlayingIndex(state.playingValues.indexOf(newItem));
+  void setPlayingIndexByValue(ValueType? newItem) {
+    setPlayingIndex(
+        newItem != null ? state.playingValues.indexOf(newItem) : -1);
   }
 
   // cache

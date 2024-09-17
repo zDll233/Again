@@ -20,7 +20,7 @@ class HistoryManager {
 
   Future<void> saveHistory() async {
     try {
-      final playingItems = _uiService.playingItems;
+      final playingItems = _uiService.cachedPlayingItems;
       final audioState = ref.read(audioProvider);
 
       Map<String, dynamic> lastPlayed = {
@@ -30,9 +30,8 @@ class HistoryManager {
             'category': playingItems['category'] as String,
             'cv': playingItems['cv'] as String,
           },
-          'voiceWork':
-              playingItems['voiceWork'].toMap() as Map<String, dynamic>,
-          'voiceItem': playingItems['voiceItem'].toMap() as Map<String, dynamic>
+          'voiceWork': playingItems['voiceWork']?.toMap(),
+          'voiceItem': playingItems['voiceItem']?.toMap()
         },
         'audio': {
           'position': audioState.position.inMilliseconds,
@@ -51,6 +50,11 @@ class HistoryManager {
     await repositoryNotifier.updateFilterLists();
 
     final data = await ref.read(historyProvider).read();
+
+    if (data.isEmpty) {
+      await repositoryNotifier.updateVkList();
+      return;
+    }
 
     try {
       await loadUIHistory(data['ui']);
@@ -76,16 +80,24 @@ class HistoryManager {
       ref
           .read(cvProvider.notifier)
           .cacheSelectedIndexAndItemByValue(filter['cv'] as String);
+
       // voiceWork
       await repositoryNotifier.updateVkList();
-      ref
-          .read(voiceWorkProvider.notifier)
-          .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(uiHistory['voiceWork']));
+      Map<String, dynamic>? voiceWorkMap = uiHistory['voiceWork'];
+      if (voiceWorkMap != null) {
+        ref
+            .read(voiceWorkProvider.notifier)
+            .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(voiceWorkMap));
+      }
+
       // voiceItem
       await repositoryNotifier.updateViList();
-      ref
-          .read(voiceItemProvider.notifier)
-          .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(uiHistory['voiceItem']));
+      Map<String, dynamic>? voiceItemMap = uiHistory['voiceItem'];
+      if (voiceItemMap != null) {
+        ref
+            .read(voiceItemProvider.notifier)
+            .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(voiceItemMap));
+      }
 
       ref.read(uiServiceProvider)
         ..cacheAllPlayingState()
@@ -104,8 +116,9 @@ class HistoryManager {
       ..updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
 
     try {
-      await audioNotifier
-          .setSource(ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!);
+      final voiceItemSate = ref.read(voiceItemProvider);
+      if (!voiceItemSate.isPlaying) return;
+      await audioNotifier.setSource(voiceItemSate.cachedPlayingVoiceItemPath!);
       await audioNotifier
           .seek(Duration(milliseconds: audioHistory['position']));
     } catch (e) {

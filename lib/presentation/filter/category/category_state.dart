@@ -2,8 +2,8 @@ import 'package:again/presentation/state_interface.dart';
 
 class CategoryState extends ListState<String> {
   CategoryState({
-    super.cachedPlayingItem,
-    super.cachedSelectedItem,
+    super.cachedPlayingItem = 'All',
+    super.cachedSelectedItem = 'All',
     super.values = const [],
     super.playingIndex = 0,
     super.selectedIndex = 0,
