@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:again/screens/initialization.dart';
+import 'package:again/screens/components/initialization.dart';
 import 'package:again/screens/list_lyric_switch.dart';
 import 'package:again/screens/player/player_widget.dart';
 import 'package:again/screens/window_title_bar.dart';
