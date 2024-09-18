@@ -270,8 +270,8 @@ class CaptionButtons extends StatelessWidget {
       child: Row(
         children: [
           MinimizeButton(minWidth: buttonWidth),
-          MaximizeButton(minWidth: buttonHeight),
-          CloseBtn(minWidth: buttonHeight),
+          MaximizeButton(minWidth: buttonWidth),
+          CloseBtn(minWidth: buttonWidth),
         ],
       ),
     );
