@@ -24,7 +24,6 @@ class WindowButtons extends ConsumerWidget {
   const WindowButtons({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final Controller c = Get.find();
     return Row(
       children: [
         IconButton(
