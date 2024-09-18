@@ -1,6 +1,6 @@
 import 'package:again/screens/window_title_bar/caption_buttons/window_caption_buttons.dart';
 import 'package:again/screens/window_title_bar/move_window.dart';
-import 'package:again/screens/window_title_bar/title_buttons/select_root_dir_btn.dart';
+import 'package:again/screens/window_title_bar/tool_buttons/select_root_dir_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
