@@ -10,8 +10,7 @@ class Initialization extends ConsumerStatefulWidget {
   final Widget child;
 
   @override
-  ConsumerState<Initialization> createState() =>
-      _InitializationState();
+  ConsumerState<Initialization> createState() => _InitializationState();
 }
 
 class _InitializationState extends ConsumerState<Initialization> {
