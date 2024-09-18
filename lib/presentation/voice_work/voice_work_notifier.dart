@@ -16,6 +16,6 @@ class VoiceWorkNotifier
 
     cacheSelectedIndexAndItem(selectedIndex);
 
-    ref.read(repositoryProvider.notifier).updateViList();
+    ref.read(dbRepoProvider.notifier).updateViList();
   }
 }

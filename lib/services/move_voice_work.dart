@@ -28,7 +28,7 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
     ];
     ProcessResult result = await Process.run('powershell', arguments);
 
-    ref.read(repositoryProvider.notifier).onUpdatePressed();
+    ref.read(dbRepoProvider.notifier).onUpdatePressed();
     Log.info('Delete ${movedVoiceWork.title}.\n'
         'exitcode: ${result.exitCode}.\n'
         'stdout: ${result.stdout}\n'
@@ -49,7 +49,7 @@ Future<void> changeCategory(
     await releasePlayingItems(ref, movedVoiceWork);
     await moveDirectory(oldDirectory, newDirectoryPath);
 
-    ref.read(repositoryProvider.notifier).onUpdatePressed();
+    ref.read(dbRepoProvider.notifier).onUpdatePressed();
 
     Log.info(
         'Move "${movedVoiceWork.title}" from "${movedVoiceWork.category}" to "$newCategory".');

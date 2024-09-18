@@ -5,7 +5,7 @@ import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/services/voice_updater.dart';
 import 'package:again/repository/database/database.dart';
-import 'package:again/repository/repository_state.dart';
+import 'package:again/repository/database_repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
@@ -13,14 +13,14 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RepositoryNotifier extends Notifier<RepositoryState> {
+class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
   @override
-  RepositoryState build() {
+  DatabaseRepositoryState build() {
     _database = ref.read(databaseProvider);
-    return RepositoryState();
+    return DatabaseRepositoryState();
   }
 
   Future<void> initialize() async {

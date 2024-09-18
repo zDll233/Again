@@ -1,18 +1,18 @@
 import 'package:again/repository/database/database.dart';
 import 'package:again/presentation/state_interface.dart';
 
-class RepositoryState extends BaseState {
+class DatabaseRepositoryState extends BaseState {
   final List<TVoiceWorkData> voiceWorkDataList;
 
-  RepositoryState({
+  DatabaseRepositoryState({
     this.voiceWorkDataList = const [],
   });
 
   @override
-  RepositoryState copyWith({
+  DatabaseRepositoryState copyWith({
     List<TVoiceWorkData>? voiceWorkDataList,
   }) {
-    return RepositoryState(
+    return DatabaseRepositoryState(
       voiceWorkDataList: voiceWorkDataList ?? this.voiceWorkDataList,
     );
   }

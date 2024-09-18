@@ -46,7 +46,7 @@ class HistoryManager {
   }
 
   Future<void> loadHistory() async {
-    final repositoryNotifier = ref.read(repositoryProvider.notifier);
+    final repositoryNotifier = ref.read(dbRepoProvider.notifier);
     await repositoryNotifier.updateFilterLists();
 
     final data = await ref.read(historyProvider).read();
@@ -70,7 +70,7 @@ class HistoryManager {
       if (uiHistory.isEmpty) return;
 
       final filter = uiHistory['filter'];
-      final repositoryNotifier = ref.read(repositoryProvider.notifier);
+      final repositoryNotifier = ref.read(dbRepoProvider.notifier);
 
       ref.read(sortOrderProvider.notifier).cacheSelectedIndexAndItemByValue(
           SortOrderExtension.fromString(filter['sortOrder']));

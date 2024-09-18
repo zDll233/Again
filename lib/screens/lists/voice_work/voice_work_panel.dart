@@ -22,7 +22,7 @@ class VoiceWorkPanel extends ConsumerWidget {
           'VoiceWorks(${ref.watch(voiceWorkProvider.select((state) => state.values)).length}): ${SortOrder.values[sortOrderIndex] == SortOrder.byTitle ? 'title' : 'time'}',
       listView: const FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
-      onIconBtnPressed: ref.read(repositoryProvider.notifier).onUpdatePressed,
+      onIconBtnPressed: ref.read(dbRepoProvider.notifier).onUpdatePressed,
       onTextBtnPressed: () =>
           ref.read(sortOrderProvider.notifier).onSelected(sortOrderIndex),
     );
