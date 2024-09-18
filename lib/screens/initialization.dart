@@ -31,7 +31,7 @@ class _InitializationState extends ConsumerState<Initialization> {
 
   @override
   Widget build(BuildContext context) {
-    final result = ref.watch(initProvider);
+    final result = ref.watch(_initProvider);
 
     if (result.isLoading) {
       return const Center(
@@ -46,7 +46,7 @@ class _InitializationState extends ConsumerState<Initialization> {
   }
 }
 
-final initProvider = FutureProvider((ref) async {
+final _initProvider = FutureProvider((ref) async {
   await ref.read(dbRepoProvider.notifier).initialize();
   await ref.read(historyManagerProvider).loadHistory();
 });

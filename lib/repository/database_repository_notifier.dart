@@ -24,7 +24,7 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   }
 
   Future<void> initialize() async {
-    final data = await ref.read(configProvider).read();
+    final data = await ref.read(configJsonProvider).read();
     final vkRootDirPath = data['voiceWorkRoot'] ?? '';
 
     if (await Directory(vkRootDirPath).exists()) {
@@ -43,7 +43,7 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
         await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
     if (selectedDirPath != null) {
       await _initializeVoiceUpdater(selectedDirPath);
-      await ref.read(configProvider).write({'voiceWorkRoot': selectedDirPath});
+      await ref.read(configJsonProvider).write({'voiceWorkRoot': selectedDirPath});
       await onUpdatePressed();
     }
   }

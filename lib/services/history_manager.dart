@@ -39,7 +39,7 @@ class HistoryManager {
           'loopMode': audioState.loopMode.index
         },
       };
-      await ref.read(historyProvider).write(lastPlayed);
+      await ref.read(historyJsonProvider).write(lastPlayed);
     } catch (e) {
       Log.error('Error saving history.\n$e');
     }
@@ -49,7 +49,7 @@ class HistoryManager {
     final repositoryNotifier = ref.read(dbRepoProvider.notifier);
     await repositoryNotifier.updateFilterLists();
 
-    final data = await ref.read(historyProvider).read();
+    final data = await ref.read(historyJsonProvider).read();
 
     if (data.isEmpty) {
       await repositoryNotifier.updateVkList();
