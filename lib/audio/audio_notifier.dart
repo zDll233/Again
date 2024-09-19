@@ -55,10 +55,8 @@ class AudioNotifier extends Notifier<AudioState> {
     state = state.copyWith(position: newPosition);
   }
 
-  @Deprecated(
-      'use `setVolume` to set audioplayer volume and set audioState simultaneously.')
   /// change audioState only, will *not* change audioplayer volume.
-  void updateVolume(double newVolume) {
+  void _updateVolume(double newVolume) {
     state = state.copyWith(volume: newVolume);
   }
 
@@ -163,8 +161,7 @@ class AudioNotifier extends Notifier<AudioState> {
   void setVolume(double newVolume) {
     try {
       _player.setVolume(newVolume);
-      // ignore: deprecated_member_use_from_same_package
-      updateVolume(newVolume);
+      _updateVolume(newVolume);
     } catch (e) {
       Log.error('Error setting volume.\n$e');
     }
