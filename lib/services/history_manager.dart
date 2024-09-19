@@ -72,14 +72,15 @@ class HistoryManager {
       final filter = uiHistory['filter'];
       final repositoryNotifier = ref.read(dbRepoProvider.notifier);
 
-      ref.read(sortOrderProvider.notifier).cacheSelectedIndexAndItemByValue(
+      final sortOrderNotifier = ref.read(sortOrderProvider.notifier);
+      final categoryNotifier = ref.read(categoryProvider.notifier);
+      final cvNotifier = ref.read(cvProvider.notifier);
+
+      sortOrderNotifier.cacheSelectedIndexAndItemByValue(
           SortOrderExtension.fromString(filter['sortOrder']));
-      ref
-          .read(categoryProvider.notifier)
+      categoryNotifier
           .cacheSelectedIndexAndItemByValue(filter['category'] as String);
-      ref
-          .read(cvProvider.notifier)
-          .cacheSelectedIndexAndItemByValue(filter['cv'] as String);
+      cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
 
       // voiceWork
       await repositoryNotifier.updateVkList();
@@ -88,6 +89,12 @@ class HistoryManager {
         ref
             .read(voiceWorkProvider.notifier)
             .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(voiceWorkMap));
+      }
+      if (!ref.read(voiceWorkProvider).isPlaying) {
+        sortOrderNotifier.cacheSelectedIndexAndItem(0);
+        categoryNotifier.cacheSelectedIndexAndItem(0);
+        cvNotifier.onSelected(0);
+        return;
       }
 
       // voiceItem

@@ -24,7 +24,6 @@ Future<void> setupWindow(List<String> args) async {
       center: true,
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
-      windowButtonVisibility: true,
     );
     windowManager.waitUntilReadyToShow(windowOptions, () async {
       await windowManager.setMinimumSize(initialSize);
