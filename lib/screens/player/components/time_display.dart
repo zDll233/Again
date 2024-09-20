@@ -12,9 +12,12 @@ class TimeDisplay extends ConsumerWidget {
     final duration = ref.watch(audioProvider.select((state) => state.duration));
     final position = ref.watch(audioProvider.select((state) => state.position));
     return Align(
-        alignment: Alignment.center,
-        child: Text(getTimeDisplayText(position, duration),
-            style: Theme.of(context).textTheme.bodyLarge));
+      alignment: Alignment.center,
+      child: Text(
+        getTimeDisplayText(position, duration),
+        style: Theme.of(context).textTheme.bodyLarge,
+      ),
+    );
   }
 }
 

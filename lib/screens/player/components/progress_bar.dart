@@ -27,15 +27,15 @@ class ProgressBar extends ConsumerWidget {
       onPointerSignal: (pointerSignal) {
         if (pointerSignal is PointerScrollEvent) {
           final scrollDelta = pointerSignal.scrollDelta.dy;
-          var milliseconds = 0;
+          int ms = 0;
           if (scrollDelta > 0) {
-            milliseconds = -10000;
+            ms = -10000;
           } else if (scrollDelta < 0) {
-            milliseconds = 10000;
+            ms = 10000;
           }
           audioNotifier.seek(Duration(
-              milliseconds: ref.read(audioProvider).position.inMilliseconds +
-                  milliseconds));
+              milliseconds:
+                  ref.read(audioProvider).position.inMilliseconds + ms));
         }
       },
       child: SizedBox(

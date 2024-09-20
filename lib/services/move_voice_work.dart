@@ -26,7 +26,7 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
       '-File',
       deleteScriptPath,
       '-path',
-      movedVoiceWork.directoryPath
+      movedVoiceWork.directoryPath,
     ];
     ProcessResult result = await Process.run('powershell', arguments);
 

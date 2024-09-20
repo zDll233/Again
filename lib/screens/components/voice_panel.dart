@@ -27,8 +27,10 @@ class VoicePanel<T> extends StatelessWidget {
             children: [
               TextButton(
                 onPressed: onTextBtnPressed,
-                child:
-                    Text(title, style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
               IconButton(
                 onPressed: onIconBtnPressed,

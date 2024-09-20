@@ -13,9 +13,10 @@ class VoiceItem {
 
   static VoiceItem viData2Vi(TVoiceItemData viData) {
     return VoiceItem(
-        title: viData.title,
-        filePath: viData.filePath,
-        voiceWorkPath: viData.voiceWorkPath);
+      title: viData.title,
+      filePath: viData.filePath,
+      voiceWorkPath: viData.voiceWorkPath,
+    );
   }
 
   static List<VoiceItem> viDataList2ViList(List<TVoiceItemData> viDataList) {

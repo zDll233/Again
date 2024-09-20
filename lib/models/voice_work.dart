@@ -17,11 +17,12 @@ class VoiceWork {
 
   static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
     return VoiceWork(
-        title: vkData.title,
-        directoryPath: vkData.directoryPath,
-        coverPath: vkData.coverPath,
-        category: vkData.category,
-        createdAt: vkData.createdAt);
+      title: vkData.title,
+      directoryPath: vkData.directoryPath,
+      coverPath: vkData.coverPath,
+      category: vkData.category,
+      createdAt: vkData.createdAt,
+    );
   }
 
   static List<VoiceWork> vkDataList2VkList(List<TVoiceWorkData> vkDataList) {
@@ -90,8 +91,9 @@ class VoiceWork {
     final newDirectoryPath = directoryPath.replaceFirst(category, newCategory);
     final newCoverPath = coverPath.replaceFirst(category, newCategory);
     return copyWith(
-        directoryPath: newDirectoryPath,
-        coverPath: newCoverPath,
-        category: newCategory);
+      directoryPath: newDirectoryPath,
+      coverPath: newCoverPath,
+      category: newCategory,
+    );
   }
 }

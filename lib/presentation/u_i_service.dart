@@ -54,7 +54,7 @@ class UIService {
         'category': ref.read(categoryProvider).cachedPlayingItem!,
         'cv': ref.read(cvProvider).cachedPlayingItem,
         'voiceWork': ref.read(voiceWorkProvider).cachedPlayingItem,
-        'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem
+        'voiceItem': ref.read(voiceItemProvider).cachedPlayingItem,
       };
     } catch (e) {
       Log.debug('Error getting playingItems.\n$e.');

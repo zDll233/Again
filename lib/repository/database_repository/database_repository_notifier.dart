@@ -43,7 +43,9 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
         await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
     if (selectedDirPath != null) {
       await _initializeVoiceUpdater(selectedDirPath);
-      await ref.read(configJsonProvider).write({'voiceWorkRoot': selectedDirPath});
+      await ref
+          .read(configJsonProvider)
+          .write({'voiceWorkRoot': selectedDirPath});
       await onUpdatePressed();
     }
   }
@@ -131,9 +133,7 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   Future<void> updateViList() async {
     var vkPath = ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath ?? '';
     final viLs = await getViList(vkPath);
-    ref.read(voiceItemProvider.notifier).setValues(
-          (viLs),
-        );
+    ref.read(voiceItemProvider.notifier).setValues(viLs);
   }
 
   Future<List<VoiceItem>> getViList(String vkPath) async {
@@ -170,8 +170,9 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
       // voiceWorkState.playingValues
       final playingVkLs = await getVkDataList(cate, cv);
       final sortedList = sortVoiceWorkList(
-          VoiceWork.vkDataList2VkList(playingVkLs),
-          sort: ref.read(sortOrderProvider).cachedPlayingItem!);
+        VoiceWork.vkDataList2VkList(playingVkLs),
+        sort: ref.read(sortOrderProvider).cachedPlayingItem!,
+      );
       ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
 
       // voiceItemState.playingValues

@@ -48,13 +48,14 @@ abstract class ListState<ValueType> extends BaseState {
 /// `VoiceWork`和`VoiveItem`正在播放的列表可以不和选中列表`values`相同，故需要`playingValues`和`cachedPlayingItem`
 abstract class VariableListState<ValueType> extends ListState<ValueType> {
   final List<ValueType> playingValues;
-  VariableListState(
-      {required this.playingValues,
-      super.cachedPlayingItem,
-      super.cachedSelectedItem,
-      required super.values,
-      required super.playingIndex,
-      required super.selectedIndex});
+  VariableListState({
+    required this.playingValues,
+    super.cachedPlayingItem,
+    super.cachedSelectedItem,
+    required super.values,
+    required super.playingIndex,
+    required super.selectedIndex,
+  });
 
   @override
   ValueType get playingItem => playingValues[playingIndex];

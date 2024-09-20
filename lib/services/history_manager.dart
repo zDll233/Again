@@ -31,12 +31,12 @@ class HistoryManager {
             'cv': playingItems['cv'] as String,
           },
           'voiceWork': playingItems['voiceWork']?.toMap(),
-          'voiceItem': playingItems['voiceItem']?.toMap()
+          'voiceItem': playingItems['voiceItem']?.toMap(),
         },
         'audio': {
           'position': audioState.position.inMilliseconds,
           'volume': audioState.volume,
-          'loopMode': audioState.loopMode.index
+          'loopMode': audioState.loopMode.index,
         },
       };
       await ref.read(historyJsonProvider).write(lastPlayed);
