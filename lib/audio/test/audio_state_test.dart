@@ -16,7 +16,7 @@ class ProviderShareState extends StatelessWidget {
         return Column(
           children: [
             ElevatedButton(
-              onPressed: () => ref.watch(audioProvider.notifier).updateVolume(0),
+              onPressed: () => ref.watch(audioProvider.notifier).setVolume(0),
               child: Text(audio.volume.toInt().toString()),
             ),
           ],

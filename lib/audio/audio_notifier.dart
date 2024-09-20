@@ -55,7 +55,8 @@ class AudioNotifier extends Notifier<AudioState> {
     state = state.copyWith(position: newPosition);
   }
 
-  void updateVolume(double newVolume) {
+  /// change audioState only, will *not* change audioplayer volume.
+  void _updateVolume(double newVolume) {
     state = state.copyWith(volume: newVolume);
   }
 
@@ -151,16 +152,16 @@ class AudioNotifier extends Notifier<AudioState> {
   void onMutePressed() {
     if (state.volume != 0) {
       updateLastVolume(state.volume);
-      updateVolume(0);
+      setVolume(0);
     } else {
-      updateVolume(state.lastVolume);
+      setVolume(state.lastVolume);
     }
   }
 
   void setVolume(double newVolume) {
     try {
       _player.setVolume(newVolume);
-      updateVolume(newVolume);
+      _updateVolume(newVolume);
     } catch (e) {
       Log.error('Error setting volume.\n$e');
     }
