@@ -51,17 +51,19 @@ class _FutureVoiceItemListViewState
     final uiService = ref.watch(uiServiceProvider);
     final playingIndex =
         ref.watch(voiceItemProvider.select((state) => state.playingIndex));
+    final voiceWorkPlaying = ref.watch(isSelectedVoiceWorkPlaying);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       uiService.viCompleter.complete();
     });
+
     return FutureListView(
       future: fetchItems(ref),
       itemBuilder: (context, vi, index) {
         return ListTile(
           title: Text(vi.title),
           onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
-          selected:
-              playingIndex == index && uiService.isSelectedVoiceWorkPlaying,
+          selected: playingIndex == index && voiceWorkPlaying,
         );
       },
       itemScrollController: uiService.viScrollController,

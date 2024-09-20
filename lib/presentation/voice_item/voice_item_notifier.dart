@@ -16,10 +16,10 @@ class VoiceItemNotifier
   Future<void> onSelected(int selectedIndex) async {
     final uiService = ref.read(uiServiceProvider);
     final audioNotifier = ref.read(audioProvider.notifier);
+    final voiceWorkPlaying = ref.read(isSelectedVoiceWorkPlaying);
 
     /// 选中的VoiceItem正在播放则暂停播放并返回
-    if (state.playingIndex == selectedIndex &&
-        uiService.isSelectedVoiceWorkPlaying) {
+    if (state.playingIndex == selectedIndex && voiceWorkPlaying) {
       audioNotifier.switchPauseResume();
       return;
     }

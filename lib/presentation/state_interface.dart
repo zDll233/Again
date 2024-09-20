@@ -33,7 +33,8 @@ abstract class ListState<ValueType> extends BaseState {
 
   bool get isPlaying => isPlayingIndexValid && cachedPlayingItem != null;
 
-  bool get isSelectedItemPlaying => isPlaying && playingIndex == selectedIndex;
+  bool get isSelectedItemPlaying =>
+      isPlaying && cachedPlayingItem == cachedSelectedItem;
 
   @override
   ListState<ValueType> copyWith({
@@ -65,7 +66,11 @@ abstract class VariableListState<ValueType> extends ListState<ValueType> {
       playingIndex >= 0 && playingIndex < playingValues.length;
 
   @override
-  bool get isSelectedItemPlaying => isPlaying && playingIndex == selectedIndex;
+  bool get isPlaying => isPlayingIndexValid && cachedPlayingItem != null;
+
+  @override
+  bool get isSelectedItemPlaying =>
+      isPlaying && cachedPlayingItem == cachedSelectedItem;
 
   @override
   VariableListState<ValueType> copyWith({

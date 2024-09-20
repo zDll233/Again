@@ -19,24 +19,10 @@ class UIService {
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
 
-  bool get isSelectedFilterPlaying {
-    final sortOrder = ref.read(sortOrderProvider);
-    final category = ref.read(categoryProvider);
-    final cv = ref.read(cvProvider);
-
-    return sortOrder.isSelectedItemPlaying &&
-        category.isSelectedItemPlaying &&
-        cv.isSelectedItemPlaying;
-  }
-
-  bool get isSelectedVoiceWorkPlaying =>
-      isSelectedFilterPlaying &&
-      ref.read(voiceWorkProvider).isSelectedItemPlaying;
-
   Future<void> filterSelected() async {
     final voiceWorkNotifier = ref.read(voiceWorkProvider.notifier);
 
-    if (isSelectedFilterPlaying) {
+    if (ref.read(isSelectedFilterPlaying)) {
       await voiceWorkNotifier
           .onSelected(ref.read(voiceWorkProvider).playingIndex);
     } else {
@@ -138,7 +124,7 @@ class UIService {
   }
 
   Future<void> revealInExplorerView() async {
-    if (isSelectedVoiceWorkPlaying) {
+    if (ref.read(isSelectedVoiceWorkPlaying)) {
       selectPlayingVoiceItem();
     } else {
       Process.run(
@@ -185,7 +171,7 @@ class UIService {
 
   /// Locates the playing item by restoring PlayingStates and scrolling to it.
   void onLocateBtnPressed() {
-    if (!isSelectedVoiceWorkPlaying) {
+    if (!ref.read(isSelectedVoiceWorkPlaying)) {
       restoreAllPlayingState();
     }
     scrollToPlayingIndex();
