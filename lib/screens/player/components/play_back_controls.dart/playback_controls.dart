@@ -8,9 +8,7 @@ import 'package:flutter/material.dart';
 const double _iconSize = 40.0;
 
 class PlaybackControls extends StatelessWidget {
-  const PlaybackControls({
-    super.key,
-  });
+  const PlaybackControls({super.key});
 
   @override
   Widget build(BuildContext context) {

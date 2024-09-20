@@ -4,9 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProgressBar extends ConsumerWidget {
-  const ProgressBar({
-    super.key,
-  });
+  const ProgressBar({super.key});
 
   double _getProgressBarValue(Duration position, Duration duration) {
     if (position != Duration.zero &&

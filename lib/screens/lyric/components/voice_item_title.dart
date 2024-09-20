@@ -4,9 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class VoiceItemTitle extends StatelessWidget {
-  const VoiceItemTitle({
-    super.key,
-  });
+  const VoiceItemTitle({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VolumeControl extends ConsumerWidget {
-  const VolumeControl({
-    super.key,
-  });
+  const VolumeControl({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

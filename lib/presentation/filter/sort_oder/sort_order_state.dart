@@ -14,12 +14,13 @@ extension SortOrderExtension on SortOrder {
 }
 
 class SortOrderState extends ListState<SortOrder> {
-  SortOrderState(
-      {super.cachedPlayingItem = SortOrder.byTitle,
-      super.cachedSelectedItem = SortOrder.byTitle,
-      super.values = SortOrder.values,
-      super.playingIndex = 0,
-      super.selectedIndex = 0});
+  SortOrderState({
+    super.cachedPlayingItem = SortOrder.byTitle,
+    super.cachedSelectedItem = SortOrder.byTitle,
+    super.values = SortOrder.values,
+    super.playingIndex = 0,
+    super.selectedIndex = 0,
+  });
 
   @override
   SortOrderState copyWith({

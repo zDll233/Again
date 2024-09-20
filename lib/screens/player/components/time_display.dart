@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TimeDisplay extends ConsumerWidget {
-  const TimeDisplay({
-    super.key,
-  });
+  const TimeDisplay({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

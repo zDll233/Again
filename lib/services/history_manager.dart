@@ -14,9 +14,8 @@ class HistoryManager {
   final Ref ref;
   late final UIService _uiService;
 
-  HistoryManager({required this.ref}) {
-    _uiService = ref.read(uiServiceProvider);
-  }
+  HistoryManager({required this.ref})
+      : _uiService = ref.read(uiServiceProvider);
 
   Future<void> saveHistory() async {
     try {

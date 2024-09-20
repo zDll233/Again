@@ -5,8 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NextButton extends ConsumerWidget {
   const NextButton({
-    required this.iconSize,
     super.key,
+    required this.iconSize,
   });
 
   final double iconSize;

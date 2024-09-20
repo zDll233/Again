@@ -6,9 +6,7 @@ import 'package:again/screens/window_title_bar/move_window.dart';
 import 'package:flutter/material.dart';
 
 class PlayerWidget extends StatelessWidget {
-  const PlayerWidget({
-    super.key,
-  });
+  const PlayerWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

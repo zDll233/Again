@@ -13,9 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class LyricBuilder extends ConsumerStatefulWidget {
-  const LyricBuilder({
-    super.key,
-  });
+  const LyricBuilder({super.key});
 
   @override
   ConsumerState<LyricBuilder> createState() => _LrcBuilderState();

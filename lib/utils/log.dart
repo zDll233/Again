@@ -34,9 +34,7 @@ class Log {
           );
   }
 
-  factory Log() {
-    return _instance;
-  }
+  factory Log() => _instance;
 
   // 提供静态方法获取 Logger 实例
   static Logger get logger => _instance._logger;
