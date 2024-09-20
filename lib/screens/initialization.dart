@@ -36,7 +36,10 @@ class _InitializationState extends ConsumerState<Initialization> {
     if (result.isLoading) {
       return const Center(
         child: SizedBox(
-            width: 50.0, height: 50.0, child: CircularProgressIndicator()),
+          width: 50.0,
+          height: 50.0,
+          child: CircularProgressIndicator(),
+        ),
       );
     } else if (result.hasError) {
       return const Text('Error initializing.');
