@@ -4,8 +4,8 @@ import 'package:again/const/const.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:again/services/voice_updater.dart';
-import 'package:again/repository/database/database.dart';
-import 'package:again/repository/repository_state.dart';
+import 'package:again/repository/database_repository/database/database.dart';
+import 'package:again/repository/database_repository/database_repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
@@ -13,18 +13,18 @@ import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class RepositoryNotifier extends Notifier<RepositoryState> {
+class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   late final AppDatabase _database;
   late VoiceUpdater _voiceUpdater;
 
   @override
-  RepositoryState build() {
+  DatabaseRepositoryState build() {
     _database = ref.read(databaseProvider);
-    return RepositoryState();
+    return DatabaseRepositoryState();
   }
 
   Future<void> initialize() async {
-    final data = await ref.read(configProvider).read();
+    final data = await ref.read(configJsonProvider).read();
     final vkRootDirPath = data['voiceWorkRoot'] ?? '';
 
     if (await Directory(vkRootDirPath).exists()) {
@@ -43,7 +43,9 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
         await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
     if (selectedDirPath != null) {
       await _initializeVoiceUpdater(selectedDirPath);
-      await ref.read(configProvider).write({'voiceWorkRoot': selectedDirPath});
+      await ref
+          .read(configJsonProvider)
+          .write({'voiceWorkRoot': selectedDirPath});
       await onUpdatePressed();
     }
   }
@@ -131,9 +133,7 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
   Future<void> updateViList() async {
     var vkPath = ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath ?? '';
     final viLs = await getViList(vkPath);
-    ref.read(voiceItemProvider.notifier).setValues(
-          (viLs),
-        );
+    ref.read(voiceItemProvider.notifier).setValues(viLs);
   }
 
   Future<List<VoiceItem>> getViList(String vkPath) async {
@@ -170,8 +170,9 @@ class RepositoryNotifier extends Notifier<RepositoryState> {
       // voiceWorkState.playingValues
       final playingVkLs = await getVkDataList(cate, cv);
       final sortedList = sortVoiceWorkList(
-          VoiceWork.vkDataList2VkList(playingVkLs),
-          sort: ref.read(sortOrderProvider).cachedPlayingItem!);
+        VoiceWork.vkDataList2VkList(playingVkLs),
+        sort: ref.read(sortOrderProvider).cachedPlayingItem!,
+      );
       ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
 
       // voiceItemState.playingValues

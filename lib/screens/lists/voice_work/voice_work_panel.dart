@@ -22,7 +22,7 @@ class VoiceWorkPanel extends ConsumerWidget {
           'VoiceWorks(${ref.watch(voiceWorkProvider.select((state) => state.values)).length}): ${SortOrder.values[sortOrderIndex] == SortOrder.byTitle ? 'title' : 'time'}',
       listView: const FutureVoiceWorkListView(),
       icon: const Icon(Icons.refresh),
-      onIconBtnPressed: ref.read(repositoryProvider.notifier).onUpdatePressed,
+      onIconBtnPressed: ref.read(dbRepoProvider.notifier).onUpdatePressed,
       onTextBtnPressed: () =>
           ref.read(sortOrderProvider.notifier).onSelected(sortOrderIndex),
     );
@@ -53,7 +53,11 @@ class FutureVoiceWorkListView extends ConsumerWidget {
           onTap: () => ref.read(voiceWorkProvider.notifier).onSelected(index),
           selected: selectedindex == index,
           contentPadding: const EdgeInsets.only(
-              top: 5.0, bottom: 5.0, left: 20.0, right: 10.0),
+            top: 5.0,
+            bottom: 5.0,
+            left: 20.0,
+            right: 10.0,
+          ),
           horizontalTitleGap: 0.0,
         );
       },

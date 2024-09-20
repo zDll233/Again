@@ -59,11 +59,7 @@ class _FutureVoiceItemListViewState
       itemBuilder: (context, vi, index) {
         return ListTile(
           title: Text(vi.title),
-          onTap: () {
-            setState(() {
-              ref.read(voiceItemProvider.notifier).onSelected(index);
-            });
-          },
+          onTap: () => ref.read(voiceItemProvider.notifier).onSelected(index),
           selected:
               playingIndex == index && uiService.isSelectedVoiceWorkPlaying,
         );

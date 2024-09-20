@@ -23,23 +23,33 @@ class VkMenuBtn extends ConsumerWidget {
             List<String> cvList = VoiceUpdater.getCvList(voiceWork.title);
 
             final items = <PopupMenuEntry<String>>[
-              ...cvList.map((cvName) =>
-                  PopupMenuItem<String>(value: cvName, child: Text(cvName))),
+              ...cvList.map((cvName) => PopupMenuItem<String>(
+                    value: cvName,
+                    child: Text(cvName),
+                  )),
               const PopupMenuDivider(),
               ...ref
-                  .watch(categoryProvider)
+                  .read(categoryProvider)
                   .values
                   .where((cate) => cate != "All" && cate != voiceWork.category)
-                  .map((cate) =>
-                      PopupMenuItem<String>(value: cate, child: Text(cate))),
+                  .map((cate) => PopupMenuItem<String>(
+                        value: cate,
+                        child: Text(cate),
+                      )),
               const PopupMenuDivider(),
               const PopupMenuItem<String>(
-                  value: 'delete', child: Text('移至回收站')),
+                value: 'delete',
+                child: Text('移至回收站'),
+              ),
             ];
 
             if (buttonContext.mounted) {
               showPopupMenuOnPressed(
-                  buttonContext, ref, items, _onPopMenuSelected);
+                buttonContext,
+                ref,
+                items,
+                _onPopMenuSelected,
+              );
             }
           },
         );

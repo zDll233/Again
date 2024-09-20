@@ -50,8 +50,9 @@ class LineIndicator extends StatelessWidget {
           flex: 1,
           child: TextButton(
             child: Text(
-                Duration(milliseconds: position).toString().split('.').first,
-                style: Theme.of(context).textTheme.bodyMedium),
+              Duration(milliseconds: position).toString().split('.').first,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             onPressed: () {
               audioNotifier.seek(Duration(milliseconds: position));
               confirmPlay.call();

@@ -13,9 +13,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class LyricBuilder extends ConsumerStatefulWidget {
-  const LyricBuilder({
-    super.key,
-  });
+  const LyricBuilder({super.key});
 
   @override
   ConsumerState<LyricBuilder> createState() => _LrcBuilderState();
@@ -25,7 +23,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   bool _hasLyric = false;
   bool _readLyric = false;
   final lyricUi = UINetease(
-      otherMainColor: Colors.white60, highLightTextColor: Colors.purple[200]);
+    otherMainColor: Colors.white60,
+    highLightTextColor: Colors.purple[200],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -63,12 +63,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 ),
                 selectLineBuilder: (position, flashBack, confirmPlay) =>
                     LineIndicator(
-                        ref: ref,
-                        context: context,
-                        position: position,
-                        flashBack: flashBack,
-                        confirmPlay: confirmPlay,
-                        isPlaying: isPlaying),
+                  ref: ref,
+                  context: context,
+                  position: position,
+                  flashBack: flashBack,
+                  confirmPlay: confirmPlay,
+                  isPlaying: isPlaying,
+                ),
                 lyricUi: lyricUi,
                 waitMilliseconds: 5000,
                 canScrollBack: isPlaying,

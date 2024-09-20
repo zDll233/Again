@@ -14,7 +14,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     int length = state.values.length;
     int temp = state.selectedIndex + 1;
     cacheSelectedIndexAndItem(temp < length ? temp : 0);
-    await ref.read(repositoryProvider.notifier).updateVkList();
+    await ref.read(dbRepoProvider.notifier).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }
 }

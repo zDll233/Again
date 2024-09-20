@@ -1,4 +1,4 @@
-import 'package:again/repository/database/database.dart';
+import 'package:again/repository/database_repository/database/database.dart';
 
 class VoiceItem {
   String title;
@@ -13,9 +13,10 @@ class VoiceItem {
 
   static VoiceItem viData2Vi(TVoiceItemData viData) {
     return VoiceItem(
-        title: viData.title,
-        filePath: viData.filePath,
-        voiceWorkPath: viData.voiceWorkPath);
+      title: viData.title,
+      filePath: viData.filePath,
+      voiceWorkPath: viData.voiceWorkPath,
+    );
   }
 
   static List<VoiceItem> viDataList2ViList(List<TVoiceItemData> viDataList) {

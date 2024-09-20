@@ -14,9 +14,8 @@ class HistoryManager {
   final Ref ref;
   late final UIService _uiService;
 
-  HistoryManager({required this.ref}) {
-    _uiService = ref.read(uiServiceProvider);
-  }
+  HistoryManager({required this.ref})
+      : _uiService = ref.read(uiServiceProvider);
 
   Future<void> saveHistory() async {
     try {
@@ -31,25 +30,25 @@ class HistoryManager {
             'cv': playingItems['cv'] as String,
           },
           'voiceWork': playingItems['voiceWork']?.toMap(),
-          'voiceItem': playingItems['voiceItem']?.toMap()
+          'voiceItem': playingItems['voiceItem']?.toMap(),
         },
         'audio': {
           'position': audioState.position.inMilliseconds,
           'volume': audioState.volume,
-          'loopMode': audioState.loopMode.index
+          'loopMode': audioState.loopMode.index,
         },
       };
-      await ref.read(historyProvider).write(lastPlayed);
+      await ref.read(historyJsonProvider).write(lastPlayed);
     } catch (e) {
       Log.error('Error saving history.\n$e');
     }
   }
 
   Future<void> loadHistory() async {
-    final repositoryNotifier = ref.read(repositoryProvider.notifier);
+    final repositoryNotifier = ref.read(dbRepoProvider.notifier);
     await repositoryNotifier.updateFilterLists();
 
-    final data = await ref.read(historyProvider).read();
+    final data = await ref.read(historyJsonProvider).read();
 
     if (data.isEmpty) {
       await repositoryNotifier.updateVkList();
@@ -57,29 +56,30 @@ class HistoryManager {
     }
 
     try {
-      await loadUIHistory(data['ui']);
-      await loadAudioHistory(data['audio']);
+      await _loadUIHistory(data['ui']);
+      await _loadAudioHistory(data['audio']);
     } catch (e) {
       await repositoryNotifier.updateVkList();
       Log.error('Error loading history.\n$e.');
     }
   }
 
-  Future<void> loadUIHistory(Map<String, dynamic> uiHistory) async {
+  Future<void> _loadUIHistory(Map<String, dynamic> uiHistory) async {
     try {
       if (uiHistory.isEmpty) return;
 
       final filter = uiHistory['filter'];
-      final repositoryNotifier = ref.read(repositoryProvider.notifier);
+      final repositoryNotifier = ref.read(dbRepoProvider.notifier);
 
-      ref.read(sortOrderProvider.notifier).cacheSelectedIndexAndItemByValue(
+      final sortOrderNotifier = ref.read(sortOrderProvider.notifier);
+      final categoryNotifier = ref.read(categoryProvider.notifier);
+      final cvNotifier = ref.read(cvProvider.notifier);
+
+      sortOrderNotifier.cacheSelectedIndexAndItemByValue(
           SortOrderExtension.fromString(filter['sortOrder']));
-      ref
-          .read(categoryProvider.notifier)
+      categoryNotifier
           .cacheSelectedIndexAndItemByValue(filter['category'] as String);
-      ref
-          .read(cvProvider.notifier)
-          .cacheSelectedIndexAndItemByValue(filter['cv'] as String);
+      cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
 
       // voiceWork
       await repositoryNotifier.updateVkList();
@@ -88,6 +88,12 @@ class HistoryManager {
         ref
             .read(voiceWorkProvider.notifier)
             .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(voiceWorkMap));
+      }
+      if (!ref.read(voiceWorkProvider).isSelectedIndexValid) {
+        sortOrderNotifier.cacheSelectedIndexAndItem(0);
+        categoryNotifier.cacheSelectedIndexAndItem(0);
+        await cvNotifier.onSelected(0);
+        return;
       }
 
       // voiceItem
@@ -99,13 +105,13 @@ class HistoryManager {
             .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(voiceItemMap));
       }
 
-      ref.read(uiServiceProvider).cacheAllPlayingState();
+      _uiService.cacheAllPlayingState();
     } catch (e) {
       Log.error('Error loading UI history.\n$e');
     }
   }
 
-  Future<void> loadAudioHistory(Map<String, dynamic> audioHistory) async {
+  Future<void> _loadAudioHistory(Map<String, dynamic> audioHistory) async {
     if (audioHistory.isEmpty) return;
 
     final audioNotifier = ref.read(audioProvider.notifier);

@@ -31,12 +31,15 @@ class _InitializationState extends ConsumerState<Initialization> {
 
   @override
   Widget build(BuildContext context) {
-    final result = ref.watch(initProvider);
+    final result = ref.watch(_initProvider);
 
     if (result.isLoading) {
       return const Center(
         child: SizedBox(
-            width: 50.0, height: 50.0, child: CircularProgressIndicator()),
+          width: 50.0,
+          height: 50.0,
+          child: CircularProgressIndicator(),
+        ),
       );
     } else if (result.hasError) {
       return const Text('Error initializing.');
@@ -46,7 +49,7 @@ class _InitializationState extends ConsumerState<Initialization> {
   }
 }
 
-final initProvider = FutureProvider((ref) async {
-  await ref.read(repositoryProvider.notifier).initialize();
+final _initProvider = FutureProvider((ref) async {
+  await ref.read(dbRepoProvider.notifier).initialize();
   await ref.read(historyManagerProvider).loadHistory();
 });

@@ -5,18 +5,11 @@ import 'package:again/screens/lyric/components/voice_item_title.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LyricPanel extends ConsumerStatefulWidget {
-  const LyricPanel({
-    super.key,
-  });
+class LyricPanel extends ConsumerWidget {
+  const LyricPanel({super.key});
 
   @override
-  ConsumerState<LyricPanel> createState() => _LyricPanelState();
-}
-
-class _LyricPanelState extends ConsumerState<LyricPanel> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final hasAudioSource =
         ref.watch(voiceItemProvider.select((state) => state.isPlaying));
 

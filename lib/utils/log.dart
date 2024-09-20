@@ -7,9 +7,7 @@ class Log {
   static final Log _instance = Log._internal();
 
   late final Logger _logger;
-  final Logger _simpleLogger = Logger(
-    printer: PrettyPrinter(methodCount: 0),
-  );
+  final Logger _simpleLogger = Logger(printer: PrettyPrinter(methodCount: 0));
 
   // named constructor
   Log._internal() {
@@ -21,7 +19,9 @@ class Log {
     _logger = kDebugMode
         ? Logger(
             printer: PrettyPrinter(
-                methodCount: 5, dateTimeFormat: DateTimeFormat.dateAndTime),
+              methodCount: 5,
+              dateTimeFormat: DateTimeFormat.dateAndTime,
+            ),
           )
         : Logger(
             filter: ProductionFilter(),
@@ -34,9 +34,7 @@ class Log {
           );
   }
 
-  factory Log() {
-    return _instance;
-  }
+  factory Log() => _instance;
 
   // 提供静态方法获取 Logger 实例
   static Logger get logger => _instance._logger;
@@ -83,8 +81,12 @@ class Log {
     if (simplePrint) {
       _instance._simpleLogger.e(message);
     } else {
-      _instance._logger
-          .e(message, time: time, error: error, stackTrace: stackTrace);
+      _instance._logger.e(
+        message,
+        time: time,
+        error: error,
+        stackTrace: stackTrace,
+      );
     }
   }
 

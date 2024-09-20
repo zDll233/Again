@@ -5,9 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ListLyricSwitch extends ConsumerWidget {
-  const ListLyricSwitch({
-    super.key,
-  });
+  const ListLyricSwitch({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

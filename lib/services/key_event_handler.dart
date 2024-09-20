@@ -11,9 +11,7 @@ class KeyEventHandler {
   final WidgetRef ref;
   late final AudioNotifier audioNotifier;
 
-  KeyEventHandler(this.ref) {
-    audioNotifier = ref.read(audioProvider.notifier);
-  }
+  KeyEventHandler(this.ref) : audioNotifier = ref.read(audioProvider.notifier);
 
   bool handleKeyEvent(KeyEvent event) {
     if (event is KeyDownEvent) {

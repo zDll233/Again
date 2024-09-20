@@ -8,12 +8,12 @@ class SelectRootDirBtn extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
-        onPressed:
-            ref.read(repositoryProvider.notifier).selectAndSaveRootDirectory,
-        icon: const Icon(
-          Icons.folder_open,
-          size: 20,
-          color: Color.fromRGBO(255, 255, 255, 0.5),
-        ));
+      onPressed: ref.read(dbRepoProvider.notifier).selectAndSaveRootDirectory,
+      icon: const Icon(
+        Icons.folder_open,
+        size: 20,
+        color: Color.fromRGBO(255, 255, 255, 0.5),
+      ),
+    );
   }
 }

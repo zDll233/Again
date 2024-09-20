@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/repository/database/database.dart';
+import 'package:again/repository/database_repository/database/database.dart';
 import 'package:again/repository/repository_providers.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
