@@ -1,7 +1,7 @@
 import 'package:again/audio/audio_providers.dart';
+import 'package:again/presentation/state_interface/variable_list_state/variable_list_state_notifier.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/models/voice_item.dart';
-import 'package:again/presentation/state_interface.dart';
 import 'package:again/presentation/voice_item/voice_item_state.dart';
 import 'package:audioplayers/audioplayers.dart';
 
