@@ -12,8 +12,6 @@ class UIService {
   final Ref ref;
   UIService(this.ref);
 
-  Completer viCompleter = Completer();
-
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
@@ -142,7 +140,7 @@ class UIService {
         []);
   }
 
-  /// Resets the filters and scrolls to the top.
+  /// Resets the filters(sortorder excluded) and scrolls to the top.
   Future<void> onResetFilterPressed() async {
     ref.read(categoryProvider.notifier).cacheSelectedIndexAndItem(0);
     await ref.read(cvProvider.notifier).onSelected(0);
@@ -179,8 +177,7 @@ class UIService {
 
   void scrollToPlayingIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await viCompleter.future;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToIndex(
             cateScrollController, ref.read(categoryProvider).playingIndex);
         scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);

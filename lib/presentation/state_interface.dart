@@ -141,7 +141,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
         state.isSelectedIndexValid ? state.selectedItem : null);
   }
 
-  // cache: copy selected to playing
+  /// cache playingState into `playingIndex`, `cachedPlayingItem`
   void cachePlayingState() {
     cachePlayingIndex();
     // 最后缓存playingItem
@@ -150,10 +150,11 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
 
   @protected
   void cachePlayingIndex() => setPlayingIndex(state.selectedIndex);
+
   @protected
   void cachePlayingItem() => setCachedPlayingItem(state.cachedSelectedItem);
 
-  // restore: copy playing to selected
+  /// `playingIndex`, `cachedPlayingItem`
   void restorePlayingState() {
     restorePlayingIndex();
     restoreCachedPlayingItem();
@@ -166,7 +167,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   void restoreCachedPlayingItem() =>
       setCachedSelectedItem(state.cachedPlayingItem);
 
-  // clear playing state
+  /// `playingIndex` = -1, `cachedPlayingItem` = null
   void clearPlayingState() {
     setPlayingIndex(-1);
     setCachedPlayingItem(null);
@@ -189,11 +190,12 @@ abstract class VariableListStateNotifier<
   }
 
   // cache
+
+  /// cache playingState into `playingValues`, `playingIndex` and `cachedPlayingItem`
   @override
   void cachePlayingState() {
-    cachePlayingIndex();
     cachePlayingValues();
-    cachePlayingItem();
+    super.cachePlayingState();
   }
 
   @protected
@@ -205,8 +207,7 @@ abstract class VariableListStateNotifier<
   @override
   void restorePlayingState() {
     restorePlayingValues();
-    restorePlayingIndex();
-    restoreCachedPlayingItem();
+    super.restorePlayingState();
   }
 
   @protected
@@ -214,6 +215,7 @@ abstract class VariableListStateNotifier<
     setValues(state.playingValues);
   }
 
+  /// clear `playingIndex`, `cachedPlayingItem` and `playingValues`
   @override
   void clearPlayingState() {
     super.clearPlayingState();

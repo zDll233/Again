@@ -16,7 +16,7 @@ class VoiceWorkPanel extends ConsumerWidget {
     return VoicePanel(
       title:
           'VoiceWorks(${ref.watch(voiceWorkProvider.select((state) => state.values)).length}): ${SortOrder.values[sortOrderIndex] == SortOrder.byTitle ? 'title' : 'time'}',
-      listView: const FutureVoiceWorkListView(),
+      listView: const VoiceWorkListView(),
       icon: const Icon(Icons.refresh),
       onIconBtnPressed: ref.read(dbRepoProvider.notifier).onUpdatePressed,
       onTextBtnPressed: () =>

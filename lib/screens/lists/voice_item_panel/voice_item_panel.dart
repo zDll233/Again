@@ -13,7 +13,7 @@ class VoiceItemPanel extends ConsumerWidget {
     return VoicePanel(
       title:
           'VoiceItems(${ref.watch(voiceItemProvider.select((state) => state.values)).length})',
-      listView: const FutureVoiceItemListView(),
+      listView: const VoiceItemListView(),
       icon: const Icon(Icons.location_searching),
       onIconBtnPressed: uiService.onLocateBtnPressed,
       onTextBtnPressed: uiService.revealInExplorerView,

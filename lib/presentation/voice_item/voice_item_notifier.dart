@@ -30,9 +30,10 @@ class VoiceItemNotifier
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
   }
 
-  void updatePlayingCache(int playingIndex) {
-    setPlayingIndex(playingIndex);
-    setCachedPlayingItem(
-        state.isPlayingIndexValid ? state.playingValues[playingIndex] : null);
+  void updatePlayingCache(int selectedIndex) {
+    cacheSelectedIndexAndItem(selectedIndex);
+
+    cachePlayingIndex();
+    cachePlayingItem();
   }
 }

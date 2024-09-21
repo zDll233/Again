@@ -1,33 +1,33 @@
-import 'dart:async';
 import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/screens/components/future_list.dart';
 import 'package:again/screens/components/image_thumbnail.dart';
 import 'package:again/screens/lists/voice_work_panel/vk_menu_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class FutureVoiceWorkListView extends ConsumerWidget {
-  const FutureVoiceWorkListView({super.key});
-
-  Future<List> fetchItems(WidgetRef ref) async {
-    return ref.watch(voiceWorkProvider.select((state) => state.values));
-  }
+class VoiceWorkListView extends ConsumerWidget {
+  const VoiceWorkListView({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return FutureListView(
-      future: fetchItems(ref),
-      itemBuilder: (context, vk, index) {
+    final values = ref.watch(voiceWorkProvider.select((state) => state.values));
+    if (values.isEmpty) {
+      return const Center(child: Text('No items found'));
+    }
+    return ScrollablePositionedList.builder(
+      itemCount: values.length,
+      itemBuilder: (context, index) {
+        final voiceWork = values[index];
         return Consumer(
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceWorkSelectedProvider(index));
             return ListTile(
-              leading: ImageThumbnail(imagePath: vk.coverPath),
+              leading: ImageThumbnail(imagePath: voiceWork.coverPath),
               title: Padding(
                 padding: const EdgeInsets.only(left: 15.0, right: 5.0),
-                child: Text(vk.title),
+                child: Text(voiceWork.title),
               ),
-              trailing: VkMenuBtn(voiceWork: vk),
+              trailing: VkMenuBtn(voiceWork: voiceWork),
               onTap: () =>
                   ref.read(voiceWorkProvider.notifier).onSelected(index),
               selected: selected,
@@ -47,7 +47,8 @@ class FutureVoiceWorkListView extends ConsumerWidget {
   }
 }
 
-final _voiceWorkSelectedProvider = Provider.family<bool, int>((ref, index) {
+final _voiceWorkSelectedProvider =
+    Provider.autoDispose.family<bool, int>((ref, index) {
   return index ==
       ref.watch(voiceWorkProvider.select((state) => state.selectedIndex));
 });

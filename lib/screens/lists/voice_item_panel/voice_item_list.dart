@@ -1,20 +1,16 @@
-import 'dart:async';
-
 import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/screens/components/future_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class FutureVoiceItemListView extends ConsumerStatefulWidget {
-  const FutureVoiceItemListView({super.key});
+class VoiceItemListView extends ConsumerStatefulWidget {
+  const VoiceItemListView({super.key});
 
   @override
-  ConsumerState<FutureVoiceItemListView> createState() =>
-      _FutureVoiceItemListViewState();
+  ConsumerState<VoiceItemListView> createState() => _VoiceItemListViewState();
 }
 
-class _FutureVoiceItemListViewState
-    extends ConsumerState<FutureVoiceItemListView> {
+class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
   @override
   void initState() {
     super.initState();
@@ -23,27 +19,21 @@ class _FutureVoiceItemListViewState
     });
   }
 
-  Future<List> fetchItems(WidgetRef ref) async {
-    ref.read(uiServiceProvider).viCompleter = Completer();
-    return ref.watch(voiceItemProvider.select((state) => state.values));
-  }
-
   @override
   Widget build(BuildContext context) {
-    final uiService = ref.watch(uiServiceProvider);
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      uiService.viCompleter.complete();
-    });
-
-    return FutureListView(
-      future: fetchItems(ref),
-      itemBuilder: (context, vi, index) {
+    final values = ref.watch(voiceItemProvider.select((state) => state.values));
+    if (values.isEmpty) {
+      return const Center(child: Text('No items found'));
+    }
+    return ScrollablePositionedList.builder(
+      itemCount: values.length,
+      itemBuilder: (context, index) {
+        final voiceItem = values[index];
         return Consumer(
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceItemSelectedProvider(index));
             return ListTile(
-              title: Text(vi.title),
+              title: Text(voiceItem.title),
               onTap: () =>
                   ref.read(voiceItemProvider.notifier).onSelected(index),
               selected: selected,
@@ -51,12 +41,13 @@ class _FutureVoiceItemListViewState
           },
         );
       },
-      itemScrollController: uiService.viScrollController,
+      itemScrollController: ref.read(uiServiceProvider).viScrollController,
     );
   }
 }
 
-final _voiceItemSelectedProvider = Provider.family<bool, int>((ref, index) {
+final _voiceItemSelectedProvider =
+    Provider.autoDispose.family<bool, int>((ref, index) {
   final voiceWorkPlaying = ref.watch(isSelectedVoiceWorkPlaying);
   return index ==
           ref.watch(voiceItemProvider.select((state) => state.selectedIndex)) &&

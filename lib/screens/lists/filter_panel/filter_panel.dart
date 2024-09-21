@@ -12,15 +12,15 @@ class FilterPanel extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return VoicePanel(
       title: 'Filter',
-      listView: const FutureFilterListView(),
+      listView: const FilterListView(),
       icon: const Icon(Icons.remove),
       onIconBtnPressed: ref.read(uiServiceProvider).onResetFilterPressed,
     );
   }
 }
 
-class FutureFilterListView extends StatelessWidget {
-  const FutureFilterListView({super.key});
+class FilterListView extends StatelessWidget {
+  const FilterListView({super.key});
 
   @override
   Widget build(BuildContext context) {
