@@ -161,6 +161,7 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
 
   @protected
   void restorePlayingIndex() => setSelectedIndex(state.playingIndex);
+
   @protected
   void restoreCachedPlayingItem() =>
       setCachedSelectedItem(state.cachedPlayingItem);

@@ -1,6 +1,6 @@
-import 'package:again/screens/lists/filter_panel.dart';
-import 'package:again/screens/lists/voice_work/voice_work_panel.dart';
-import 'package:again/screens/lists/voice_item_panel.dart';
+import 'package:again/screens/lists/filter_panel/filter_panel.dart';
+import 'package:again/screens/lists/voice_work_panel/voice_work_panel.dart';
+import 'package:again/screens/lists/voice_item_panel/voice_item_panel.dart';
 import 'package:flutter/material.dart';
 
 const _verticalDivider = VerticalDivider(
