@@ -143,24 +143,26 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   }
 
   Future<void> onUpdatePressed() async {
-    final uiService = ref.read(uiServiceProvider);
-
-    final playingItems = uiService.cachedPlayingItems;
-    final selectedItems = uiService.cachedSelectedItems;
-
     await _updateDatabase();
     await updateViewList();
 
+    final uiService = ref.read(uiServiceProvider);
+    final cachedPlayingItems = uiService.cachedPlayingItems;
+    final cachedSelectedItems = uiService.cachedSelectedItems;
+
     // 先更新`playingValues`
-    await updatePlayingValues(playingItems['category'], playingItems['cv'],
-        playingItems['voiceWork']);
+    await updatePlayingValues(
+      cachedPlayingItems['category'] as String,
+      cachedPlayingItems['cv'] as String,
+      cachedPlayingItems['voiceWork'] as VoiceWork?,
+    );
 
     // 再更新`playingIndex`
-    if (playingItems.isNotEmpty) {
-      uiService.setPlayingIndexByCache(playingItems);
+    if (cachedPlayingItems.isNotEmpty) {
+      uiService.setPlayingIndexByCache(cachedPlayingItems);
     }
-    if (selectedItems.isNotEmpty) {
-      uiService.setSelectedIndexByCache(selectedItems);
+    if (cachedSelectedItems.isNotEmpty) {
+      uiService.setSelectedIndexByCache(cachedSelectedItems);
     }
   }
 
