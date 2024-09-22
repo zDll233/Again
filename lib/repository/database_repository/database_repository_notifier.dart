@@ -169,11 +169,11 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
     if (ref.read(voiceWorkProvider).isPlaying) {
       // voiceWorkState.playingValues
       final playingVkLs = await getVkDataList(cate, cv);
-      final sortedList = sortVoiceWorkList(
+      final sortedVkLs = sortVoiceWorkList(
         VoiceWork.vkDataList2VkList(playingVkLs),
         sort: ref.read(sortOrderProvider).cachedPlayingItem!,
       );
-      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
+      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedVkLs);
 
       // voiceItemState.playingValues
       final viLs = await getViList(voiceWork?.directoryPath ?? '');
