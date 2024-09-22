@@ -15,6 +15,6 @@ class VoiceWorkNotifier
     if (selectedIndex < 0) return;
 
     cacheSelectedIndexAndItem(selectedIndex);
-    ref.read(dbRepoProvider.notifier).updateViList();
+    await ref.read(dbRepoProvider.notifier).updateViList();
   }
 }

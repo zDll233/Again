@@ -9,6 +9,7 @@ import 'package:again/repository/database_repository/database_repository_state.d
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,11 +130,18 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
     return vkLs;
   }
 
-  /// update [VoiceItemState.values]. If viLs is null, get it from db
+  /// update [VoiceItemState.values].
   Future<void> updateViList() async {
-    var vkPath = ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath ?? '';
-    final viLs = await getViList(vkPath);
-    ref.read(voiceItemProvider.notifier).setValues(viLs);
+    final voiceWorkState = ref.read(voiceWorkProvider);
+    final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
+    if (!voiceWorkState.cachedSelectedVoiceWorkExist) {
+      Log.info('selected voicework not exists.');
+      voiceItemNotifier.clearValues();
+    } else {
+      final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
+      final viLs = await getViList(vkPath);
+      voiceItemNotifier.setValues(viLs);
+    }
   }
 
   Future<List<VoiceItem>> getViList(String vkPath) async {

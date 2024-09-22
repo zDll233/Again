@@ -3,7 +3,6 @@ import 'package:again/presentation/state_interface/variable_list_state/variable_
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/presentation/voice_item/voice_item_state.dart';
-import 'package:again/utils/log.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class VoiceItemNotifier
@@ -18,11 +17,6 @@ class VoiceItemNotifier
     final uiService = ref.read(uiServiceProvider);
     final audioNotifier = ref.read(audioProvider.notifier);
     final voiceWorkPlaying = ref.read(isSelectedVoiceWorkPlaying);
-
-    if (!ref.read(voiceWorkProvider).cachedSelectedVoiceWorkExist) {
-      Log.info('selected voicework not exists.');
-      return;
-    }
 
     /// 选中的VoiceItem正在播放则暂停播放并返回
     if (state.playingIndex == selectedIndex && voiceWorkPlaying) {
