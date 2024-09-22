@@ -18,6 +18,10 @@ class VoiceItemNotifier
     final audioNotifier = ref.read(audioProvider.notifier);
     final voiceWorkPlaying = ref.read(isSelectedVoiceWorkPlaying);
 
+    if (!ref.read(voiceWorkProvider).cachedSelectedVoiceWorkExist) {
+      return;
+    }
+
     /// 选中的VoiceItem正在播放则暂停播放并返回
     if (state.playingIndex == selectedIndex && voiceWorkPlaying) {
       audioNotifier.switchPauseResume();

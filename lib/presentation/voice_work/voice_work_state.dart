@@ -31,6 +31,8 @@ class VoiceWorkState extends VariableListState<VoiceWork> {
     );
   }
 
+  bool get cachedSelectedVoiceWorkExist => cachedSelectedItem?.exist ?? false;
+
   String? get cachedPlayingVoiceWorkPath => cachedPlayingItem?.directoryPath;
 
   String? get cachedSelectedVoiceWorkPath => cachedSelectedItem?.directoryPath;

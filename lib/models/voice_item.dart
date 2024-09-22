@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/repository/database_repository/database/database.dart';
 
 class VoiceItem {
@@ -10,6 +12,8 @@ class VoiceItem {
     required this.filePath,
     required this.voiceWorkPath,
   });
+
+  bool get exist => File(filePath).existsSync();
 
   static VoiceItem viData2Vi(TVoiceItemData viData) {
     return VoiceItem(
