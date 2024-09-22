@@ -4,7 +4,6 @@ import 'package:again/audio/audio_providers.dart';
 import 'package:again/const/const.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/repository/repository_providers.dart';
 import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/log.dart';
 import 'package:again/utils/move_file.dart';
@@ -30,7 +29,6 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
     ];
     ProcessResult result = await Process.run('powershell', arguments);
 
-    await ref.read(dbRepoProvider.notifier).onUpdatePressed();
     Log.info('Delete ${movedVoiceWork.title}.\n'
         'exitcode: ${result.exitCode}.\n'
         'stdout: ${result.stdout}\n'
@@ -41,7 +39,10 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
 }
 
 Future<void> changeCategory(
-    WidgetRef ref, VoiceWork movedVoiceWork, String newCategory) async {
+  WidgetRef ref,
+  VoiceWork movedVoiceWork,
+  String newCategory,
+) async {
   // 将路径中的 voiceWork.category 替换为新的 cate
   final newDirectoryPath = movedVoiceWork.directoryPath
       .replaceFirst(movedVoiceWork.category, newCategory);
@@ -50,8 +51,6 @@ Future<void> changeCategory(
   try {
     await releasePlayingItems(ref, movedVoiceWork);
     await moveDirectory(oldDirectory, newDirectoryPath);
-
-    await ref.read(dbRepoProvider.notifier).onUpdatePressed();
 
     Log.info(
         'Move "${movedVoiceWork.title}" from "${movedVoiceWork.category}" to "$newCategory".');
