@@ -135,7 +135,7 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
     final voiceWorkState = ref.read(voiceWorkProvider);
     final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
     if (!voiceWorkState.cachedSelectedVoiceWorkExist) {
-      Log.info('selected voicework not exists.');
+      Log.info('Selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
       voiceItemNotifier.clearValues();
     } else {
       final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
