@@ -17,7 +17,7 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
   }
 
   try {
-    await releasePlayingItems(ref, movedVoiceWork);
+    await playingOrSelected(ref, movedVoiceWork);
 
     List<String> arguments = [
       '-ExecutionPolicy',
@@ -49,7 +49,7 @@ Future<void> changeCategory(
   Directory oldDirectory = Directory(movedVoiceWork.directoryPath);
 
   try {
-    await releasePlayingItems(ref, movedVoiceWork);
+    await playingOrSelected(ref, movedVoiceWork);
     await moveDirectory(oldDirectory, newDirectoryPath);
 
     Log.info(
@@ -60,11 +60,15 @@ Future<void> changeCategory(
   }
 }
 
-Future<void> releasePlayingItems(
-    WidgetRef ref, VoiceWork movedVoiceWork) async {
+Future<void> playingOrSelected(WidgetRef ref, VoiceWork movedVoiceWork) async {
   final voiceWorkState = ref.read(voiceWorkProvider);
-  if (voiceWorkState.isPlaying &&
-      voiceWorkState.cachedPlayingItem == movedVoiceWork) {
+  // playing
+  if (voiceWorkState.cachedPlayingItem == movedVoiceWork) {
     await ref.read(audioProvider.notifier).release();
+  }
+
+  // selected
+  if (voiceWorkState.cachedSelectedItem == movedVoiceWork) {
+    ref.read(voiceItemProvider.notifier).clearValues();
   }
 }
