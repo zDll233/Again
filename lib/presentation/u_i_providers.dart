@@ -30,4 +30,20 @@ final voiceItemProvider =
 final miscUIProvider =
     NotifierProvider<MiscNotifier, MiscState>(MiscNotifier.new);
 
-final uiServiceProvider = Provider((ref) => UIService(ref));
+final uiServiceProvider = Provider<UIService>((ref) => UIService(ref));
+
+final isSelectedFilterPlaying = Provider<bool>(
+  (ref) =>
+      ref.watch(
+          sortOrderProvider.select((state) => state.isSelectedItemPlaying)) &&
+      ref.watch(
+          categoryProvider.select((state) => state.isSelectedItemPlaying)) &&
+      ref.watch(cvProvider.select((state) => state.isSelectedItemPlaying)),
+);
+
+final isSelectedVoiceWorkPlaying = Provider<bool>(
+  (ref) =>
+      ref.watch(isSelectedFilterPlaying) &&
+      ref.watch(
+          voiceWorkProvider.select((state) => state.isSelectedItemPlaying)),
+);

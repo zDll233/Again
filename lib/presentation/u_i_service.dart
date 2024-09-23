@@ -12,31 +12,15 @@ class UIService {
   final Ref ref;
   UIService(this.ref);
 
-  Completer viCompleter = Completer();
-
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
   final vkScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
 
-  bool get isSelectedFilterPlaying {
-    final sortOrder = ref.read(sortOrderProvider);
-    final category = ref.read(categoryProvider);
-    final cv = ref.read(cvProvider);
-
-    return sortOrder.isSelectedItemPlaying &&
-        category.isSelectedItemPlaying &&
-        cv.isSelectedItemPlaying;
-  }
-
-  bool get isSelectedVoiceWorkPlaying =>
-      isSelectedFilterPlaying &&
-      ref.read(voiceWorkProvider).isSelectedItemPlaying;
-
   Future<void> filterSelected() async {
     final voiceWorkNotifier = ref.read(voiceWorkProvider.notifier);
 
-    if (isSelectedFilterPlaying) {
+    if (ref.read(isSelectedFilterPlaying)) {
       await voiceWorkNotifier
           .onSelected(ref.read(voiceWorkProvider).playingIndex);
     } else {
@@ -138,7 +122,7 @@ class UIService {
   }
 
   Future<void> revealInExplorerView() async {
-    if (isSelectedVoiceWorkPlaying) {
+    if (ref.read(isSelectedVoiceWorkPlaying)) {
       selectPlayingVoiceItem();
     } else {
       Process.run(
@@ -156,7 +140,7 @@ class UIService {
         []);
   }
 
-  /// Resets the filters and scrolls to the top.
+  /// Resets the filters(sortorder excluded) and scrolls to the top.
   Future<void> onResetFilterPressed() async {
     ref.read(categoryProvider.notifier).cacheSelectedIndexAndItem(0);
     await ref.read(cvProvider.notifier).onSelected(0);
@@ -185,7 +169,7 @@ class UIService {
 
   /// Locates the playing item by restoring PlayingStates and scrolling to it.
   void onLocateBtnPressed() {
-    if (!isSelectedVoiceWorkPlaying) {
+    if (!ref.read(isSelectedVoiceWorkPlaying)) {
       restoreAllPlayingState();
     }
     scrollToPlayingIndex();
@@ -193,8 +177,7 @@ class UIService {
 
   void scrollToPlayingIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        await viCompleter.future;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToIndex(
             cateScrollController, ref.read(categoryProvider).playingIndex);
         scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);

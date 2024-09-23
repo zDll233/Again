@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/repository/database_repository/database/database.dart';
 
 class VoiceWork {
@@ -14,6 +16,8 @@ class VoiceWork {
     required this.category,
     required this.createdAt,
   });
+
+  bool get exist => Directory(directoryPath).existsSync();
 
   static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
     return VoiceWork(

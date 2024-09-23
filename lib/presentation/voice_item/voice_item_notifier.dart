@@ -1,7 +1,7 @@
 import 'package:again/audio/audio_providers.dart';
+import 'package:again/presentation/state_interface/variable_list_state/variable_list_state_notifier.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/models/voice_item.dart';
-import 'package:again/presentation/state_interface.dart';
 import 'package:again/presentation/voice_item/voice_item_state.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -16,23 +16,23 @@ class VoiceItemNotifier
   Future<void> onSelected(int selectedIndex) async {
     final uiService = ref.read(uiServiceProvider);
     final audioNotifier = ref.read(audioProvider.notifier);
+    final voiceWorkPlaying = ref.read(isSelectedVoiceWorkPlaying);
 
     /// 选中的VoiceItem正在播放则暂停播放并返回
-    if (state.playingIndex == selectedIndex &&
-        uiService.isSelectedVoiceWorkPlaying) {
+    if (state.playingIndex == selectedIndex && voiceWorkPlaying) {
       audioNotifier.switchPauseResume();
       return;
     }
 
     cacheSelectedIndexAndItem(selectedIndex);
-
     uiService.cacheAllPlayingState();
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
   }
 
-  void updatePlayingCache(int playingIndex) {
-    setPlayingIndex(playingIndex);
-    setCachedPlayingItem(
-        state.isPlayingIndexValid ? state.playingValues[playingIndex] : null);
+  void updatePlayingCache(int selectedIndex) {
+    cacheSelectedIndexAndItem(selectedIndex);
+
+    cachePlayingIndex();
+    cachePlayingItem();
   }
 }

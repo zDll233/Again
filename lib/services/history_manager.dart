@@ -131,6 +131,6 @@ class HistoryManager {
   }
 }
 
-final historyManagerProvider = Provider<HistoryManager>((ref) {
+final historyManagerProvider = Provider.autoDispose<HistoryManager>((ref) {
   return HistoryManager(ref: ref);
 });

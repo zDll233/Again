@@ -1,4 +1,5 @@
-import 'package:again/presentation/state_interface.dart';
+import 'package:again/presentation/state_interface/list_state/list_state.dart';
+import 'package:again/presentation/state_interface/state_interface.dart';
 
 class CategoryState extends ListState<String> {
   CategoryState({

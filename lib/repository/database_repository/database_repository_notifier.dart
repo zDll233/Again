@@ -9,6 +9,7 @@ import 'package:again/repository/database_repository/database_repository_state.d
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -129,11 +130,18 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
     return vkLs;
   }
 
-  /// update [VoiceItemState.values]. If viLs is null, get it from db
+  /// update [VoiceItemState.values].
   Future<void> updateViList() async {
-    var vkPath = ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath ?? '';
-    final viLs = await getViList(vkPath);
-    ref.read(voiceItemProvider.notifier).setValues(viLs);
+    final voiceWorkState = ref.read(voiceWorkProvider);
+    final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
+    if (!voiceWorkState.cachedSelectedVoiceWorkExist) {
+      Log.info('Selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
+      voiceItemNotifier.clearValues();
+    } else {
+      final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
+      final viLs = await getViList(vkPath);
+      voiceItemNotifier.setValues(viLs);
+    }
   }
 
   Future<List<VoiceItem>> getViList(String vkPath) async {
@@ -143,24 +151,26 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   }
 
   Future<void> onUpdatePressed() async {
-    final uiService = ref.read(uiServiceProvider);
-
-    final playingItems = uiService.cachedPlayingItems;
-    final selectedItems = uiService.cachedSelectedItems;
-
     await _updateDatabase();
     await updateViewList();
 
+    final uiService = ref.read(uiServiceProvider);
+    final cachedPlayingItems = uiService.cachedPlayingItems;
+    final cachedSelectedItems = uiService.cachedSelectedItems;
+
     // 先更新`playingValues`
-    await updatePlayingValues(playingItems['category'], playingItems['cv'],
-        playingItems['voiceWork']);
+    await updatePlayingValues(
+      cachedPlayingItems['category'] as String,
+      cachedPlayingItems['cv'] as String,
+      cachedPlayingItems['voiceWork'] as VoiceWork?,
+    );
 
     // 再更新`playingIndex`
-    if (playingItems.isNotEmpty) {
-      uiService.setPlayingIndexByCache(playingItems);
+    if (cachedPlayingItems.isNotEmpty) {
+      uiService.setPlayingIndexByCache(cachedPlayingItems);
     }
-    if (selectedItems.isNotEmpty) {
-      uiService.setSelectedIndexByCache(selectedItems);
+    if (cachedSelectedItems.isNotEmpty) {
+      uiService.setSelectedIndexByCache(cachedSelectedItems);
     }
   }
 
@@ -169,11 +179,11 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
     if (ref.read(voiceWorkProvider).isPlaying) {
       // voiceWorkState.playingValues
       final playingVkLs = await getVkDataList(cate, cv);
-      final sortedList = sortVoiceWorkList(
+      final sortedVkLs = sortVoiceWorkList(
         VoiceWork.vkDataList2VkList(playingVkLs),
         sort: ref.read(sortOrderProvider).cachedPlayingItem!,
       );
-      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedList);
+      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedVkLs);
 
       // voiceItemState.playingValues
       final viLs = await getViList(voiceWork?.directoryPath ?? '');
