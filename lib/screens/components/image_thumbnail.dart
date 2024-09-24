@@ -29,7 +29,7 @@ class ImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var coverFile = File(imagePath!);
+    final coverFile = File(imagePath!);
     return _buildImage(
       coverFile.existsSync()
           ? FileImage(coverFile)

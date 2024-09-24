@@ -28,7 +28,7 @@ class RectangleOverlayShape extends SliderComponentShape {
     final Paint paint = Paint()
       ..color = sliderTheme.overlayColor ?? Colors.transparent;
 
-    var size = getPreferredSize(true, true);
+    final size = getPreferredSize(true, true);
     Rect rect =
         Rect.fromCenter(center: center, width: size.width, height: size.height);
 

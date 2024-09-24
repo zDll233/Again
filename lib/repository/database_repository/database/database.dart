@@ -142,7 +142,7 @@ class AppDatabase extends _$AppDatabase {
 
   // 根据CV筛选出VoiceWork
   Future<List<TVoiceWorkData>> selectVkWithCv(String cvName) async {
-    var query = await (select(tVoiceWork).join([
+    final query = await (select(tVoiceWork).join([
       innerJoin(
           tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.directoryPath)),
     ])
@@ -154,7 +154,7 @@ class AppDatabase extends _$AppDatabase {
 
   // 根据类别筛选出VoiceWork
   Future<List<TVoiceWorkData>> selectVkWithCategory(String category) async {
-    var query = await (select(tVoiceWork).join([
+    final query = await (select(tVoiceWork).join([
       innerJoin(tVoiceWorkCategory,
           tVoiceWorkCategory.description.equalsExp(tVoiceWork.category)),
     ])
@@ -167,7 +167,7 @@ class AppDatabase extends _$AppDatabase {
   // 根据CV和类别筛选出VoiceWork
   Future<List<TVoiceWorkData>> selectVkWithCvAndCategory(
       String cvName, String category) async {
-    var query = await (select(tVoiceWork).join([
+    final query = await (select(tVoiceWork).join([
       innerJoin(
           tVoiceCV, tVoiceCV.voiceWorkPath.equalsExp(tVoiceWork.directoryPath)),
       innerJoin(tVoiceWorkCategory,

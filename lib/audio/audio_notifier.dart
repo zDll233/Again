@@ -102,8 +102,9 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void _changeTrack(int direction) {
-    var temp = ref.read(voiceItemProvider).playingIndex + direction;
-    if (temp >= ref.read(voiceItemProvider).playingValues.length || temp < 0) {
+    final oldVoiceItemState = ref.read(voiceItemProvider);
+    final temp = oldVoiceItemState.playingIndex + direction;
+    if (temp >= oldVoiceItemState.playingValues.length || temp < 0) {
       return;
     }
 

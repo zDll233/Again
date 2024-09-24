@@ -30,10 +30,10 @@ class VoiceUpdater {
 
   Future<void> insert() async {
     await insertVoiceWorkCategories(); // categories
-    await for (var collectionDir in rootDir.list()) {
+    await for (final collectionDir in rootDir.list()) {
       if (collectionDir is Directory) {
         await insertVoiceWorks(collectionDir); // voiceWorks
-        await for (var voiceWorkDir in collectionDir.list()) {
+        await for (final voiceWorkDir in collectionDir.list()) {
           if (voiceWorkDir is Directory) {
             await insertVoiceItems(voiceWorkDir); // voiceItems
           }
@@ -49,7 +49,7 @@ class VoiceUpdater {
 
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [];
-    await for (var collectionDir in rootDir.list()) {
+    await for (final collectionDir in rootDir.list()) {
       vkcc.add(TVoiceWorkCategoryCompanion(
         description: Value(p.basename(collectionDir.path)),
         rowid: const Value.absent(),
@@ -64,13 +64,13 @@ class VoiceUpdater {
     List<TCVCompanion> cvc = [];
     List<TVoiceCVCompanion> vcc = [];
 
-    await for (var entity in collectionDir.list()) {
+    await for (final entity in collectionDir.list()) {
       if (entity is Directory) {
         String vkTitle = p.basename(entity.path);
         String vkCoverPath = '';
 
         // vk img
-        await for (var e in entity.list(recursive: true)) {
+        await for (final e in entity.list(recursive: true)) {
           if (e is File && imgExtensions.any((ext) => e.path.endsWith(ext))) {
             vkCoverPath = e.path;
             break;
@@ -93,7 +93,7 @@ class VoiceUpdater {
         cvNames.addAll(singleVkCvNames);
 
         // cv vk
-        for (var cvName in singleVkCvNames) {
+        for (final cvName in singleVkCvNames) {
           vcc.add(TVoiceCVCompanion(
             voiceWorkPath: Value(entity.path),
             cvName: Value(cvName),
@@ -107,7 +107,7 @@ class VoiceUpdater {
     await ref.read(databaseProvider).insertMultipleVoiceWorks(vkc);
 
     // cv
-    for (var cvName in cvNames) {
+    for (final cvName in cvNames) {
       cvc.add(TCVCompanion(
         cvName: Value(cvName),
         rowid: const Value.absent(),
@@ -122,7 +122,7 @@ class VoiceUpdater {
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
     List<TVoiceItemCompanion> vic = [];
 
-    await for (var entity in voiceWorkDir.list(recursive: true)) {
+    await for (final entity in voiceWorkDir.list(recursive: true)) {
       if (entity is File &&
           audioExtensions.any((ext) => entity.path.endsWith(ext))) {
         vic.add(TVoiceItemCompanion(

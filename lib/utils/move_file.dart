@@ -25,7 +25,7 @@ Future<Directory> moveDirectory(Directory sourceDir, String newPath) async {
 
     final newDir = Directory(newPath);
     await newDir.create(recursive: true);
-    await for (var entity in sourceDir.list(recursive: false)) {
+    await for (final entity in sourceDir.list(recursive: false)) {
       final entityName = path.basename(entity.path);
       final newEntityPath = path.join(newDir.path, entityName);
 
