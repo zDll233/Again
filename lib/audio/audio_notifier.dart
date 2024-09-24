@@ -107,7 +107,7 @@ class AudioNotifier extends Notifier<AudioState> {
       return;
     }
 
-    ref.read(voiceItemProvider.notifier).updatePlayingCache(temp);
+    ref.read(voiceItemProvider.notifier).changeTrack(temp);
     play(DeviceFileSource(
         ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!));
   }

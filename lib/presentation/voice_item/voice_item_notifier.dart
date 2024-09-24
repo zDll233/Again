@@ -29,10 +29,12 @@ class VoiceItemNotifier
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
   }
 
-  void updatePlayingCache(int selectedIndex) {
-    cacheSelectedIndexAndItem(selectedIndex);
-
+  void changeTrack(int selectedIndex) {
+    setSelectedIndex(selectedIndex);
     cachePlayingIndex();
+
+    // changeTrack必然是在playingValues中
+    setCachedSelectedItem(state.isPlayingIndexValid ? state.playingItem : null);
     cachePlayingItem();
   }
 }
