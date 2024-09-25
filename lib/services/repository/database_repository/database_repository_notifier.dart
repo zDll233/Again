@@ -106,11 +106,11 @@ class DatabaseRepositoryNotifier extends Notifier<DatabaseRepositoryState> {
   }
 
   Future<List<TVoiceWorkData>> getVkDataList(String cate, String cv) async {
-    if (cate == "All" && cv == "All") {
+    if (cate == 'All' && cv == 'All') {
       return await _database.selectAllVoiceWorks;
-    } else if (cate == "All") {
+    } else if (cate == 'All') {
       return await _database.selectVkWithCv(cv);
-    } else if (cv == "All") {
+    } else if (cv == 'All') {
       return await _database.selectVkWithCategory(cate);
     } else {
       return await _database.selectVkWithCvAndCategory(cv, cate);

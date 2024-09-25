@@ -31,7 +31,7 @@ class VkMenuBtn extends ConsumerWidget {
               ...ref
                   .read(categoryProvider)
                   .values
-                  .where((cate) => cate != "All" && cate != voiceWork.category)
+                  .where((cate) => cate != 'All' && cate != voiceWork.category)
                   .map((cate) => PopupMenuItem<String>(
                         value: cate,
                         child: Text(cate),
@@ -58,7 +58,7 @@ class VkMenuBtn extends ConsumerWidget {
   }
 
   void _onPopMenuSelected(WidgetRef ref, String value) {
-    if (value == "delete") {
+    if (value == 'delete') {
       deleteVoiceWork(ref, voiceWork);
     } else if (ref.read(cvProvider).values.contains(value)) {
       _selectCv(ref, value);
