@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/screens/my_app.dart';
+import 'package:again/pages/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
