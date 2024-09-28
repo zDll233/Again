@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/const/const.dart';
+import 'package:again/common/const.dart';
 import 'package:again/utils/log.dart';
 
 /// scripts/recycle.ps1

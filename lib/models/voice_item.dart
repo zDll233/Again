@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/repository/database_repository/database/database.dart';
+import 'package:again/services/repository/database_repository/database/database.dart';
 
 class VoiceItem {
   String title;
