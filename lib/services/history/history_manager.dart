@@ -6,7 +6,7 @@ import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/services/ui/u_i_service.dart';
-import 'package:again/services/repository/repository_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

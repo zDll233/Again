@@ -1,7 +1,7 @@
 import 'package:again/pages/components/voice_panel.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/services/repository/repository_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/pages/lists/voice_work_panel/voice_work_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

@@ -13,6 +13,7 @@ dependencies:
 
   audioplayers: ^6.0.0
   collection: ^1.18.0
+  dio: ^5.7.0
   drift: ^2.18.0
   file_picker: ^8.0.5
   flutter_acrylic: ^1.1.0

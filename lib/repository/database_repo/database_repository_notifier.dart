@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/services/repository/repository_providers.dart';
-import 'package:again/services/repository/database_repository/voice_updater.dart';
-import 'package:again/services/repository/database_repository/database/database.dart';
-import 'package:again/services/repository/database_repository/database_repository_state.dart';
+import 'package:again/repository/repository_providers.dart';
+import 'package:again/repository/database_repo/voice_updater.dart';
+import 'package:again/repository/database_repo/database/database.dart';
+import 'package:again/repository/database_repo/database_repository_state.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';

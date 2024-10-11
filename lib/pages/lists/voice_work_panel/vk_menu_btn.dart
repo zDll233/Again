@@ -1,7 +1,7 @@
 import 'package:again/presentation/u_i_providers.dart';
 import 'package:again/services/ui/move_voice_work.dart';
 import 'package:again/pages/components/popup_menu_on_pressed.dart';
-import 'package:again/services/repository/database_repository/voice_updater.dart';
+import 'package:again/repository/database_repo/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
