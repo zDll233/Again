@@ -8,10 +8,8 @@ import 'package:dio/io.dart';
 typedef RemoteSourceID = String; // Adjust this based on your actual type
 
 class ASMRAPI {
-  // Base API URL
   String _baseApiUrl = 'https://api.asmr-200.com/api/';
 
-  // Default headers
   final Map<String, dynamic> _headers = {
     "Referer": "https://www.asmr.one/",
     "Origin": "https://www.asmr.one",
@@ -25,28 +23,22 @@ class ASMRAPI {
         "Chrome/78.0.3904.108 Safari/537.36",
   };
 
-  // Dio instance
   late Dio _dio;
 
-  // User credentials and configuration
   final String name;
   final String password;
   final String? proxy;
-  final int limit;
 
-  // Constructor
   ASMRAPI({
     required this.name,
     required this.password,
     this.proxy,
-    this.limit = 5,
   }) {
     BaseOptions options = BaseOptions(
       baseUrl: _baseApiUrl,
       headers: _headers,
       connectTimeout: Duration(milliseconds: 5000),
       receiveTimeout: Duration(milliseconds: 3000),
-      // You can adjust other options as needed
     );
 
     _dio = Dio(options);
@@ -61,10 +53,6 @@ class ASMRAPI {
         },
       );
     }
-
-    // Optionally, set the connection limit if necessary
-    // Note: Dio does not provide a direct way to limit concurrent connections,
-    // but you can manage it using a pool or a semaphore.
   }
 
   /// Sets the API channel by updating the base URL and host header.
@@ -97,8 +85,7 @@ class ASMRAPI {
   }
 
   /// Generic GET request with retry logic.
-  Future<dynamic> getRequest(String route,
-      {Map<String, dynamic>? params}) async {
+  Future<dynamic> get(String route, {Map<String, dynamic>? params}) async {
     while (true) {
       try {
         final response = await _dio.get(
@@ -117,8 +104,7 @@ class ASMRAPI {
   }
 
   /// Generic POST request with retry logic.
-  Future<dynamic> postRequest(String route,
-      {Map<String, dynamic>? data}) async {
+  Future<dynamic> post(String route, {Map<String, dynamic>? data}) async {
     while (true) {
       try {
         final response = await _dio.post(
@@ -142,7 +128,7 @@ class ASMRAPI {
     int pageSize = 12,
     String filterBy = 'all',
   }) async {
-    return await getRequest('playlist/get-playlists', params: {
+    return await get('playlist/get-playlists', params: {
       "page": page,
       "pageSize": pageSize,
       "filterBy": filterBy,
@@ -155,7 +141,7 @@ class ASMRAPI {
     String? description,
     int privacy = 0,
   }) async {
-    return await postRequest('playlist/create-playlist', data: {
+    return await post('playlist/create-playlist', data: {
       "name": name,
       "description": description ?? "",
       "privacy": privacy,
@@ -169,7 +155,7 @@ class ASMRAPI {
     required List<RemoteSourceID> sourceIds,
     required String plId,
   }) async {
-    return await postRequest('playlist/add-works-to-playlist', data: {
+    return await post('playlist/add-works-to-playlist', data: {
       "id": plId,
       "works": sourceIds,
     });
@@ -179,7 +165,7 @@ class ASMRAPI {
   Future<Map<String, dynamic>> deletePlaylist({
     required String plId,
   }) async {
-    return await postRequest('playlist/delete-playlist', data: {
+    return await post('playlist/delete-playlist', data: {
       "id": plId,
     });
   }
@@ -189,14 +175,14 @@ class ASMRAPI {
     required String content,
     required Map<String, dynamic> params,
   }) async {
-    return await getRequest('search/$content', params: params);
+    return await get('search/$content', params: params);
   }
 
   /// Lists works based on parameters.
   Future<Map<String, dynamic>> listWorks({
     required Map<String, dynamic> params,
   }) async {
-    return await getRequest('works', params: params);
+    return await get('works', params: params);
   }
 
   /// Searches by tag name.
@@ -221,8 +207,17 @@ class ASMRAPI {
     );
   }
 
-  /// Initializes the API by logging in.
-  Future<void> initialize() async {
-    await login();
+  Future<Map<String, dynamic>> getWorkInfo({
+    required RemoteSourceID rj,
+  }) async {
+    final id = rj.replaceAll(RegExp(r'[^0-9]'), '');
+    return await get('work/$id');
+  }
+
+  Future<List<dynamic>> getVoiceTracks({
+    required RemoteSourceID rj,
+  }) async {
+    final id = rj.replaceAll(RegExp(r'[^0-9]'), '');
+    return await get('tracks/$id');
   }
 }
