@@ -1,4 +1,4 @@
-import 'package:again/services/repository/repository_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/presentation/key_event/key_event_handler.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:again/services/repository/repository_providers.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

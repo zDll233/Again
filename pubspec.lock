@@ -146,10 +146,10 @@ packages:
     dependency: "direct dev"
     description:
       name: build_runner
-      sha256: dd09dd4e2b078992f42aac7f1a622f01882a8492fef08486b27ddde929c19f04
+      sha256: "028819cfb90051c6b5440c7e574d1896f8037e3c96cf17aaeb054c9311cfbf4d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.12"
+    version: "2.4.13"
   build_runner_core:
     dependency: transitive
     description:
@@ -266,18 +266,18 @@ packages:
     dependency: "direct dev"
     description:
       name: custom_lint
-      sha256: "6e1ec47427ca968f22bce734d00028ae7084361999b41673291138945c5baca0"
+      sha256: "832fcdc676171205201c9cffafd6b5add19393962f6598af8472b48b413026e6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.7"
+    version: "0.6.8"
   custom_lint_builder:
     dependency: transitive
     description:
       name: custom_lint_builder
-      sha256: ba2f90fff4eff71d202d097eb14b14f87087eaaef742e956208c0eb9d3a40a21
+      sha256: c3d82779026f91b8e00c9ac18934595cbc9b490094ea682052beeafdb2bd50ac
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.7"
+    version: "0.6.8"
   custom_lint_core:
     dependency: transitive
     description:
@@ -298,10 +298,10 @@ packages:
     dependency: "direct main"
     description:
       name: drift
-      sha256: "5b561ec76fff260e1e0593a29ca0d058a140a4b4dfb11dcc0c3813820cd20200"
+      sha256: d6ff1ec6a0f3fa097dda6b776cf601f1f3d88b53b287288e09c1306f394fb1b3
       url: "https://pub.dev"
     source: hosted
-    version: "2.20.2"
+    version: "2.20.3"
   drift_dev:
     dependency: "direct dev"
     description:
@@ -330,10 +330,10 @@ packages:
     dependency: transitive
     description:
       name: file
-      sha256: "5fc22d7c25582e38ad9a8515372cd9a93834027aacf1801cf01164dac0ffa08c"
+      sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.0"
+    version: "7.0.1"
   file_picker:
     dependency: "direct main"
     description:
@@ -384,10 +384,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_plugin_android_lifecycle
-      sha256: "9ee02950848f61c4129af3d6ec84a1cfc0e47931abc746b03e7a3bc3e8ff6eda"
+      sha256: "9b78450b89f059e96c9ebb355fa6b3df1d6b330436e0b885fb49594c41721398"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.22"
+    version: "2.0.23"
   flutter_riverpod:
     dependency: "direct main"
     description:
@@ -586,10 +586,10 @@ packages:
     dependency: transitive
     description:
       name: mime
-      sha256: "801fd0b26f14a4a58ccb09d5892c3fbdeff209594300a542492cf13fba9d247a"
+      sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.6"
+    version: "2.0.0"
   package_config:
     dependency: transitive
     description:
@@ -618,10 +618,10 @@ packages:
     dependency: transitive
     description:
       name: path_provider_android
-      sha256: "6f01f8e37ec30b07bc424b4deabac37cacb1bc7e2e515ad74486039918a37eb7"
+      sha256: c464428172cb986b758c6d1724c603097febb8fb855aa265aeecc9280c294d4a
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.10"
+    version: "2.2.12"
   path_provider_foundation:
     dependency: transitive
     description:
@@ -959,10 +959,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "68d1e89a91ed61ad9c370f9f8b6effed9ae5e0ede22a270bdfa6daf79fc2290a"
+      sha256: "4d45dc9069dba4619dc0ebd93c7cec5e66d8482cb625a370ac806dcc8165f2ec"
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.4"
+    version: "5.5.5"
   window_manager:
     dependency: "direct main"
     description:
@@ -975,10 +975,10 @@ packages:
     dependency: transitive
     description:
       name: xdg_directories
-      sha256: faea9dee56b520b55a566385b84f2e8de55e7496104adada9962e0bd11bcff1d
+      sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "1.1.0"
   yaml:
     dependency: transitive
     description:
@@ -989,4 +989,4 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.5.0 <4.0.0"
-  flutter: ">=3.22.0"
+  flutter: ">=3.24.0"

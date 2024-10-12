@@ -1,8 +1,8 @@
 import 'dart:io';
 
 import 'package:again/common/const.dart';
-import 'package:again/services/repository/database_repository/database/database.dart';
-import 'package:again/services/repository/repository_providers.dart';
+import 'package:again/repository/database_repo/database/database.dart';
+import 'package:again/repository/repository_providers.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
