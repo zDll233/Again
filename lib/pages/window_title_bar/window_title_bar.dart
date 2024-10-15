@@ -17,10 +17,8 @@ class WindowTitleBar extends StatelessWidget {
     return const DecoratedBox(
       decoration: BoxDecoration(color: Colors.transparent),
       child: SizedBox(
-        width: double.infinity,
         height: titleBarHeight,
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(child: MoveWindow()),
             SelectRootDirBtn(),

@@ -40,7 +40,6 @@ class VoiceWork {
     return other is VoiceWork &&
         other.title == title &&
         other.directoryPath == directoryPath &&
-        other.coverPath == coverPath &&
         other.category == category &&
         other.createdAt == createdAt;
   }
@@ -49,7 +48,6 @@ class VoiceWork {
   int get hashCode =>
       title.hashCode ^
       directoryPath.hashCode ^
-      coverPath.hashCode ^
       category.hashCode ^
       createdAt.hashCode;
 
