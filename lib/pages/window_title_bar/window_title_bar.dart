@@ -19,6 +19,7 @@ class WindowTitleBar extends StatelessWidget {
       child: SizedBox(
         height: titleBarHeight,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(child: MoveWindow()),
             SelectRootDirBtn(),
