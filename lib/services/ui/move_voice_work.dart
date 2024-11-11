@@ -10,9 +10,9 @@ import 'package:again/utils/move_file.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
-  if (!await File(deleteScriptPath).exists()) {
+  if (!await File(DELETE_SCRIPT_PATH).exists()) {
     Log.error(
-        'Error deleting "${movedVoiceWork.title}". Cannot find "$deleteScriptPath".\nStart to generate delete script.');
+        'Error deleting "${movedVoiceWork.title}". Cannot find "$DELETE_SCRIPT_PATH".\nStart to generate delete script.');
     await generateDeleteScript();
   }
 
@@ -23,7 +23,7 @@ Future<void> deleteVoiceWork(WidgetRef ref, VoiceWork movedVoiceWork) async {
       '-ExecutionPolicy',
       'Bypass',
       '-File',
-      deleteScriptPath,
+      DELETE_SCRIPT_PATH,
       '-path',
       movedVoiceWork.directoryPath,
     ];

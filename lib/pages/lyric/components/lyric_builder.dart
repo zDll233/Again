@@ -20,7 +20,7 @@ class LyricBuilder extends ConsumerStatefulWidget {
 }
 
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
-  bool _hasLyric = false;
+  bool _haveLyric = false;
   bool _readLyric = false;
   final lyricUi = UINetease(
     otherMainColor: Colors.white60,
@@ -58,7 +58,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 playing: isPlaying,
                 size: size,
                 emptyBuilder: () => EmptyLyric(
-                  hasLyric: _hasLyric,
+                  haveLyric: _haveLyric,
                   readLyric: _readLyric,
                 ),
                 selectLineBuilder: (position, flashBack, confirmPlay) =>
@@ -87,19 +87,18 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
     try {
       final file = File(lrcPath);
-      _hasLyric = true;
+      _haveLyric = true;
       final result = await file.readAsString();
       _readLyric = true;
       return result;
     } on FileSystemException catch (e) {
       if (e.osError?.errorCode == 2) {
         // 错误码2表示文件未找到
-        _hasLyric = false;
-        return '';
+        _haveLyric = false;
       } else {
         _readLyric = false;
-        return '';
       }
+      return '';
     } catch (e) {
       Log.error('Uncaught error in getting lyric content.\n$e.');
       return '';

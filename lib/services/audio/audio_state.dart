@@ -2,9 +2,17 @@ import 'package:again/presentation/state_interface/base_state.dart';
 import 'package:again/presentation/state_interface/state_interface.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-enum LoopMode {
-  allLoop,
-  singleLoop,
+enum PlaybackMode {
+  sequentialPlay,
+  singleRepeat,
+}
+
+extension PlaybackModeExtension on PlaybackMode {
+  static PlaybackMode fromString(String value) {
+    return PlaybackMode.values.firstWhere(
+      (e) => e.toString() == value,
+    );
+  }
 }
 
 class AudioState extends BaseState {
@@ -13,7 +21,7 @@ class AudioState extends BaseState {
   final Duration position;
   final double volume;
   final double lastVolume;
-  final LoopMode loopMode;
+  final PlaybackMode playbackMode;
 
   AudioState({
     this.playerState = PlayerState.stopped,
@@ -21,7 +29,7 @@ class AudioState extends BaseState {
     this.position = Duration.zero,
     this.volume = 1.0,
     this.lastVolume = 1.0,
-    this.loopMode = LoopMode.allLoop,
+    this.playbackMode = PlaybackMode.sequentialPlay,
   });
 
   @override
@@ -31,7 +39,7 @@ class AudioState extends BaseState {
     Duration? position,
     double? volume,
     double? lastVolume,
-    LoopMode? loopMode,
+    PlaybackMode? playbackMode,
   }) {
     return AudioState(
       playerState: playerState ?? this.playerState,
@@ -39,7 +47,7 @@ class AudioState extends BaseState {
       position: position ?? this.position,
       volume: volume ?? this.volume,
       lastVolume: lastVolume ?? this.lastVolume,
-      loopMode: loopMode ?? this.loopMode,
+      playbackMode: playbackMode ?? this.playbackMode,
     );
   }
 

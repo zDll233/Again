@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:again/common/const.dart';
 import 'package:again/utils/log.dart';
 
-/// scripts/recycle.ps1
-const String recycleScript = '''
+/// scripts/delete.ps1
+const String REMOVE_TO_RECYCLEBIN_SCRIPT = '''
 param(
     [string]\$path
 )
@@ -32,12 +32,11 @@ Remove-Item-ToRecycleBin -Path "\$path"
 ''';
 
 Future<void> generateDeleteScript() async {
-  final scriptPath = deleteScriptPath;
-  final scriptFile = File(scriptPath);
+  final scriptFile = File(DELETE_SCRIPT_PATH);
 
   if (!await scriptFile.exists()) {
     await scriptFile.create(recursive: true);
-    scriptFile.writeAsString(recycleScript);
-    Log.info('Generate script "$scriptPath"');
+    scriptFile.writeAsString(REMOVE_TO_RECYCLEBIN_SCRIPT);
+    Log.info('Generate script "$DELETE_SCRIPT_PATH"');
   }
 }

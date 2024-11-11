@@ -12,7 +12,7 @@ class PlayerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SizedBox(
-      height: playerWidgetHeight,
+      height: PLAYER_WIDGET_HEIGHT,
       child: Stack(
         children: [
           MoveWindow(),

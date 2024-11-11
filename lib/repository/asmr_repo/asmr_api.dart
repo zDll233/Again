@@ -11,16 +11,16 @@ class ASMRAPI {
   String _baseApiUrl = 'https://api.asmr-200.com/api/';
 
   final Map<String, dynamic> _headers = {
-    "Referer": "https://www.asmr.one/",
-    "Origin": "https://www.asmr.one",
-    "Host": "api.asmr-200.com",
-    "Connection": "keep-alive",
-    "Sec-Fetch-Mode": "cors",
-    "Sec-Fetch-Site": "cross-site",
-    "Sec-Fetch-Dest": "empty",
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/78.0.3904.108 Safari/537.36",
+    'Referer': 'https://www.asmr.one/',
+    'Origin': 'https://www.asmr.one',
+    'Host': 'api.asmr-200.com',
+    'Connection': 'keep-alive',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Site': 'cross-site',
+    'Sec-Fetch-Dest': 'empty',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+        'AppleWebKit/537.36 (KHTML, like Gecko) '
+        'Chrome/78.0.3904.108 Safari/537.36',
   };
 
   late Dio _dio;
@@ -48,7 +48,7 @@ class ASMRAPI {
       _dio.httpClientAdapter = IOHttpClientAdapter(
         createHttpClient: () {
           final client = HttpClient();
-          client.findProxy = (uri) => "PROXY $proxy";
+          client.findProxy = (uri) => 'PROXY $proxy';
           return client;
         },
       );
@@ -58,7 +58,7 @@ class ASMRAPI {
   /// Sets the API channel by updating the base URL and host header.
   void setApiChannel(String apiChannel) {
     _baseApiUrl = 'https://$apiChannel/api/';
-    _headers["Host"] = apiChannel;
+    _headers['Host'] = apiChannel;
     _dio.options.baseUrl = _baseApiUrl;
   }
 
@@ -67,12 +67,12 @@ class ASMRAPI {
     try {
       final response = await _dio.post(
         'auth/me',
-        data: {"name": name, "password": password},
+        data: {'name': name, 'password': password},
       );
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
-        _headers["Authorization"] = "Bearer $token";
+        _headers['Authorization'] = 'Bearer $token';
         _dio.options.headers = _headers;
       } else {
         Log.error('Login failed with status code: ${response.statusCode}');
@@ -129,9 +129,9 @@ class ASMRAPI {
     String filterBy = 'all',
   }) async {
     return await get('playlist/get-playlists', params: {
-      "page": page,
-      "pageSize": pageSize,
-      "filterBy": filterBy,
+      'page': page,
+      'pageSize': pageSize,
+      'filterBy': filterBy,
     });
   }
 
@@ -142,11 +142,11 @@ class ASMRAPI {
     int privacy = 0,
   }) async {
     return await post('playlist/create-playlist', data: {
-      "name": name,
-      "description": description ?? "",
-      "privacy": privacy,
-      "locale": "zh-CN",
-      "works": [],
+      'name': name,
+      'description': description ?? '',
+      'privacy': privacy,
+      'locale': 'zh-CN',
+      'works': [],
     });
   }
 
@@ -156,8 +156,8 @@ class ASMRAPI {
     required String plId,
   }) async {
     return await post('playlist/add-works-to-playlist', data: {
-      "id": plId,
-      "works": sourceIds,
+      'id': plId,
+      'works': sourceIds,
     });
   }
 
@@ -166,7 +166,7 @@ class ASMRAPI {
     required String plId,
   }) async {
     return await post('playlist/delete-playlist', data: {
-      "id": plId,
+      'id': plId,
     });
   }
 
@@ -191,7 +191,7 @@ class ASMRAPI {
     required Map<String, dynamic> params,
   }) async {
     return await getSearchResult(
-      content: "\$tag:$tagName\$",
+      content: '\$tag:$tagName\$',
       params: params,
     );
   }
@@ -202,7 +202,7 @@ class ASMRAPI {
     required Map<String, dynamic> params,
   }) async {
     return await getSearchResult(
-      content: "\$va:$vaName\$",
+      content: '\$va:$vaName\$',
       params: params,
     );
   }

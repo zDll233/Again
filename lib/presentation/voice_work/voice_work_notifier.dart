@@ -12,8 +12,6 @@ class VoiceWorkNotifier
 
   @override
   Future<void> onSelected(int selectedIndex) async {
-    if (selectedIndex < 0) return;
-
     cacheSelectedIndexAndItem(selectedIndex);
     await ref.read(dbRepoProvider.notifier).updateViList();
   }

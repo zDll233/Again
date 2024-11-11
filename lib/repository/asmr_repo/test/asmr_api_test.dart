@@ -15,8 +15,8 @@ void printFormattedMap(Map<String, dynamic> map) {
 
 void main() {
   // final ASMRAPI asmrApi = ASMRAPI(
-  //   name: 'moondasscry',
-  //   password: 'lzd951413',
+  //   name: 'user123456t',
+  //   password: '123456',
   // );
 
   late final ASMRAPI asmrApi;
@@ -24,8 +24,8 @@ void main() {
   setUpAll(() async {
     Log.debug('set up', simplePrint: true);
     asmrApi = ASMRAPI(
-      name: 'moondasscry',
-      password: 'lzd951413',
+      name: 'user123456t',
+      password: '123456',
     );
 
     await asmrApi.login();

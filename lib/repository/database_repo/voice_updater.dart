@@ -56,7 +56,7 @@ class VoiceUpdater {
 
         // vk img
         await for (final e in entity.list(recursive: true)) {
-          if (e is File && imgExtensions.any((ext) => e.path.endsWith(ext))) {
+          if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
             vkCoverPath = e.path;
             break;
           }
@@ -109,7 +109,7 @@ class VoiceUpdater {
 
     await for (final entity in voiceWorkDir.list(recursive: true)) {
       if (entity is File &&
-          audioExtensions.any((ext) => entity.path.endsWith(ext))) {
+          AUDIO_EXTENSIONS.any((ext) => entity.path.endsWith(ext))) {
         vic.add(TVoiceItemCompanion(
           title: Value(p.basenameWithoutExtension(entity.path)),
           filePath: Value(entity.path),

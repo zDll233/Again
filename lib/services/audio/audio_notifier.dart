@@ -23,7 +23,7 @@ class AudioNotifier extends Notifier<AudioState> {
     });
 
     _player.onPlayerComplete.listen((event) {
-      state.loopMode == LoopMode.allLoop
+      state.playbackMode == PlaybackMode.sequentialPlay
           ? ref.read(voiceItemProvider).playingIndex ==
                   ref.read(voiceItemProvider).playingValues.length - 1
               ? stop()
@@ -64,8 +64,8 @@ class AudioNotifier extends Notifier<AudioState> {
     state = state.copyWith(lastVolume: newLastVolume);
   }
 
-  void updateLoopMode(LoopMode newLoopMode) {
-    state = state.copyWith(loopMode: newLoopMode);
+  void updatePlaybackMode(PlaybackMode newPlaybackMode) {
+    state = state.copyWith(playbackMode: newPlaybackMode);
   }
 
   void updateState(AudioState newState) {
@@ -176,10 +176,10 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  void onLoopModePressed() {
-    updateLoopMode(state.loopMode == LoopMode.allLoop
-        ? LoopMode.singleLoop
-        : LoopMode.allLoop);
+  void onPlaybackModePressed() {
+    updatePlaybackMode(state.playbackMode == PlaybackMode.sequentialPlay
+        ? PlaybackMode.singleRepeat
+        : PlaybackMode.sequentialPlay);
   }
 
   void onPausePressed() {

@@ -1,4 +1,4 @@
-import 'package:again/pages/player/components/play_back_controls.dart/loop_mode_button.dart';
+import 'package:again/pages/player/components/play_back_controls.dart/playback_mode_button.dart';
 import 'package:again/pages/player/components/play_back_controls.dart/next_button.dart';
 import 'package:again/pages/player/components/play_back_controls.dart/play_pause_button.dart';
 import 'package:again/pages/player/components/play_back_controls.dart/prev_button.dart';
@@ -22,7 +22,7 @@ class PlaybackControls extends StatelessWidget {
           PrevButton(iconSize: _iconSize),
           PlayPauseButton(iconSize: _iconSize),
           NextButton(iconSize: _iconSize),
-          LoopModeButton(iconSize: _iconSize * 0.5),
+          PlaybackModeButton(iconSize: _iconSize * 0.5),
         ],
       ),
     );

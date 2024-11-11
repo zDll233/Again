@@ -35,7 +35,7 @@ class HistoryManager {
         'audio': {
           'position': audioState.position.inMilliseconds,
           'volume': audioState.volume,
-          'loopMode': audioState.loopMode.index,
+          'playbackMode': audioState.playbackMode.toString(),
         },
       };
       await ref.read(historyJsonProvider).write(lastPlayed);
@@ -117,7 +117,8 @@ class HistoryManager {
     final audioNotifier = ref.read(audioProvider.notifier);
     audioNotifier
       ..setVolume(audioHistory['volume'])
-      ..updateLoopMode(LoopMode.values[audioHistory['loopMode']]);
+      ..updatePlaybackMode(PlaybackModeExtension.fromString(
+          audioHistory['playbackMode'] as String));
 
     try {
       final voiceItemSate = ref.read(voiceItemProvider);

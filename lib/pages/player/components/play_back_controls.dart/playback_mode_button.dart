@@ -3,8 +3,8 @@ import 'package:again/services/audio/audio_state.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LoopModeButton extends ConsumerWidget {
-  const LoopModeButton({
+class PlaybackModeButton extends ConsumerWidget {
+  const PlaybackModeButton({
     super.key,
     required this.iconSize,
   });
@@ -13,14 +13,14 @@ class LoopModeButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final loopMode = ref.watch(audioProvider.select((state) => state.loopMode));
+    final playbackMode = ref.watch(audioProvider.select((state) => state.playbackMode));
     final audioNotifier = ref.read(audioProvider.notifier);
 
     return IconButton(
-      key: const Key('loop_mode'),
-      onPressed: audioNotifier.onLoopModePressed,
+      key: const Key('playback_mode_button'),
+      onPressed: audioNotifier.onPlaybackModePressed,
       iconSize: iconSize,
-      icon: loopMode == LoopMode.allLoop
+      icon: playbackMode == PlaybackMode.sequentialPlay
           ? const Icon(Icons.repeat)
           : const Icon(Icons.repeat_one),
     );

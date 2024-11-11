@@ -6,7 +6,7 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 
-Future<void> setupWindow(List<String> args) async {
+Future<void> setupWindow() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows) {
@@ -35,7 +35,7 @@ Future<void> setupWindow(List<String> args) async {
   }
 }
 
-void main(List<String> args) async {
-  await setupWindow(args);
+void main() async {
+  await setupWindow();
   runApp(const ProviderScope(child: MyApp()));
 }
