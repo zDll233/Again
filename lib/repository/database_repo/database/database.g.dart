@@ -1,6 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-// ignore_for_file: invalid_use_of_internal_member, unnecessary_null_comparison
 
 part of 'database.dart';
 
@@ -1137,34 +1136,84 @@ final class $$TVoiceWorkCategoryTableReferences extends BaseReferences<
 }
 
 class $$TVoiceWorkCategoryTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TVoiceWorkCategoryTable> {
-  $$TVoiceWorkCategoryTableFilterComposer(super.$state);
-  ColumnFilters<String> get description => $state.composableBuilder(
-      column: $state.table.description,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceWorkCategoryTable> {
+  $$TVoiceWorkCategoryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
 
-  ComposableFilter tVoiceWorkRefs(
-      ComposableFilter Function($$TVoiceWorkTableFilterComposer f) f) {
-    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
+  Expression<bool> tVoiceWorkRefs(
+      Expression<bool> Function($$TVoiceWorkTableFilterComposer f) f) {
+    final $$TVoiceWorkTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.description,
-        referencedTable: $state.db.tVoiceWork,
+        referencedTable: $db.tVoiceWork,
         getReferencedColumn: (t) => t.category,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
-                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
 
 class $$TVoiceWorkCategoryTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TVoiceWorkCategoryTable> {
-  $$TVoiceWorkCategoryTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get description => $state.composableBuilder(
-      column: $state.table.description,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceWorkCategoryTable> {
+  $$TVoiceWorkCategoryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TVoiceWorkCategoryTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TVoiceWorkCategoryTable> {
+  $$TVoiceWorkCategoryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  Expression<T> tVoiceWorkRefs<T extends Object>(
+      Expression<T> Function($$TVoiceWorkTableAnnotationComposer a) f) {
+    final $$TVoiceWorkTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.description,
+        referencedTable: $db.tVoiceWork,
+        getReferencedColumn: (t) => t.category,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
@@ -1173,6 +1222,7 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
     TVoiceWorkCategoryData,
     $$TVoiceWorkCategoryTableFilterComposer,
     $$TVoiceWorkCategoryTableOrderingComposer,
+    $$TVoiceWorkCategoryTableAnnotationComposer,
     $$TVoiceWorkCategoryTableCreateCompanionBuilder,
     $$TVoiceWorkCategoryTableUpdateCompanionBuilder,
     (TVoiceWorkCategoryData, $$TVoiceWorkCategoryTableReferences),
@@ -1183,10 +1233,13 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$TVoiceWorkCategoryTableFilterComposer(ComposerState(db, table)),
-          orderingComposer: $$TVoiceWorkCategoryTableOrderingComposer(
-              ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TVoiceWorkCategoryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TVoiceWorkCategoryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TVoiceWorkCategoryTableAnnotationComposer(
+                  $db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> description = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -1241,6 +1294,7 @@ typedef $$TVoiceWorkCategoryTableProcessedTableManager = ProcessedTableManager<
     TVoiceWorkCategoryData,
     $$TVoiceWorkCategoryTableFilterComposer,
     $$TVoiceWorkCategoryTableOrderingComposer,
+    $$TVoiceWorkCategoryTableAnnotationComposer,
     $$TVoiceWorkCategoryTableCreateCompanionBuilder,
     $$TVoiceWorkCategoryTableUpdateCompanionBuilder,
     (TVoiceWorkCategoryData, $$TVoiceWorkCategoryTableReferences),
@@ -1272,7 +1326,6 @@ final class $$TVoiceWorkTableReferences
           db.tVoiceWork.category, db.tVoiceWorkCategory.description));
 
   $$TVoiceWorkCategoryTableProcessedTableManager? get category {
-    if ($_item.category == null) return null;
     final manager =
         $$TVoiceWorkCategoryTableTableManager($_db, $_db.tVoiceWorkCategory)
             .filter((f) => f.description($_item.category));
@@ -1314,108 +1367,214 @@ final class $$TVoiceWorkTableReferences
 }
 
 class $$TVoiceWorkTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TVoiceWorkTable> {
-  $$TVoiceWorkTableFilterComposer(super.$state);
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceWorkTable> {
+  $$TVoiceWorkTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get directoryPath => $state.composableBuilder(
-      column: $state.table.directoryPath,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get directoryPath => $composableBuilder(
+      column: $table.directoryPath, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get coverPath => $state.composableBuilder(
-      column: $state.table.coverPath,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get coverPath => $composableBuilder(
+      column: $table.coverPath, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
 
   $$TVoiceWorkCategoryTableFilterComposer get category {
-    final $$TVoiceWorkCategoryTableFilterComposer composer = $state
-        .composerBuilder(
-            composer: this,
-            getCurrentColumn: (t) => t.category,
-            referencedTable: $state.db.tVoiceWorkCategory,
-            getReferencedColumn: (t) => t.description,
-            builder: (joinBuilder, parentComposers) =>
-                $$TVoiceWorkCategoryTableFilterComposer(ComposerState(
-                    $state.db,
-                    $state.db.tVoiceWorkCategory,
-                    joinBuilder,
-                    parentComposers)));
+    final $$TVoiceWorkCategoryTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.category,
+        referencedTable: $db.tVoiceWorkCategory,
+        getReferencedColumn: (t) => t.description,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkCategoryTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceWorkCategory,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
-  ComposableFilter tVoiceItemRefs(
-      ComposableFilter Function($$TVoiceItemTableFilterComposer f) f) {
-    final $$TVoiceItemTableFilterComposer composer = $state.composerBuilder(
+  Expression<bool> tVoiceItemRefs(
+      Expression<bool> Function($$TVoiceItemTableFilterComposer f) f) {
+    final $$TVoiceItemTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.directoryPath,
-        referencedTable: $state.db.tVoiceItem,
+        referencedTable: $db.tVoiceItem,
         getReferencedColumn: (t) => t.voiceWorkPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceItemTableFilterComposer(ComposerState($state.db,
-                $state.db.tVoiceItem, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceItemTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceItem,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 
-  ComposableFilter tVoiceCVRefs(
-      ComposableFilter Function($$TVoiceCVTableFilterComposer f) f) {
-    final $$TVoiceCVTableFilterComposer composer = $state.composerBuilder(
+  Expression<bool> tVoiceCVRefs(
+      Expression<bool> Function($$TVoiceCVTableFilterComposer f) f) {
+    final $$TVoiceCVTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.directoryPath,
-        referencedTable: $state.db.tVoiceCV,
+        referencedTable: $db.tVoiceCV,
         getReferencedColumn: (t) => t.voiceWorkPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceCVTableFilterComposer(ComposerState(
-                $state.db, $state.db.tVoiceCV, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceCVTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceCV,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
 
 class $$TVoiceWorkTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TVoiceWorkTable> {
-  $$TVoiceWorkTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceWorkTable> {
+  $$TVoiceWorkTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get directoryPath => $state.composableBuilder(
-      column: $state.table.directoryPath,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get directoryPath => $composableBuilder(
+      column: $table.directoryPath,
+      builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get coverPath => $state.composableBuilder(
-      column: $state.table.coverPath,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get coverPath => $composableBuilder(
+      column: $table.coverPath, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get createdAt => $state.composableBuilder(
-      column: $state.table.createdAt,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
   $$TVoiceWorkCategoryTableOrderingComposer get category {
-    final $$TVoiceWorkCategoryTableOrderingComposer composer =
-        $state.composerBuilder(
+    final $$TVoiceWorkCategoryTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.category,
+        referencedTable: $db.tVoiceWorkCategory,
+        getReferencedColumn: (t) => t.description,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkCategoryTableOrderingComposer(
+              $db: $db,
+              $table: $db.tVoiceWorkCategory,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TVoiceWorkTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TVoiceWorkTable> {
+  $$TVoiceWorkTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get directoryPath => $composableBuilder(
+      column: $table.directoryPath, builder: (column) => column);
+
+  GeneratedColumn<String> get coverPath =>
+      $composableBuilder(column: $table.coverPath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$TVoiceWorkCategoryTableAnnotationComposer get category {
+    final $$TVoiceWorkCategoryTableAnnotationComposer composer =
+        $composerBuilder(
             composer: this,
             getCurrentColumn: (t) => t.category,
-            referencedTable: $state.db.tVoiceWorkCategory,
+            referencedTable: $db.tVoiceWorkCategory,
             getReferencedColumn: (t) => t.description,
-            builder: (joinBuilder, parentComposers) =>
-                $$TVoiceWorkCategoryTableOrderingComposer(ComposerState(
-                    $state.db,
-                    $state.db.tVoiceWorkCategory,
-                    joinBuilder,
-                    parentComposers)));
+            builder: (joinBuilder,
+                    {$addJoinBuilderToRootComposer,
+                    $removeJoinBuilderFromRootComposer}) =>
+                $$TVoiceWorkCategoryTableAnnotationComposer(
+                  $db: $db,
+                  $table: $db.tVoiceWorkCategory,
+                  $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                  joinBuilder: joinBuilder,
+                  $removeJoinBuilderFromRootComposer:
+                      $removeJoinBuilderFromRootComposer,
+                ));
     return composer;
+  }
+
+  Expression<T> tVoiceItemRefs<T extends Object>(
+      Expression<T> Function($$TVoiceItemTableAnnotationComposer a) f) {
+    final $$TVoiceItemTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.directoryPath,
+        referencedTable: $db.tVoiceItem,
+        getReferencedColumn: (t) => t.voiceWorkPath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceItemTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceItem,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<T> tVoiceCVRefs<T extends Object>(
+      Expression<T> Function($$TVoiceCVTableAnnotationComposer a) f) {
+    final $$TVoiceCVTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.directoryPath,
+        referencedTable: $db.tVoiceCV,
+        getReferencedColumn: (t) => t.voiceWorkPath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceCVTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceCV,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
   }
 }
 
@@ -1425,6 +1584,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
     TVoiceWorkData,
     $$TVoiceWorkTableFilterComposer,
     $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableAnnotationComposer,
     $$TVoiceWorkTableCreateCompanionBuilder,
     $$TVoiceWorkTableUpdateCompanionBuilder,
     (TVoiceWorkData, $$TVoiceWorkTableReferences),
@@ -1435,10 +1595,12 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$TVoiceWorkTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceWorkTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TVoiceWorkTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TVoiceWorkTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TVoiceWorkTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> title = const Value.absent(),
             Value<String> directoryPath = const Value.absent(),
@@ -1489,6 +1651,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
               ],
               addJoins: <
                   T extends TableManagerState<
+                      dynamic,
                       dynamic,
                       dynamic,
                       dynamic,
@@ -1552,6 +1715,7 @@ typedef $$TVoiceWorkTableProcessedTableManager = ProcessedTableManager<
     TVoiceWorkData,
     $$TVoiceWorkTableFilterComposer,
     $$TVoiceWorkTableOrderingComposer,
+    $$TVoiceWorkTableAnnotationComposer,
     $$TVoiceWorkTableCreateCompanionBuilder,
     $$TVoiceWorkTableUpdateCompanionBuilder,
     (TVoiceWorkData, $$TVoiceWorkTableReferences),
@@ -1580,7 +1744,6 @@ final class $$TVoiceItemTableReferences
           db.tVoiceItem.voiceWorkPath, db.tVoiceWork.directoryPath));
 
   $$TVoiceWorkTableProcessedTableManager? get voiceWorkPath {
-    if ($_item.voiceWorkPath == null) return null;
     final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
         .filter((f) => f.directoryPath($_item.voiceWorkPath));
     final item = $_typedResult.readTableOrNull(_voiceWorkPathTable($_db));
@@ -1591,53 +1754,109 @@ final class $$TVoiceItemTableReferences
 }
 
 class $$TVoiceItemTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TVoiceItemTable> {
-  $$TVoiceItemTableFilterComposer(super.$state);
-  ColumnFilters<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceItemTable> {
+  $$TVoiceItemTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get filePath => $state.composableBuilder(
-      column: $state.table.filePath,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+  ColumnFilters<String> get filePath => $composableBuilder(
+      column: $table.filePath, builder: (column) => ColumnFilters(column));
 
   $$TVoiceWorkTableFilterComposer get voiceWorkPath {
-    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
+    final $$TVoiceWorkTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkPath,
-        referencedTable: $state.db.tVoiceWork,
+        referencedTable: $db.tVoiceWork,
         getReferencedColumn: (t) => t.directoryPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
-                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
 
 class $$TVoiceItemTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TVoiceItemTable> {
-  $$TVoiceItemTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get title => $state.composableBuilder(
-      column: $state.table.title,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+    extends Composer<_$AppDatabase, $TVoiceItemTable> {
+  $$TVoiceItemTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get filePath => $state.composableBuilder(
-      column: $state.table.filePath,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+  ColumnOrderings<String> get filePath => $composableBuilder(
+      column: $table.filePath, builder: (column) => ColumnOrderings(column));
 
   $$TVoiceWorkTableOrderingComposer get voiceWorkPath {
-    final $$TVoiceWorkTableOrderingComposer composer = $state.composerBuilder(
+    final $$TVoiceWorkTableOrderingComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkPath,
-        referencedTable: $state.db.tVoiceWork,
+        referencedTable: $db.tVoiceWork,
         getReferencedColumn: (t) => t.directoryPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceWorkTableOrderingComposer(ComposerState($state.db,
-                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableOrderingComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TVoiceItemTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TVoiceItemTable> {
+  $$TVoiceItemTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get filePath =>
+      $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  $$TVoiceWorkTableAnnotationComposer get voiceWorkPath {
+    final $$TVoiceWorkTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.voiceWorkPath,
+        referencedTable: $db.tVoiceWork,
+        getReferencedColumn: (t) => t.directoryPath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -1648,6 +1867,7 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
     TVoiceItemData,
     $$TVoiceItemTableFilterComposer,
     $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableAnnotationComposer,
     $$TVoiceItemTableCreateCompanionBuilder,
     $$TVoiceItemTableUpdateCompanionBuilder,
     (TVoiceItemData, $$TVoiceItemTableReferences),
@@ -1657,10 +1877,12 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$TVoiceItemTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceItemTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TVoiceItemTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TVoiceItemTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TVoiceItemTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> title = const Value.absent(),
             Value<String> filePath = const Value.absent(),
@@ -1706,6 +1928,7 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
                       dynamic,
                       dynamic,
                       dynamic,
+                      dynamic,
                       dynamic>>(state) {
                 if (voiceWorkPath) {
                   state = state.withJoin(
@@ -1735,6 +1958,7 @@ typedef $$TVoiceItemTableProcessedTableManager = ProcessedTableManager<
     TVoiceItemData,
     $$TVoiceItemTableFilterComposer,
     $$TVoiceItemTableOrderingComposer,
+    $$TVoiceItemTableAnnotationComposer,
     $$TVoiceItemTableCreateCompanionBuilder,
     $$TVoiceItemTableUpdateCompanionBuilder,
     (TVoiceItemData, $$TVoiceItemTableReferences),
@@ -1768,35 +1992,82 @@ final class $$TCVTableReferences
   }
 }
 
-class $$TCVTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TCVTable> {
-  $$TCVTableFilterComposer(super.$state);
-  ColumnFilters<String> get cvName => $state.composableBuilder(
-      column: $state.table.cvName,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
+class $$TCVTableFilterComposer extends Composer<_$AppDatabase, $TCVTable> {
+  $$TCVTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get cvName => $composableBuilder(
+      column: $table.cvName, builder: (column) => ColumnFilters(column));
 
-  ComposableFilter tVoiceCVRefs(
-      ComposableFilter Function($$TVoiceCVTableFilterComposer f) f) {
-    final $$TVoiceCVTableFilterComposer composer = $state.composerBuilder(
+  Expression<bool> tVoiceCVRefs(
+      Expression<bool> Function($$TVoiceCVTableFilterComposer f) f) {
+    final $$TVoiceCVTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.cvName,
-        referencedTable: $state.db.tVoiceCV,
+        referencedTable: $db.tVoiceCV,
         getReferencedColumn: (t) => t.cvName,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceCVTableFilterComposer(ComposerState(
-                $state.db, $state.db.tVoiceCV, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceCVTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceCV,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return f(composer);
   }
 }
 
-class $$TCVTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TCVTable> {
-  $$TCVTableOrderingComposer(super.$state);
-  ColumnOrderings<String> get cvName => $state.composableBuilder(
-      column: $state.table.cvName,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
+class $$TCVTableOrderingComposer extends Composer<_$AppDatabase, $TCVTable> {
+  $$TCVTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get cvName => $composableBuilder(
+      column: $table.cvName, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TCVTableAnnotationComposer extends Composer<_$AppDatabase, $TCVTable> {
+  $$TCVTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get cvName =>
+      $composableBuilder(column: $table.cvName, builder: (column) => column);
+
+  Expression<T> tVoiceCVRefs<T extends Object>(
+      Expression<T> Function($$TVoiceCVTableAnnotationComposer a) f) {
+    final $$TVoiceCVTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.cvName,
+        referencedTable: $db.tVoiceCV,
+        getReferencedColumn: (t) => t.cvName,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceCVTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceCV,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$TCVTableTableManager extends RootTableManager<
@@ -1805,6 +2076,7 @@ class $$TCVTableTableManager extends RootTableManager<
     TCVData,
     $$TCVTableFilterComposer,
     $$TCVTableOrderingComposer,
+    $$TCVTableAnnotationComposer,
     $$TCVTableCreateCompanionBuilder,
     $$TCVTableUpdateCompanionBuilder,
     (TCVData, $$TCVTableReferences),
@@ -1814,9 +2086,12 @@ class $$TCVTableTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer: $$TCVTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TCVTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TCVTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TCVTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TCVTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> cvName = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -1868,6 +2143,7 @@ typedef $$TCVTableProcessedTableManager = ProcessedTableManager<
     TCVData,
     $$TCVTableFilterComposer,
     $$TCVTableOrderingComposer,
+    $$TCVTableAnnotationComposer,
     $$TCVTableCreateCompanionBuilder,
     $$TCVTableUpdateCompanionBuilder,
     (TCVData, $$TCVTableReferences),
@@ -1893,7 +2169,6 @@ final class $$TVoiceCVTableReferences
           db.tVoiceCV.voiceWorkPath, db.tVoiceWork.directoryPath));
 
   $$TVoiceWorkTableProcessedTableManager? get voiceWorkPath {
-    if ($_item.voiceWorkPath == null) return null;
     final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
         .filter((f) => f.directoryPath($_item.voiceWorkPath));
     final item = $_typedResult.readTableOrNull(_voiceWorkPathTable($_db));
@@ -1906,7 +2181,6 @@ final class $$TVoiceCVTableReferences
       .createAlias($_aliasNameGenerator(db.tVoiceCV.cvName, db.tcv.cvName));
 
   $$TCVTableProcessedTableManager? get cvName {
-    if ($_item.cvName == null) return null;
     final manager = $$TCVTableTableManager($_db, $_db.tcv)
         .filter((f) => f.cvName($_item.cvName));
     final item = $_typedResult.readTableOrNull(_cvNameTable($_db));
@@ -1917,57 +2191,151 @@ final class $$TVoiceCVTableReferences
 }
 
 class $$TVoiceCVTableFilterComposer
-    extends FilterComposer<_$AppDatabase, $TVoiceCVTable> {
-  $$TVoiceCVTableFilterComposer(super.$state);
+    extends Composer<_$AppDatabase, $TVoiceCVTable> {
+  $$TVoiceCVTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
   $$TVoiceWorkTableFilterComposer get voiceWorkPath {
-    final $$TVoiceWorkTableFilterComposer composer = $state.composerBuilder(
+    final $$TVoiceWorkTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkPath,
-        referencedTable: $state.db.tVoiceWork,
+        referencedTable: $db.tVoiceWork,
         getReferencedColumn: (t) => t.directoryPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceWorkTableFilterComposer(ComposerState($state.db,
-                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableFilterComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$TCVTableFilterComposer get cvName {
-    final $$TCVTableFilterComposer composer = $state.composerBuilder(
+    final $$TCVTableFilterComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.cvName,
-        referencedTable: $state.db.tcv,
+        referencedTable: $db.tcv,
         getReferencedColumn: (t) => t.cvName,
-        builder: (joinBuilder, parentComposers) => $$TCVTableFilterComposer(
-            ComposerState(
-                $state.db, $state.db.tcv, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TCVTableFilterComposer(
+              $db: $db,
+              $table: $db.tcv,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
 
 class $$TVoiceCVTableOrderingComposer
-    extends OrderingComposer<_$AppDatabase, $TVoiceCVTable> {
-  $$TVoiceCVTableOrderingComposer(super.$state);
+    extends Composer<_$AppDatabase, $TVoiceCVTable> {
+  $$TVoiceCVTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
   $$TVoiceWorkTableOrderingComposer get voiceWorkPath {
-    final $$TVoiceWorkTableOrderingComposer composer = $state.composerBuilder(
+    final $$TVoiceWorkTableOrderingComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.voiceWorkPath,
-        referencedTable: $state.db.tVoiceWork,
+        referencedTable: $db.tVoiceWork,
         getReferencedColumn: (t) => t.directoryPath,
-        builder: (joinBuilder, parentComposers) =>
-            $$TVoiceWorkTableOrderingComposer(ComposerState($state.db,
-                $state.db.tVoiceWork, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableOrderingComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 
   $$TCVTableOrderingComposer get cvName {
-    final $$TCVTableOrderingComposer composer = $state.composerBuilder(
+    final $$TCVTableOrderingComposer composer = $composerBuilder(
         composer: this,
         getCurrentColumn: (t) => t.cvName,
-        referencedTable: $state.db.tcv,
+        referencedTable: $db.tcv,
         getReferencedColumn: (t) => t.cvName,
-        builder: (joinBuilder, parentComposers) => $$TCVTableOrderingComposer(
-            ComposerState(
-                $state.db, $state.db.tcv, joinBuilder, parentComposers)));
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TCVTableOrderingComposer(
+              $db: $db,
+              $table: $db.tcv,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$TVoiceCVTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TVoiceCVTable> {
+  $$TVoiceCVTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  $$TVoiceWorkTableAnnotationComposer get voiceWorkPath {
+    final $$TVoiceWorkTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.voiceWorkPath,
+        referencedTable: $db.tVoiceWork,
+        getReferencedColumn: (t) => t.directoryPath,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TVoiceWorkTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tVoiceWork,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$TCVTableAnnotationComposer get cvName {
+    final $$TCVTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.cvName,
+        referencedTable: $db.tcv,
+        getReferencedColumn: (t) => t.cvName,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$TCVTableAnnotationComposer(
+              $db: $db,
+              $table: $db.tcv,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
     return composer;
   }
 }
@@ -1978,6 +2346,7 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
     TVoiceCVData,
     $$TVoiceCVTableFilterComposer,
     $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableAnnotationComposer,
     $$TVoiceCVTableCreateCompanionBuilder,
     $$TVoiceCVTableUpdateCompanionBuilder,
     (TVoiceCVData, $$TVoiceCVTableReferences),
@@ -1987,10 +2356,12 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
       : super(TableManagerState(
           db: db,
           table: table,
-          filteringComposer:
-              $$TVoiceCVTableFilterComposer(ComposerState(db, table)),
-          orderingComposer:
-              $$TVoiceCVTableOrderingComposer(ComposerState(db, table)),
+          createFilteringComposer: () =>
+              $$TVoiceCVTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TVoiceCVTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TVoiceCVTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> voiceWorkPath = const Value.absent(),
             Value<String> cvName = const Value.absent(),
@@ -2021,6 +2392,7 @@ class $$TVoiceCVTableTableManager extends RootTableManager<
               explicitlyWatchedTables: [],
               addJoins: <
                   T extends TableManagerState<
+                      dynamic,
                       dynamic,
                       dynamic,
                       dynamic,
@@ -2068,6 +2440,7 @@ typedef $$TVoiceCVTableProcessedTableManager = ProcessedTableManager<
     TVoiceCVData,
     $$TVoiceCVTableFilterComposer,
     $$TVoiceCVTableOrderingComposer,
+    $$TVoiceCVTableAnnotationComposer,
     $$TVoiceCVTableCreateCompanionBuilder,
     $$TVoiceCVTableUpdateCompanionBuilder,
     (TVoiceCVData, $$TVoiceCVTableReferences),
