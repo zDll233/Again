@@ -147,8 +147,10 @@ packages:
     description:
       name: build_runner
       sha256: "028819cfb90051c6b5440c7e574d1896f8037e3c96cf17aaeb054c9311cfbf4d"
+      sha256: "028819cfb90051c6b5440c7e574d1896f8037e3c96cf17aaeb054c9311cfbf4d"
       url: "https://pub.dev"
     source: hosted
+    version: "2.4.13"
     version: "2.4.13"
   build_runner_core:
     dependency: transitive
@@ -267,16 +269,20 @@ packages:
     description:
       name: custom_lint
       sha256: "832fcdc676171205201c9cffafd6b5add19393962f6598af8472b48b413026e6"
+      sha256: "832fcdc676171205201c9cffafd6b5add19393962f6598af8472b48b413026e6"
       url: "https://pub.dev"
     source: hosted
+    version: "0.6.8"
     version: "0.6.8"
   custom_lint_builder:
     dependency: transitive
     description:
       name: custom_lint_builder
       sha256: c3d82779026f91b8e00c9ac18934595cbc9b490094ea682052beeafdb2bd50ac
+      sha256: c3d82779026f91b8e00c9ac18934595cbc9b490094ea682052beeafdb2bd50ac
       url: "https://pub.dev"
     source: hosted
+    version: "0.6.8"
     version: "0.6.8"
   custom_lint_core:
     dependency: transitive
@@ -347,8 +353,10 @@ packages:
     description:
       name: file
       sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
+      sha256: a3b4f84adafef897088c160faf7dfffb7696046cb13ae90b508c2cbc95d3b8d4
       url: "https://pub.dev"
     source: hosted
+    version: "7.0.1"
     version: "7.0.1"
   file_picker:
     dependency: "direct main"
@@ -401,8 +409,10 @@ packages:
     description:
       name: flutter_plugin_android_lifecycle
       sha256: "9b78450b89f059e96c9ebb355fa6b3df1d6b330436e0b885fb49594c41721398"
+      sha256: "9b78450b89f059e96c9ebb355fa6b3df1d6b330436e0b885fb49594c41721398"
       url: "https://pub.dev"
     source: hosted
+    version: "2.0.23"
     version: "2.0.23"
   flutter_riverpod:
     dependency: "direct main"
@@ -603,8 +613,10 @@ packages:
     description:
       name: mime
       sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
+      sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
       url: "https://pub.dev"
     source: hosted
+    version: "2.0.0"
     version: "2.0.0"
   package_config:
     dependency: transitive
@@ -635,8 +647,10 @@ packages:
     description:
       name: path_provider_android
       sha256: c464428172cb986b758c6d1724c603097febb8fb855aa265aeecc9280c294d4a
+      sha256: c464428172cb986b758c6d1724c603097febb8fb855aa265aeecc9280c294d4a
       url: "https://pub.dev"
     source: hosted
+    version: "2.2.12"
     version: "2.2.12"
   path_provider_foundation:
     dependency: transitive
@@ -1024,8 +1038,10 @@ packages:
     description:
       name: xdg_directories
       sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
+      sha256: "7a3f37b05d989967cdddcbb571f1ea834867ae2faa29725fd085180e0883aa15"
       url: "https://pub.dev"
     source: hosted
+    version: "1.1.0"
     version: "1.1.0"
   yaml:
     dependency: transitive
@@ -1037,4 +1053,5 @@ packages:
     version: "3.1.2"
 sdks:
   dart: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.0"
   flutter: ">=3.24.0"
