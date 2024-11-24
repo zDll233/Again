@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:again/repository/database_repo/database/database.dart';
+import 'package:again/services/database/db/database.dart';
 
 class VoiceWork {
   String title;

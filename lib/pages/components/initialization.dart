@@ -1,6 +1,6 @@
-import 'package:again/repository/repository_providers.dart';
+import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/history/history_manager.dart';
-import 'package:again/presentation/key_event/key_event_handler.dart';
+import 'package:again/services/key_event/key_event_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -50,6 +50,6 @@ class _InitializationState extends ConsumerState<Initialization> {
 }
 
 final _initProvider = FutureProvider.autoDispose((ref) async {
-  await ref.read(dbRepoProvider.notifier).initialize();
+  await ref.read(dbServiceProvider).initialize();
   await ref.read(historyManagerProvider).loadHistory();
 });

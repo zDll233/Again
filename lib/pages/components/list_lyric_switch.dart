@@ -1,4 +1,4 @@
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lists/lists_view.dart';
 import 'package:again/pages/lyric/lrc_panel.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-import 'package:again/repository/repository_providers.dart';
+import 'package:again/services/database/database_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -8,7 +8,7 @@ class SelectRootDirBtn extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
-      onPressed: ref.read(dbRepoProvider.notifier).selectAndSaveRootDirectory,
+      onPressed: ref.read(dbServiceProvider).selectAndSaveRootDirectory,
       icon: const Icon(
         Icons.folder_open,
         size: 20,

@@ -3,10 +3,10 @@ import 'package:again/services/audio/audio_state.dart';
 import 'package:again/common/const.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
-import 'package:again/presentation/filter/sort_oder/sort_order_state.dart';
-import 'package:again/presentation/u_i_providers.dart';
-import 'package:again/services/ui/u_i_service.dart';
-import 'package:again/repository/repository_providers.dart';
+import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/services/ui/ui_service.dart';
+import 'package:again/services/database/database_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -45,13 +45,13 @@ class HistoryManager {
   }
 
   Future<void> loadHistory() async {
-    final repositoryNotifier = ref.read(dbRepoProvider.notifier);
-    await repositoryNotifier.updateFilterLists();
+    final dbService = ref.read(dbServiceProvider);
+    await dbService.updateFilterLists();
 
     final data = await ref.read(historyJsonProvider).read();
 
     if (data.isEmpty) {
-      await repositoryNotifier.updateVkList();
+      await dbService.updateVkList();
       return;
     }
 
@@ -59,7 +59,7 @@ class HistoryManager {
       await _loadUIHistory(data['ui']);
       await _loadAudioHistory(data['audio']);
     } catch (e) {
-      await repositoryNotifier.updateVkList();
+      await dbService.updateVkList();
       Log.error('Error loading history.\n$e.');
     }
   }
@@ -69,7 +69,7 @@ class HistoryManager {
       if (uiHistory.isEmpty) return;
 
       final filter = uiHistory['filter'];
-      final repositoryNotifier = ref.read(dbRepoProvider.notifier);
+      final dbService = ref.read(dbServiceProvider);
 
       final sortOrderNotifier = ref.read(sortOrderProvider.notifier);
       final categoryNotifier = ref.read(categoryProvider.notifier);
@@ -82,7 +82,7 @@ class HistoryManager {
       cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
 
       // voiceWork
-      await repositoryNotifier.updateVkList();
+      await dbService.updateVkList();
       Map<String, dynamic>? voiceWorkMap = uiHistory['voiceWork'];
       if (voiceWorkMap != null) {
         ref
@@ -97,7 +97,7 @@ class HistoryManager {
       }
 
       // voiceItem
-      await repositoryNotifier.updateViList();
+      await dbService.updateViList();
       Map<String, dynamic>? voiceItemMap = uiHistory['voiceItem'];
       if (voiceItemMap != null) {
         ref

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:again/services/audio/audio_providers.dart';
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
 import 'package:again/pages/lyric/components/line_indicator.dart';
 import 'package:again/utils/log.dart';

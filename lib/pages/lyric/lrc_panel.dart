@@ -1,4 +1,4 @@
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
 import 'package:again/pages/lyric/components/lyric_builder.dart';
 import 'package:again/pages/lyric/components/voice_item_title.dart';

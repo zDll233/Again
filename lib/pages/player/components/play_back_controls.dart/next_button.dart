@@ -1,5 +1,5 @@
 import 'package:again/services/audio/audio_providers.dart';
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

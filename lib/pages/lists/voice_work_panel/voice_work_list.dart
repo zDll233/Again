@@ -1,4 +1,4 @@
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/pages/lists/voice_work_panel/vk_menu_btn.dart';
 import 'package:flutter/material.dart';

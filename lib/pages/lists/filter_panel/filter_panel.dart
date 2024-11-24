@@ -1,5 +1,5 @@
 import 'package:again/pages/components/voice_panel.dart';
-import 'package:again/presentation/u_i_providers.dart';
+import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lists/filter_panel/category_list.dart';
 import 'package:again/pages/lists/filter_panel/cv_list.dart';
 import 'package:flutter/material.dart';
