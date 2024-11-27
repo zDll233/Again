@@ -22,7 +22,7 @@ class ImageThumbnail extends StatelessWidget {
         width: imageSize,
         height: imageSize,
         fit: BoxFit.cover,
-        filterQuality: FilterQuality.high,
+        filterQuality: FilterQuality.medium
       ),
     );
   }
