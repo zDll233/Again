@@ -8,7 +8,7 @@ class AudioNotifier extends Notifier<AudioState> {
   late final AudioPlayer _player;
 
   void _initPlayer() {
-    Log.info('AudioPlayer initialized.', simplePrint: true);
+    Log.info('AudioPlayer initialized.');
 
     _player.setReleaseMode(ReleaseMode.release);
 
