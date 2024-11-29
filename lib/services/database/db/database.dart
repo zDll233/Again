@@ -22,6 +22,7 @@ class TVoiceItem extends Table {
 
 class TVoiceWork extends Table {
   TextColumn get title => text()();
+  TextColumn get rj => text()();
   TextColumn get directoryPath => text()();
   TextColumn get coverPath => text()();
   TextColumn get category =>

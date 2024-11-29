@@ -4,6 +4,7 @@ import 'package:again/pages/components/popup_menu_on_pressed.dart';
 import 'package:again/services/database/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class VkMenuBtn extends ConsumerWidget {
@@ -23,6 +24,11 @@ class VkMenuBtn extends ConsumerWidget {
             List<String> cvList = VoiceUpdater.getCvList(voiceWork.title);
 
             final items = <PopupMenuEntry<String>>[
+              PopupMenuItem<String>(
+                value: 'copyRj',
+                child: Text(voiceWork.rj),
+              ),
+              const PopupMenuDivider(),
               ...cvList.map((cvName) => PopupMenuItem<String>(
                     value: cvName,
                     child: Text(cvName),
@@ -58,7 +64,12 @@ class VkMenuBtn extends ConsumerWidget {
   }
 
   void _onPopMenuSelected(WidgetRef ref, String value) {
-    if (value == 'delete') {
+    if (value == 'copyRj') {
+      final rj = voiceWork.rj;
+      if (rj.startsWith(RegExp(r'rj', caseSensitive: false))) {
+        Clipboard.setData(ClipboardData(text: rj));
+      }
+    } else if (value == 'delete') {
       deleteVoiceWork(ref, voiceWork);
     } else if (ref.read(cvProvider).values.contains(value)) {
       _selectCv(ref, value);

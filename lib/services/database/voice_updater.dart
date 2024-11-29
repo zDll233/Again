@@ -53,9 +53,17 @@ class VoiceUpdater {
       if (entity is Directory) {
         String vkTitle = p.basename(entity.path);
         String vkCoverPath = '';
+        String vkRj = '';
 
-        // vk img
+        // vk rj, cover
         await for (final e in entity.list(recursive: true)) {
+          if (vkRj.isEmpty && e is Directory) {
+            vkRj = p.basename(e.path);
+            if (!vkRj.startsWith(RegExp(r'rj', caseSensitive: false))) {
+              vkRj = '无RJ号';
+            }
+          }
+
           if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
             vkCoverPath = e.path;
             break;
@@ -65,6 +73,7 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
+          rj: Value(vkRj),
           directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),

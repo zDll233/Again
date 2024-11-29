@@ -4,6 +4,7 @@ import 'package:again/services/database/db/database.dart';
 
 class VoiceWork {
   String title;
+  String rj;
   String directoryPath;
   String coverPath;
   String category;
@@ -11,6 +12,7 @@ class VoiceWork {
 
   VoiceWork({
     required this.title,
+    required this.rj,
     required this.directoryPath,
     required this.coverPath,
     required this.category,
@@ -22,6 +24,7 @@ class VoiceWork {
   static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
     return VoiceWork(
       title: vkData.title,
+      rj: vkData.rj,
       directoryPath: vkData.directoryPath,
       coverPath: vkData.coverPath,
       category: vkData.category,
@@ -64,6 +67,7 @@ class VoiceWork {
   factory VoiceWork.fromMap(Map<String, dynamic> map) {
     return VoiceWork(
       title: map['title'],
+      rj: map['rj'],
       directoryPath: map['directoryPath'],
       coverPath: map['coverPath'],
       category: map['category'],
@@ -75,6 +79,7 @@ class VoiceWork {
 
   VoiceWork copyWith({
     String? title,
+    String? rj,
     String? directoryPath,
     String? coverPath,
     String? category,
@@ -82,6 +87,7 @@ class VoiceWork {
   }) {
     return VoiceWork(
       title: title ?? this.title,
+      rj: rj ?? this.rj,
       directoryPath: directoryPath ?? this.directoryPath,
       coverPath: coverPath ?? this.coverPath,
       category: category ?? this.category,
