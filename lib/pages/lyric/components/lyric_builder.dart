@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:again/services/audio/audio_providers.dart';
@@ -5,6 +6,7 @@ import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
 import 'package:again/pages/lyric/components/line_indicator.dart';
 import 'package:again/utils/log.dart';
+import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_lyric/lyrics_reader.dart';
 import 'package:flutter_lyric/lyrics_reader_model.dart';
@@ -88,7 +90,10 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     try {
       final file = File(lrcPath);
       _haveLyric = true;
-      final result = await file.readAsString();
+      final bytes = await file.readAsBytes();
+      final encoding = Charset.detect(bytes) ?? utf8;
+
+      final result = encoding.decode(bytes);
       _readLyric = true;
       return result;
     } on FileSystemException catch (e) {
@@ -100,7 +105,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       }
       return '';
     } catch (e) {
-      Log.error('Uncaught error in getting lyric content.\n$e.');
+      Log.error('Uncaught error in getting lyric content\n'
+          'lrc file: $lrcPath'
+          'error: $e');
       return '';
     }
   }
