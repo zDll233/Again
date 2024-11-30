@@ -14,11 +14,12 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-              colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.purple,
-            dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-            brightness: Brightness.dark,
-          )),
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.purple,
+              dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+              brightness: Brightness.dark,
+            ),
+          ),
           scrollBehavior: MyCustomScrollBehavior(),
           home: const Scaffold(
               backgroundColor: Colors.transparent,
