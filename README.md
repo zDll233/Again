@@ -1,6 +1,6 @@
 # Again
 
-基于flutter的 本地(Windows)音声播放器。为了解决音声作品在多级目录下点击麻烦而制作的小工具。
+基于flutter的本地(Windows)音声播放器。为了解决音声作品在多级目录下点击麻烦而制作的小工具。
 
 ​![image-20241130152024-j7hmxca](screenshots/image-20241130152024-j7hmxca.png)​
 
