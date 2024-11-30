@@ -1,56 +1,70 @@
 # Again
 
-基于flutter的 本地(Windows)音声播放器。初衷是为了解决音声作品在多级目录下点击麻烦的问题。
+基于flutter的 本地(Windows)音声播放器。为了解决音声作品在多级目录下点击麻烦而制作的小工具。
 
-<br/>
+​![image-20241130152024-j7hmxca](screenshots/image-20241130152024-j7hmxca.png)​
 
-<img src="docs/8a28824d778d123a12d0fd84c5176b91.png" alt="主界面预览" width="800" />
+## 使用前提
 
-<br/>
+你需要满足特定的文件结构要求才能正常使用这个播放工具。
 
-## 介绍
+1. **层级结构，** 适合于目录层级为音声作品根目录->类别目录->各个作品文件夹->RJ号->音声作品的各种文件：  
+    ​![image-20241130162249-m0y0olf](screenshots/image-20241130162249-m0y0olf.png)​
+2. 音声作品**文件夹命名要求：** “cv1&cv2&...&cvN-title”  
+    比如，cv有两人“芹澤優”、“古賀葵”，音声作品名称是“180秒で君の耳を幸せに出来るか 双子ちゃんは左右を同時に癒せるか”，那么文件夹标题：“芹澤優&古賀葵-180秒で君の耳を幸せに出来るか 双子ちゃんは左右を同時に癒せるか”。
 
-适合于目录层级为音声作品根目录->类别目录->各个作品文件夹，如：
+    你可以手动命名，也可以尝试另一个下载工具[zDll233/AsmrDownloader](https://github.com/zDll233/AsmrDownloader)，会自动完成命名。
+3. *RJ号目录：这个不是必要的。应用会读取音声作品文件夹中的第一个子目录的名称作为RJ号，若不是合法的RJ号，你就不能在[音声作品文件夹的快捷操作](siyuan://blocks/20241130153113-n2hhlxk)里复制RJ号了。
 
-![目录层级](docs/84a2f7d21a90779a809e7e967fd32928.png)
+‍
 
-扫描根目录下的所有音声作品，获取类别名称。解析音声作品文件夹名称“cv1&cv2&...-title”得到cv和音声作品。
+首次使用或点击刷新按钮会扫描根目录下的所有音声作品，获取类别名称，音声作品文件夹名称和音声作品。
 
-<br/>
+点击顶部![image-20241130155747-25btccu](screenshots/image-20241130155747-25btccu.png)可重新选择并扫描音声作品根目录。
+
+应用会扫描音声作品文件夹中的第一张图片作为封面。
 
 ## 功能/特色
 
-1. 采用列视图展示音声作品。
-   - 第一列：通过类别和cv筛选出音声作品，类别和cv均默认有“All”选项。点击清除按钮将选中类别和cv的“All”选项。  
-   - 第二列：筛选出的音声作品。VoiceWorks(作品数量): 排序方式，点击可在按时间倒序和自然排序之前切换。点击刷新按钮重新扫描文件并更新界面，在每次启动应用时会自动刷新。每个音声作品会选择文件夹内的第一张图片作为封面。  
-   - 第三列：音声作品内容。VoiceItems(track数量)，默认自然排序，点击会打开文件在资源管理器中的位置。点击定位按钮会定位到正在播放的track。
-2. 整体界面使用window transparency effects
-3. 点击底栏上三角进入歌词界面
-   
-<p float="left">
-   <img src="docs/afed231cae1a2ab2b1a7543152539910.png" alt="歌词界面" width="500" />
-   <img src="docs/045b15ef2b9d9e29164813ce97eb834c.png" alt="歌词界面" width="500" />
-</p>
+1. **整体界面：** 采用列视图展示音声作品。  
+    第一列：通过类别和cv筛选出音声作品，点击上方清除按钮重置筛选条件；  
+    第二列：筛选出的音声作品，可点击上方`VoiceWorks`​按钮切换排序方式![image-20241130153612-m33gkuy](screenshots/image-20241130153612-m33gkuy.png)按时间倒序，![image-20241130153708-9aw5yph](screenshots/image-20241130153708-9aw5yph.png)按名称顺序；  
+    第三列：音声作品内容，点击上方`VoiceItems`​按钮打开相应音声文件夹，点击上方定位按钮定位到正在播放的作品。
 
-   - 扫描并加载与播放track名称相同lrc文件
-   - 点击标题会打开文件在资源管理器中的位置
-   - 可拖拽或用滚轮调整歌词位置，点击中间指示线右边的进度即可从选中位置开始播放；点击左边的地位按钮可跳转到正在播放的位置。
-   - 点击底栏下三角回到主界面
-4. 点击右上角文件夹按钮选择音声作品根目录
-5. 退出应用自动保存进度，再次打开恢复上次播放内容
+    使用window transparency effects（[flutter_lyric | Flutter package](https://pub.dev/packages/flutter_lyric)）。
+2. **歌词界面**（[zDll233/flutter_lyric: 用于展示歌词的flutter小部件](https://github.com/zDll233/flutter_lyric)，在[ozyl/flutter_lyric: 用于展示歌词的flutter小部件](https://github.com/ozyl/flutter_lyric)上稍作改动而来）：  
+    点击小三角按钮来打开或关闭歌词界面。![image-20241130160839-kp28253](screenshots/image-20241130160839-kp28253.png)  
+    指示线左边按钮可定位到播放位置，右边按钮跳转到目标进度。  
+    ​![image-20241130152840-tf9pvv6](screenshots/image-20241130152840-tf9pvv6.png)​
 
-## build
+4. **快捷键**：
 
-```shell
+    空格：播放/暂停  
+    ←，→：播放进度控制  
+    ↑，↓：音量控制  
+    ctrl + ←，ctrl + →：上/下一首  
+    ctrl + ↑，ctrl + ↓：打开/关闭歌词界面  
+    歌词界面点击右键：定位到当前播放位置
+5. 退出前记忆播放位置
+6. 对于音声作品文件夹的快捷操作  
+    点击右方![image-20241130153205-ku6s445](screenshots/image-20241130153205-ku6s445.png) 可弹出菜单：1. 复制RJ号；2. 筛选选中cv的作品；3. 移动音声文件夹到其他类别目录；4. 移动音声文件夹到回收站。
+
+    ​![image-20241130153137-g7x5cv8](screenshots/image-20241130153137-g7x5cv8.png)​
+
+## 构建与开发
+
+```powershell
 flutter pub get
 flutter build windows
 ```
 
-## dev
+‍
 
-drift code generator
+drift code generate
 
-```shell
+```powershell
 dart run build_runner build
 dart run build_runner watch
 ```
+
+‍
