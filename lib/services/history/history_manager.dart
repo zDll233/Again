@@ -55,19 +55,13 @@ class HistoryManager {
       return;
     }
 
-    try {
-      await _loadUIHistory(data['ui']);
-      await _loadAudioHistory(data['audio']);
-    } catch (e) {
-      await dbService.updateVkList();
-      Log.error('Error loading history.\n$e.');
-    }
+    await _loadUIHistory(data['ui']);
+    await _loadAudioHistory(data['audio']);
   }
 
   Future<void> _loadUIHistory(Map<String, dynamic> uiHistory) async {
+    if (uiHistory.isEmpty) return;
     try {
-      if (uiHistory.isEmpty) return;
-
       final filter = uiHistory['filter'];
       final dbService = ref.read(dbServiceProvider);
 
@@ -107,27 +101,27 @@ class HistoryManager {
 
       _uiService.cacheAllPlayingState();
     } catch (e) {
-      Log.error('Error loading UI history.\n$e');
+      Log.error('Error loading UI history.\n' 'error: $e');
     }
   }
 
   Future<void> _loadAudioHistory(Map<String, dynamic> audioHistory) async {
     if (audioHistory.isEmpty) return;
-
-    final audioNotifier = ref.read(audioProvider.notifier);
-    audioNotifier
-      ..setVolume(audioHistory['volume'])
-      ..updatePlaybackMode(PlaybackModeExtension.fromString(
-          audioHistory['playbackMode'] as String));
-
     try {
+      final audioNotifier = ref.read(audioProvider.notifier);
+      audioNotifier
+        ..setVolume(audioHistory['volume'] ?? 1.0)
+        ..updatePlaybackMode(PlaybackModeExtension.fromString(
+            audioHistory['playbackMode'] as String? ??
+                'PlaybackMode.sequentialPlay'));
+
       final voiceItemSate = ref.read(voiceItemProvider);
       if (!voiceItemSate.isPlaying) return;
       await audioNotifier.setSource(voiceItemSate.cachedPlayingVoiceItemPath!);
       await audioNotifier
-          .seek(Duration(milliseconds: audioHistory['position']));
+          .seek(Duration(milliseconds: audioHistory['position'] ?? 0));
     } catch (e) {
-      Log.error('Error loading audio history.\n$e');
+      Log.error('Error loading audio history.\n' 'error: $e');
     }
   }
 }

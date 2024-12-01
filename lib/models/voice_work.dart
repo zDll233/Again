@@ -57,6 +57,7 @@ class VoiceWork {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
+      'rj': rj,
       'directoryPath': directoryPath,
       'coverPath': coverPath,
       'category': category,
@@ -66,11 +67,11 @@ class VoiceWork {
 
   factory VoiceWork.fromMap(Map<String, dynamic> map) {
     return VoiceWork(
-      title: map['title'],
-      rj: map['rj'],
-      directoryPath: map['directoryPath'],
-      coverPath: map['coverPath'],
-      category: map['category'],
+      title: map['title'] ?? '',
+      rj: map['rj'] ?? '',
+      directoryPath: map['directoryPath'] ?? '',
+      coverPath: map['coverPath'] ?? '',
+      category: map['category'] ?? '',
       createdAt: map['createdAt'] == null
           ? null
           : DateTime.fromMillisecondsSinceEpoch(map['createdAt']),

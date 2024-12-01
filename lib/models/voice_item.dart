@@ -51,9 +51,9 @@ class VoiceItem {
 
   static VoiceItem fromMap(Map<String, dynamic> map) {
     return VoiceItem(
-      title: map['title'],
-      filePath: map['filePath'],
-      voiceWorkPath: map['voiceWorkPath'],
+      title: map['title'] ?? '',
+      filePath: map['filePath'] ?? '',
+      voiceWorkPath: map['voiceWorkPath'] ?? '',
     );
   }
 

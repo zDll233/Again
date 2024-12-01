@@ -50,12 +50,16 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
 
   void cacheSelectedIndexAndItem(int selectedIndex) {
     setSelectedIndex(selectedIndex);
+
+    // 之后后缓存playingItem: 依赖上面重新赋值的selectedIndex
     setCachedSelectedItem(
         state.isSelectedIndexValid ? state.selectedItem : null);
   }
 
   void cacheSelectedIndexAndItemByValue(ValueType newItem) {
     setSelectedIndexByValue(newItem);
+
+    // 之后后缓存playingItem: 依赖上面重新赋值的selectedIndex
     setCachedSelectedItem(
         state.isSelectedIndexValid ? state.selectedItem : null);
   }
@@ -63,7 +67,6 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   /// cache playingState into `playingIndex`, `cachedPlayingItem`
   void cachePlayingState() {
     cachePlayingIndex();
-    // 最后缓存playingItem
     cachePlayingItem();
   }
 

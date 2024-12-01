@@ -21,7 +21,7 @@ class VkMenuBtn extends ConsumerWidget {
           final items = <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
               value: 'copyRj',
-              child: Text(voiceWork.rj),
+              child: Text(voiceWork.rj, locale: Locale('zh', 'CN')),
             ),
             const PopupMenuDivider(),
             PopupMenuItem(
