@@ -32,6 +32,9 @@ class VoiceUpdater {
     return vkTitle.split('-')[0].split('&');
   }
 
+  static bool isSourceIdValid(String sourceId) =>
+      RegExp(r'^(RJ|VJ|BJ)?\d+$', caseSensitive: false).hasMatch(sourceId);
+
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [];
     await for (final collectionDir in rootDir.list()) {
@@ -53,15 +56,15 @@ class VoiceUpdater {
       if (entity is Directory) {
         String vkTitle = p.basename(entity.path);
         String vkCoverPath = '';
-        String vkRj = '';
+        String vkSourceId = '';
 
-        // vk rj, cover
+        // vk sourceId, cover
         await for (final e in entity.list(recursive: true)) {
-          if (vkRj.isEmpty && e is Directory) {
-            vkRj = p.basename(e.path);
-            if (!vkRj.startsWith(RegExp(r'rj', caseSensitive: false))) {
-              vkRj = '无RJ号';
-            }
+          if (vkSourceId.isEmpty && e is Directory) {
+            final folderName = p.basename(e.path);
+            vkSourceId = isSourceIdValid(folderName)
+                ? folderName.toUpperCase()
+                : '无sourceId';
           }
 
           if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
@@ -73,7 +76,7 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
-          rj: Value(vkRj),
+          sourceId: Value(vkSourceId),
           directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),

@@ -179,10 +179,11 @@ class $TVoiceWorkTable extends TVoiceWork
   late final GeneratedColumn<String> title = GeneratedColumn<String>(
       'title', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _rjMeta = const VerificationMeta('rj');
+  static const VerificationMeta _sourceIdMeta =
+      const VerificationMeta('sourceId');
   @override
-  late final GeneratedColumn<String> rj = GeneratedColumn<String>(
-      'rj', aliasedName, false,
+  late final GeneratedColumn<String> sourceId = GeneratedColumn<String>(
+      'source_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _directoryPathMeta =
       const VerificationMeta('directoryPath');
@@ -213,7 +214,7 @@ class $TVoiceWorkTable extends TVoiceWork
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [title, rj, directoryPath, coverPath, category, createdAt];
+      [title, sourceId, directoryPath, coverPath, category, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -230,10 +231,11 @@ class $TVoiceWorkTable extends TVoiceWork
     } else if (isInserting) {
       context.missing(_titleMeta);
     }
-    if (data.containsKey('rj')) {
-      context.handle(_rjMeta, rj.isAcceptableOrUnknown(data['rj']!, _rjMeta));
+    if (data.containsKey('source_id')) {
+      context.handle(_sourceIdMeta,
+          sourceId.isAcceptableOrUnknown(data['source_id']!, _sourceIdMeta));
     } else if (isInserting) {
-      context.missing(_rjMeta);
+      context.missing(_sourceIdMeta);
     }
     if (data.containsKey('directory_path')) {
       context.handle(
@@ -270,8 +272,8 @@ class $TVoiceWorkTable extends TVoiceWork
     return TVoiceWorkData(
       title: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
-      rj: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}rj'])!,
+      sourceId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source_id'])!,
       directoryPath: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}directory_path'])!,
       coverPath: attachedDatabase.typeMapping
@@ -291,14 +293,14 @@ class $TVoiceWorkTable extends TVoiceWork
 
 class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   final String title;
-  final String rj;
+  final String sourceId;
   final String directoryPath;
   final String coverPath;
   final String category;
   final DateTime? createdAt;
   const TVoiceWorkData(
       {required this.title,
-      required this.rj,
+      required this.sourceId,
       required this.directoryPath,
       required this.coverPath,
       required this.category,
@@ -307,7 +309,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['title'] = Variable<String>(title);
-    map['rj'] = Variable<String>(rj);
+    map['source_id'] = Variable<String>(sourceId);
     map['directory_path'] = Variable<String>(directoryPath);
     map['cover_path'] = Variable<String>(coverPath);
     map['category'] = Variable<String>(category);
@@ -320,7 +322,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   TVoiceWorkCompanion toCompanion(bool nullToAbsent) {
     return TVoiceWorkCompanion(
       title: Value(title),
-      rj: Value(rj),
+      sourceId: Value(sourceId),
       directoryPath: Value(directoryPath),
       coverPath: Value(coverPath),
       category: Value(category),
@@ -335,7 +337,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return TVoiceWorkData(
       title: serializer.fromJson<String>(json['title']),
-      rj: serializer.fromJson<String>(json['rj']),
+      sourceId: serializer.fromJson<String>(json['sourceId']),
       directoryPath: serializer.fromJson<String>(json['directoryPath']),
       coverPath: serializer.fromJson<String>(json['coverPath']),
       category: serializer.fromJson<String>(json['category']),
@@ -347,7 +349,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'title': serializer.toJson<String>(title),
-      'rj': serializer.toJson<String>(rj),
+      'sourceId': serializer.toJson<String>(sourceId),
       'directoryPath': serializer.toJson<String>(directoryPath),
       'coverPath': serializer.toJson<String>(coverPath),
       'category': serializer.toJson<String>(category),
@@ -357,14 +359,14 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
 
   TVoiceWorkData copyWith(
           {String? title,
-          String? rj,
+          String? sourceId,
           String? directoryPath,
           String? coverPath,
           String? category,
           Value<DateTime?> createdAt = const Value.absent()}) =>
       TVoiceWorkData(
         title: title ?? this.title,
-        rj: rj ?? this.rj,
+        sourceId: sourceId ?? this.sourceId,
         directoryPath: directoryPath ?? this.directoryPath,
         coverPath: coverPath ?? this.coverPath,
         category: category ?? this.category,
@@ -373,7 +375,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   TVoiceWorkData copyWithCompanion(TVoiceWorkCompanion data) {
     return TVoiceWorkData(
       title: data.title.present ? data.title.value : this.title,
-      rj: data.rj.present ? data.rj.value : this.rj,
+      sourceId: data.sourceId.present ? data.sourceId.value : this.sourceId,
       directoryPath: data.directoryPath.present
           ? data.directoryPath.value
           : this.directoryPath,
@@ -387,7 +389,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   String toString() {
     return (StringBuffer('TVoiceWorkData(')
           ..write('title: $title, ')
-          ..write('rj: $rj, ')
+          ..write('sourceId: $sourceId, ')
           ..write('directoryPath: $directoryPath, ')
           ..write('coverPath: $coverPath, ')
           ..write('category: $category, ')
@@ -397,14 +399,14 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(title, rj, directoryPath, coverPath, category, createdAt);
+  int get hashCode => Object.hash(
+      title, sourceId, directoryPath, coverPath, category, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TVoiceWorkData &&
           other.title == this.title &&
-          other.rj == this.rj &&
+          other.sourceId == this.sourceId &&
           other.directoryPath == this.directoryPath &&
           other.coverPath == this.coverPath &&
           other.category == this.category &&
@@ -413,7 +415,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
 
 class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   final Value<String> title;
-  final Value<String> rj;
+  final Value<String> sourceId;
   final Value<String> directoryPath;
   final Value<String> coverPath;
   final Value<String> category;
@@ -421,7 +423,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   final Value<int> rowid;
   const TVoiceWorkCompanion({
     this.title = const Value.absent(),
-    this.rj = const Value.absent(),
+    this.sourceId = const Value.absent(),
     this.directoryPath = const Value.absent(),
     this.coverPath = const Value.absent(),
     this.category = const Value.absent(),
@@ -430,20 +432,20 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   });
   TVoiceWorkCompanion.insert({
     required String title,
-    required String rj,
+    required String sourceId,
     required String directoryPath,
     required String coverPath,
     required String category,
     this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : title = Value(title),
-        rj = Value(rj),
+        sourceId = Value(sourceId),
         directoryPath = Value(directoryPath),
         coverPath = Value(coverPath),
         category = Value(category);
   static Insertable<TVoiceWorkData> custom({
     Expression<String>? title,
-    Expression<String>? rj,
+    Expression<String>? sourceId,
     Expression<String>? directoryPath,
     Expression<String>? coverPath,
     Expression<String>? category,
@@ -452,7 +454,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   }) {
     return RawValuesInsertable({
       if (title != null) 'title': title,
-      if (rj != null) 'rj': rj,
+      if (sourceId != null) 'source_id': sourceId,
       if (directoryPath != null) 'directory_path': directoryPath,
       if (coverPath != null) 'cover_path': coverPath,
       if (category != null) 'category': category,
@@ -463,7 +465,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
 
   TVoiceWorkCompanion copyWith(
       {Value<String>? title,
-      Value<String>? rj,
+      Value<String>? sourceId,
       Value<String>? directoryPath,
       Value<String>? coverPath,
       Value<String>? category,
@@ -471,7 +473,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
       Value<int>? rowid}) {
     return TVoiceWorkCompanion(
       title: title ?? this.title,
-      rj: rj ?? this.rj,
+      sourceId: sourceId ?? this.sourceId,
       directoryPath: directoryPath ?? this.directoryPath,
       coverPath: coverPath ?? this.coverPath,
       category: category ?? this.category,
@@ -486,8 +488,8 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
     if (title.present) {
       map['title'] = Variable<String>(title.value);
     }
-    if (rj.present) {
-      map['rj'] = Variable<String>(rj.value);
+    if (sourceId.present) {
+      map['source_id'] = Variable<String>(sourceId.value);
     }
     if (directoryPath.present) {
       map['directory_path'] = Variable<String>(directoryPath.value);
@@ -511,7 +513,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   String toString() {
     return (StringBuffer('TVoiceWorkCompanion(')
           ..write('title: $title, ')
-          ..write('rj: $rj, ')
+          ..write('sourceId: $sourceId, ')
           ..write('directoryPath: $directoryPath, ')
           ..write('coverPath: $coverPath, ')
           ..write('category: $category, ')
@@ -1336,7 +1338,7 @@ typedef $$TVoiceWorkCategoryTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function({bool tVoiceWorkRefs})>;
 typedef $$TVoiceWorkTableCreateCompanionBuilder = TVoiceWorkCompanion Function({
   required String title,
-  required String rj,
+  required String sourceId,
   required String directoryPath,
   required String coverPath,
   required String category,
@@ -1345,7 +1347,7 @@ typedef $$TVoiceWorkTableCreateCompanionBuilder = TVoiceWorkCompanion Function({
 });
 typedef $$TVoiceWorkTableUpdateCompanionBuilder = TVoiceWorkCompanion Function({
   Value<String> title,
-  Value<String> rj,
+  Value<String> sourceId,
   Value<String> directoryPath,
   Value<String> coverPath,
   Value<String> category,
@@ -1414,8 +1416,8 @@ class $$TVoiceWorkTableFilterComposer
   ColumnFilters<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<String> get rj => $composableBuilder(
-      column: $table.rj, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get directoryPath => $composableBuilder(
       column: $table.directoryPath, builder: (column) => ColumnFilters(column));
@@ -1501,8 +1503,8 @@ class $$TVoiceWorkTableOrderingComposer
   ColumnOrderings<String> get title => $composableBuilder(
       column: $table.title, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<String> get rj => $composableBuilder(
-      column: $table.rj, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get sourceId => $composableBuilder(
+      column: $table.sourceId, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get directoryPath => $composableBuilder(
       column: $table.directoryPath,
@@ -1547,8 +1549,8 @@ class $$TVoiceWorkTableAnnotationComposer
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
 
-  GeneratedColumn<String> get rj =>
-      $composableBuilder(column: $table.rj, builder: (column) => column);
+  GeneratedColumn<String> get sourceId =>
+      $composableBuilder(column: $table.sourceId, builder: (column) => column);
 
   GeneratedColumn<String> get directoryPath => $composableBuilder(
       column: $table.directoryPath, builder: (column) => column);
@@ -1648,7 +1650,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
               $$TVoiceWorkTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
             Value<String> title = const Value.absent(),
-            Value<String> rj = const Value.absent(),
+            Value<String> sourceId = const Value.absent(),
             Value<String> directoryPath = const Value.absent(),
             Value<String> coverPath = const Value.absent(),
             Value<String> category = const Value.absent(),
@@ -1657,7 +1659,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
           }) =>
               TVoiceWorkCompanion(
             title: title,
-            rj: rj,
+            sourceId: sourceId,
             directoryPath: directoryPath,
             coverPath: coverPath,
             category: category,
@@ -1666,7 +1668,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
           ),
           createCompanionCallback: ({
             required String title,
-            required String rj,
+            required String sourceId,
             required String directoryPath,
             required String coverPath,
             required String category,
@@ -1675,7 +1677,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
           }) =>
               TVoiceWorkCompanion.insert(
             title: title,
-            rj: rj,
+            sourceId: sourceId,
             directoryPath: directoryPath,
             coverPath: coverPath,
             category: category,

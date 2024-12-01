@@ -4,7 +4,7 @@ import 'package:again/services/database/db/database.dart';
 
 class VoiceWork {
   String title;
-  String rj;
+  String sourceId;
   String directoryPath;
   String coverPath;
   String category;
@@ -12,7 +12,7 @@ class VoiceWork {
 
   VoiceWork({
     required this.title,
-    required this.rj,
+    required this.sourceId,
     required this.directoryPath,
     required this.coverPath,
     required this.category,
@@ -24,7 +24,7 @@ class VoiceWork {
   static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
     return VoiceWork(
       title: vkData.title,
-      rj: vkData.rj,
+      sourceId: vkData.sourceId,
       directoryPath: vkData.directoryPath,
       coverPath: vkData.coverPath,
       category: vkData.category,
@@ -57,7 +57,7 @@ class VoiceWork {
   Map<String, dynamic> toMap() {
     return {
       'title': title,
-      'rj': rj,
+      'sourceId': sourceId,
       'directoryPath': directoryPath,
       'coverPath': coverPath,
       'category': category,
@@ -68,7 +68,7 @@ class VoiceWork {
   factory VoiceWork.fromMap(Map<String, dynamic> map) {
     return VoiceWork(
       title: map['title'] ?? '',
-      rj: map['rj'] ?? '',
+      sourceId: map['sourceId'] ?? '',
       directoryPath: map['directoryPath'] ?? '',
       coverPath: map['coverPath'] ?? '',
       category: map['category'] ?? '',
@@ -80,7 +80,7 @@ class VoiceWork {
 
   VoiceWork copyWith({
     String? title,
-    String? rj,
+    String? sourceId,
     String? directoryPath,
     String? coverPath,
     String? category,
@@ -88,7 +88,7 @@ class VoiceWork {
   }) {
     return VoiceWork(
       title: title ?? this.title,
-      rj: rj ?? this.rj,
+      sourceId: sourceId ?? this.sourceId,
       directoryPath: directoryPath ?? this.directoryPath,
       coverPath: coverPath ?? this.coverPath,
       category: category ?? this.category,

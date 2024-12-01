@@ -20,8 +20,8 @@ class VkMenuBtn extends ConsumerWidget {
         onPressed: () {
           final items = <PopupMenuEntry<String>>[
             PopupMenuItem<String>(
-              value: 'copyRj',
-              child: Text(voiceWork.rj, locale: Locale('zh', 'CN')),
+              value: 'copySourceId',
+              child: Text(voiceWork.sourceId, locale: Locale('zh', 'CN')),
             ),
             const PopupMenuDivider(),
             PopupMenuItem(
@@ -78,10 +78,9 @@ class VkMenuBtn extends ConsumerWidget {
   }
 
   void _onPopMenuSelected(WidgetRef ref, String value) {
-    if (value == 'copyRj') {
-      final rj = voiceWork.rj;
-      if (rj.startsWith(RegExp(r'rj', caseSensitive: false))) {
-        Clipboard.setData(ClipboardData(text: rj));
+    if (value == 'copySourceId') {
+      if (VoiceUpdater.isSourceIdValid(voiceWork.sourceId)) {
+        Clipboard.setData(ClipboardData(text: voiceWork.sourceId));
       }
     } else if (value == 'delete') {
       deleteVoiceWork(ref, voiceWork);
