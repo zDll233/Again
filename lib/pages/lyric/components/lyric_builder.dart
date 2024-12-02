@@ -65,7 +65,6 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 ),
                 selectLineBuilder: (position, flashBack, confirmPlay) =>
                     LineIndicator(
-                  ref: ref,
                   context: context,
                   position: position,
                   flashBack: flashBack,

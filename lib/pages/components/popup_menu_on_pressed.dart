@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void showPopupMenuOnPressed<T>(
-  WidgetRef ref,
   BuildContext buttonContext,
   List<PopupMenuEntry<T>> items,
-  void Function(WidgetRef, T) onPopMenuSelected,
+  void Function(T) onPopMenuSelected,
 ) {
   final RenderBox button = buttonContext.findRenderObject() as RenderBox;
   final RenderBox overlay =
@@ -31,7 +29,7 @@ void showPopupMenuOnPressed<T>(
     items: items,
   ).then((selectedValue) {
     if (selectedValue != null) {
-      onPopMenuSelected(ref, selectedValue);
+      onPopMenuSelected(selectedValue);
     }
   });
 }
