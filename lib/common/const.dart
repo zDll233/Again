@@ -1,7 +1,7 @@
 import 'package:again/utils/json_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-const double TITLEBAR_HEIGHT = 50.0;
+const double TITLEBAR_HEIGHT = 40.0;
 const double PLAYER_WIDGET_HEIGHT = 90.0;
 
 const List<String> AUDIO_EXTENSIONS = [

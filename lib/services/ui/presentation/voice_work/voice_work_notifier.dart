@@ -26,13 +26,19 @@ class VoiceWorkNotifier
   }
 
   Future<void> deleteVoiceWork(VoiceWork movedVoiceWork) async {
-    if (!await File(DELETE_SCRIPT_PATH).exists()) {
-      Log.error(
-          'Error deleting "${movedVoiceWork.title}". Cannot find "$DELETE_SCRIPT_PATH".\nStart to generate delete script.');
-      await generateDeleteScript();
-    }
-
     try {
+      if (!await Directory(movedVoiceWork.directoryPath).exists()) {
+        Log.error('Error deleting "${movedVoiceWork.title}".\n'
+            'Cannot find "${movedVoiceWork.directoryPath}".');
+        return;
+      }
+
+      if (!await File(DELETE_SCRIPT_PATH).exists()) {
+        Log.error(
+            'Error deleting "${movedVoiceWork.title}". Cannot find "$DELETE_SCRIPT_PATH".\nStart to generate delete script.');
+        await generateDeleteScript();
+      }
+
       await playingOrSelected(movedVoiceWork);
 
       List<String> arguments = [
@@ -58,14 +64,19 @@ class VoiceWorkNotifier
     VoiceWork movedVoiceWork,
     String newCategory,
   ) async {
+    Directory oldDirectory = Directory(movedVoiceWork.directoryPath);
+    if (!await oldDirectory.exists()) {
+      Log.error('Error changing category of "${movedVoiceWork.title}".\n'
+          'Cannot find "${movedVoiceWork.directoryPath}".');
+      return;
+    }
+
     // 将路径中的 voiceWork.category 替换为新的 cate
     final newDirectoryPath = replaceLast(
       movedVoiceWork.directoryPath,
       movedVoiceWork.category,
       newCategory,
     );
-
-    Directory oldDirectory = Directory(movedVoiceWork.directoryPath);
 
     try {
       await playingOrSelected(movedVoiceWork);
