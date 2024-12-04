@@ -76,7 +76,7 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
-          sourceId: Value(vkSourceId),
+          sourceId: Value(vkSourceId.isEmpty ? '无sourceId' : vkSourceId),
           directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),
