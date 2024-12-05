@@ -38,10 +38,12 @@ class VoiceUpdater {
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [];
     await for (final collectionDir in rootDir.list()) {
-      vkcc.add(TVoiceWorkCategoryCompanion(
-        description: Value(p.basename(collectionDir.path)),
-        rowid: const Value.absent(),
-      ));
+      if (collectionDir is Directory) {
+        vkcc.add(TVoiceWorkCategoryCompanion(
+          description: Value(p.basename(collectionDir.path)),
+          rowid: const Value.absent(),
+        ));
+      }
     }
     await ref.read(dbProvider).insertMultipleVoiceWorkCategories(vkcc);
   }

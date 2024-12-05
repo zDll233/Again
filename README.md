@@ -31,7 +31,7 @@
     第二列：筛选出的音声作品，可点击上方`VoiceWorks`​按钮切换排序方式![image-20241130153612-m33gkuy](screenshots/image-20241130153612-m33gkuy.png)按时间倒序，![image-20241130153708-9aw5yph](screenshots/image-20241130153708-9aw5yph.png)按名称顺序；  
     第三列：音声作品内容，点击上方`VoiceItems`​按钮打开相应音声文件夹，点击上方定位按钮定位到正在播放的作品。
 
-    使用window transparency effects（[flutter_lyric | Flutter package](https://pub.dev/packages/flutter_lyric)）。
+    使用window transparency effects（[flutter_acrylic | Flutter package](https://pub.dev/packages/flutter_acrylic)）。
 2. **歌词界面**（[zDll233/flutter_lyric: 用于展示歌词的flutter小部件](https://github.com/zDll233/flutter_lyric)，在[ozyl/flutter_lyric: 用于展示歌词的flutter小部件](https://github.com/ozyl/flutter_lyric)上稍作改动而来）：  
     点击小三角按钮来打开或关闭歌词界面。![image-20241130160839-kp28253](screenshots/image-20241130160839-kp28253.png)  
     指示线左边按钮可定位到播放位置，右边按钮跳转到目标进度。  
