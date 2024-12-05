@@ -47,4 +47,4 @@ app.*.map.json
 /history
 /config
 
-copy_release.bat
+_build.bat

@@ -14,17 +14,19 @@ class WindowTitleBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const DecoratedBox(
-      decoration: BoxDecoration(color: Colors.transparent),
-      child: SizedBox(
-        height: TITLEBAR_HEIGHT,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(child: MoveWindow()),
-            SelectRootDirBtn(),
-            CaptionButtons(buttonHeight: 40),
-          ],
+    return DecoratedBox(
+      decoration: const BoxDecoration(color: Colors.transparent),
+      child: MoveWindow(
+        child: SizedBox(
+          height: TITLEBAR_HEIGHT,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: Container()),
+              const SelectRootDirBtn(),
+              const CaptionButtons(buttonHeight: 40),
+            ],
+          ),
         ),
       ),
     );

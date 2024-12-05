@@ -3,7 +3,6 @@ import 'package:again/pages/player/components/play_back_controls.dart/playback_c
 import 'package:again/pages/player/components/progress_bar.dart';
 import 'package:again/pages/player/components/time_display.dart';
 import 'package:again/pages/player/components/volume_control.dart';
-import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:flutter/material.dart';
 
 class PlayerWidget extends StatelessWidget {
@@ -15,7 +14,6 @@ class PlayerWidget extends StatelessWidget {
       height: PLAYER_WIDGET_HEIGHT,
       child: Stack(
         children: [
-          MoveWindow(),
           Positioned(
             child: ProgressBar(),
           ),

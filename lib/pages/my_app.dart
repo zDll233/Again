@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:again/pages/components/initialization.dart';
 import 'package:again/pages/components/list_lyric_switch.dart';
 import 'package:again/pages/player/player_widget.dart';
+import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/pages/window_title_bar/window_title_bar.dart';
 import 'package:flutter/material.dart';
 
@@ -25,12 +26,14 @@ class MyApp extends StatelessWidget {
               backgroundColor: Colors.transparent,
               body: FocusScope(
                 canRequestFocus: false,
-                child: Column(
-                  children: [
-                    WindowTitleBar(),
-                    ListLyricSwitch(),
-                    PlayerWidget()
-                  ],
+                child: MoveWindow(
+                  child: Column(
+                    children: [
+                      WindowTitleBar(),
+                      ListLyricSwitch(),
+                      PlayerWidget()
+                    ],
+                  ),
                 ),
               ))),
     );
