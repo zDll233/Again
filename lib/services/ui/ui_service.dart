@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:window_manager/window_manager.dart';
 
 class UIService {
   final Ref ref;
@@ -187,5 +189,14 @@ class UIService {
             viScrollController, ref.read(voiceItemProvider).playingIndex);
       });
     });
+  }
+
+  Future<void> onExit() async {
+    await ref.read(historyManagerProvider).saveHistory();
+
+    // 不要用windowManager.destroy()，有明显的卡顿
+    windowManager
+      ..setPreventClose(false)
+      ..close();
   }
 }

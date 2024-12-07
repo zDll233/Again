@@ -30,7 +30,7 @@ Future<void> setupWindow() async {
         ..setMinimumSize(initialSize)
         ..setTitle('Again')
         ..show()
-        ..focus();
+        ..setPreventClose(true);
     });
   }
 }
