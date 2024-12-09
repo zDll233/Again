@@ -9,8 +9,7 @@ import 'package:again/services/ui/presentation/voice_work/voice_work_state.dart'
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/generate_script.dart';
 import 'package:again/utils/log.dart';
-import 'package:again/utils/move_file.dart';
-import 'package:again/utils/tool_function.dart';
+import 'package:again/utils/tool_functions.dart';
 
 class VoiceWorkNotifier
     extends VariableListStateNotifier<VoiceWorkState, VoiceWork> {
@@ -22,7 +21,7 @@ class VoiceWorkNotifier
   @override
   Future<void> onSelected(int selectedIndex) async {
     cacheSelectedIndexAndItem(selectedIndex);
-    await ref.read(dbServiceProvider).updateViList();
+    await ref.read(dbNotifierProvider).updateViList();
   }
 
   Future<void> deleteVoiceWork(VoiceWork movedVoiceWork) async {
