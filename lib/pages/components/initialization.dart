@@ -50,6 +50,6 @@ class _InitializationState extends ConsumerState<Initialization> {
 }
 
 final _initProvider = FutureProvider.autoDispose((ref) async {
-  await ref.read(dbServiceProvider).initialize();
+  await ref.read(dbNotifierProvider).initialize();
   await ref.read(historyManagerProvider).loadHistory();
 });

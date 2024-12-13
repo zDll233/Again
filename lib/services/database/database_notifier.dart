@@ -131,8 +131,8 @@ class DatabaseNotifier {
     final voiceWorkState = ref.read(voiceWorkProvider);
     final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
     if (!voiceWorkState.cachedSelectedVoiceWorkExist) {
-      Log.info(
-          'Selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
+      Log.info('Error updating voiceItem list\n'
+          'error: selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
       voiceItemNotifier.clearValues();
     } else {
       final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;

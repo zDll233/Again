@@ -104,9 +104,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       }
       return '';
     } catch (e) {
-      Log.error('Uncaught error in getting lyric content\n'
-          'lrc file: $lrcPath'
-          'error: $e');
+      Log.error('Error reading lrc file: $lrcPath\n'
+          'unhandled error: $e');
       return '';
     }
   }
