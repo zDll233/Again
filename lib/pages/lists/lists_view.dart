@@ -18,20 +18,11 @@ class ListsView extends StatelessWidget {
     return const Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        SizedBox(
-          width: 250,
-          child: FilterPanel(),
-        ),
+        SizedBox(width: 250, child: FilterPanel()),
         _verticalDivider,
-        Flexible(
-          flex: 16,
-          child: VoiceWorkPanel(),
-        ),
+        Flexible(flex: 16, child: VoiceWorkPanel()),
         _verticalDivider,
-        Flexible(
-          flex: 10,
-          child: VoiceItemPanel(),
-        ),
+        Flexible(flex: 10, child: VoiceItemPanel()),
       ],
     );
   }

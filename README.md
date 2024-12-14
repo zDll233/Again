@@ -28,7 +28,7 @@
 
 1. **整体界面：** 采用列视图展示音声作品。  
     第一列：通过类别和cv筛选出音声作品，点击上方清除按钮重置筛选条件；  
-    第二列：筛选出的音声作品，可点击上方`VoiceWorks`​按钮切换排序方式![image-20241130153612-m33gkuy](screenshots/image-20241130153612-m33gkuy.png)按时间倒序，![image-20241130153708-9aw5yph](screenshots/image-20241130153708-9aw5yph.png)按名称顺序；  
+    第二列：筛选出的音声作品，可点击上方`VoiceWorks`​按钮切换排序方式![image-20241130153612-m33gkuy](screenshots/image-20241130153612-m33gkuy.png)按时间倒序，![image-20241130153708-9aw5yph](screenshots/image-20241130153708-9aw5yph.png)按名称顺序。点击封面可查看大图；  
     第三列：音声作品内容，点击上方`VoiceItems`​按钮打开相应音声文件夹，点击上方定位按钮定位到正在播放的作品。
 
     使用window transparency effects（[flutter_acrylic | Flutter package](https://pub.dev/packages/flutter_acrylic)）。
