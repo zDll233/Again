@@ -2,23 +2,22 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/services/database/db/database.dart';
-import 'package:again/services/database/database_providers.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class VoiceUpdater {
-  VoiceUpdater(String root, this.ref) : rootDir = Directory(root);
+  VoiceUpdater(this._database, String rootDirPath)
+      : _rootDir = Directory(rootDirPath);
 
-  late Directory rootDir;
-  final Ref ref;
+  final AppDatabase _database;
+  late final Directory _rootDir;
 
   Future<void> insert() async {
     await insertVoiceWorkCategories(); // categories
-    await for (final collectionDir in rootDir.list()) {
-      if (collectionDir is Directory) {
-        await insertVoiceWorks(collectionDir); // voiceWorks
-        await for (final voiceWorkDir in collectionDir.list()) {
+    await for (final categoryDir in _rootDir.list()) {
+      if (categoryDir is Directory) {
+        await insertVoiceWorks(categoryDir); // voiceWorks
+        await for (final voiceWorkDir in categoryDir.list()) {
           if (voiceWorkDir is Directory) {
             await insertVoiceItems(voiceWorkDir); // voiceItems
           }
@@ -37,7 +36,7 @@ class VoiceUpdater {
 
   Future<void> insertVoiceWorkCategories() async {
     List<TVoiceWorkCategoryCompanion> vkcc = [];
-    await for (final collectionDir in rootDir.list()) {
+    await for (final collectionDir in _rootDir.list()) {
       if (collectionDir is Directory) {
         vkcc.add(TVoiceWorkCategoryCompanion(
           description: Value(p.basename(collectionDir.path)),
@@ -45,7 +44,7 @@ class VoiceUpdater {
         ));
       }
     }
-    await ref.read(dbProvider).insertMultipleVoiceWorkCategories(vkcc);
+    await _database.insertVoiceWorkCategoryBatch(vkcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
@@ -103,7 +102,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await ref.read(dbProvider).insertMultipleVoiceWorks(vkc);
+    await _database.insertVoiceWorkBatch(vkc);
 
     // cv
     for (final cvName in cvNames) {
@@ -112,10 +111,10 @@ class VoiceUpdater {
         rowid: const Value.absent(),
       ));
     }
-    await ref.read(dbProvider).insertMultipleCvs(cvc);
+    await _database.insertCvBatch(cvc);
 
     // cv vk
-    await ref.read(dbProvider).insertMultipleVoiceCvs(vcc);
+    await _database.insertVoiceCvBatch(vcc);
   }
 
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
@@ -132,6 +131,6 @@ class VoiceUpdater {
         ));
       }
     }
-    await ref.read(dbProvider).insertMultipleVoiceItems(vic);
+    await _database.insertVoiceItemBatch(vic);
   }
 }

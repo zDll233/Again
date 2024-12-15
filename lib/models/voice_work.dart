@@ -95,14 +95,4 @@ class VoiceWork {
       createdAt: createdAt ?? this.createdAt,
     );
   }
-
-  VoiceWork replaceCategory(String newCategory) {
-    final newDirectoryPath = directoryPath.replaceFirst(category, newCategory);
-    final newCoverPath = coverPath.replaceFirst(category, newCategory);
-    return copyWith(
-      directoryPath: newDirectoryPath,
-      coverPath: newCoverPath,
-      category: newCategory,
-    );
-  }
 }

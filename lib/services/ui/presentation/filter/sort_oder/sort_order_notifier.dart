@@ -2,7 +2,6 @@ import 'package:again/services/ui/presentation/state_interface/list_state/list_s
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
-import 'package:again/services/ui/presentation/state_interface/state_interface.dart';
 
 class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   @override
@@ -15,7 +14,7 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     int length = state.values.length;
     int temp = state.selectedIndex + 1;
     cacheSelectedIndexAndItem(temp < length ? temp : 0);
-    await ref.read(dbServiceProvider).updateVkList();
+    await ref.read(dbNotifierProvider).updateVkList();
     await ref.read(uiServiceProvider).filterSelected();
   }
 }

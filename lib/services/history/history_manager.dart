@@ -45,13 +45,13 @@ class HistoryManager {
   }
 
   Future<void> loadHistory() async {
-    final dbService = ref.read(dbServiceProvider);
-    await dbService.updateFilterLists();
+    final dbNotifier = ref.read(dbNotifierProvider);
+    await dbNotifier.updateFilterLists();
 
     final data = await ref.read(historyJsonProvider).read();
 
     if (data.isEmpty) {
-      await dbService.updateVkList();
+      await dbNotifier.updateVkList();
       return;
     }
 
@@ -63,7 +63,7 @@ class HistoryManager {
     if (uiHistory.isEmpty) return;
     try {
       final filter = uiHistory['filter'];
-      final dbService = ref.read(dbServiceProvider);
+      final dbNotifier = ref.read(dbNotifierProvider);
 
       final sortOrderNotifier = ref.read(sortOrderProvider.notifier);
       final categoryNotifier = ref.read(categoryProvider.notifier);
@@ -76,7 +76,7 @@ class HistoryManager {
       cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
 
       // voiceWork
-      await dbService.updateVkList();
+      await dbNotifier.updateVkList();
       Map<String, dynamic>? voiceWorkMap = uiHistory['voiceWork'];
       if (voiceWorkMap != null) {
         ref
@@ -91,7 +91,7 @@ class HistoryManager {
       }
 
       // voiceItem
-      await dbService.updateViList();
+      await dbNotifier.updateViList();
       Map<String, dynamic>? voiceItemMap = uiHistory['voiceItem'];
       if (voiceItemMap != null) {
         ref

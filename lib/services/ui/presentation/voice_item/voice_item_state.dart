@@ -1,5 +1,4 @@
 import 'package:again/models/voice_item.dart';
-import 'package:again/services/ui/presentation/state_interface/state_interface.dart';
 import 'package:again/services/ui/presentation/state_interface/variable_list_state/variable_list_state.dart';
 
 class VoiceItemState extends VariableListState<VoiceItem> {

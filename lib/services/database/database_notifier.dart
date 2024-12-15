@@ -25,21 +25,17 @@ class DatabaseNotifier {
     final vkRootDirPath = data['voiceWorkRoot'] ?? '';
 
     if (await Directory(vkRootDirPath).exists()) {
-      await _initializeVoiceUpdater(vkRootDirPath);
+      _voiceUpdater = VoiceUpdater(_database, vkRootDirPath);
     } else {
       await selectAndSaveRootDirectory();
     }
-  }
-
-  Future<void> _initializeVoiceUpdater(String rootDirpath) async {
-    _voiceUpdater = VoiceUpdater(rootDirpath, ref);
   }
 
   Future<void> selectAndSaveRootDirectory() async {
     final selectedDirPath =
         await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
     if (selectedDirPath != null) {
-      await _initializeVoiceUpdater(selectedDirPath);
+      _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
       await ref
           .read(configJsonProvider)
           .write({'voiceWorkRoot': selectedDirPath});
@@ -64,12 +60,9 @@ class DatabaseNotifier {
   }
 
   /// update [CategoryState.values], [CvState.values]. If cateLs or cvLs is null, get both lists from db.
-  Future<void> updateFilterLists({
-    List<TVoiceWorkCategoryData>? cateLs,
-    List<TCVData>? cvLs,
-  }) async {
-    cateLs ??= await _getCategoryDataList;
-    cvLs ??= await _getCvDataList;
+  Future<void> updateFilterLists() async {
+    final cateLs = await _getCategoryDataList;
+    final cvLs = await _getCvDataList;
 
     ref
         .read(categoryProvider.notifier)
@@ -131,8 +124,8 @@ class DatabaseNotifier {
     final voiceWorkState = ref.read(voiceWorkProvider);
     final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
     if (!voiceWorkState.cachedSelectedVoiceWorkExist) {
-      Log.info(
-          'Selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
+      Log.info('Error updating voiceItem list\n'
+          'error: selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
       voiceItemNotifier.clearValues();
     } else {
       final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;

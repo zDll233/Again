@@ -8,7 +8,7 @@ class SelectRootDirBtn extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return IconButton(
-      onPressed: ref.read(dbServiceProvider).selectAndSaveRootDirectory,
+      onPressed: ref.read(dbNotifierProvider).selectAndSaveRootDirectory,
       icon: const Icon(
         Icons.folder_open,
         size: 20,

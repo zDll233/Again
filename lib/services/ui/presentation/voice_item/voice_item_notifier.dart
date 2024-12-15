@@ -1,5 +1,5 @@
 import 'package:again/services/audio/audio_providers.dart';
-import 'package:again/services/ui/presentation/state_interface/state_interface.dart';
+import 'package:again/services/ui/presentation/state_interface/variable_list_state/variable_list_state_notifier.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
