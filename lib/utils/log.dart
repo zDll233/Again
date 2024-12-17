@@ -8,19 +8,10 @@ import 'package:path/path.dart' as p;
 class Log {
   // named constructor
   Log._internal() {
-    final currentDate = DateTime.now();
-    final logFileName =
-        'again_${currentDate.year}-${currentDate.month}-${currentDate.day}.log';
-    final logFile = File(p.join('debug', logFileName));
-
-    if (!logFile.existsSync()) {
-      logFile.createSync(recursive: true);
-    }
-
     _logger = kDebugMode
         ? Logger(
             printer: PrettyPrinter(
-              methodCount: 5,
+              methodCount: 0,
               dateTimeFormat: DateTimeFormat.dateAndTime,
             ),
           )
@@ -30,9 +21,26 @@ class Log {
                 methodCount: 0,
                 colors: false,
                 dateTimeFormat: DateTimeFormat.dateAndTime),
-            output: FileOutput(file: logFile),
+            output: FileOutput(file: _getLogFile()),
             level: Level.info,
           );
+  }
+
+  File _getLogFile() {
+    final logFilePath = p.join('debug', 'again.log');
+    final logFile = File(logFilePath);
+
+    if (!logFile.existsSync()) {
+      logFile.createSync(recursive: true);
+    }
+
+    if (logFile.lengthSync() > 1024 * 1024 * 5) {
+      try {
+        logFile.renameSync('$logFilePath.old');
+      } catch (_) {}
+    }
+
+    return logFile;
   }
 
   late final Logger _logger;
