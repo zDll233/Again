@@ -255,11 +255,9 @@ class _WindowButtonState extends State<WindowButton> {
 class CaptionButtons extends StatelessWidget {
   const CaptionButtons({
     super.key,
-    this.buttonWidth = 46.0,
     this.buttonHeight = 32.0,
   });
 
-  final double buttonWidth;
   final double buttonHeight;
 
   @override
@@ -268,9 +266,9 @@ class CaptionButtons extends StatelessWidget {
       height: buttonHeight,
       child: Row(
         children: [
-          MinimizeButton(minWidth: buttonWidth),
-          MaximizeButton(minWidth: buttonWidth),
-          CloseBtn(minWidth: buttonWidth),
+          MinimizeButton(),
+          MaximizeButton(),
+          CloseBtn(),
         ],
       ),
     );

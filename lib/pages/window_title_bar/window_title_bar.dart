@@ -23,7 +23,7 @@ class WindowTitleBar extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: Container()),
-              const SelectRootDirBtn(),
+              const SelectRootDirBtn(buttonHeight: 40),
               const CaptionButtons(buttonHeight: 40),
             ],
           ),
