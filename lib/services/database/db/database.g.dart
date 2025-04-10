@@ -1162,8 +1162,9 @@ final class $$TVoiceWorkCategoryTableReferences extends BaseReferences<
                   db.tVoiceWorkCategory.description, db.tVoiceWork.category));
 
   $$TVoiceWorkTableProcessedTableManager get tVoiceWorkRefs {
-    final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
-        .filter((f) => f.category.description($_item.description));
+    final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork).filter(
+        (f) => f.category.description
+            .sqlEquals($_itemColumn<String>('description')!));
 
     final cache = $_typedResult.readTableOrNull(_tVoiceWorkRefsTable($_db));
     return ProcessedTableManager(
@@ -1306,7 +1307,8 @@ class $$TVoiceWorkCategoryTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (tVoiceWorkRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<TVoiceWorkCategoryData,
+                            $TVoiceWorkCategoryTable, TVoiceWorkData>(
                         currentTable: table,
                         referencedTable: $$TVoiceWorkCategoryTableReferences
                             ._tVoiceWorkRefsTable(db),
@@ -1363,10 +1365,12 @@ final class $$TVoiceWorkTableReferences
       db.tVoiceWorkCategory.createAlias($_aliasNameGenerator(
           db.tVoiceWork.category, db.tVoiceWorkCategory.description));
 
-  $$TVoiceWorkCategoryTableProcessedTableManager? get category {
+  $$TVoiceWorkCategoryTableProcessedTableManager get category {
+    final $_column = $_itemColumn<String>('category')!;
+
     final manager =
         $$TVoiceWorkCategoryTableTableManager($_db, $_db.tVoiceWorkCategory)
-            .filter((f) => f.description($_item.category));
+            .filter((f) => f.description.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_categoryTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -1380,8 +1384,9 @@ final class $$TVoiceWorkTableReferences
                   db.tVoiceWork.directoryPath, db.tVoiceItem.voiceWorkPath));
 
   $$TVoiceItemTableProcessedTableManager get tVoiceItemRefs {
-    final manager = $$TVoiceItemTableTableManager($_db, $_db.tVoiceItem)
-        .filter((f) => f.voiceWorkPath.directoryPath($_item.directoryPath));
+    final manager = $$TVoiceItemTableTableManager($_db, $_db.tVoiceItem).filter(
+        (f) => f.voiceWorkPath.directoryPath
+            .sqlEquals($_itemColumn<String>('directory_path')!));
 
     final cache = $_typedResult.readTableOrNull(_tVoiceItemRefsTable($_db));
     return ProcessedTableManager(
@@ -1395,8 +1400,9 @@ final class $$TVoiceWorkTableReferences
                   db.tVoiceWork.directoryPath, db.tVoiceCV.voiceWorkPath));
 
   $$TVoiceCVTableProcessedTableManager get tVoiceCVRefs {
-    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV)
-        .filter((f) => f.voiceWorkPath.directoryPath($_item.directoryPath));
+    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV).filter(
+        (f) => f.voiceWorkPath.directoryPath
+            .sqlEquals($_itemColumn<String>('directory_path')!));
 
     final cache = $_typedResult.readTableOrNull(_tVoiceCVRefsTable($_db));
     return ProcessedTableManager(
@@ -1730,7 +1736,8 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (tVoiceItemRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<TVoiceWorkData, $TVoiceWorkTable,
+                            TVoiceItemData>(
                         currentTable: table,
                         referencedTable: $$TVoiceWorkTableReferences
                             ._tVoiceItemRefsTable(db),
@@ -1742,7 +1749,8 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
                                 (e) => e.voiceWorkPath == item.directoryPath),
                         typedResults: items),
                   if (tVoiceCVRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<TVoiceWorkData, $TVoiceWorkTable,
+                            TVoiceCVData>(
                         currentTable: table,
                         referencedTable:
                             $$TVoiceWorkTableReferences._tVoiceCVRefsTable(db),
@@ -1794,9 +1802,11 @@ final class $$TVoiceItemTableReferences
       db.tVoiceWork.createAlias($_aliasNameGenerator(
           db.tVoiceItem.voiceWorkPath, db.tVoiceWork.directoryPath));
 
-  $$TVoiceWorkTableProcessedTableManager? get voiceWorkPath {
+  $$TVoiceWorkTableProcessedTableManager get voiceWorkPath {
+    final $_column = $_itemColumn<String>('voice_work_path')!;
+
     final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
-        .filter((f) => f.directoryPath($_item.voiceWorkPath));
+        .filter((f) => f.directoryPath.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_voiceWorkPathTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -2034,8 +2044,8 @@ final class $$TCVTableReferences
           aliasName: $_aliasNameGenerator(db.tcv.cvName, db.tVoiceCV.cvName));
 
   $$TVoiceCVTableProcessedTableManager get tVoiceCVRefs {
-    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV)
-        .filter((f) => f.cvName.cvName($_item.cvName));
+    final manager = $$TVoiceCVTableTableManager($_db, $_db.tVoiceCV).filter(
+        (f) => f.cvName.cvName.sqlEquals($_itemColumn<String>('cv_name')!));
 
     final cache = $_typedResult.readTableOrNull(_tVoiceCVRefsTable($_db));
     return ProcessedTableManager(
@@ -2171,7 +2181,7 @@ class $$TCVTableTableManager extends RootTableManager<
               getPrefetchedDataCallback: (items) async {
                 return [
                   if (tVoiceCVRefs)
-                    await $_getPrefetchedData(
+                    await $_getPrefetchedData<TCVData, $TCVTable, TVoiceCVData>(
                         currentTable: table,
                         referencedTable:
                             $$TCVTableReferences._tVoiceCVRefsTable(db),
@@ -2219,9 +2229,11 @@ final class $$TVoiceCVTableReferences
       db.tVoiceWork.createAlias($_aliasNameGenerator(
           db.tVoiceCV.voiceWorkPath, db.tVoiceWork.directoryPath));
 
-  $$TVoiceWorkTableProcessedTableManager? get voiceWorkPath {
+  $$TVoiceWorkTableProcessedTableManager get voiceWorkPath {
+    final $_column = $_itemColumn<String>('voice_work_path')!;
+
     final manager = $$TVoiceWorkTableTableManager($_db, $_db.tVoiceWork)
-        .filter((f) => f.directoryPath($_item.voiceWorkPath));
+        .filter((f) => f.directoryPath.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_voiceWorkPathTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -2231,9 +2243,11 @@ final class $$TVoiceCVTableReferences
   static $TCVTable _cvNameTable(_$AppDatabase db) => db.tcv
       .createAlias($_aliasNameGenerator(db.tVoiceCV.cvName, db.tcv.cvName));
 
-  $$TCVTableProcessedTableManager? get cvName {
+  $$TCVTableProcessedTableManager get cvName {
+    final $_column = $_itemColumn<String>('cv_name')!;
+
     final manager = $$TCVTableTableManager($_db, $_db.tcv)
-        .filter((f) => f.cvName($_item.cvName));
+        .filter((f) => f.cvName.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_cvNameTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(

@@ -15,11 +15,11 @@ class VolumeControl extends ConsumerWidget {
         if (pointerSignal is PointerScrollEvent) {
           final scrollDelta = pointerSignal.scrollDelta.dy;
           final volume = ref.read(audioProvider).volume;
+          double volumeStep = 0.05;
           if (scrollDelta > 0) {
-            audioNotifier.setVolume((volume - 0.1).clamp(0.0, 1.0));
-          } else if (scrollDelta < 0) {
-            audioNotifier.setVolume((volume + 0.1).clamp(0.0, 1.0));
+              volumeStep = -volumeStep;
           }
+          audioNotifier.setVolume((volume + volumeStep).clamp(0.0, 1.0));
         }
       },
       child: SizedBox(

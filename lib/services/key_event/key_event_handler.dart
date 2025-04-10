@@ -50,24 +50,26 @@ class KeyEventHandler {
   }
 
   bool _handleNonControlKeyDownEvent(KeyDownEvent event) {
+    final progressStep = 10000;
+    final volumeStep = 0.05;
     switch (event.logicalKey) {
       case LogicalKeyboardKey.space:
         audioNotifier.onPausePressed();
         return true;
       case LogicalKeyboardKey.arrowLeft:
-        _startTimer(_seekTimer, () => updateProgress(-10000),
+        _startTimer(_seekTimer, () => updateProgress(-progressStep),
             (newTimer) => _seekTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowRight:
-        _startTimer(_seekTimer, () => updateProgress(10000),
+        _startTimer(_seekTimer, () => updateProgress(progressStep),
             (newTimer) => _seekTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowDown:
-        _startTimer(_volumeTimer, () => updateVolume(-0.1),
+        _startTimer(_volumeTimer, () => updateVolume(-volumeStep),
             (newTimer) => _volumeTimer = newTimer);
         return true;
       case LogicalKeyboardKey.arrowUp:
-        _startTimer(_volumeTimer, () => updateVolume(0.1),
+        _startTimer(_volumeTimer, () => updateVolume(volumeStep),
             (newTimer) => _volumeTimer = newTimer);
         return true;
       default:
