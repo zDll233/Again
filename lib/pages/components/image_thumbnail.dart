@@ -32,8 +32,10 @@ class ImageThumbnail extends StatelessWidget {
               child: ClipRect(
                 child: PhotoView(
                   tightMode: true,
-                  loadingBuilder: (_, __) => const Center(child: CircularProgressIndicator()),
-                  backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                  loadingBuilder: (_, __) =>
+                      const Center(child: CircularProgressIndicator()),
+                  backgroundDecoration:
+                      BoxDecoration(color: Colors.transparent),
                   imageProvider: imageProvider,
                   controller: controller,
                   filterQuality: FilterQuality.medium,
@@ -47,7 +49,7 @@ class ImageThumbnail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final coverFile = File(imagePath);
-    final imageProvider = coverFile.existsSync()
+    final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
         ? FileImage(coverFile)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
     return GestureDetector(

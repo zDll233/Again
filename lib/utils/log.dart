@@ -11,14 +11,14 @@ class Log {
     _logger = kDebugMode
         ? Logger(
             printer: PrettyPrinter(
-              methodCount: 0,
+              methodCount: 5,
               dateTimeFormat: DateTimeFormat.dateAndTime,
             ),
           )
         : Logger(
             filter: ProductionFilter(),
             printer: PrettyPrinter(
-                methodCount: 0,
+                methodCount: 5,
                 colors: false,
                 dateTimeFormat: DateTimeFormat.dateAndTime),
             output: FileOutput(file: _getLogFile()),
