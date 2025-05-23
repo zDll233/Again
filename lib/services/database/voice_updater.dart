@@ -63,9 +63,9 @@ class VoiceUpdater {
         await for (final e in entity.list(recursive: true)) {
           if (vkSourceId.isEmpty && e is Directory) {
             final folderName = p.basename(e.path);
-            vkSourceId = isSourceIdValid(folderName)
-                ? folderName.toUpperCase()
-                : '无sourceId';
+            if (isSourceIdValid(folderName)) {
+              vkSourceId = folderName.toUpperCase();
+            }
           }
 
           if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
@@ -77,7 +77,7 @@ class VoiceUpdater {
         // VoiceWork
         vkc.add(TVoiceWorkCompanion(
           title: Value(vkTitle),
-          sourceId: Value(vkSourceId.isEmpty ? '无sourceId' : vkSourceId),
+          sourceId: Value(vkSourceId),
           directoryPath: Value(entity.path),
           coverPath: Value(vkCoverPath),
           category: Value(p.basename(entity.parent.path)),

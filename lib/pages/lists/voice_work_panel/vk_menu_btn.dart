@@ -39,9 +39,10 @@ class VkMenuBtn extends ConsumerWidget {
 
   // 创建复制SourceId的菜单项
   PopupMenuItem<String> _buildCopySourceIdItem() {
+    final sourceId = voiceWork.sourceId;
     return PopupMenuItem<String>(
       value: 'copySourceId',
-      child: Text(voiceWork.sourceId, locale: _zhCN),
+      child: Text(sourceId.isEmpty ? '无sourceId' : sourceId, locale: _zhCN),
     );
   }
 

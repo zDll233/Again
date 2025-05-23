@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:again/common/const.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -9,6 +10,8 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
+
+import 'package:path/path.dart' as p;
 
 class UIService {
   final Ref ref;
@@ -127,9 +130,19 @@ class UIService {
     if (ref.read(isSelectedVoiceWorkPlaying)) {
       selectPlayingVoiceItem();
     } else {
-      Process.run(
-          'explorer /select, "${ref.read(voiceWorkProvider).cachedSelectedVoiceWorkPath}"',
-          []);
+      String path = '';
+      final cachedVk = ref.read(voiceWorkProvider).cachedSelectedItem;
+
+      if (cachedVk != null) {
+        path = p.join(cachedVk.directoryPath, cachedVk.sourceId);
+      } else {
+        final vkRootDirPath =
+            (await ref.read(configJsonProvider).read())['voiceWorkRoot'] ?? '';
+        final cate = ref.read(categoryProvider).cachedSelectedItem;
+        path = p.join(vkRootDirPath, cate == null || cate == 'All' ? '' : cate);
+      }
+
+      Process.run('explorer "$path"', []);
     }
   }
 
