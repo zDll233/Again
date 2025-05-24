@@ -19,7 +19,7 @@ class UIService {
 
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
-  final vkScrollController = ItemScrollController();
+  final vwScrollController = ItemScrollController();
   final viScrollController = ItemScrollController();
 
   Future<void> filterSelected() async {
@@ -131,15 +131,15 @@ class UIService {
       selectPlayingVoiceItem();
     } else {
       String path = '';
-      final cachedVk = ref.read(voiceWorkProvider).cachedSelectedItem;
+      final cachedVw = ref.read(voiceWorkProvider).cachedSelectedItem;
 
-      if (cachedVk != null) {
-        path = p.join(cachedVk.directoryPath, cachedVk.sourceId);
+      if (cachedVw != null) {
+        path = p.join(cachedVw.directoryPath, cachedVw.sourceId);
       } else {
-        final vkRootDirPath =
+        final vwRootDirPath =
             (await ref.read(configJsonProvider).read())['voiceWorkRoot'] ?? '';
         final cate = ref.read(categoryProvider).cachedSelectedItem;
-        path = p.join(vkRootDirPath, cate == null || cate == 'All' ? '' : cate);
+        path = p.join(vwRootDirPath, cate == null || cate == 'All' ? '' : cate);
       }
 
       Process.run('explorer "$path"', []);
@@ -167,7 +167,7 @@ class UIService {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToIndex(cateScrollController, 0);
       scrollToIndex(cvScrollController, 0);
-      scrollToIndex(vkScrollController, 0);
+      scrollToIndex(vwScrollController, 0);
     });
   }
 
@@ -197,7 +197,7 @@ class UIService {
             cateScrollController, ref.read(categoryProvider).playingIndex);
         scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
         scrollToIndex(
-            vkScrollController, ref.read(voiceWorkProvider).playingIndex);
+            vwScrollController, ref.read(voiceWorkProvider).playingIndex);
         scrollToIndex(
             viScrollController, ref.read(voiceItemProvider).playingIndex);
       });

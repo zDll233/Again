@@ -1,6 +1,6 @@
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
-import 'package:again/pages/lists/voice_work_panel/vk_menu_btn.dart';
+import 'package:again/pages/lists/voice_work_panel/vw_menu_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -27,7 +27,7 @@ class VoiceWorkListView extends ConsumerWidget {
                 padding: const EdgeInsets.only(left: 15.0, right: 5.0),
                 child: Text(voiceWork.title),
               ),
-              trailing: VkMenuBtn(voiceWork: voiceWork),
+              trailing: VwMenuBtn(voiceWork: voiceWork),
               onTap: () =>
                   ref.read(voiceWorkProvider.notifier).onSelected(index),
               selected: selected,
@@ -42,7 +42,7 @@ class VoiceWorkListView extends ConsumerWidget {
           },
         );
       },
-      itemScrollController: ref.read(uiServiceProvider).vkScrollController,
+      itemScrollController: ref.read(uiServiceProvider).vwScrollController,
     );
   }
 }

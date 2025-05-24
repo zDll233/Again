@@ -21,19 +21,19 @@ class VoiceWork {
 
   bool get exist => Directory(directoryPath).existsSync();
 
-  static VoiceWork vkData2Vk(TVoiceWorkData vkData) {
+  static VoiceWork vwData2Vw(TVoiceWorkData vwData) {
     return VoiceWork(
-      title: vkData.title,
-      sourceId: vkData.sourceId,
-      directoryPath: vkData.directoryPath,
-      coverPath: vkData.coverPath,
-      category: vkData.category,
-      createdAt: vkData.createdAt,
+      title: vwData.title,
+      sourceId: vwData.sourceId,
+      directoryPath: vwData.directoryPath,
+      coverPath: vwData.coverPath,
+      category: vwData.category,
+      createdAt: vwData.createdAt,
     );
   }
 
-  static List<VoiceWork> vkDataList2VkList(List<TVoiceWorkData> vkDataList) {
-    return vkDataList.map((vkData) => vkData2Vk(vkData)).toList();
+  static List<VoiceWork> vwDataList2VwList(List<TVoiceWorkData> vwDataList) {
+    return vwDataList.map((vwData) => vwData2Vw(vwData)).toList();
   }
 
   @override

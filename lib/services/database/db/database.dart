@@ -75,11 +75,11 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // insert
-  Future<void> insertVoiceWorkBatch(List<TVoiceWorkCompanion> vkc) async {
+  Future<void> insertVoiceWorkBatch(List<TVoiceWorkCompanion> vwc) async {
     await batch((batch) {
       // functions in a batch don't have to be awaited - just
       // await the whole batch afterwards.
-      batch.insertAll(tVoiceWork, vkc, mode: InsertMode.insertOrIgnore);
+      batch.insertAll(tVoiceWork, vwc, mode: InsertMode.insertOrIgnore);
     });
   }
 
@@ -90,9 +90,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> insertVoiceWorkCategoryBatch(
-      List<TVoiceWorkCategoryCompanion> vkcc) async {
+      List<TVoiceWorkCategoryCompanion> vwcc) async {
     await batch((batch) {
-      batch.insertAll(tVoiceWorkCategory, vkcc,
+      batch.insertAll(tVoiceWorkCategory, vwcc,
           mode: InsertMode.insertOrIgnore);
     });
   }
@@ -110,9 +110,9 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // select
-  Future<List<TVoiceWorkData>> selectVoiceWorkData(String vkPath) =>
+  Future<List<TVoiceWorkData>> selectVoiceWorkData(String vwPath) =>
       (select(tVoiceWork)
-            ..where((tVoiceWork) => (tVoiceWork.directoryPath.equals(vkPath))))
+            ..where((tVoiceWork) => (tVoiceWork.directoryPath.equals(vwPath))))
           .get();
 
   Future<List<TVoiceWorkData>> get selectAllVoiceWorks =>
@@ -135,14 +135,14 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<List<TVoiceItemData>> selectSingleWorkVoiceItemsWithPath(
-      String vkPath) {
+      String vwPath) {
     return (select(tVoiceItem)
-          ..where((voiceItem) => voiceItem.voiceWorkPath.equals(vkPath)))
+          ..where((voiceItem) => voiceItem.voiceWorkPath.equals(vwPath)))
         .get();
   }
 
   // 根据CV筛选出VoiceWork
-  Future<List<TVoiceWorkData>> selectVkWithCv(String cvName) async {
+  Future<List<TVoiceWorkData>> selectVwWithCv(String cvName) async {
     final query = await (select(tVoiceWork).join([
       innerJoin(
         tVoiceCV,
@@ -156,7 +156,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // 根据类别筛选出VoiceWork
-  Future<List<TVoiceWorkData>> selectVkWithCategory(String category) async {
+  Future<List<TVoiceWorkData>> selectVwWithCategory(String category) async {
     final query = await (select(tVoiceWork).join([
       innerJoin(
         tVoiceWorkCategory,
@@ -170,7 +170,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // 根据CV和类别筛选出VoiceWork
-  Future<List<TVoiceWorkData>> selectVkWithCvAndCategory(
+  Future<List<TVoiceWorkData>> selectVwWithCvAndCategory(
       String cvName, String category) async {
     final query = await (select(tVoiceWork).join([
       innerJoin(

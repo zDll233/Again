@@ -26,72 +26,72 @@ class VoiceUpdater {
     }
   }
 
-  /// parse vk.title to get cv list
-  static List<String> getCvList(String vkTitle) {
-    return vkTitle.split('-')[0].split('&');
+  /// parse vw.title to get cv list
+  static List<String> getCvList(String vwTitle) {
+    return vwTitle.split('-')[0].split('&');
   }
 
   static bool isSourceIdValid(String sourceId) =>
       RegExp(r'^(RJ|VJ|BJ)?\d+$', caseSensitive: false).hasMatch(sourceId);
 
   Future<void> insertVoiceWorkCategories() async {
-    List<TVoiceWorkCategoryCompanion> vkcc = [];
+    List<TVoiceWorkCategoryCompanion> vwcc = [];
     await for (final collectionDir in _rootDir.list()) {
       if (collectionDir is Directory) {
-        vkcc.add(TVoiceWorkCategoryCompanion(
+        vwcc.add(TVoiceWorkCategoryCompanion(
           description: Value(p.basename(collectionDir.path)),
           rowid: const Value.absent(),
         ));
       }
     }
-    await _database.insertVoiceWorkCategoryBatch(vkcc);
+    await _database.insertVoiceWorkCategoryBatch(vwcc);
   }
 
   Future<void> insertVoiceWorks(Directory collectionDir) async {
-    List<TVoiceWorkCompanion> vkc = [];
+    List<TVoiceWorkCompanion> vwc = [];
     Set<String> cvNames = {};
     List<TCVCompanion> cvc = [];
     List<TVoiceCVCompanion> vcc = [];
 
     await for (final entity in collectionDir.list()) {
       if (entity is Directory) {
-        String vkTitle = p.basename(entity.path);
-        String vkCoverPath = '';
-        String vkSourceId = '';
+        String vwTitle = p.basename(entity.path);
+        String vwCoverPath = '';
+        String vwSourceId = '';
 
-        // vk sourceId, cover
+        // vw sourceId, cover
         await for (final e in entity.list(recursive: true)) {
-          if (vkSourceId.isEmpty && e is Directory) {
+          if (vwSourceId.isEmpty && e is Directory) {
             final folderName = p.basename(e.path);
             if (isSourceIdValid(folderName)) {
-              vkSourceId = folderName.toUpperCase();
+              vwSourceId = folderName.toUpperCase();
             }
           }
 
           if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
-            vkCoverPath = e.path;
+            vwCoverPath = e.path;
             break;
           }
         }
 
         // VoiceWork
-        vkc.add(TVoiceWorkCompanion(
-          title: Value(vkTitle),
-          sourceId: Value(vkSourceId),
+        vwc.add(TVoiceWorkCompanion(
+          title: Value(vwTitle),
+          sourceId: Value(vwSourceId),
           directoryPath: Value(entity.path),
-          coverPath: Value(vkCoverPath),
+          coverPath: Value(vwCoverPath),
           category: Value(p.basename(entity.parent.path)),
           createdAt: Value(await entity.stat().then((v) => v.changed)),
           rowid: const Value.absent(),
         ));
 
-        List<String> singleVkCvNames = getCvList(vkTitle);
+        List<String> singleVwCvNames = getCvList(vwTitle);
 
         // cv
-        cvNames.addAll(singleVkCvNames);
+        cvNames.addAll(singleVwCvNames);
 
-        // cv vk
-        for (final cvName in singleVkCvNames) {
+        // cv vw
+        for (final cvName in singleVwCvNames) {
           vcc.add(TVoiceCVCompanion(
             voiceWorkPath: Value(entity.path),
             cvName: Value(cvName),
@@ -102,7 +102,7 @@ class VoiceUpdater {
     }
 
     // VoiceWork
-    await _database.insertVoiceWorkBatch(vkc);
+    await _database.insertVoiceWorkBatch(vwc);
 
     // cv
     for (final cvName in cvNames) {
@@ -113,7 +113,7 @@ class VoiceUpdater {
     }
     await _database.insertCvBatch(cvc);
 
-    // cv vk
+    // cv vw
     await _database.insertVoiceCvBatch(vcc);
   }
 

@@ -22,10 +22,10 @@ class DatabaseNotifier {
 
   Future<void> initialize() async {
     final data = await ref.read(configJsonProvider).read();
-    final vkRootDirPath = data['voiceWorkRoot'] ?? '';
+    final vwRootDirPath = data['voiceWorkRoot'] ?? '';
 
-    if (await Directory(vkRootDirPath).exists()) {
-      _voiceUpdater = VoiceUpdater(_database, vkRootDirPath);
+    if (await Directory(vwRootDirPath).exists()) {
+      _voiceUpdater = VoiceUpdater(_database, vwRootDirPath);
     } else {
       await selectAndSaveRootDirectory();
     }
@@ -55,7 +55,7 @@ class DatabaseNotifier {
 
   Future<void> updateViewList() async {
     await updateFilterLists();
-    await updateVkList();
+    await updateVwList();
     await updateViList();
   }
 
@@ -84,39 +84,39 @@ class DatabaseNotifier {
     return cvList;
   }
 
-  /// update and sort [VoiceWork.values]. If vkLs is null, get it from db according to playing filters.
-  Future<void> updateVkList() async {
+  /// update and sort [VoiceWork.values]. If vwLs is null, get it from db according to playing filters.
+  Future<void> updateVwList() async {
     final cate = ref.read(categoryProvider).cachedSelectedItem!;
     final cv = ref.read(cvProvider).cachedSelectedItem!;
 
-    final vkLs = await getVkDataList(cate, cv);
-    final sortedList = sortVoiceWorkList(VoiceWork.vkDataList2VkList(vkLs));
+    final vwLs = await getVwDataList(cate, cv);
+    final sortedList = sortVoiceWorkList(VoiceWork.vwDataList2VwList(vwLs));
     ref.read(voiceWorkProvider.notifier).setValues(sortedList);
   }
 
-  Future<List<TVoiceWorkData>> getVkDataList(String cate, String cv) async {
+  Future<List<TVoiceWorkData>> getVwDataList(String cate, String cv) async {
     if (cate == 'All' && cv == 'All') {
       return await _database.selectAllVoiceWorks;
     } else if (cate == 'All') {
-      return await _database.selectVkWithCv(cv);
+      return await _database.selectVwWithCv(cv);
     } else if (cv == 'All') {
-      return await _database.selectVkWithCategory(cate);
+      return await _database.selectVwWithCategory(cate);
     } else {
-      return await _database.selectVkWithCvAndCategory(cv, cate);
+      return await _database.selectVwWithCvAndCategory(cv, cate);
     }
   }
 
-  List<VoiceWork> sortVoiceWorkList(List<VoiceWork> vkLs, {SortOrder? sort}) {
+  List<VoiceWork> sortVoiceWorkList(List<VoiceWork> vwLs, {SortOrder? sort}) {
     switch (sort ?? ref.read(sortOrderProvider).cachedSelectedItem!) {
       case SortOrder.byTitle:
-        vkLs.sort((a, b) => compareNatural(a.title, b.title));
+        vwLs.sort((a, b) => compareNatural(a.title, b.title));
         break;
       case SortOrder.byCreatedAt:
-        vkLs.sort((a, b) => (b.createdAt ?? DateTime(1970))
+        vwLs.sort((a, b) => (b.createdAt ?? DateTime(1970))
             .compareTo(a.createdAt ?? DateTime(1970)));
         break;
     }
-    return vkLs;
+    return vwLs;
   }
 
   /// update [VoiceItemState.values].
@@ -128,14 +128,14 @@ class DatabaseNotifier {
           'error: selected voicework ${voiceWorkState.cachedSelectedItem?.title} not exists.');
       voiceItemNotifier.clearValues();
     } else {
-      final vkPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
-      final viLs = await getViList(vkPath);
+      final vwPath = voiceWorkState.cachedSelectedVoiceWorkPath!;
+      final viLs = await getViList(vwPath);
       voiceItemNotifier.setValues(viLs);
     }
   }
 
-  Future<List<VoiceItem>> getViList(String vkPath) async {
-    final viDataLs = await _database.selectSingleWorkVoiceItemsWithPath(vkPath)
+  Future<List<VoiceItem>> getViList(String vwPath) async {
+    final viDataLs = await _database.selectSingleWorkVoiceItemsWithPath(vwPath)
       ..sort((a, b) => compareNatural(a.title, b.title));
     return VoiceItem.viDataList2ViList(viDataLs);
   }
@@ -168,12 +168,12 @@ class DatabaseNotifier {
       String cate, String cv, VoiceWork? voiceWork) async {
     if (ref.read(voiceWorkProvider).isPlaying) {
       // voiceWorkState.playingValues
-      final playingVkLs = await getVkDataList(cate, cv);
-      final sortedVkLs = sortVoiceWorkList(
-        VoiceWork.vkDataList2VkList(playingVkLs),
+      final playingVwLs = await getVwDataList(cate, cv);
+      final sortedVwLs = sortVoiceWorkList(
+        VoiceWork.vwDataList2VwList(playingVwLs),
         sort: ref.read(sortOrderProvider).cachedPlayingItem!,
       );
-      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedVkLs);
+      ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedVwLs);
 
       // voiceItemState.playingValues
       final viLs = await getViList(voiceWork?.directoryPath ?? '');

@@ -6,11 +6,11 @@ import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/database/voice_updater.dart';
 import 'package:again/models/voice_work.dart';
 
-class VkMenuBtn extends ConsumerWidget {
+class VwMenuBtn extends ConsumerWidget {
   final VoiceWork voiceWork;
   static const Locale _zhCN = Locale('zh', 'CN');
 
-  const VkMenuBtn({
+  const VwMenuBtn({
     required this.voiceWork,
     super.key,
   });

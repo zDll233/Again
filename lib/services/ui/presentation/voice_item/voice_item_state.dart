@@ -21,8 +21,8 @@ class VoiceItemState extends VariableListState<VoiceItem> {
     int? selectedIndex,
   }) {
     return VoiceItemState(
-      cachedPlayingItem: cachedPlayingItem,
-      cachedSelectedItem: cachedSelectedItem,
+      cachedPlayingItem: cachedPlayingItem ?? this.cachedPlayingItem,
+      cachedSelectedItem: cachedSelectedItem ?? this.cachedSelectedItem,
       playingValues: playingValues ?? this.playingValues,
       values: values ?? this.values,
       playingIndex: playingIndex ?? this.playingIndex,

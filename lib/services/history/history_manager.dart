@@ -51,7 +51,7 @@ class HistoryManager {
     final data = await ref.read(historyJsonProvider).read();
 
     if (data.isEmpty) {
-      await dbNotifier.updateVkList();
+      await dbNotifier.updateVwList();
       return;
     }
 
@@ -76,7 +76,7 @@ class HistoryManager {
       cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
 
       // voiceWork
-      await dbNotifier.updateVkList();
+      await dbNotifier.updateVwList();
       Map<String, dynamic>? voiceWorkMap = uiHistory['voiceWork'];
       if (voiceWorkMap != null) {
         ref
