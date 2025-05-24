@@ -131,10 +131,12 @@ class UIService {
       selectPlayingVoiceItem();
     } else {
       String path = '';
-      final cachedVw = ref.read(voiceWorkProvider).cachedSelectedItem;
+      final vwProvider = ref.read(voiceWorkProvider);
+      final selectedIndex = vwProvider.selectedIndex;
 
-      if (cachedVw != null) {
-        path = p.join(cachedVw.directoryPath, cachedVw.sourceId);
+      if (selectedIndex != -1) {
+        final selectedVw = vwProvider.selectedItem;
+        path = p.join(selectedVw.directoryPath, selectedVw.sourceId);
       } else {
         final vwRootDirPath =
             (await ref.read(configJsonProvider).read())['voiceWorkRoot'] ?? '';
