@@ -101,7 +101,7 @@ class AudioNotifier extends Notifier<AudioState> {
     _changeTrack(-1);
   }
 
-  void _changeTrack(int direction) {
+  Future<void> _changeTrack(int direction) async {
     final oldVoiceItemState = ref.read(voiceItemProvider);
     final temp = oldVoiceItemState.playingIndex + direction;
     if (temp >= oldVoiceItemState.playingValues.length || temp < 0) {
@@ -109,7 +109,7 @@ class AudioNotifier extends Notifier<AudioState> {
     }
 
     ref.read(voiceItemProvider.notifier).changeTrack(temp);
-    play(DeviceFileSource(
+    await play(DeviceFileSource(
         ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!));
   }
 
@@ -129,10 +129,10 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  void stop() {
+  Future<void> stop() async {
     try {
-      _player.stop();
-      updatePosition(Duration.zero);
+      await _changeTrack(0);
+      pause();
     } catch (e) {
       Log.error('Error stopping audio.\n$e');
     }
