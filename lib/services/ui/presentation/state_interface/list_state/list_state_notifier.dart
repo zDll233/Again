@@ -65,25 +65,28 @@ abstract class ListStateNotifier<State extends ListState<ValueType>, ValueType>
   }
 
   /// cache playingState into `playingIndex`, `cachedPlayingItem`
-  void cachePlayingState() {
-    cachePlayingIndex();
+  void cachePlayingState({int? playingIndex}) {
+    cachePlayingIndex(playingIndex: playingIndex);
     cachePlayingItem();
   }
 
   @protected
-  void cachePlayingIndex() => setPlayingIndex(state.selectedIndex);
+  void cachePlayingIndex({int? playingIndex}) =>
+      setPlayingIndex(playingIndex ?? state.selectedIndex);
 
   @protected
   void cachePlayingItem() => setCachedPlayingItem(state.cachedSelectedItem);
 
   /// `playingIndex`, `cachedPlayingItem`
-  void restorePlayingState() {
-    restorePlayingIndex();
+  void restorePlayingState({int? selectedIndex}) {
+    restoreSelectedIndex(selectedIndex: selectedIndex);
     restoreCachedPlayingItem();
   }
 
   @protected
-  void restorePlayingIndex() => setSelectedIndex(state.playingIndex);
+  void restoreSelectedIndex({int? selectedIndex}) {
+    setSelectedIndex(selectedIndex ?? state.playingIndex);
+  }
 
   @protected
   void restoreCachedPlayingItem() =>

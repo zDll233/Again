@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:again/common/const.dart';
+import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/log.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -115,7 +117,12 @@ class UIService {
     ref.read(categoryProvider.notifier).cachePlayingState();
     ref.read(cvProvider.notifier).cachePlayingState();
     ref.read(voiceWorkProvider.notifier).cachePlayingState();
+
     ref.read(voiceItemProvider.notifier).cachePlayingState();
+    // 生成随机播放列表
+    if (ref.read(audioProvider).isShufflePlay) {
+      shufflePlayingState();
+    }
   }
 
   void restoreAllPlayingState() {
@@ -123,7 +130,56 @@ class UIService {
     ref.read(categoryProvider.notifier).restorePlayingState();
     ref.read(cvProvider.notifier).restorePlayingState();
     ref.read(voiceWorkProvider.notifier).restorePlayingState();
+
     ref.read(voiceItemProvider.notifier).restorePlayingState();
+    if (ref.read(audioProvider).isShufflePlay) {
+      restoreShuffledState();
+    }
+  }
+
+  void shufflePlayingState() {
+    final voiceItemState = ref.read(voiceItemProvider);
+    if (!voiceItemState.isPlaying) return;
+
+    final shuffledValues = List.of(voiceItemState.playingValues)..shuffle();
+    final newPlayingIndex =
+        shuffledValues.indexOf(voiceItemState.cachedPlayingItem!);
+
+    ref.read(voiceItemProvider.notifier).cachePlayingState(
+        playingIndex: newPlayingIndex, playingValues: shuffledValues);
+  }
+
+  void restoreShuffledState() {
+    final voiceItemState = ref.read(voiceItemProvider);
+    final viNotifier = ref.read(voiceItemProvider.notifier);
+
+    // isPlaying时shuffle需要重新赋值playingIndex
+    final restoredValues = List.of(voiceItemState.playingValues)
+      ..sort((a, b) => compareNatural(a.title, b.title));
+
+    // selectedIndex
+    final restoredSelectedIndex = voiceItemState.isPlaying
+        ? restoredValues.indexOf(voiceItemState.cachedPlayingItem!)
+        : -1;
+
+    viNotifier.restorePlayingState(
+        selectedIndex: restoredSelectedIndex, values: restoredValues);
+    viNotifier.cacheSelectedIndexAndItem(restoredSelectedIndex);
+  }
+
+  void removeShuffledState() {
+    final voiceItemNotifier = ref.read(voiceItemProvider.notifier);
+    final voiceItemState = ref.read(voiceItemProvider);
+
+    // playingValues按title排序
+    final newPlayingValues = List.of(voiceItemState.playingValues)
+      ..sort((a, b) => compareNatural(a.title, b.title));
+
+    // playingIndex
+    final newPlayingIndex =
+        newPlayingValues.indexOf(voiceItemState.cachedPlayingItem!);
+    voiceItemNotifier.cachePlayingState(
+        playingIndex: newPlayingIndex, playingValues: newPlayingValues);
   }
 
   Future<void> revealInExplorerView() async {
@@ -189,19 +245,23 @@ class UIService {
     if (!ref.read(isSelectedVoiceWorkPlaying)) {
       restoreAllPlayingState();
     }
-    scrollToPlayingIndex();
+    scrollToSelectedIndex();
   }
 
-  void scrollToPlayingIndex() {
+  void scrollToSelectedIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToIndex(
-            cateScrollController, ref.read(categoryProvider).playingIndex);
-        scrollToIndex(cvScrollController, ref.read(cvProvider).playingIndex);
+            cateScrollController, ref.read(categoryProvider).selectedIndex);
+        scrollToIndex(cvScrollController, ref.read(cvProvider).selectedIndex);
         scrollToIndex(
-            vwScrollController, ref.read(voiceWorkProvider).playingIndex);
+            vwScrollController, ref.read(voiceWorkProvider).selectedIndex);
+
+        // final viIdx = ref.read(audioProvider).isShufflePlay
+        //     ? ref.read(voiceItemProvider).selectedIndex
+        //     : ref.read(voiceItemProvider).playingIndex;
         scrollToIndex(
-            viScrollController, ref.read(voiceItemProvider).playingIndex);
+            viScrollController, ref.read(voiceItemProvider).selectedIndex);
       });
     });
   }

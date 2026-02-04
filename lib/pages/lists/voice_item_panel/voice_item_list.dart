@@ -15,7 +15,7 @@ class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(uiServiceProvider).scrollToPlayingIndex();
+      ref.read(uiServiceProvider).scrollToSelectedIndex();
     });
   }
 

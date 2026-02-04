@@ -4,6 +4,7 @@ import 'package:audioplayers/audioplayers.dart';
 enum PlaybackMode {
   sequentialPlay,
   singleRepeat,
+  shufflePlay,
 }
 
 extension PlaybackModeExtension on PlaybackMode {
@@ -51,4 +52,5 @@ class AudioState extends BaseState {
   }
 
   bool get isPlaying => playerState == PlayerState.playing;
+  bool get isShufflePlay => playbackMode == PlaybackMode.shufflePlay;
 }

@@ -99,7 +99,11 @@ class HistoryManager {
             .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(voiceItemMap));
       }
 
-      _uiService.cacheAllPlayingState();
+      ref.read(sortOrderProvider.notifier).cachePlayingState();
+      ref.read(categoryProvider.notifier).cachePlayingState();
+      ref.read(cvProvider.notifier).cachePlayingState();
+      ref.read(voiceWorkProvider.notifier).cachePlayingState();
+      // voiceItem和audio相关联，放在audio部分处理
     } catch (e) {
       Log.error('Error loading UI history.\n' 'error: $e');
     }
@@ -109,17 +113,24 @@ class HistoryManager {
     if (audioHistory.isEmpty) return;
     try {
       final audioNotifier = ref.read(audioProvider.notifier);
+      final histPlaybackMode = PlaybackModeExtension.fromString(
+          audioHistory['playbackMode'] as String? ??
+              'PlaybackMode.sequentialPlay');
       audioNotifier
         ..setVolume(audioHistory['volume'] ?? 1.0)
-        ..updatePlaybackMode(PlaybackModeExtension.fromString(
-            audioHistory['playbackMode'] as String? ??
-                'PlaybackMode.sequentialPlay'));
+        ..updatePlaybackMode(histPlaybackMode);
+
+      ref.read(voiceItemProvider.notifier).cachePlayingState();
 
       final voiceItemSate = ref.read(voiceItemProvider);
       if (!voiceItemSate.isPlaying) return;
       await audioNotifier.setSource(voiceItemSate.cachedPlayingVoiceItemPath!);
       await audioNotifier
           .seek(Duration(milliseconds: audioHistory['position'] ?? 0));
+
+      if (ref.read(audioProvider).isShufflePlay) {
+        ref.read(uiServiceProvider).shufflePlayingState();
+      }
     } catch (e) {
       Log.error('Error loading audio history.\n' 'error: $e');
     }

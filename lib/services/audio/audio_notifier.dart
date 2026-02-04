@@ -23,12 +23,25 @@ class AudioNotifier extends Notifier<AudioState> {
     });
 
     _player.onPlayerComplete.listen((event) {
-      state.playbackMode == PlaybackMode.sequentialPlay
-          ? ref.read(voiceItemProvider).playingIndex ==
-                  ref.read(voiceItemProvider).playingValues.length - 1
-              ? stop()
-              : playNext()
-          : _changeTrack(0);
+      switch (state.playbackMode) {
+        case PlaybackMode.sequentialPlay:
+          final playingIdx = ref.read(voiceItemProvider).playingIndex;
+          final len = ref.read(voiceItemProvider).playingValues.length;
+          if (playingIdx == len - 1) {
+            stop();
+          } else {
+            playNext();
+          }
+          break;
+
+        case PlaybackMode.singleRepeat:
+          _changeTrack(0);
+          break;
+
+        case PlaybackMode.shufflePlay:
+          playNext();
+          break;
+      }
     });
   }
 
@@ -103,12 +116,16 @@ class AudioNotifier extends Notifier<AudioState> {
 
   Future<void> _changeTrack(int direction) async {
     final oldVoiceItemState = ref.read(voiceItemProvider);
-    final temp = oldVoiceItemState.playingIndex + direction;
-    if (temp >= oldVoiceItemState.playingValues.length || temp < 0) {
-      return;
+    int tempIdx = oldVoiceItemState.playingIndex + direction;
+    final len = oldVoiceItemState.playingValues.length;
+    if (tempIdx >= len) {
+      tempIdx = 0;
+    }
+    if (tempIdx < 0) {
+      tempIdx = len - 1;
     }
 
-    ref.read(voiceItemProvider.notifier).changeTrack(temp);
+    ref.read(voiceItemProvider.notifier).changeTrack(tempIdx);
     await play(DeviceFileSource(
         ref.read(voiceItemProvider).cachedPlayingVoiceItemPath!));
   }
@@ -177,9 +194,24 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void onPlaybackModePressed() {
-    updatePlaybackMode(state.playbackMode == PlaybackMode.sequentialPlay
-        ? PlaybackMode.singleRepeat
-        : PlaybackMode.sequentialPlay);
+    PlaybackMode nextMode;
+
+    final uiService = ref.read(uiServiceProvider);
+    switch (state.playbackMode) {
+      case PlaybackMode.sequentialPlay:
+        nextMode = PlaybackMode.singleRepeat;
+        break;
+      case PlaybackMode.singleRepeat:
+        nextMode = PlaybackMode.shufflePlay;
+        uiService.shufflePlayingState();
+        break;
+      case PlaybackMode.shufflePlay:
+        nextMode = PlaybackMode.sequentialPlay;
+        uiService.removeShuffledState();
+        break;
+    }
+
+    updatePlaybackMode(nextMode);
   }
 
   void onPausePressed() {

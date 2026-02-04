@@ -29,9 +29,14 @@ class VoiceItemNotifier
     audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
   }
 
-  void changeTrack(int selectedIndex) {
+  void changeTrack(int playingIndex) {
+    cachePlayingIndex(playingIndex: playingIndex);
+
+    // calc selectedIndex according to playingItem in values
+    final selectedIndex = ref.read(audioProvider).isShufflePlay
+        ? state.values.indexOf(state.playingItem)
+        : playingIndex;
     setSelectedIndex(selectedIndex);
-    cachePlayingIndex();
 
     // changeTrack必然是在playingValues中
     setCachedSelectedItem(state.isPlayingIndexValid ? state.playingItem : null);

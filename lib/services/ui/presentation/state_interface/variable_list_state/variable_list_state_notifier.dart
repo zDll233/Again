@@ -21,26 +21,27 @@ abstract class VariableListStateNotifier<
 
   /// cache playingState into `playingValues`, `playingIndex` and `cachedPlayingItem`
   @override
-  void cachePlayingState() {
-    cachePlayingValues();
-    super.cachePlayingState();
+  void cachePlayingState({int? playingIndex, List<ValueType>? playingValues}) {
+    cachePlayingValues(playingValues: playingValues);
+    super.cachePlayingState(playingIndex: playingIndex);
   }
 
   @protected
-  void cachePlayingValues() {
-    setPlayingValues(state.values);
+  void cachePlayingValues({List<ValueType>? playingValues}) {
+    setPlayingValues(playingValues ?? state.values);
   }
 
   // restore
+  /// `values`,`selectedIndex`,`cachedPlayingItem`
   @override
-  void restorePlayingState() {
-    restorePlayingValues();
-    super.restorePlayingState();
+  void restorePlayingState({int? selectedIndex, List<ValueType>? values}) {
+    restoreValues(values: values);
+    super.restorePlayingState(selectedIndex: selectedIndex);
   }
 
   @protected
-  void restorePlayingValues() {
-    setValues(state.playingValues);
+  void restoreValues({List<ValueType>? values}) {
+    setValues(values ?? state.playingValues);
   }
 
   /// clear `playingIndex`, `cachedPlayingItem` and `playingValues`

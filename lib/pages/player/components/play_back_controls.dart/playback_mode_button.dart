@@ -13,16 +13,29 @@ class PlaybackModeButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final playbackMode = ref.watch(audioProvider.select((state) => state.playbackMode));
+    final playbackMode =
+        ref.watch(audioProvider.select((state) => state.playbackMode));
     final audioNotifier = ref.read(audioProvider.notifier);
+
+    IconData icon;
+
+    switch (playbackMode) {
+      case PlaybackMode.sequentialPlay:
+        icon = Icons.repeat;
+        break;
+      case PlaybackMode.singleRepeat:
+        icon = Icons.repeat_one;
+        break;
+      case PlaybackMode.shufflePlay:
+        icon = Icons.shuffle;
+        break;
+    }
 
     return IconButton(
       key: const Key('playback_mode_button'),
       onPressed: audioNotifier.onPlaybackModePressed,
       iconSize: iconSize,
-      icon: playbackMode == PlaybackMode.sequentialPlay
-          ? const Icon(Icons.repeat)
-          : const Icon(Icons.repeat_one),
+      icon: Icon(icon),
     );
   }
 }
