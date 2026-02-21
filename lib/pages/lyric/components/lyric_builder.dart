@@ -22,7 +22,7 @@ class LyricBuilder extends ConsumerStatefulWidget {
 }
 
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
-  bool _haveLyric = false;
+  bool _hasLyric = false;
   bool _readLyric = false;
   final lyricUi = UINetease(
     otherMainColor: Colors.white60,
@@ -63,7 +63,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     position: position.inMilliseconds,
                     playing: isPlaying,
                     emptyBuilder: () => EmptyLyric(
-                      haveLyric: _haveLyric,
+                      haveLyric: _hasLyric,
                       readLyric: _readLyric,
                     ),
                     selectLineBuilder: (position, flashBack, confirmPlay) =>
@@ -95,28 +95,47 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   }
 
   Future<String> _getLrcContent(String playingViPath) async {
-    final lrcPath = p.setExtension(playingViPath, '.lrc');
+    // 定义可能的扩展名优先级
+    final oldExt = p.extension(playingViPath);
+    final extensions = ['.lrc', '$oldExt.lrc', '.vtt', '$oldExt.vtt', '.qrc'];
 
+    File? targetFile;
+    String? foundPath;
+
+    // 1. 依次尝试查找文件
+    for (var ext in extensions) {
+      final path = p.setExtension(playingViPath, ext);
+      final file = File(path);
+      if (await file.exists()) {
+        targetFile = file;
+        foundPath = path;
+        break;
+      }
+    }
+
+    // 2. 如果都没找到
+    if (targetFile == null) {
+      _hasLyric = false;
+      _readLyric = false;
+      return '';
+    }
+
+    // 3. 开始读取找到的文件
     try {
-      final file = File(lrcPath);
-      _haveLyric = true;
-      final bytes = await file.readAsBytes();
-      final encoding = Charset.detect(bytes) ?? utf8;
+      _hasLyric = true;
+      final bytes = await targetFile.readAsBytes();
 
+      // 使用 charset 探测编码（处理 GBK 等老旧 LRC 编码）
+      final encoding = Charset.detect(bytes) ?? utf8;
       final result = encoding.decode(bytes);
+
       _readLyric = true;
       return result;
-    } on FileSystemException catch (e) {
-      if (e.osError?.errorCode == 2) {
-        // 错误码2表示文件未找到
-        _haveLyric = false;
-      } else {
-        _readLyric = false;
-      }
-      return '';
     } catch (e) {
-      Log.error('Error reading lrc file: $lrcPath\n'
+      // 这里的错误通常是权限或文件损坏
+      Log.error('Error reading lyric file: $foundPath\n'
           'unhandled error: $e');
+      _readLyric = false;
       return '';
     }
   }
