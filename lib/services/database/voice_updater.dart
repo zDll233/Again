@@ -68,7 +68,8 @@ class VoiceUpdater {
             }
           }
 
-          if (e is File && IMG_EXTENSIONS.any((ext) => e.path.endsWith(ext))) {
+          final ext = p.extension(e.path).toLowerCase();
+          if (e is File && IMG_EXTENSIONS.contains(ext)) {
             vwCoverPath = e.path;
             break;
           }
@@ -120,12 +121,12 @@ class VoiceUpdater {
   Future<void> insertVoiceItems(Directory voiceWorkDir) async {
     List<TVoiceItemCompanion> vic = [];
 
-    await for (final entity in voiceWorkDir.list(recursive: true)) {
-      if (entity is File &&
-          AUDIO_EXTENSIONS.any((ext) => entity.path.endsWith(ext))) {
+    await for (final e in voiceWorkDir.list(recursive: true)) {
+      final ext = p.extension(e.path).toLowerCase();
+      if (e is File && AUDIO_EXTENSIONS.contains(ext)) {
         vic.add(TVoiceItemCompanion(
-          title: Value(p.basenameWithoutExtension(entity.path)),
-          filePath: Value(entity.path),
+          title: Value(p.basenameWithoutExtension(e.path)),
+          filePath: Value(e.path),
           voiceWorkPath: Value(voiceWorkDir.path),
           rowid: const Value.absent(),
         ));
