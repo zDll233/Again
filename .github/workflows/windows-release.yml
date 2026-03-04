@@ -27,10 +27,10 @@ jobs:
           channel: stable
           cache: true
 
-      - name: Install dependencies
-        run: |
-          flutter config --enable-windows-desktop
-          flutter pub get
+    #   - name: Install dependencies
+    #     run: |
+    #       flutter config --enable-windows-desktop
+    #       flutter pub get
 
       - name: Build Windows Release
         run: flutter build windows --release
