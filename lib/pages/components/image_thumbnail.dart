@@ -3,6 +3,28 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
+/// 封面 FileImage 实例缓存（FIFO）。
+/// 每次 build 新建 FileImage 会让全局 ImageCache 永远 miss，
+/// 复用同一实例 + ResizeImage 才能命中缓存。
+const int _maxCoverCacheSize = 300;
+final Map<String, FileImage> _coverImageCache = {};
+
+FileImage _cachedFileImage(String path) {
+  final cached = _coverImageCache[path];
+  if (cached != null) {
+    // 简单的 LRU: 重新插入到末尾
+    _coverImageCache.remove(path);
+    _coverImageCache[path] = cached;
+    return cached;
+  }
+  if (_coverImageCache.length >= _maxCoverCacheSize) {
+    _coverImageCache.remove(_coverImageCache.keys.first);
+  }
+  final image = FileImage(File(path));
+  _coverImageCache[path] = image;
+  return image;
+}
+
 class ImageThumbnail extends StatelessWidget {
   final String imagePath;
   final double imageSize;
@@ -50,7 +72,7 @@ class ImageThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final coverFile = File(imagePath);
     final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
-        ? FileImage(coverFile)
+        ? _cachedFileImage(imagePath)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),

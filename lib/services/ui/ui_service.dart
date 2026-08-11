@@ -274,4 +274,10 @@ class UIService {
       ..setPreventClose(false)
       ..close();
   }
+
+  /// 保存状态并隐藏到系统托盘（不退出）。
+  Future<void> hideToTray() async {
+    await ref.read(historyManagerProvider).saveHistory();
+    windowManager.hide();
+  }
 }

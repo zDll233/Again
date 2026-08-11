@@ -16,7 +16,7 @@ dependencies:
   collection: ^1.18.0
   dio: ^5.7.0
   drift: ^2.18.0
-  file_picker: ^8.0.5
+  file_picker: ^11.0.3
   flutter_acrylic: ^1.1.0
   flutter_lyric:
     git: https://github.com/zDll233/flutter_lyric.git
@@ -29,6 +29,7 @@ dependencies:
   scrollable_positioned_list: ^0.3.8
   sqlite3: ^2.4.2
   sqlite3_flutter_libs: ^0.5.21
+  tray_manager: ^0.2.0
   window_manager: ^0.4.2
 
 dev_dependencies:
