@@ -59,12 +59,11 @@ class VwMenuBtn extends ConsumerWidget {
       onTap: () {
         showPopupMenuOnPressed(
           context,
-          VoiceUpdater.getCvList(voiceWork.title)
+          getCvList(voiceWork.title)
               .map((cvName) =>
                   PopupMenuItem<String>(value: cvName, child: Text(cvName)))
               .toList(),
-          (value) => ref.read(cvProvider.notifier).onSelectedByName(value),
-        );
+          (value) => ref.read(cvProvider.notifier).onSelectedByName(value),        );
       },
     );
   }
@@ -109,7 +108,7 @@ class VwMenuBtn extends ConsumerWidget {
   // 处理菜单项点击的逻辑
   void _handleMenuAction(String value, WidgetRef ref) {
     if (value == 'copySourceId') {
-      if (VoiceUpdater.isSourceIdValid(voiceWork.sourceId)) {
+      if (isSourceIdValid(voiceWork.sourceId)) {
         Clipboard.setData(ClipboardData(text: voiceWork.sourceId));
       }
     } else if (value == 'delete') {

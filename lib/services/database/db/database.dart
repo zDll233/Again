@@ -28,6 +28,9 @@ class TVoiceWork extends Table {
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
+  // 增量扫描签名: "顶层子项数|最大子项修改时间(微秒)"。
+  // Windows 上目录 LastWriteTime 不随子项增删更新, 单独用 mtime 不可靠。
+  TextColumn get scanSignature => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {directoryPath};
@@ -59,10 +62,11 @@ class TVoiceCV extends Table {
 @DriftDatabase(
     tables: [TVoiceItem, TVoiceWork, TVoiceWorkCategory, TCV, TVoiceCV])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase({QueryExecutor? connection})
+      : super(connection ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -70,6 +74,11 @@ class AppDatabase extends _$AppDatabase {
       beforeOpen: (details) async {
         // Make sure that foreign keys are enabled
         await customStatement('PRAGMA foreign_keys = ON');
+      },
+      onUpgrade: (m, from, to) async {
+        if (from < 2) {
+          await m.addColumn(tVoiceWork, tVoiceWork.scanSignature);
+        }
       },
     );
   }
@@ -101,6 +110,39 @@ class AppDatabase extends _$AppDatabase {
     await batch((batch) {
       batch.insertAll(tcv, cvc, mode: InsertMode.insertOrIgnore);
     });
+  }
+
+  Future<void> upsertVoiceWork(TVoiceWorkCompanion vwc) async {
+    await into(tVoiceWork).insertOnConflictUpdate(vwc);
+  }
+
+  Future<void> deleteVoiceItemsOfWork(String vwPath) async {
+    await (delete(tVoiceItem)
+          ..where((t) => t.voiceWorkPath.equals(vwPath)))
+        .go();
+  }
+
+  Future<void> deleteVoiceWorkCvsWithPath(String vwPath) async {
+    await (delete(tVoiceCV)
+          ..where((t) => t.voiceWorkPath.equals(vwPath)))
+        .go();
+  }
+
+  Future<void> deleteVoiceWorkWithPath(String vwPath) async {
+    await (delete(tVoiceWork)
+          ..where((t) => t.directoryPath.equals(vwPath)))
+        .go();
+  }
+
+  Future<void> deleteCategories(Iterable<String> descriptions) async {
+    await (delete(tVoiceWorkCategory)
+          ..where((t) => t.description.isIn(descriptions)))
+        .go();
+  }
+
+  Future<void> deleteAllCvs() async {
+    await delete(tVoiceCV).go();
+    await delete(tcv).go();
   }
 
   Future<void> insertVoiceCvBatch(List<TVoiceCVCompanion> vcc) async {

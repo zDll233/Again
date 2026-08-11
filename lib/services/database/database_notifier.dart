@@ -32,8 +32,12 @@ class DatabaseNotifier {
   }
 
   Future<void> selectAndSaveRootDirectory() async {
-    final selectedDirPath =
-        await FilePicker.platform.getDirectoryPath(dialogTitle: '请选择音声作品根目录');
+    final selectedDirPath = await FilePicker.getDirectoryPath(
+      dialogTitle: '请选择音声作品根目录',
+      // 以主窗口为 owner, 无 owner 的 IFileDialog 在部分 Windows 上会
+      // 在 comdlg32 内崩溃 (0xc0000005)
+      lockParentWindow: true,
+    );
     if (selectedDirPath != null) {
       _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
       await ref
@@ -44,13 +48,7 @@ class DatabaseNotifier {
   }
 
   Future<void> _updateDatabase() async {
-    await _database.transaction(() async {
-      final tables = _database.allTables.toList().reversed;
-      for (final table in tables) {
-        await _database.delete(table).go();
-      }
-    });
-    await _voiceUpdater.insert();
+    await _voiceUpdater.update();
   }
 
   Future<void> updateViewList() async {
@@ -161,6 +159,16 @@ class DatabaseNotifier {
     }
     if (cachedSelectedItems.isNotEmpty) {
       uiService.setSelectedIndexByCache(cachedSelectedItems);
+    }
+  }
+
+  /// 启动后的静默增量刷新，失败只记日志，不影响启动。
+  Future<void> silentRefresh() async {
+    try {
+      await onUpdatePressed();
+      Log.info('Silent refresh finished.');
+    } catch (e, st) {
+      Log.error('Error in silent refresh.\n$e\n$st');
     }
   }
 

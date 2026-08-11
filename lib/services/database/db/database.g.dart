@@ -212,9 +212,22 @@ class $TVoiceWorkTable extends TVoiceWork
   late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
       'created_at', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _scanSignatureMeta =
+      const VerificationMeta('scanSignature');
   @override
-  List<GeneratedColumn> get $columns =>
-      [title, sourceId, directoryPath, coverPath, category, createdAt];
+  late final GeneratedColumn<String> scanSignature = GeneratedColumn<String>(
+      'scan_signature', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        title,
+        sourceId,
+        directoryPath,
+        coverPath,
+        category,
+        createdAt,
+        scanSignature
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -261,6 +274,12 @@ class $TVoiceWorkTable extends TVoiceWork
       context.handle(_createdAtMeta,
           createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
     }
+    if (data.containsKey('scan_signature')) {
+      context.handle(
+          _scanSignatureMeta,
+          scanSignature.isAcceptableOrUnknown(
+              data['scan_signature']!, _scanSignatureMeta));
+    }
     return context;
   }
 
@@ -282,6 +301,8 @@ class $TVoiceWorkTable extends TVoiceWork
           .read(DriftSqlType.string, data['${effectivePrefix}category'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
+      scanSignature: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}scan_signature']),
     );
   }
 
@@ -298,13 +319,15 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
   final String coverPath;
   final String category;
   final DateTime? createdAt;
+  final String? scanSignature;
   const TVoiceWorkData(
       {required this.title,
       required this.sourceId,
       required this.directoryPath,
       required this.coverPath,
       required this.category,
-      this.createdAt});
+      this.createdAt,
+      this.scanSignature});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -315,6 +338,9 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
     map['category'] = Variable<String>(category);
     if (!nullToAbsent || createdAt != null) {
       map['created_at'] = Variable<DateTime>(createdAt);
+    }
+    if (!nullToAbsent || scanSignature != null) {
+      map['scan_signature'] = Variable<String>(scanSignature);
     }
     return map;
   }
@@ -329,6 +355,9 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
       createdAt: createdAt == null && nullToAbsent
           ? const Value.absent()
           : Value(createdAt),
+      scanSignature: scanSignature == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scanSignature),
     );
   }
 
@@ -342,6 +371,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
       coverPath: serializer.fromJson<String>(json['coverPath']),
       category: serializer.fromJson<String>(json['category']),
       createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
+      scanSignature: serializer.fromJson<String?>(json['scanSignature']),
     );
   }
   @override
@@ -354,6 +384,7 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
       'coverPath': serializer.toJson<String>(coverPath),
       'category': serializer.toJson<String>(category),
       'createdAt': serializer.toJson<DateTime?>(createdAt),
+      'scanSignature': serializer.toJson<String?>(scanSignature),
     };
   }
 
@@ -363,7 +394,8 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
           String? directoryPath,
           String? coverPath,
           String? category,
-          Value<DateTime?> createdAt = const Value.absent()}) =>
+          Value<DateTime?> createdAt = const Value.absent(),
+          Value<String?> scanSignature = const Value.absent()}) =>
       TVoiceWorkData(
         title: title ?? this.title,
         sourceId: sourceId ?? this.sourceId,
@@ -371,6 +403,8 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
         coverPath: coverPath ?? this.coverPath,
         category: category ?? this.category,
         createdAt: createdAt.present ? createdAt.value : this.createdAt,
+        scanSignature:
+            scanSignature.present ? scanSignature.value : this.scanSignature,
       );
   TVoiceWorkData copyWithCompanion(TVoiceWorkCompanion data) {
     return TVoiceWorkData(
@@ -382,6 +416,9 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
       coverPath: data.coverPath.present ? data.coverPath.value : this.coverPath,
       category: data.category.present ? data.category.value : this.category,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      scanSignature: data.scanSignature.present
+          ? data.scanSignature.value
+          : this.scanSignature,
     );
   }
 
@@ -393,14 +430,15 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
           ..write('directoryPath: $directoryPath, ')
           ..write('coverPath: $coverPath, ')
           ..write('category: $category, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('scanSignature: $scanSignature')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      title, sourceId, directoryPath, coverPath, category, createdAt);
+  int get hashCode => Object.hash(title, sourceId, directoryPath, coverPath,
+      category, createdAt, scanSignature);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -410,7 +448,8 @@ class TVoiceWorkData extends DataClass implements Insertable<TVoiceWorkData> {
           other.directoryPath == this.directoryPath &&
           other.coverPath == this.coverPath &&
           other.category == this.category &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.scanSignature == this.scanSignature);
 }
 
 class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
@@ -420,6 +459,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
   final Value<String> coverPath;
   final Value<String> category;
   final Value<DateTime?> createdAt;
+  final Value<String?> scanSignature;
   final Value<int> rowid;
   const TVoiceWorkCompanion({
     this.title = const Value.absent(),
@@ -428,6 +468,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
     this.coverPath = const Value.absent(),
     this.category = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.scanSignature = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TVoiceWorkCompanion.insert({
@@ -437,6 +478,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
     required String coverPath,
     required String category,
     this.createdAt = const Value.absent(),
+    this.scanSignature = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : title = Value(title),
         sourceId = Value(sourceId),
@@ -450,6 +492,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
     Expression<String>? coverPath,
     Expression<String>? category,
     Expression<DateTime>? createdAt,
+    Expression<String>? scanSignature,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -459,6 +502,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
       if (coverPath != null) 'cover_path': coverPath,
       if (category != null) 'category': category,
       if (createdAt != null) 'created_at': createdAt,
+      if (scanSignature != null) 'scan_signature': scanSignature,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -470,6 +514,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
       Value<String>? coverPath,
       Value<String>? category,
       Value<DateTime?>? createdAt,
+      Value<String?>? scanSignature,
       Value<int>? rowid}) {
     return TVoiceWorkCompanion(
       title: title ?? this.title,
@@ -478,6 +523,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
       coverPath: coverPath ?? this.coverPath,
       category: category ?? this.category,
       createdAt: createdAt ?? this.createdAt,
+      scanSignature: scanSignature ?? this.scanSignature,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -503,6 +549,9 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (scanSignature.present) {
+      map['scan_signature'] = Variable<String>(scanSignature.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -518,6 +567,7 @@ class TVoiceWorkCompanion extends UpdateCompanion<TVoiceWorkData> {
           ..write('coverPath: $coverPath, ')
           ..write('category: $category, ')
           ..write('createdAt: $createdAt, ')
+          ..write('scanSignature: $scanSignature, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1345,6 +1395,7 @@ typedef $$TVoiceWorkTableCreateCompanionBuilder = TVoiceWorkCompanion Function({
   required String coverPath,
   required String category,
   Value<DateTime?> createdAt,
+  Value<String?> scanSignature,
   Value<int> rowid,
 });
 typedef $$TVoiceWorkTableUpdateCompanionBuilder = TVoiceWorkCompanion Function({
@@ -1354,6 +1405,7 @@ typedef $$TVoiceWorkTableUpdateCompanionBuilder = TVoiceWorkCompanion Function({
   Value<String> coverPath,
   Value<String> category,
   Value<DateTime?> createdAt,
+  Value<String?> scanSignature,
   Value<int> rowid,
 });
 
@@ -1433,6 +1485,9 @@ class $$TVoiceWorkTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get scanSignature => $composableBuilder(
+      column: $table.scanSignature, builder: (column) => ColumnFilters(column));
 
   $$TVoiceWorkCategoryTableFilterComposer get category {
     final $$TVoiceWorkCategoryTableFilterComposer composer = $composerBuilder(
@@ -1522,6 +1577,10 @@ class $$TVoiceWorkTableOrderingComposer
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get scanSignature => $composableBuilder(
+      column: $table.scanSignature,
+      builder: (column) => ColumnOrderings(column));
+
   $$TVoiceWorkCategoryTableOrderingComposer get category {
     final $$TVoiceWorkCategoryTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -1566,6 +1625,9 @@ class $$TVoiceWorkTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get scanSignature => $composableBuilder(
+      column: $table.scanSignature, builder: (column) => column);
 
   $$TVoiceWorkCategoryTableAnnotationComposer get category {
     final $$TVoiceWorkCategoryTableAnnotationComposer composer =
@@ -1661,6 +1723,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             Value<String> coverPath = const Value.absent(),
             Value<String> category = const Value.absent(),
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<String?> scanSignature = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TVoiceWorkCompanion(
@@ -1670,6 +1733,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             coverPath: coverPath,
             category: category,
             createdAt: createdAt,
+            scanSignature: scanSignature,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -1679,6 +1743,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             required String coverPath,
             required String category,
             Value<DateTime?> createdAt = const Value.absent(),
+            Value<String?> scanSignature = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TVoiceWorkCompanion.insert(
@@ -1688,6 +1753,7 @@ class $$TVoiceWorkTableTableManager extends RootTableManager<
             coverPath: coverPath,
             category: category,
             createdAt: createdAt,
+            scanSignature: scanSignature,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
