@@ -1,5 +1,5 @@
 import 'package:again/common/const.dart';
-import 'package:again/pages/player/components/play_back_controls.dart/playback_controls.dart';
+import 'package:again/pages/player/components/play_back_controls/playback_controls.dart';
 import 'package:again/pages/player/components/progress_bar.dart';
 import 'package:again/pages/player/components/time_display.dart';
 import 'package:again/pages/player/components/volume_control.dart';
