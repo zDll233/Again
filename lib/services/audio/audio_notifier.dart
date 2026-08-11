@@ -45,13 +45,10 @@ class AudioNotifier extends Notifier<AudioState> {
     });
   }
 
-  void dispose() {
-    _player.dispose();
-  }
-
   @override
   AudioState build() {
     _player = AudioPlayer();
+    ref.onDispose(_player.dispose);
     _initPlayer();
     return AudioState();
   }
@@ -148,8 +145,13 @@ class AudioNotifier extends Notifier<AudioState> {
 
   Future<void> stop() async {
     try {
-      await _changeTrack(0);
-      pause();
+      ref.read(voiceItemProvider.notifier).changeTrack(0);
+      final firstItemPath =
+          ref.read(voiceItemProvider).cachedPlayingVoiceItemPath;
+      if (firstItemPath != null) {
+        await _player.stop();
+        await setSource(firstItemPath);
+      }
     } catch (e) {
       Log.error('Error stopping audio.\n$e');
     }
