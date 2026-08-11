@@ -28,8 +28,8 @@ class TVoiceWork extends Table {
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
-  // 增量扫描签名: "顶层子项数|最大子项修改时间(微秒)"。
-  // Windows 上目录 LastWriteTime 不随子项增删更新, 单独用 mtime 不可靠。
+  // 历史遗留列: 曾用于增量扫描签名, Windows 目录 mtime 不可靠已弃用,
+  // 变化检测改为扫描结果与 DB 条目集合对比。保留以兼容 schema v2。
   TextColumn get scanSignature => text().nullable()();
 
   @override

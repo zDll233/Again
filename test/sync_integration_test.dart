@@ -94,4 +94,51 @@ void main() {
     expect(vcc, hasLength(3));
     expect(vcc.where((v) => v.cvName == 'cv1'), hasLength(1));
   });
+
+  test('深层文件删除: 子目录中的音频被删除后能检测到', () async {
+    // 作品结构: 分类A/cv1-作品/RJ1/track1.mp3 + track2.mp3
+    final catA = Directory(p.join(libDir.path, '分类A'))..createSync();
+    final work = Directory(p.join(catA.path, 'cv1-作品'))..createSync();
+    final sub = Directory(p.join(work.path, 'RJ1'))..createSync();
+    File(p.join(sub.path, 'track1.mp3')).createSync();
+    File(p.join(sub.path, 'track2.mp3')).createSync();
+
+    Future<List<dynamic>> itemsOfWork() async => (await db.selectAllVoiceItems)
+        .where((i) => i.voiceWorkPath == work.path)
+        .toList();
+
+    await VoiceUpdater(db, libDir.path).update();
+    expect(await itemsOfWork(), hasLength(2));
+
+    // 删除子目录中的一个音频(顶层子项数不变, 只有深层 mtime 变化)
+    File(p.join(sub.path, 'track1.mp3')).deleteSync();
+    await VoiceUpdater(db, libDir.path).update();
+
+    final items = await itemsOfWork();
+    expect(items, hasLength(1));
+    expect(items.single.title, 'track2');
+  });
+
+  test('同一作品内增删混合: 换了一个文件', () async {
+    final catA = Directory(p.join(libDir.path, '分类A'))..createSync();
+    final work = Directory(p.join(catA.path, 'cv1-作品'))..createSync();
+    final sub = Directory(p.join(work.path, 'RJ1'))..createSync();
+    File(p.join(sub.path, 'track1.mp3')).createSync();
+    File(p.join(sub.path, 'track2.mp3')).createSync();
+
+    Future<List<dynamic>> itemsOfWork() async => (await db.selectAllVoiceItems)
+        .where((i) => i.voiceWorkPath == work.path)
+        .toList();
+
+    await VoiceUpdater(db, libDir.path).update();
+    expect(await itemsOfWork(), hasLength(2));
+
+    // 删除 track1 并新增 track3: 顶层 count 不变
+    File(p.join(sub.path, 'track1.mp3')).deleteSync();
+    File(p.join(sub.path, 'track3.mp3')).createSync();
+    await VoiceUpdater(db, libDir.path).update();
+
+    final items = await itemsOfWork();
+    expect(items.map((i) => i.title).toSet(), {'track2', 'track3'});
+  });
 }

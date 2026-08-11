@@ -25,7 +25,7 @@ void main() {
     File(p.join(workDir.path, 'track1.mp3')).createSync();
     File(p.join(workDir.path, 'track2.wav')).createSync();
 
-    final result = scanRoot(tempRoot.path, {});
+    final result = scanRoot(tempRoot.path);
 
     expect(result.categoryNames, ['分类A']);
     expect(result.works, hasLength(1));
@@ -40,39 +40,6 @@ void main() {
     );
   });
 
-  test('签名一致的作品跳过内部扫描 (增量)', () {
-    final categoryDir = Directory(p.join(tempRoot.path, '分类A'))
-      ..createSync();
-    final workDir = Directory(p.join(categoryDir.path, 'cv1-作品名'))
-      ..createSync();
-    File(p.join(workDir.path, 'track1.mp3')).createSync();
-    final signature = dirScanSignature(workDir);
-
-    final result = scanRoot(tempRoot.path, {p.normalize(workDir.path): signature});
-
-    final work = result.works.single;
-    expect(work.sourceId, isEmpty);
-    expect(work.coverPath, isEmpty);
-    expect(work.items, isEmpty);
-  });
-
-  test('签名不一致时重新扫描内部', () {
-    final categoryDir = Directory(p.join(tempRoot.path, '分类A'))
-      ..createSync();
-    final workDir = Directory(p.join(categoryDir.path, 'cv1-作品名'))
-      ..createSync();
-    File(p.join(workDir.path, 'track1.mp3')).createSync();
-
-    final result = scanRoot(tempRoot.path, {p.normalize(workDir.path): '0|0'});
-
-    final work = result.works.single;
-    expect(work.sourceId, isEmpty);
-    expect(
-      work.items.map((e) => e.title),
-      unorderedEquals(['track1']),
-    );
-  });
-
   test('sourceId 为空时不合法目录不产生 sourceId', () {
     final categoryDir = Directory(p.join(tempRoot.path, '分类A'))
       ..createSync();
@@ -80,8 +47,25 @@ void main() {
       ..createSync();
     Directory(p.join(workDir.path, '不是sourceId的目录')).createSync();
 
-    final result = scanRoot(tempRoot.path, {});
+    final result = scanRoot(tempRoot.path);
 
     expect(result.works.single.sourceId, isEmpty);
+  });
+
+  test('深层音频也被收集', () {
+    final categoryDir = Directory(p.join(tempRoot.path, '分类A'))
+      ..createSync();
+    final workDir = Directory(p.join(categoryDir.path, 'cv1-作品名'))
+      ..createSync();
+    Directory(p.join(workDir.path, 'RJ123456')).createSync();
+    File(p.join(workDir.path, 'RJ123456', 'track1.mp3')).createSync();
+    File(p.join(workDir.path, 'track2.mp3')).createSync();
+
+    final result = scanRoot(tempRoot.path);
+
+    expect(
+      result.works.single.items.map((e) => e.title),
+      unorderedEquals(['track1', 'track2']),
+    );
   });
 }
