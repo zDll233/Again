@@ -8,12 +8,16 @@ class SearchableHeader extends StatefulWidget {
   final ValueChanged<String> onQueryChanged;
   final VoidCallback onClear;
 
+  /// 紧凑模式: 搜索框不显示前后缀图标, 输入区最大化(适合窄列)。
+  final bool compact;
+
   const SearchableHeader({
     super.key,
     required this.title,
     required this.query,
     required this.onQueryChanged,
     required this.onClear,
+    this.compact = false,
   });
 
   @override
@@ -87,18 +91,22 @@ class _SearchableHeaderState extends State<SearchableHeader> {
                       fontSize: 12,
                       color: scheme.onSurface.withValues(alpha: 0.35),
                     ),
-                    prefixIcon: Icon(
-                      Icons.search,
-                      size: 16,
-                      color: scheme.onSurface.withValues(alpha: 0.4),
-                    ),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.clear, size: 15),
-                      onPressed: () {
-                        _controller.clear();
-                        widget.onQueryChanged('');
-                      },
-                    ),
+                    prefixIcon: widget.compact
+                        ? null
+                        : Icon(
+                            Icons.search,
+                            size: 16,
+                            color: scheme.onSurface.withValues(alpha: 0.4),
+                          ),
+                    suffixIcon: widget.compact
+                        ? null
+                        : IconButton(
+                            icon: const Icon(Icons.clear, size: 15),
+                            onPressed: () {
+                              _controller.clear();
+                              widget.onQueryChanged('');
+                            },
+                          ),
                     isDense: true,
                     filled: true,
                     fillColor: scheme.onSurface.withValues(alpha: 0.06),

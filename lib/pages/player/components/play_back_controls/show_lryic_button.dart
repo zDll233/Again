@@ -18,6 +18,7 @@ class ShowLryicButton extends ConsumerWidget {
       key: const Key('lyric_button'),
       onPressed: ref.read(miscUIProvider.notifier).toggleShowLyricPanel,
       iconSize: iconSize,
+      tooltip: showLyricPanel ? '收起歌词' : '打开歌词',
       icon: showLyricPanel
           ? const Icon(Icons.arrow_drop_down)
           : const Icon(Icons.arrow_drop_up),

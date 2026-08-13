@@ -31,6 +31,7 @@ class SettingsBtn extends StatelessWidget {
         width: buttonWidth,
         height: buttonHeight,
       ),
+      tooltip: '设置',
       icon: const Icon(
         Icons.settings_outlined,
         color: Color.fromRGBO(255, 255, 255, 0.5),

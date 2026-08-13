@@ -54,6 +54,7 @@ class _CategoryListState extends ConsumerState<CategoryList> {
           query: _query,
           onQueryChanged: (value) => setState(() => _query = value),
           onClear: () => setState(() => _query = ''),
+          compact: true,
         ),
         Expanded(
           child: filtered.isEmpty
