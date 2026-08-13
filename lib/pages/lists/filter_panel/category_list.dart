@@ -1,3 +1,4 @@
+import 'package:again/pages/components/empty_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,7 +11,7 @@ class CategoryList extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final values = ref.watch(categoryProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const Center(child: Text('No items found'));
+      return const EmptyState(icon: Icons.folder_open_outlined);
     }
     return ScrollablePositionedList.builder(
       itemCount: values.length,
@@ -20,10 +21,16 @@ class CategoryList extends ConsumerWidget {
           builder: (context, ref, child) {
             final selected = ref.watch(_categotySelectedProvider(index));
             return ListTile(
-              title: Text(category),
+              title: Text(
+                category,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
               onTap: () =>
                   ref.read(categoryProvider.notifier).onSelected(index),
               selected: selected,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 1.0),
             );
           },
         );

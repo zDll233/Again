@@ -4,23 +4,25 @@ import 'package:again/pages/components/list_lyric_switch.dart';
 import 'package:again/pages/player/player_widget.dart';
 import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/pages/window_title_bar/window_title_bar.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class MyApp extends StatelessWidget {
+/// 视觉验证/截图用: --dart-define=OPAQUE_BG=true 时给窗口不透明深色背景。
+const bool _opaqueBackground = bool.fromEnvironment('OPAQUE_BG');
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = ref.watch(appThemeProvider);
     return Initialization(
-      child: MaterialApp(
+      child: ColoredBox(
+        color: _opaqueBackground ? const Color(0xFF202024) : Colors.transparent,
+        child: MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.purple,
-              dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-              brightness: Brightness.dark,
-            ),
-          ),
+          theme: theme,
           scrollBehavior: MyCustomScrollBehavior(),
           home: const Scaffold(
               backgroundColor: Colors.transparent,
@@ -35,7 +37,7 @@ class MyApp extends StatelessWidget {
                     ],
                   ),
                 ),
-              ))),
+              )))),
     );
   }
 }

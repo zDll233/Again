@@ -76,14 +76,26 @@ class ImageThumbnail extends StatelessWidget {
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(4.0),
-        child: Image(
-          image: ResizeImage(imageProvider, height: imageSize.toInt()),
-          width: imageSize,
-          height: imageSize,
-          fit: BoxFit.cover,
-          filterQuality: FilterQuality.medium,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.0),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.35),
+              blurRadius: 4.0,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(6.0),
+          child: Image(
+            image: ResizeImage(imageProvider, height: imageSize.toInt()),
+            width: imageSize,
+            height: imageSize,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+          ),
         ),
       ),
     );

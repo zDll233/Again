@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// 三列面板的统一容器: 半透明圆角卡片 + 标题行。
 class VoicePanel<T> extends StatelessWidget {
   final String title;
   final Widget listView;
@@ -18,31 +19,76 @@ class VoicePanel<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 50.0,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              TextButton(
-                onPressed: onTextBtnPressed,
-                child: Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodyMedium,
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 46.0,
+            child: Row(
+              children: [
+                Expanded(
+                  child: onTextBtnPressed != null
+                      ? InkWell(
+                          onTap: onTextBtnPressed,
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12.0,
+                              vertical: 8.0,
+                            ),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                title,
+                                style: textTheme.titleSmall?.copyWith(
+                                  color: scheme.onSurface
+                                      .withValues(alpha: 0.75),
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                      : Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12.0,
+                            vertical: 8.0,
+                          ),
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              title,
+                              style: textTheme.titleSmall?.copyWith(
+                                color:
+                                    scheme.onSurface.withValues(alpha: 0.75),
+                              ),
+                            ),
+                          ),
+                        ),
                 ),
-              ),
-              IconButton(
-                onPressed: onIconBtnPressed,
-                icon: icon,
-              ),
-            ],
+                if (onIconBtnPressed != null)
+                  IconButton(
+                    onPressed: onIconBtnPressed,
+                    icon: icon,
+                    tooltip: null,
+                    iconSize: 18.0,
+                  ),
+              ],
+            ),
           ),
-        ),
-        Expanded(
-          child: listView,
-        ),
-      ],
+          Expanded(
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: ColoredBox(
+                color: scheme.surface.withValues(alpha: 0.35),
+                child: listView,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

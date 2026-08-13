@@ -1,3 +1,4 @@
+import 'package:again/pages/components/empty_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/pages/lists/voice_work_panel/vw_menu_btn.dart';
@@ -12,7 +13,7 @@ class VoiceWorkListView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final values = ref.watch(voiceWorkProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const Center(child: Text('No items found'));
+      return const EmptyState();
     }
     return ScrollablePositionedList.builder(
       itemCount: values.length,
@@ -25,17 +26,34 @@ class VoiceWorkListView extends ConsumerWidget {
               leading: ImageThumbnail(imagePath: voiceWork.coverPath),
               title: Padding(
                 padding: const EdgeInsets.only(left: 15.0, right: 5.0),
-                child: Text(voiceWork.title),
+                child: Text(
+                  voiceWork.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
+              subtitle: voiceWork.sourceId.isEmpty
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(left: 15.0, top: 2.0),
+                      child: Text(
+                        voiceWork.sourceId,
+                        style: TextStyle(
+                          fontSize: 11.0,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.45),
+                        ),
+                      ),
+                    ),
               trailing: VwMenuBtn(voiceWork: voiceWork),
               onTap: () =>
                   ref.read(voiceWorkProvider.notifier).onSelected(index),
               selected: selected,
-              contentPadding: const EdgeInsets.only(
-                top: 5.0,
-                bottom: 5.0,
-                left: 20.0,
-                right: 10.0,
+              contentPadding: const EdgeInsets.symmetric(
+                vertical: 5.0,
+                horizontal: 10.0,
               ),
               horizontalTitleGap: 0.0,
             );

@@ -37,32 +37,25 @@ class ProgressBar extends ConsumerWidget {
       child: SizedBox(
         height: 40,
         width: appWidth,
-        child: SliderTheme(
-          data: SliderTheme.of(context).copyWith(
-            trackHeight: 1.0,
-            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 0.0),
-            overlayShape: const RoundSliderOverlayShape(overlayRadius: 0.0),
-          ),
-          child: Consumer(
-            builder: (_, WidgetRef ref, __) {
-              final duration =
-                  ref.watch(audioProvider.select((state) => state.duration));
-              final position =
-                  ref.watch(audioProvider.select((state) => state.position));
+        child: Consumer(
+          builder: (_, WidgetRef ref, __) {
+            final duration =
+                ref.watch(audioProvider.select((state) => state.duration));
+            final position =
+                ref.watch(audioProvider.select((state) => state.position));
 
-              return Slider(
-                focusNode: FocusNode(canRequestFocus: false),
-                onChanged: (value) {
-                  if (duration != Duration.zero) {
-                    final position = value * duration.inMilliseconds;
-                    audioNotifier
-                        .seek(Duration(milliseconds: position.round()));
-                  }
-                },
-                value: _getProgressBarValue(position, duration),
-              );
-            },
-          ),
+            return Slider(
+              focusNode: FocusNode(canRequestFocus: false),
+              onChanged: (value) {
+                if (duration != Duration.zero) {
+                  final position = value * duration.inMilliseconds;
+                  audioNotifier
+                      .seek(Duration(milliseconds: position.round()));
+                }
+              },
+              value: _getProgressBarValue(position, duration),
+            );
+          },
         ),
       ),
     );

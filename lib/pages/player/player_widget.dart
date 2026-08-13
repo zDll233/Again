@@ -10,30 +10,39 @@ class PlayerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SizedBox(
-      height: PLAYER_WIDGET_HEIGHT,
-      child: Stack(
-        children: [
-          Positioned(
-            child: ProgressBar(),
-          ),
-          Positioned(
-            left: 20,
-            bottom: 25,
-            child: TimeDisplay(),
-          ),
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: 5,
-            child: PlaybackControls(),
-          ),
-          Positioned(
-            right: 10,
-            bottom: 15,
-            child: VolumeControl(),
-          ),
-        ],
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      decoration: BoxDecoration(
+        color: scheme.surface.withValues(alpha: 0.25),
+        border: Border(
+          top: BorderSide(color: scheme.onSurface.withValues(alpha: 0.06)),
+        ),
+      ),
+      child: SizedBox(
+        height: PLAYER_WIDGET_HEIGHT,
+        child: Stack(
+          children: [
+            const Positioned(
+              child: ProgressBar(),
+            ),
+            const Positioned(
+              left: 20,
+              bottom: 25,
+              child: TimeDisplay(),
+            ),
+            const Positioned(
+              left: 0,
+              right: 0,
+              bottom: 5,
+              child: PlaybackControls(),
+            ),
+            Positioned(
+              right: 10,
+              bottom: 15,
+              child: VolumeControl(),
+            ),
+          ],
+        ),
       ),
     );
   }

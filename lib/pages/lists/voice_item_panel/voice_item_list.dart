@@ -1,3 +1,4 @@
+import 'package:again/pages/components/empty_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,7 +24,7 @@ class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
   Widget build(BuildContext context) {
     final values = ref.watch(voiceItemProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const Center(child: Text('No items found'));
+      return const EmptyState(icon: Icons.queue_music_outlined);
     }
     return ScrollablePositionedList.builder(
       itemCount: values.length,
@@ -33,10 +34,18 @@ class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceItemSelectedProvider(index));
             return ListTile(
-              title: Text(voiceItem.title),
+              title: Text(
+                voiceItem.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
               onTap: () =>
                   ref.read(voiceItemProvider.notifier).onSelected(index),
               selected: selected,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12.0,
+                vertical: 1.0,
+              ),
             );
           },
         );
