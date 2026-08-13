@@ -37,8 +37,8 @@ ThemeData _buildTheme(Color seed) {
   return base.copyWith(
     scaffoldBackgroundColor: Colors.transparent,
     listTileTheme: ListTileThemeData(
-      selectedColor: scheme.onSecondaryContainer,
-      selectedTileColor: scheme.secondaryContainer.withValues(alpha: 0.30),
+      selectedColor: scheme.primary,
+      selectedTileColor: scheme.secondaryContainer.withValues(alpha: 0.20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       dense: true,
     ),
