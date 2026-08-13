@@ -33,7 +33,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
   FlutterWindow window(project);
-  Win32Window::Point origin(10, 10);
+  // Create the window centered on the primary monitor. Avoids landing on
+  // Parsec virtual displays with a different DPI, which breaks the engine's
+  // initial DPI and makes window size/content misplaced.
+  Win32Window::Point origin(::GetSystemMetrics(SM_CXSCREEN) / 2,
+                            ::GetSystemMetrics(SM_CYSCREEN) / 2);
   Win32Window::Size size(1280, 720);
   if (!window.Create(L"Again", origin, size)) {
     return EXIT_FAILURE;
