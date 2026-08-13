@@ -6,16 +6,21 @@ import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:window_manager/window_manager.dart';
 
+/// 视觉验证/截图用: 构建时传 --dart-define=OPAQUE_BG=true 得到不透明背景窗口。
+const bool _opaqueBackground = bool.fromEnvironment('OPAQUE_BG');
+
 Future<void> setupWindow() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   if (Platform.isWindows) {
     // for window acrylic, mica or transparency effects
     await Window.initialize();
-    Window.setEffect(
-      effect: WindowEffect.transparent,
-      color: const Color(0xCC222222),
-    );
+    if (!_opaqueBackground) {
+      Window.setEffect(
+        effect: WindowEffect.transparent,
+        color: const Color(0xCC222222),
+      );
+    }
 
     const initialSize = Size(1040, 690);
     await windowManager.ensureInitialized();

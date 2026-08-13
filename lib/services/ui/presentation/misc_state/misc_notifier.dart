@@ -18,5 +18,9 @@ class MiscNotifier extends Notifier<MiscState> {
   void showLyricPanel() {
     state = state.copyWith(showLyricPanel: true);
   }
+
+  void toggleFilterExpanded() {
+    state = state.copyWith(filterExpanded: !state.filterExpanded);
+  }
 }
 
