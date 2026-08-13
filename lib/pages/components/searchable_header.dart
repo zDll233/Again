@@ -75,9 +75,12 @@ class _SearchableHeaderState extends State<SearchableHeader> {
       height: 40,
       child: _searching
           ? Padding(
-              padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
-              child: SizedBox(
-                height: 36,
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: scheme.onSurface.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
@@ -108,13 +111,9 @@ class _SearchableHeaderState extends State<SearchableHeader> {
                             },
                           ),
                     isDense: true,
-                    filled: true,
-                    fillColor: scheme.onSurface.withValues(alpha: 0.08),
-                    contentPadding: EdgeInsets.zero,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
-                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 10.5),
+                    border: InputBorder.none,
                   ),
                 ),
               ),
@@ -124,41 +123,44 @@ class _SearchableHeaderState extends State<SearchableHeader> {
               borderRadius: BorderRadius.circular(8),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        widget.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: hasQuery
-                              ? scheme.primary
-                              : scheme.onSurface.withValues(alpha: 0.5),
-                        ),
-                      ),
-                    ),
-                    if (hasQuery)
-                      InkWell(
-                        onTap: widget.onClear,
-                        borderRadius: BorderRadius.circular(8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Icon(
-                            Icons.filter_alt,
-                            size: 14,
-                            color: scheme.primary,
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: hasQuery
+                                ? scheme.primary
+                                : scheme.onSurface.withValues(alpha: 0.5),
                           ),
                         ),
-                      )
-                    else
-                      Icon(
-                        Icons.search,
-                        size: 14,
-                        color: scheme.onSurface.withValues(alpha: 0.3),
                       ),
-                  ],
+                      if (hasQuery)
+                        InkWell(
+                          onTap: widget.onClear,
+                          borderRadius: BorderRadius.circular(8),
+                          child: Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Icon(
+                              Icons.filter_alt,
+                              size: 14,
+                              color: scheme.primary,
+                            ),
+                          ),
+                        )
+                      else
+                        Icon(
+                          Icons.search,
+                          size: 14,
+                          color: scheme.onSurface.withValues(alpha: 0.3),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
