@@ -39,12 +39,17 @@ class DatabaseNotifier {
       lockParentWindow: true,
     );
     if (selectedDirPath != null) {
-      _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
-      await ref
-          .read(configJsonProvider)
-          .write({'voiceWorkRoot': selectedDirPath});
-      await onUpdatePressed();
+      await setRootDirectory(selectedDirPath);
     }
+  }
+
+  /// 设置音声作品根目录并刷新数据库(不弹目录选择框)。
+  Future<void> setRootDirectory(String selectedDirPath) async {
+    _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
+    await ref
+        .read(configJsonProvider)
+        .write({'voiceWorkRoot': selectedDirPath});
+    await onUpdatePressed();
   }
 
   Future<void> _updateDatabase() async {

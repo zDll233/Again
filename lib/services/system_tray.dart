@@ -36,7 +36,7 @@ class SystemTrayListener with WindowListener, TrayListener {
 
   @override
   void onWindowClose() {
-    _ref.read(uiServiceProvider).hideToTray();
+    _ref.read(uiServiceProvider).onWindowClose();
   }
 
   @override

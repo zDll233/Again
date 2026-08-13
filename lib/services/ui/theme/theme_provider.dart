@@ -1,3 +1,4 @@
+import 'package:again/common/const.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/cover_color.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,10 @@ final selectedCoverPathProvider = Provider<String?>((ref) {
 
 /// 封面主色(异步提取, 失败回退默认紫色)。
 final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  if (config['followCoverTheme'] == false) {
+    return kDefaultThemeSeed;
+  }
   final coverPath = ref.watch(selectedCoverPathProvider);
   if (coverPath == null || coverPath.isEmpty) {
     return kDefaultThemeSeed;

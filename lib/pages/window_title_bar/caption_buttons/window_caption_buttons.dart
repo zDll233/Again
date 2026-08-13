@@ -111,7 +111,7 @@ class _MaximizeButtonState extends ConsumerState<MaximizeButton>
 
   @override
   void onWindowClose() {
-    ref.read(uiServiceProvider).hideToTray();
+    ref.read(uiServiceProvider).onWindowClose();
   }
 
   @override

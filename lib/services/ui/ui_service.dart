@@ -280,4 +280,14 @@ class UIService {
     await ref.read(historyManagerProvider).saveHistory();
     windowManager.hide();
   }
+
+  /// 窗口关闭请求: 根据设置决定隐藏到托盘还是退出。
+  Future<void> onWindowClose() async {
+    final config = await ref.read(configJsonProvider).read();
+    if (config['closeToTray'] != false) {
+      await hideToTray();
+    } else {
+      await onExit();
+    }
+  }
 }
