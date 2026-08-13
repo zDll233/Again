@@ -1,5 +1,6 @@
 #include <flutter/dart_project.h>
 #include <flutter/flutter_view_controller.h>
+#include <flutter_windows.h>
 #include <windows.h>
 
 #include "flutter_window.h"
@@ -36,8 +37,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   // Create the window centered on the primary monitor. Avoids landing on
   // Parsec virtual displays with a different DPI, which breaks the engine's
   // initial DPI and makes window size/content misplaced.
-  Win32Window::Point origin(::GetSystemMetrics(SM_CXSCREEN) / 2,
-                            ::GetSystemMetrics(SM_CYSCREEN) / 2);
+  // Note: Create() scales origin/size by the monitor DPI, so compute the
+  // origin in logical coords such that the scaled (physical) window is
+  // centered on the primary monitor.
+  HMONITOR primary = ::MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
+  const int dpi = static_cast<int>(FlutterDesktopGetDpiForMonitor(primary));
+  const int phys_w = 1280 * dpi / 96;
+  const int phys_h = 720 * dpi / 96;
+  // Integer math: origin in logical coords such that Create()'s scaling
+  // (by dpi/96) lands the physical window centered on the primary monitor.
+  Win32Window::Point origin(
+      (::GetSystemMetrics(SM_CXSCREEN) - phys_w) * 96 / dpi / 2,
+      (::GetSystemMetrics(SM_CYSCREEN) - phys_h) * 96 / dpi / 2);
   Win32Window::Size size(1280, 720);
   if (!window.Create(L"Again", origin, size)) {
     return EXIT_FAILURE;
