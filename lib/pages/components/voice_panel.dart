@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class VoicePanel<T> extends StatelessWidget {
   final String title;
   final Widget listView;
-  final Icon icon;
+  final Widget icon;
   final Function()? onIconBtnPressed;
   final Function()? onTextBtnPressed;
 

@@ -23,8 +23,8 @@ class WindowTitleBar extends StatelessWidget {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: Container()),
               const FilterToggleBtn(buttonHeight: 40),
+              Expanded(child: Container()),
               const SettingsBtn(buttonHeight: 40),
               const CaptionButtons(buttonHeight: 40),
             ],
