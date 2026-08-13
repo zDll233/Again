@@ -60,26 +60,31 @@ class DatabaseNotifier {
   /// update [CategoryState.values], [CvState.values]. If cateLs or cvLs is null, get both lists from db.
   Future<void> updateFilterLists() async {
     final cateLs = await _getCategoryDataList;
-    final cvLs = await _getCvDataList;
 
     ref
         .read(categoryProvider.notifier)
         .setValues(['All'] + cateLs.map((e) => e.description).toList());
-    ref
-        .read(cvProvider.notifier)
-        .setValues(['All'] + cvLs.map((e) => e.cvName).toList());
+
+    // CV 跟随当前分类, 按作品数倒序
+    await updateCvList(
+      ref.read(categoryProvider).cachedSelectedItem ?? 'All',
+    );
+  }
+
+  /// 刷新 CV 列表: 跟随分类 + 按作品数倒序, 并重置选中为 All。
+  Future<void> updateCvList(String category) async {
+    final cvs = await _database.selectCvsOrderedByCount(
+      category == 'All' ? null : category,
+    );
+    final cvNotifier = ref.read(cvProvider.notifier);
+    cvNotifier.setValues(['All', ...cvs]);
+    cvNotifier.cacheSelectedIndexAndItem(0);
   }
 
   Future<List<TVoiceWorkCategoryData>> get _getCategoryDataList async {
     final categories = await _database.selectAllCategory();
     categories.sort((a, b) => compareNatural(a.description, b.description));
     return categories;
-  }
-
-  Future<List<TCVData>> get _getCvDataList async {
-    final cvList = await _database.selectAllCv();
-    cvList.sort((a, b) => compareNatural(a.cvName, b.cvName));
-    return cvList;
   }
 
   /// update and sort [VoiceWork.values]. If vwLs is null, get it from db according to playing filters.

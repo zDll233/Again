@@ -165,6 +165,29 @@ class AppDatabase extends _$AppDatabase {
 
   Future<List<TCVData>> selectAllCv() async => select(tcv).get();
 
+  /// 按作品数倒序返回 CV 名列表; category 非空时限定该分类下的作品。
+  Future<List<String>> selectCvsOrderedByCount(String? category) async {
+    final query = select(tVoiceCV).join([
+      innerJoin(
+        tVoiceWork,
+        tVoiceWork.directoryPath.equalsExp(tVoiceCV.voiceWorkPath),
+      ),
+    ]);
+    if (category != null) {
+      query.where(tVoiceWork.category.equals(category));
+    }
+    final rows = await query.get();
+
+    final counts = <String, int>{};
+    for (final row in rows) {
+      final cv = row.readTable(tVoiceCV).cvName;
+      counts[cv] = (counts[cv] ?? 0) + 1;
+    }
+    final sorted = counts.keys.toList()
+      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+    return sorted;
+  }
+
   Future<List<TVoiceWorkCategoryData>> selectAllCategory() async =>
       select(tVoiceWorkCategory).get();
 

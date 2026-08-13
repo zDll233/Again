@@ -73,7 +73,15 @@ class HistoryManager {
           SortOrderExtension.fromString(filter['sortOrder']));
       categoryNotifier
           .cacheSelectedIndexAndItemByValue(filter['category'] as String);
+      // CV 列表跟随分类刷新后再恢复选中
+      await dbNotifier.updateCvList(
+        ref.read(categoryProvider).cachedSelectedItem ?? 'All',
+      );
       cvNotifier.cacheSelectedIndexAndItemByValue(filter['cv'] as String);
+      // 历史 CV 不在当前分类时回退为 All
+      if (ref.read(cvProvider).selectedIndex == -1) {
+        cvNotifier.cacheSelectedIndexAndItem(0);
+      }
 
       // voiceWork
       await dbNotifier.updateVwList();

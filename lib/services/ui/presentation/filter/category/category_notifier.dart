@@ -12,6 +12,8 @@ class CategoryNotifier extends ListStateNotifier<CategoryState, String> {
   @override
   Future<void> onSelected(int selectedIndex) async {
     cacheSelectedIndexAndItem(selectedIndex);
+    // 分类变化时刷新 CV 列表(跟随分类, 选中重置为 All)
+    await ref.read(dbNotifierProvider).updateCvList(state.selectedItem);
     await ref.read(dbNotifierProvider).updateVwList();
     await ref.read(uiServiceProvider).filterSelected();
   }

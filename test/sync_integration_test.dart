@@ -95,6 +95,21 @@ void main() {
     expect(vcc.where((v) => v.cvName == 'cv1'), hasLength(1));
   });
 
+  test('CV 列表: 分类限定 + 作品数倒序', () async {
+    // 分类A: cv1&cv2-测试作品1, cv3-空作品, cv1-作品
+    // 分类B: cv1-测试作品2
+    Directory(p.join(libDir.path, '分类A', 'cv1-作品')).createSync();
+    await VoiceUpdater(db, libDir.path).update();
+
+    // 全部: cv1(3) cv2(1) cv3(1), 按作品数倒序
+    var cvs = await db.selectCvsOrderedByCount(null);
+    expect(cvs, ['cv1', 'cv2', 'cv3']);
+
+    // 仅分类B: cv1
+    cvs = await db.selectCvsOrderedByCount('分类B');
+    expect(cvs, ['cv1']);
+  });
+
   test('深层文件删除: 子目录中的音频被删除后能检测到', () async {
     // 作品结构: 分类A/cv1-作品/RJ1/track1.mp3 + track2.mp3
     final catA = Directory(p.join(libDir.path, '分类A'))..createSync();
