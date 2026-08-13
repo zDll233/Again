@@ -26,16 +26,13 @@ class MyApp extends ConsumerWidget {
           scrollBehavior: MyCustomScrollBehavior(),
           home: const Scaffold(
               backgroundColor: Colors.transparent,
-              body: FocusScope(
-                canRequestFocus: false,
-                child: MoveWindow(
-                  child: Column(
-                    children: [
-                      WindowTitleBar(),
-                      ListLyricSwitch(),
-                      PlayerWidget()
-                    ],
-                  ),
+              body: MoveWindow(
+                child: Column(
+                  children: [
+                    WindowTitleBar(),
+                    ListLyricSwitch(),
+                    PlayerWidget()
+                  ],
                 ),
               )))),
     );

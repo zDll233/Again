@@ -1,4 +1,5 @@
 import 'package:again/pages/components/empty_state.dart';
+import 'package:again/pages/components/searchable_header.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/kana_romaji.dart';
 import 'package:flutter/material.dart';
@@ -13,14 +14,7 @@ class CvList extends ConsumerStatefulWidget {
 }
 
 class _CvListState extends ConsumerState<CvList> {
-  final _searchController = TextEditingController();
   String _query = '';
-
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
 
   /// 过滤后保留原始 index, onSelected 需要原始 index。
   List<int> _filteredIndices(List<String> values) {
@@ -46,53 +40,27 @@ class _CvListState extends ConsumerState<CvList> {
   Widget build(BuildContext context) {
     final values = ref.watch(cvProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const EmptyState(icon: Icons.person_search_outlined);
+      return Column(
+        children: [
+          SearchableHeader(
+            title: '声优',
+            query: '',
+            onQueryChanged: _noop,
+            onClear: () {},
+          ),
+          const Expanded(child: EmptyState(icon: Icons.person_search_outlined)),
+        ],
+      );
     }
     final filtered = _filteredIndices(values);
-    final scheme = Theme.of(context).colorScheme;
 
     return Column(
       children: [
-        // 搜索框: 支持原名 / 罗马音匹配
-        Padding(
-          padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
-          child: SizedBox(
-            height: 32,
-            child: TextField(
-              controller: _searchController,
-              onChanged: (value) => setState(() => _query = value),
-              style: const TextStyle(fontSize: 13),
-              decoration: InputDecoration(
-                hintText: '搜索 CV (罗马音/原名)',
-                hintStyle: TextStyle(
-                  fontSize: 12,
-                  color: scheme.onSurface.withValues(alpha: 0.35),
-                ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  size: 16,
-                  color: scheme.onSurface.withValues(alpha: 0.4),
-                ),
-                suffixIcon: _query.isEmpty
-                    ? null
-                    : IconButton(
-                        icon: const Icon(Icons.clear, size: 15),
-                        onPressed: () {
-                          _searchController.clear();
-                          setState(() => _query = '');
-                        },
-                      ),
-                isDense: true,
-                filled: true,
-                fillColor: scheme.onSurface.withValues(alpha: 0.06),
-                contentPadding: EdgeInsets.zero,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-            ),
-          ),
+        SearchableHeader(
+          title: '声优',
+          query: _query,
+          onQueryChanged: (value) => setState(() => _query = value),
+          onClear: () => setState(() => _query = ''),
         ),
         Expanded(
           child: filtered.isEmpty
@@ -133,6 +101,8 @@ class _CvListState extends ConsumerState<CvList> {
       ],
     );
   }
+
+  static void _noop(String _) {}
 }
 
 final _cvSelectedProvider =

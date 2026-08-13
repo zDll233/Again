@@ -24,36 +24,10 @@ class FilterListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    // 与 CvList 顶部搜索框等高的头部, 保证两列列表垂直对齐
-    final header = SizedBox(
-      height: 40,
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(
-            '分类',
-            style: TextStyle(
-              fontSize: 12,
-              color: scheme.onSurface.withValues(alpha: 0.35),
-            ),
-          ),
-        ),
-      ),
-    );
-    return Row(
+    return const Row(
       children: [
-        SizedBox(
-          width: 100,
-          child: Column(
-            children: [
-              header,
-              const Expanded(child: CategoryList()),
-            ],
-          ),
-        ),
-        const SizedBox(width: 180, child: CvList())
+        SizedBox(width: 100, child: CategoryList()),
+        SizedBox(width: 180, child: CvList())
       ],
     );
   }

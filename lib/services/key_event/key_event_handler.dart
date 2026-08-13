@@ -3,6 +3,7 @@ import 'package:again/services/audio/audio_notifier.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class KeyEventHandler {
@@ -13,7 +14,20 @@ class KeyEventHandler {
 
   KeyEventHandler(this.ref) : audioNotifier = ref.read(audioProvider.notifier);
 
+  /// 焦点在文本输入框(搜索框等)时, 不处理全局快捷键, 让输入正常进行。
+  bool _isTextInputFocused() {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) {
+      return false;
+    }
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
+
   bool handleKeyEvent(KeyEvent event) {
+    if (_isTextInputFocused()) {
+      return false;
+    }
     if (event is KeyDownEvent) {
       return _handleKeyDownEvent(event);
     } else if (event is KeyUpEvent) {
