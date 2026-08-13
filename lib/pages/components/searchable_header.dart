@@ -75,9 +75,9 @@ class _SearchableHeaderState extends State<SearchableHeader> {
       height: 40,
       child: _searching
           ? Padding(
-              padding: const EdgeInsets.fromLTRB(8, 6, 8, 2),
+              padding: const EdgeInsets.fromLTRB(8, 2, 8, 2),
               child: SizedBox(
-                height: 32,
+                height: 36,
                 child: TextField(
                   controller: _controller,
                   focusNode: _focusNode,
@@ -109,7 +109,7 @@ class _SearchableHeaderState extends State<SearchableHeader> {
                           ),
                     isDense: true,
                     filled: true,
-                    fillColor: scheme.onSurface.withValues(alpha: 0.06),
+                    fillColor: scheme.onSurface.withValues(alpha: 0.08),
                     contentPadding: EdgeInsets.zero,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(8),
