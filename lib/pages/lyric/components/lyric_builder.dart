@@ -5,10 +5,9 @@ import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
-import 'package:again/pages/lyric/components/line_indicator.dart';
-import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/utils/log.dart';
 import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
@@ -133,27 +132,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                             model: cachedLyricModel,
                             position: position.inMilliseconds,
                             playing: isPlaying,
-                            // 歌词行宽 < 指示条宽: 水平留白收窄歌词显示区,
-                            // 而指示条 (selectLineBuilder) 仍横贯歌词列全宽;
-                            // 左对齐时额外避开指示条定位图标 (25 边距+32 图标+余量)
+                            // 歌词行宽 = 歌词列 - 水平留白; 左对齐时文字起点
+                            // 对齐 hover 框左缘 (行框内边距 12)
                             padding: ts?.lyricAlign == 'left'
                                 ? EdgeInsets.only(
-                                    left: 80, right: lyricWidth * 0.10)
+                                    left: 12, right: lyricWidth * 0.10)
                                 : EdgeInsets.symmetric(
                                     horizontal: lyricWidth * 0.10),
                             emptyBuilder: () => EmptyLyric(
                                 haveLyric: _hasLyric,
                                 readLyric: _readLyric,
                               ),
-                            selectLineBuilder: (position, flashBack,
-                                    confirmPlay) =>
-                                LineIndicator(
-                              context: context,
-                              position: position,
-                              flashBack: flashBack,
-                              confirmPlay: confirmPlay,
-                              isPlaying: isPlaying,
-                            ),
                             // 点击歌词行跳转到该行播放
                             onTapLine: (index, startTime) {
                               ref
