@@ -41,8 +41,7 @@ class LineIndicator extends ConsumerWidget {
               iconSize: 18,
               // 视觉紧凑但保留足够点击热区
               padding: const EdgeInsets.all(4),
-              constraints:
-                  const BoxConstraints(minWidth: 32, minHeight: 32),
+              constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
           ),
         ),
@@ -65,33 +64,36 @@ class LineIndicator extends ConsumerWidget {
         // 右: 可点击的时间戳 (下划线暗示可点击跳转)
         Flexible(
           flex: 1,
-          child: TextButton(
-            style: TextButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              minimumSize: const Size(40, 32),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(
-              Duration(milliseconds: position).toString().split('.').first,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontSize: 13,
-                color: scheme.primary.withValues(alpha: 0.9),
-                decoration: TextDecoration.underline,
-                decorationColor: scheme.primary.withValues(alpha: 0.35),
-                decorationThickness: 1,
+          child: Tooltip(
+            message: '点击跳转到此时间',
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                minimumSize: const Size(40, 32),
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
+              child: Text(
+                Duration(milliseconds: position).toString().split('.').first,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: scheme.primary.withValues(alpha: 0.9),
+                  decoration: TextDecoration.underline,
+                  decorationColor: scheme.primary.withValues(alpha: 0.35),
+                  decorationThickness: 1,
+                ),
+              ),
+              onPressed: () {
+                ref
+                    .read(audioProvider.notifier)
+                    .seek(Duration(milliseconds: position));
+                confirmPlay.call();
+                if (!isPlaying) {
+                  ref.read(audioProvider.notifier).resume();
+                }
+              },
             ),
-            onPressed: () {
-              ref
-                  .read(audioProvider.notifier)
-                  .seek(Duration(milliseconds: position));
-              confirmPlay.call();
-              if (!isPlaying) {
-                ref.read(audioProvider.notifier).resume();
-              }
-            },
           ),
         ),
       ],

@@ -40,8 +40,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _closeToTray = config['closeToTray'] != false;
       _windowEffect = resolveWindowEffect(config);
       _themeColorMode = resolveThemeColorMode(config);
-      _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
-          kDefaultThemeSeed;
+      _themeSeedColor =
+          parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
       _textColorMode = resolveTextColorMode(config);
       _textColor = parseHexColor(resolveTextColorHex(config)) ??
           (parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed);
@@ -52,9 +52,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _save(Map<String, dynamic> updates) async {
     final config = await ref.read(configJsonProvider).read();
-    await ref
-        .read(configJsonProvider)
-        .write({...config, ...updates});
+    await ref.read(configJsonProvider).write({...config, ...updates});
   }
 
   /// 写入时移除旧键 (liquidGlass / followCoverTheme 迁移)。
@@ -64,9 +62,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     for (final key in removedKeys) {
       config.remove(key);
     }
-    await ref
-        .read(configJsonProvider)
-        .write({...config, ...updates});
+    await ref.read(configJsonProvider).write({...config, ...updates});
   }
 
   /// 小号"恢复默认"按钮。
@@ -186,9 +182,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               leading: const Icon(Icons.folder_open),
                               title: const Text('音声作品根目录'),
                               subtitle: Text(
-                                _voiceWorkRoot.isEmpty
-                                    ? '未设置'
-                                    : _voiceWorkRoot,
+                                _voiceWorkRoot.isEmpty ? '未设置' : _voiceWorkRoot,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
@@ -255,9 +249,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             Padding(
                               padding: const EdgeInsets.only(left: 56.0),
                               child: ListTile(
-                                dense: true,
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
+                                // 不用 dense、不改 contentPadding:
+                                // 保证 title 与 trailing 位置与带 leading 的普通行精确对齐
                                 title: const Text('跟随封面主色'),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
@@ -292,14 +285,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.text_fields),
                               title: const Text('文字颜色独立设置'),
-                              subtitle: const Text(
-                                  '主文字、选中项文字改用固定颜色, 不受主题色影响'),
+                              subtitle: const Text('主文字、选中项文字改用固定颜色, 不受主题色影响'),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Switch(
-                                    value:
-                                        _textColorMode == TEXT_MODE_CUSTOM,
+                                    value: _textColorMode == TEXT_MODE_CUSTOM,
                                     onChanged: (value) {
                                       setState(() {
                                         _textColorMode = value
@@ -317,8 +308,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['textColorMode', 'accentColorMode'],
-                                      () =>
-                                          _textColorMode = TEXT_MODE_FOLLOW,
+                                      () => _textColorMode = TEXT_MODE_FOLLOW,
                                     );
                                   }),
                                 ],
@@ -390,10 +380,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         .read(configJsonProvider)
                                         .read();
                                     config.remove('liquidGlass');
-                                    await ref
-                                        .read(configJsonProvider)
-                                        .write(
-                                            {...config, 'windowEffect': value});
+                                    await ref.read(configJsonProvider).write(
+                                        {...config, 'windowEffect': value});
                                     ref.invalidate(windowEffectProvider);
                                     ref
                                         .read(uiServiceProvider)

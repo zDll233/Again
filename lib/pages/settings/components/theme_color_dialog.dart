@@ -1,7 +1,11 @@
+import 'package:again/common/const.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 主题色选择对话框: 预设色板 + HSV 自定义调色。
-class ThemeColorDialog extends StatefulWidget {
+/// 主题色选择对话框: 预设色板 + 最近使用 + HSV 自定义调色 + 直接输入颜色值。
+class ThemeColorDialog extends ConsumerStatefulWidget {
   const ThemeColorDialog({super.key, required this.initial});
 
   final Color initial;
@@ -22,31 +26,115 @@ class ThemeColorDialog extends StatefulWidget {
     Color(0xFFFF5722), // deep orange
   ];
 
+  /// 最近使用颜色最大记录数。
+  static const int maxRecent = 10;
+
   @override
-  State<ThemeColorDialog> createState() => _ThemeColorDialogState();
+  ConsumerState<ThemeColorDialog> createState() => _ThemeColorDialogState();
 }
 
-class _ThemeColorDialogState extends State<ThemeColorDialog> {
+class _ThemeColorDialogState extends ConsumerState<ThemeColorDialog> {
   late HSVColor _hsv;
+  late final TextEditingController _hexController;
+  List<Color> _recent = [];
 
   @override
   void initState() {
     super.initState();
     _hsv = HSVColor.fromColor(widget.initial);
+    // 输入框内只存纯 hex (前缀 # 由 prefixText 显示)
+    _hexController = TextEditingController(text: _hexValue(widget.initial));
+    _loadRecent();
+  }
+
+  @override
+  void dispose() {
+    _hexController.dispose();
+    super.dispose();
+  }
+
+  String _hexValue(Color c) => c.toARGB32()
+      .toRadixString(16)
+      .padLeft(8, '0')
+      .substring(2)
+      .toUpperCase();
+
+  String _toHex(Color c) => '#${_hexValue(c)}';
+
+  Color get _current => _hsv.toColor();
+
+  Future<void> _loadRecent() async {
+    final config = await ref.read(configJsonProvider).read();
+    final list = config['recentColors'];
+    if (list is! List) return;
+    final colors = <Color>[];
+    for (final e in list) {
+      final c = parseHexColor(e.toString());
+      if (c != null && !colors.contains(c)) {
+        colors.add(c);
+      }
+      if (colors.length >= ThemeColorDialog.maxRecent) break;
+    }
+    if (mounted) setState(() => _recent = colors);
+  }
+
+  /// 确定时把当前颜色记入最近使用 (去重, 最新在前, 最多 10 个)。
+  Future<void> _saveRecent(Color color) async {
+    final config = await ref.read(configJsonProvider).read();
+    final hex = _toHex(color);
+    final list = <String>[hex];
+    for (final e in (config['recentColors'] as List?) ?? const <dynamic>[]) {
+      final s = e.toString().toUpperCase();
+      if (s != hex && list.length < ThemeColorDialog.maxRecent) {
+        list.add(s);
+      }
+    }
+    await ref.read(configJsonProvider).write({...config, 'recentColors': list});
+  }
+
+  void _apply(Color c) {
+    setState(() {
+      _hsv = HSVColor.fromColor(c);
+      _hexController.text = _hexValue(c);
+    });
+  }
+
+  void _onHexChanged(String v) {
+    final c = parseHexColor(v);
+    if (c != null) {
+      setState(() => _hsv = HSVColor.fromColor(c));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final current = _hsv.toColor();
+    final current = _current;
     return AlertDialog(
       title: const Text('选择主题色'),
       content: SizedBox(
-        width: 320,
+        width: 340,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (_recent.isNotEmpty) ...[
+              const Text('最近使用'),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  for (final c in _recent)
+                    _Swatch(
+                      color: c,
+                      selected: current == c,
+                      onTap: () => _apply(c),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 16),
+            ],
             const Text('预设'),
             const SizedBox(height: 8),
             Wrap(
@@ -57,7 +145,7 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
                   _Swatch(
                     color: preset,
                     selected: current == preset,
-                    onTap: () => setState(() => _hsv = HSVColor.fromColor(preset)),
+                    onTap: () => _apply(preset),
                   ),
               ],
             ),
@@ -71,8 +159,7 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
                 for (var h = 0.0; h <= 360; h += 60)
                   HSVColor.fromAHSV(1, h, 1, 1).toColor(),
               ],
-              onChanged: (v) =>
-                  setState(() => _hsv = _hsv.withHue(v * 360)),
+              onChanged: (v) => setState(() => _hsv = _hsv.withHue(v * 360)),
             ),
             _SliderBar(
               label: '饱和度',
@@ -81,8 +168,7 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
                 HSVColor.fromAHSV(1, _hsv.hue, 0, _hsv.value).toColor(),
                 HSVColor.fromAHSV(1, _hsv.hue, 1, _hsv.value).toColor(),
               ],
-              onChanged: (v) =>
-                  setState(() => _hsv = _hsv.withSaturation(v)),
+              onChanged: (v) => setState(() => _hsv = _hsv.withSaturation(v)),
             ),
             _SliderBar(
               label: '明度',
@@ -109,12 +195,29 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
                 ),
                 const SizedBox(width: 12),
                 Expanded(
-                  child: Text(
-                    '#${current.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}',
+                  child: TextField(
+                    controller: _hexController,
+                    onChanged: _onHexChanged,
                     style: TextStyle(
                       fontFamily: 'monospace',
-                      color: scheme.onSurface.withValues(alpha: 0.7),
+                      fontSize: 14,
+                      color: scheme.onSurface,
                     ),
+                    decoration: InputDecoration(
+                      isDense: true,
+                      prefixText: '# ',
+                      labelText: '颜色值',
+                      hintText: 'RRGGBB',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r'[0-9a-fA-F]'),
+                      ),
+                      LengthLimitingTextInputFormatter(6),
+                    ],
                   ),
                 ),
               ],
@@ -128,7 +231,10 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
           child: const Text('取消'),
         ),
         FilledButton(
-          onPressed: () => Navigator.pop(context, current),
+          onPressed: () async {
+            await _saveRecent(current);
+            if (context.mounted) Navigator.pop(context, current);
+          },
           child: const Text('确定'),
         ),
       ],
@@ -137,7 +243,8 @@ class _ThemeColorDialogState extends State<ThemeColorDialog> {
 }
 
 class _Swatch extends StatelessWidget {
-  const _Swatch({required this.color, required this.selected, required this.onTap});
+  const _Swatch(
+      {required this.color, required this.selected, required this.onTap});
 
   final Color color;
   final bool selected;
@@ -163,9 +270,11 @@ class _Swatch extends StatelessWidget {
           ),
         ),
         child: selected
-            ? Icon(Icons.check, size: 18, color: color.computeLuminance() > 0.5
-                ? Colors.black87
-                : Colors.white)
+            ? Icon(Icons.check,
+                size: 18,
+                color: color.computeLuminance() > 0.5
+                    ? Colors.black87
+                    : Colors.white)
             : null,
       ),
     );
@@ -203,21 +312,21 @@ class _SliderBar extends StatelessWidget {
             ),
           ),
           Expanded(
-              child: SliderTheme(
-                data: SliderThemeData(
-                  trackHeight: 10,
-                  activeTrackColor: Colors.transparent,
-                  inactiveTrackColor: Colors.transparent,
-                  thumbColor: Colors.white,
-                  overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
-                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
-                  trackShape: _GradientTrackShape(colors),
-                ),
-                child: Slider(
-                  value: value,
-                  onChanged: onChanged,
-                ),
+            child: SliderTheme(
+              data: SliderThemeData(
+                trackHeight: 10,
+                activeTrackColor: Colors.transparent,
+                inactiveTrackColor: Colors.transparent,
+                thumbColor: Colors.white,
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                trackShape: _GradientTrackShape(colors),
               ),
+              child: Slider(
+                value: value,
+                onChanged: onChanged,
+              ),
+            ),
           ),
         ],
       ),
@@ -268,8 +377,7 @@ class _GradientTrackShape extends SliderTrackShape {
         trackRect,
         Radius.circular(trackRect.height / 2),
       ),
-      Paint()
-        ..shader = LinearGradient(colors: colors).createShader(trackRect),
+      Paint()..shader = LinearGradient(colors: colors).createShader(trackRect),
     );
   }
 }
