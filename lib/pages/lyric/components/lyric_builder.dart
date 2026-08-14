@@ -41,16 +41,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final lineColor = isCustom
         ? text.color.withValues(alpha: 0.62)
         : scheme.onSurface.withValues(alpha: 0.55);
-    // 高亮歌词色: 保持主题色色相, 但饱和度拉高 + 明度钳制在 0.7。
-    // 直接提明度时, 主题色若本身很亮会接近白色, 与浅白文字撞色;
-    // 钳制后无论主题色明度高低, 高亮都保持鲜艳且与文字有对比
-    final hsv = HSVColor.fromColor(scheme.primary);
-    final highlightColor = HSVColor.fromAHSV(
-      1,
-      hsv.hue,
-      hsv.saturation < 0.75 ? 0.75 : hsv.saturation,
-      0.7,
-    ).toColor();
+    // 高亮歌词色: 保持主题色相, 饱和度拉高 + 明度钳制 0.7。
+    // 极端主题 (如亮黄) 下 M3 的 primary 可能退化为纯白 (HSV 无色相),
+    // 此时回退用用户设置的 seed 色相, 保证高亮与主题色一致
+    final seedColor =
+        ref.watch(coverSeedColorProvider).valueOrNull ?? kDefaultThemeSeed;
+    final primaryHsv = HSVColor.fromColor(scheme.primary);
+    final base = primaryHsv.saturation > 0.1
+        ? primaryHsv
+        : HSVColor.fromColor(seedColor);
+    final highlightColor =
+        HSVColor.fromAHSV(1, base.hue, 0.75, 0.7).toColor();
     final lyricUi = UINetease(
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
