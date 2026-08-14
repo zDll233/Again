@@ -37,10 +37,14 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final text = ref.watch(textColorProvider).valueOrNull;
     final scheme = Theme.of(context).colorScheme;
     final isCustom = text != null && text.mode == TEXT_MODE_CUSTOM;
+    // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
+    final lineColor = isCustom
+        ? text.color.withValues(alpha: 0.62)
+        : scheme.onSurface.withValues(alpha: 0.55);
     final lyricUi = UINetease(
-      otherMainColor: isCustom
-          ? text.color.withValues(alpha: 0.62)
-          : scheme.onSurface.withValues(alpha: 0.55),
+      defaultColor: lineColor,
+      defaultExtColor: lineColor.withValues(alpha: 0.55),
+      otherMainColor: lineColor,
       highLightTextColor: scheme.primary,
     );
 
