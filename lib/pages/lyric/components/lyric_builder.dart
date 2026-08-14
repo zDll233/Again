@@ -421,6 +421,8 @@ class _TiltCoverState extends State<_TiltCover> {
               _ty = 0;
             }),
             child: GestureDetector(
+              // opaque: 透明区域也参与命中, 确保点击封面必响应
+              behavior: HitTestBehavior.opaque,
               onTap: widget.onTap,
               child: const SizedBox.expand(),
             ),
