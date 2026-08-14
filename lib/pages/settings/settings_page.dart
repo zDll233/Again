@@ -41,6 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _lyricLineGap = 25;
   String _lyricAlign = 'left';
   String _listDensity = 'comfortable';
+  bool _lyricEnlarge = true;
   bool _loading = true;
 
   @override
@@ -87,6 +88,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = ts.listDensity;
       _coverTilt = ts.coverTilt;
       _coverReflection = ts.coverReflection;
+      _lyricEnlarge = ts.lyricEnlarge;
       _loading = false;
     });
   }
@@ -205,6 +207,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = 'comfortable';
       _coverTilt = true;
       _coverReflection = true;
+      _lyricEnlarge = true;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
@@ -744,6 +747,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                             ['lyricAlign'], () {
                                           _lyricAlign = 'left';
                                         });
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                ListTile(
+                                  dense: true,
+                                  leading: Icon(
+                                    Icons.text_increase,
+                                    size: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  title: const Text('当前行字体放大'),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Switch(
+                                        value: _lyricEnlarge,
+                                        onChanged: (value) async {
+                                          setState(
+                                              () => _lyricEnlarge = value);
+                                          await _save(
+                                              {'lyricEnlarge': value});
+                                          ref.invalidate(
+                                              textSettingsProvider);
+                                        },
+                                      ),
+                                      _resetButton(() {
+                                        _resetToDefault(['lyricEnlarge'],
+                                            () => _lyricEnlarge = true);
                                       }),
                                     ],
                                   ),

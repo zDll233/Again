@@ -76,6 +76,7 @@ class TextSettings {
   final String listDensity; // 'compact' | 'comfortable'
   final bool coverTilt; // 封面 3D 倾斜动画
   final bool coverReflection; // 封面倒影
+  final bool lyricEnlarge; // 当前播放歌词行字体放大
 
   const TextSettings({
     this.panelTextSize = 14,
@@ -94,6 +95,7 @@ class TextSettings {
     this.listDensity = 'comfortable',
     this.coverTilt = true,
     this.coverReflection = true,
+    this.lyricEnlarge = true,
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -139,6 +141,7 @@ class TextSettings {
           : 'comfortable',
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
+      lyricEnlarge: config['lyricEnlarge'] != false,
     );
   }
 
@@ -154,6 +157,7 @@ class TextSettings {
     'listDensity',
     'coverTilt',
     'coverReflection',
+    'lyricEnlarge',
   ];
 
   static const List<String> colorBaseKeys = [
