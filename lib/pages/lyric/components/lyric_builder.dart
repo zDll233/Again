@@ -64,8 +64,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
     final appSize = MediaQuery.of(context).size;
     final height = appSize.height - 210.0;
-    // 左右边距对称 5%, 封面 30%, 间距 5%, 歌词列 55%
-    final leftMargin = appSize.width * 0.05;
+    // 左右边距: 左 10%, 右 5%
+    final leftMargin = appSize.width * 0.10;
     final rightMargin = appSize.width * 0.05;
     // 封面 30% 宽 (1:1 方形), 封面-歌词间距 5%
     final coverSize = appSize.width * 0.30;
