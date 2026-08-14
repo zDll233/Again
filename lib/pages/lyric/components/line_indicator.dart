@@ -21,12 +21,15 @@ class LineIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
+    // 左图标区与右时间戳区等宽 (110), 使指示条内容整体居中,
+    // 与歌词文本区 (列中心) 同轴对齐
+    const sideWidth = 110.0;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // 左: 回到当前播放位置 (定位图标, 避免播放三角的"在此播放"歧义)
-        Flexible(
-          flex: 1,
+        SizedBox(
+          width: sideWidth,
           child: Padding(
             padding: const EdgeInsets.only(left: 25.0),
             child: IconButton(
@@ -46,8 +49,7 @@ class LineIndicator extends ConsumerWidget {
           ),
         ),
         // 中: 主题色渐变引导线
-        Flexible(
-          flex: 8,
+        Expanded(
           child: Container(
             height: 1,
             decoration: BoxDecoration(
@@ -62,11 +64,11 @@ class LineIndicator extends ConsumerWidget {
           ),
         ),
         // 右: 可点击的时间戳 (下划线暗示可点击跳转)
-        // 不包 Flexible: 时间戳按内容自适应宽度, 不会被压缩截断,
-        // 剩余空间由中间引导线吸收
-        Tooltip(
-          message: '点击跳转到此时间',
-          child: TextButton(
+        SizedBox(
+          width: sideWidth,
+          child: Tooltip(
+            message: '点击跳转到此时间',
+            child: TextButton(
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(40, 32),
@@ -95,6 +97,7 @@ class LineIndicator extends ConsumerWidget {
               },
             ),
           ),
+        ),
       ],
     );
   }
