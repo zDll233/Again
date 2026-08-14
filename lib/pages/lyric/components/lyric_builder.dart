@@ -64,35 +64,39 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
     final appSize = MediaQuery.of(context).size;
     final height = appSize.height - 210.0;
-    // 左右各留 10% 边距
-    final contentWidth = appSize.width * 0.80;
-    // 左侧封面 1:1 方形, 高度与歌词区比例
-    final coverSize = height * 0.55;
-    // 歌词列宽 = 内容宽 - 封面 - 间距
-    final lyricWidth = contentWidth - coverSize - 28.0;
+    // 左右边距: 左 10%, 右 5%
+    final leftMargin = appSize.width * 0.10;
+    final rightMargin = appSize.width * 0.05;
+    // 封面 30% 宽 (1:1 方形), 封面-歌词间距 5%
+    final coverSize = appSize.width * 0.30;
+    final coverGap = appSize.width * 0.05;
+    // 歌词列宽 = 窗口宽 - 左边距 - 封面 - 间距 - 右边距
+    final lyricWidth = appSize.width - leftMargin - coverSize - coverGap - rightMargin;
 
-    return SizedBox(
-      width: contentWidth,
-      height: height,
-      // 左: 封面; 右: 歌词
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: coverSize,
-            child: FutureBuilder<String>(
-              future: _getCoverPath(workPath),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox.shrink();
-                // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
-                return Padding(
-                  padding: EdgeInsets.only(top: (height - coverSize) / 2),
-                  child: _buildCover(snapshot.data!, coverSize),
-                );
-              },
+    return Padding(
+      padding: EdgeInsets.only(left: leftMargin, right: rightMargin),
+      child: SizedBox(
+        width: double.infinity,
+        height: height,
+        // 左: 封面; 右: 歌词
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: coverSize,
+              child: FutureBuilder<String>(
+                future: _getCoverPath(workPath),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) return const SizedBox.shrink();
+                  // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
+                  return Padding(
+                    padding: EdgeInsets.only(top: (height - coverSize) / 2),
+                    child: _buildCover(snapshot.data!, coverSize),
+                  );
+                },
+              ),
             ),
-          ),
-          const SizedBox(width: 28),
+            SizedBox(width: coverGap),
           Expanded(
             // 歌词区上下边缘渐隐, 营造沉浸感
             child: ShaderMask(
@@ -170,6 +174,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
