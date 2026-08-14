@@ -21,15 +21,15 @@ class LineIndicator extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
-    // 指示条整体宽 = 窗口宽 55%, 在歌词列内居中 (歌词列中心),
-    // 两端 (图标/时间戳) 各 75px, 中间横线 ≈ 40% 窗口宽, 覆盖歌词文本区
+    // 指示条整体宽 = 窗口宽 55%, 在歌词列内居中 (歌词列中心);
+    // 左图标区 75px 不变, 横线填满剩余空间延伸到歌词右端,
+    // 时间戳按钮与歌词之间留 8px 空隙
     const sideWidth = 75.0;
     final indicatorWidth = MediaQuery.of(context).size.width * 0.55;
     return Center(
       child: SizedBox(
         width: indicatorWidth,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // 左: 回到当前播放位置 (定位图标, 避免播放三角的"在此播放"歧义)
             SizedBox(
@@ -53,7 +53,7 @@ class LineIndicator extends ConsumerWidget {
                 ),
               ),
             ),
-            // 中: 主题色渐变引导线
+            // 中: 主题色渐变引导线 (延伸到歌词右端)
             Expanded(
               child: Container(
                 height: 1,
@@ -68,42 +68,50 @@ class LineIndicator extends ConsumerWidget {
                 ),
               ),
             ),
-            // 右: 可点击的时间戳 (下划线暗示可点击跳转)
+            // 右: 时间戳按钮 (与歌词之间留 8px 空隙)
             SizedBox(
-              width: sideWidth,
-              child: Tooltip(
-                message: '点击跳转到此时间',
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(40, 32),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
-                  child: Text(
-                    Duration(milliseconds: position)
-                        .toString()
-                        .split('.')
-                        .first,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: scheme.primary.withValues(alpha: 0.9),
-                      decoration: TextDecoration.underline,
-                      decorationColor: scheme.primary.withValues(alpha: 0.35),
-                      decorationThickness: 1,
+              width: 88,
+              child: Row(
+                children: [
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Tooltip(
+                      message: '点击跳转到此时间',
+                      child: TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: const Size(40, 32),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          Duration(milliseconds: position)
+                              .toString()
+                              .split('.')
+                              .first,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: scheme.primary.withValues(alpha: 0.9),
+                            decoration: TextDecoration.underline,
+                            decorationColor:
+                                scheme.primary.withValues(alpha: 0.35),
+                            decorationThickness: 1,
+                          ),
+                        ),
+                        onPressed: () {
+                          ref
+                              .read(audioProvider.notifier)
+                              .seek(Duration(milliseconds: position));
+                          confirmPlay.call();
+                          if (!isPlaying) {
+                            ref.read(audioProvider.notifier).resume();
+                          }
+                        },
+                      ),
                     ),
                   ),
-                  onPressed: () {
-                    ref
-                        .read(audioProvider.notifier)
-                        .seek(Duration(milliseconds: position));
-                    confirmPlay.call();
-                    if (!isPlaying) {
-                      ref.read(audioProvider.notifier).resume();
-                    }
-                  },
-                ),
+                ],
               ),
             ),
           ],
