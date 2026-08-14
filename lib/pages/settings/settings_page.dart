@@ -240,6 +240,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.close_fullscreen),
                               title: const Text('关闭时最小化到托盘'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -262,6 +264,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.location_on_outlined),
                               title: const Text('记住窗口位置'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -285,6 +289,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.aspect_ratio),
                               title: const Text('记住窗口大小'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -313,6 +319,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: _colorSwatch(_themeSeedColor),
                               title: const Text('主题色'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: _resetButton(() {
                                 _resetToDefault(
                                   ['themeSeedColor'],
@@ -336,6 +344,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               leading: const Icon(Icons.text_fields),
                               title: const Text('文字颜色独立设置'),
                               subtitle: const Text('主文字、选中项文字改用固定颜色, 不受主题色影响'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -395,6 +405,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.blur_on),
                               title: const Text('窗口背景效果'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: _resetButton(() {
                                 _resetToDefault(
                                   ['windowEffect', 'liquidGlass'],
@@ -451,6 +463,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               leading: const Icon(Icons.search),
                               title: const Text('列表搜索'),
                               subtitle: const Text('作品/分类/声优列表的搜索框'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -691,6 +705,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     return ListTile(
       dense: true,
       title: Text(label),
+      contentPadding: const EdgeInsets.only(left: 16, right: 16),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -742,6 +757,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       dense: true,
       leading: _colorSwatch(displayColor),
       title: Text(label),
+      contentPadding: const EdgeInsets.only(left: 16, right: 16),
       subtitle: setting == null ? const Text('跟随主题') : null,
       trailing: _resetButton(() {
         _resetToDefault(ColorSetting.keys(baseKey), () => onChanged(null));
