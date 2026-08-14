@@ -112,10 +112,13 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                       voiceWork.sourceId,
                       style: TextStyle(
                         fontSize: 11.0,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.45),
+                        // 选中项的 RJ 号跟随主题色
+                        color: selected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.45),
                       ),
                     ),
                   ),
