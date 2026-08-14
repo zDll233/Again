@@ -30,15 +30,8 @@ const String WINDOW_EFFECT_TRANSPARENT = 'transparent';
 const String WINDOW_EFFECT_ACRYLIC = 'acrylic';
 const String WINDOW_EFFECT_OPAQUE = 'opaque';
 
-/// 文字颜色模式 (config.json `textColorMode`): follow=随主题色, custom=独立设置。
-const String TEXT_MODE_FOLLOW = 'follow';
-const String TEXT_MODE_CUSTOM = 'custom';
-
-/// 默认主题色 / 强调色 (config.json `themeSeedColor`/`accentColor` 缺省值, #RRGGBB)。
+/// 默认主题色 (config.json `themeSeedColor` 缺省值, #RRGGBB)。
 const String kDefaultThemeSeedHex = '#9C6BFF';
-
-/// 文字颜色缺省值 (M3 dark onSurface, #RRGGBB)。
-const String kDefaultTextColorHex = '#E6E1E5';
 
 final configJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
   return JsonStorage(filePath: CONFIG_FILE_PATH);

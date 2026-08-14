@@ -16,24 +16,4 @@ void main() {
     expect(parseHexColor('red'), isNull);
     expect(parseHexColor('#12345'), isNull);
   });
-
-  test('resolveTextColorMode: 缺省跟随主题色, 兼容旧 accentColorMode, 新配置优先', () {
-    expect(resolveTextColorMode({}), 'follow');
-    expect(resolveTextColorMode({'textColorMode': 'custom'}), 'custom');
-    expect(resolveTextColorMode({'accentColorMode': 'custom'}), 'custom');
-    expect(
-      resolveTextColorMode({'textColorMode': 'follow', 'accentColorMode': 'custom'}),
-      'follow',
-    );
-  });
-
-  test('resolveTextColorHex: 缺省 onSurface, 兼容旧 accentColor, 新配置优先', () {
-    expect(resolveTextColorHex({}), kDefaultTextColorHex);
-    expect(resolveTextColorHex({'textColor': '#00FF00'}), '#00FF00');
-    expect(resolveTextColorHex({'accentColor': '#FF0000'}), '#FF0000');
-    expect(
-      resolveTextColorHex({'textColor': '#00FF00', 'accentColor': '#FF0000'}),
-      '#00FF00',
-    );
-  });
 }

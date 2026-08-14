@@ -23,8 +23,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _rememberWindowSize = true;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
-  String _textColorMode = TEXT_MODE_FOLLOW;
-  Color _textColor = parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed;
   bool _searchEnabled = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = 16;
@@ -70,9 +68,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _windowEffect = resolveWindowEffect(config);
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
           kDefaultThemeSeed;
-      _textColorMode = resolveTextColorMode(config);
-      _textColor = parseHexColor(resolveTextColorHex(config)) ??
-          (parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed);
       _searchEnabled = config['searchEnabled'] != false;
       _panelTextSize = ts.panelTextSize;
       _panelTitleSize = ts.panelTitleSize;
@@ -146,7 +141,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     // 先写完配置再刷新, 避免 provider 读到旧值
     await _saveMigrated({}, keys);
     ref.invalidate(coverSeedColorProvider);
-    ref.invalidate(textColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
     if (reapplyWindowEffect) {
@@ -375,7 +369,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        _sectionTitle('主题'),
+                        _sectionTitle('外观'),
                         _card(
                           children: [
                             ListTile(
@@ -409,75 +403,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ref.invalidate(coverSeedColorProvider);
                               },
                             ),
-                            ListTile(
-                              leading: const Icon(Icons.text_fields),
-                              title: const Text('文字颜色独立设置'),
-                              subtitle: const Text('主文字、选中项文字改用固定颜色, 不受主题色影响'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _textColorMode == TEXT_MODE_CUSTOM,
-                                    onChanged: (value) async {
-                                      setState(() {
-                                        _textColorMode = value
-                                            ? TEXT_MODE_CUSTOM
-                                            : TEXT_MODE_FOLLOW;
-                                      });
-                                      // 迁移: 移除旧的 accentColorMode 键;
-                                      // 先写完配置再刷新, 避免读到旧值
-                                      await _saveMigrated(
-                                        {'textColorMode': _textColorMode},
-                                        ['accentColorMode'],
-                                      );
-                                      ref.invalidate(textColorProvider);
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['textColorMode', 'accentColorMode'],
-                                      () => _textColorMode = TEXT_MODE_FOLLOW,
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                            if (_textColorMode == TEXT_MODE_CUSTOM)
-                              ListTile(
-                                leading: _colorSwatch(_textColor),
-                                title: const Text('文字颜色'),
-                                subtitle: const Text('主文字、歌词、选中项之外的文字使用该颜色'),
-                                trailing: _resetButton(() {
-                                  _resetToDefault(
-                                    ['textColor', 'accentColor'],
-                                    () => _textColor =
-                                        parseHexColor(kDefaultTextColorHex) ??
-                                            kDefaultThemeSeed,
-                                  );
-                                }),
-                                onTap: () async {
-                                  final result =
-                                      await showDialog<ColorPickerResult>(
-                                    context: context,
-                                    builder: (context) => ColorPickerDialog(
-                                      initial: _textColor,
-                                      fallbackColor: _textColor,
-                                    ),
-                                  );
-                                  if (result == null) return;
-                                  final picked = result.color;
-                                  setState(() => _textColor = picked);
-                                  // 迁移: 移除旧的 accentColor 键;
-                                  // 先写完配置再刷新, 避免读到旧值
-                                  await _saveMigrated(
-                                    {'textColor': _toHex(picked)},
-                                    ['accentColor'],
-                                  );
-                                  ref.invalidate(textColorProvider);
-                                },
-                              ),
                             ListTile(
                               leading: const Icon(Icons.blur_on),
                               title: const Text('窗口背景效果'),
@@ -532,7 +457,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        _sectionTitle('文字'),
                         _card(
                           children: [
                             _textGroup(

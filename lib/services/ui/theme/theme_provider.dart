@@ -20,33 +20,10 @@ Color? parseHexColor(String hex) {
   return Color(0xFF000000 | value);
 }
 
-/// 文字颜色模式解析: 优先 `textColorMode`, 兼容旧 `accentColorMode`, 缺省跟随主题色。
-String resolveTextColorMode(Map<String, dynamic> config) {
-  final v = config['textColorMode'] ?? config['accentColorMode'];
-  return v is String && v.isNotEmpty ? v : TEXT_MODE_FOLLOW;
-}
-
-/// 文字颜色解析 (#RRGGBB), 缺省 M3 dark onSurface。
-String resolveTextColorHex(Map<String, dynamic> config) {
-  final v = config['textColor'] ?? config['accentColor'];
-  return v is String && v.isNotEmpty ? v : kDefaultTextColorHex;
-}
-
-/// 主题种子色: 手动设置的主题色 (跟随封面功能已移除)。
+/// 主题种子色: 手动设置的主题色。
 final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
   final config = await ref.read(configJsonProvider).read();
   return parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
-});
-
-/// 文字颜色 (主文字/选中项文字): follow=随主题色, custom=独立颜色。
-final textColorProvider = FutureProvider.autoDispose<({String mode, Color color})>(
-    (ref) async {
-  final config = await ref.read(configJsonProvider).read();
-  return (
-    mode: resolveTextColorMode(config),
-    color:
-        parseHexColor(resolveTextColorHex(config)) ?? kDefaultThemeSeed,
-  );
 });
 
 /// 窗口背景效果解析: 优先 `windowEffect`, 兼容旧配置 `liquidGlass`
@@ -71,29 +48,19 @@ final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
   return config['searchEnabled'] != false;
 });
 
-/// 应用主题: 由自定义主题色生成; 文字颜色独立设置时覆盖文字角色。
+/// 应用主题: 由自定义主题色生成。
 final appThemeProvider = Provider<ThemeData>((ref) {
   final seed = ref.watch(coverSeedColorProvider).valueOrNull ??
       kDefaultThemeSeed;
-  final text = ref.watch(textColorProvider).valueOrNull;
-  return _buildTheme(seed, text);
+  return _buildTheme(seed);
 });
 
-ThemeData _buildTheme(Color seed, ({String mode, Color color})? text) {
-  var scheme = ColorScheme.fromSeed(
+ThemeData _buildTheme(Color seed) {
+  final scheme = ColorScheme.fromSeed(
     seedColor: seed,
     brightness: Brightness.dark,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
-  if (text != null && text.mode == TEXT_MODE_CUSTOM) {
-    // 文字独立: 主文字/次文字改用固定色; 选中项文字与高亮仍用主题色
-    final c = text.color;
-    scheme = scheme.copyWith(
-      onSurface: c,
-      onSurfaceVariant:
-          Color.alphaBlend(c.withValues(alpha: 0.72), scheme.surface),
-    );
-  }
   final base = ThemeData(
     colorScheme: scheme,
     // 统一字体族: 避免 Segoe UI + 微软雅黑混排, 中文粗细不一致

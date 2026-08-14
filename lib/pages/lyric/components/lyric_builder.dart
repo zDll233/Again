@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:again/common/const.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -33,19 +32,14 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final playingViPath = ref.watch(
         voiceItemProvider.select((state) => state.cachedPlayingVoiceItemPath!));
 
-    // 歌词文字颜色: 普通歌词跟随文字颜色设置 (独立设置时用固定色),
-    // 当前行高亮固定随主题色 (后续可能单独出歌词颜色调整)
-    final text = ref.watch(textColorProvider).valueOrNull;
+    // 歌词文字颜色: 默认跟随主题的 onSurface, 可单独设置
     final scheme = Theme.of(context).colorScheme;
-    final isCustom = text != null && text.mode == TEXT_MODE_CUSTOM;
     final ts = ref.watch(textSettingsProvider).valueOrNull;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
     // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
     final lineColor = ts?.lyricColor?.resolve(
             scheme.onSurface.withValues(alpha: 0.55), themeHue) ??
-        (isCustom
-            ? text.color.withValues(alpha: 0.62)
-            : scheme.onSurface.withValues(alpha: 0.55));
+        scheme.onSurface.withValues(alpha: 0.55);
     // 高亮歌词色: 用户设置优先; 否则自动 (主题色相, 饱和 0.7 明度 0.9)
     final highlightColor = ts?.lyricHighlightColor?.resolve(
             scheme.primary, themeHue) ??
