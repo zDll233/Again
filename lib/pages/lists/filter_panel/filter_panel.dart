@@ -11,7 +11,7 @@ class FilterPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return VoicePanel(
-      title: 'Filter',
+      title: '筛选',
       listView: const FilterListView(),
       icon: const Icon(Icons.remove),
       onIconBtnPressed: ref.read(uiServiceProvider).onResetFilterPressed,
