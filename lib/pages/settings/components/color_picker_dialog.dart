@@ -348,14 +348,12 @@ class _SliderBar extends StatelessWidget {
     required this.value,
     required this.colors,
     required this.onChanged,
-    this.enabled = true,
   });
 
   final String label;
   final double value;
   final List<Color> colors;
   final ValueChanged<double> onChanged;
-  final bool enabled;
 
   @override
   Widget build(BuildContext context) {
@@ -389,7 +387,7 @@ class _SliderBar extends StatelessWidget {
               ),
               child: Slider(
                 value: value,
-                onChanged: enabled ? onChanged : null,
+                onChanged: onChanged,
               ),
             ),
           ),
