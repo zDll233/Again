@@ -1,7 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:again/common/const.dart';
 import 'package:again/pages/my_app.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/ui_service.dart';
+import 'package:again/utils/json_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_acrylic/flutter_acrylic.dart';
@@ -33,12 +37,15 @@ Future<void> setupWindow() async {
       skipTaskbar: false,
       titleBarStyle: TitleBarStyle.hidden,
     );
-    windowManager.waitUntilReadyToShow(windowOptions, () {
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
       windowManager
         ..setMinimumSize(initialSize)
         ..setTitle('Again')
-        ..show()
         ..setPreventClose(true);
+      // 窗口显示前应用配置的窗口背景效果, 启动即生效 (无透明→亚克力闪变)
+      final config = await JsonStorage(filePath: CONFIG_FILE_PATH).read();
+      await applyWindowEffectStandalone(resolveWindowEffect(config));
+      windowManager.show();
     });
   }
 }

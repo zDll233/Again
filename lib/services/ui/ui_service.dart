@@ -302,30 +302,36 @@ class UIService {
 
   /// 应用窗口背景效果: transparent 全透明 / acrylic 毛玻璃 / opaque 不透明。
   Future<void> applyWindowEffect(String effect) async {
-    if (const bool.fromEnvironment('OPAQUE_BG')) return;
-    try {
-      Log.info('applyWindowEffect: $effect');
-      switch (effect) {
-        case WINDOW_EFFECT_TRANSPARENT:
-          await Window.setEffect(
-            effect: WindowEffect.transparent,
-            color: const Color(0xCC222222),
-          );
-        case WINDOW_EFFECT_OPAQUE:
-          await Window.setEffect(
-            effect: WindowEffect.solid,
-            color: const Color(0xFF202024),
-          );
-        default: // WINDOW_EFFECT_ACRYLIC
-          await Window.setEffect(
-            effect: WindowEffect.acrylic,
-            // tint 很浅 (25%), 模糊的桌面背景清晰透出。
-            color: const Color(0x40262A33),
-          );
-      }
-      Log.info('applyWindowEffect: $effect done');
-    } catch (e, s) {
-      Log.error('applyWindowEffect failed.\n$e.\n$s');
+    await applyWindowEffectStandalone(effect);
+  }
+}
+
+/// 独立应用窗口背景效果 (不依赖 Riverpod, 供启动早期 main.dart 在窗口
+/// 显示前调用, 避免启动后效果延迟出现)。
+Future<void> applyWindowEffectStandalone(String effect) async {
+  if (const bool.fromEnvironment('OPAQUE_BG')) return;
+  try {
+    Log.info('applyWindowEffect: $effect');
+    switch (effect) {
+      case WINDOW_EFFECT_TRANSPARENT:
+        await Window.setEffect(
+          effect: WindowEffect.transparent,
+          color: const Color(0xCC222222),
+        );
+      case WINDOW_EFFECT_OPAQUE:
+        await Window.setEffect(
+          effect: WindowEffect.solid,
+          color: const Color(0xFF202024),
+        );
+      default: // WINDOW_EFFECT_ACRYLIC
+        await Window.setEffect(
+          effect: WindowEffect.acrylic,
+          // tint 很浅 (25%), 模糊的桌面背景清晰透出。
+          color: const Color(0x40262A33),
+        );
     }
+    Log.info('applyWindowEffect: $effect done');
+  } catch (e, s) {
+    Log.error('applyWindowEffect failed.\n$e.\n$s');
   }
 }
