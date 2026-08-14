@@ -76,14 +76,21 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       height: height,
       // 左: 封面; 右: 歌词
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          FutureBuilder<String>(
-            future: _getCoverPath(workPath),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) return const SizedBox.shrink();
-              return _buildCover(snapshot.data!, coverSize);
-            },
+          SizedBox(
+            width: coverSize,
+            child: FutureBuilder<String>(
+              future: _getCoverPath(workPath),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
+                return Padding(
+                  padding: EdgeInsets.only(top: (height - coverSize) / 2),
+                  child: _buildCover(snapshot.data!, coverSize),
+                );
+              },
+            ),
           ),
           const SizedBox(width: 28),
           Expanded(
@@ -187,31 +194,34 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         );
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // 封面带悬停 3D 倾斜 + 顶部光源效果
-          _TiltCover(child: cover(size, size)),
-          const SizedBox(height: 6),
-          // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3
-          SizedBox(
-            height: size / 3,
-            child: ClipRect(
-              child: ShaderMask(
-                shaderCallback: (rect) => const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x66FFFFFF), Colors.transparent],
-                ).createShader(rect),
-                blendMode: BlendMode.modulate,
-                child: Opacity(
-                  opacity: 0.5,
-                  child: Transform.flip(flipY: true, child: cover(size, size)),
+      child: _TiltCover(
+        coverSize: size,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            cover(size, size),
+            const SizedBox(height: 6),
+            // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3
+            SizedBox(
+              height: size / 3,
+              child: ClipRect(
+                child: ShaderMask(
+                  shaderCallback: (rect) => const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0x66FFFFFF), Colors.transparent],
+                  ).createShader(rect),
+                  blendMode: BlendMode.modulate,
+                  child: Opacity(
+                    opacity: 0.5,
+                    child:
+                        Transform.flip(flipY: true, child: cover(size, size)),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -292,18 +302,20 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 }
 
 /// 悬停 3D 倾斜封面: 鼠标在封面边缘时, 该侧向远离用户的方向倾斜,
-/// 并叠加顶部光源响应 — 上半部分后仰时顶部反光变浅, 下边缘后仰时顶部变暗。
+/// 并叠加顶部光源响应 — 上半部分后仰时顶部反光变浅, 下半部分后仰时顶部变暗。
+/// 倒影随封面一起倾斜; 光照遮罩只作用于封面本体。
 class _TiltCover extends StatefulWidget {
   final Widget child;
+  final double coverSize;
 
-  const _TiltCover({required this.child});
+  const _TiltCover({required this.child, required this.coverSize});
 
   @override
   State<_TiltCover> createState() => _TiltCoverState();
 }
 
 class _TiltCoverState extends State<_TiltCover> {
-  /// 鼠标相对封面中心的偏移 (-1..1), 0 表示回到水平。
+  /// 鼠标相对封面本体的偏移 (-1..1), 0 表示回到水平。
   double _tx = 0;
   double _ty = 0;
 
@@ -311,10 +323,10 @@ class _TiltCoverState extends State<_TiltCover> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onHover: (event) {
-        final size = context.size;
-        if (size == null || size.isEmpty) return;
-        final tx = ((event.localPosition.dx / size.width) - 0.5) * 2;
-        final ty = ((event.localPosition.dy / size.height) - 0.5) * 2;
+        // 倒影区悬停按封面底边处理, 封面中心 hover 时角度为 0
+        final dy = event.localPosition.dy.clamp(0.0, widget.coverSize);
+        final tx = ((event.localPosition.dx / widget.coverSize) - 0.5) * 2;
+        final ty = ((dy / widget.coverSize) - 0.5) * 2;
         if (tx != _tx || ty != _ty) {
           setState(() {
             _tx = tx;
@@ -337,15 +349,15 @@ class _TiltCoverState extends State<_TiltCover> {
           final angleX = t.dy * maxAngle;
           final angleY = -t.dx * maxAngle;
           final strength = t.dy.abs().clamp(0.0, 1.0);
-          // 顶部光源: 上半部分后仰 (t.dy>0) → 顶部反光变浅;
-          // 下半部分后仰 (t.dy<0) → 上表面背光, 顶部变暗
+          // 顶部光源: 上半部分后仰 (t.dy<0) → 顶部反光变浅;
+          // 下半部分后仰 (t.dy>0) → 上表面背光, 顶部变暗
           final overlay = DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: t.dy > 0
+                colors: t.dy < 0
                     ? [
                         Colors.white.withValues(alpha: 0.35 * strength),
                         Colors.transparent,
@@ -366,7 +378,14 @@ class _TiltCoverState extends State<_TiltCover> {
             child: Stack(
               children: [
                 child!,
-                Positioned.fill(child: IgnorePointer(child: overlay)),
+                // 光照遮罩只覆盖封面本体区域
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  width: widget.coverSize,
+                  height: widget.coverSize,
+                  child: IgnorePointer(child: overlay),
+                ),
               ],
             ),
           );
