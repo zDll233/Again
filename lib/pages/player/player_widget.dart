@@ -22,6 +22,11 @@ class PlayerWidget extends ConsumerWidget {
       height: PLAYER_WIDGET_HEIGHT,
       child: Stack(
         children: [
+          // 空白区域拖动窗口: DragToMoveArea 放最底层, 控件命中优先;
+          // 若包住整个播放器, 其内部 onDoubleTap 会拖慢所有按钮的单击响应
+          Positioned.fill(
+            child: DragToMoveArea(child: Container()),
+          ),
           const Positioned(
             child: ProgressBar(),
           ),
@@ -44,15 +49,10 @@ class PlayerWidget extends ConsumerWidget {
         ],
       ),
     );
-    // LiquidGlass 背景会拦截命中, 导致底层 MoveWindow 的拖动区收不到事件,
-    // 这里给播放器自身包一层 DragToMoveArea: 按钮/进度条有自己的手势优先,
-    // 空白区域可拖动窗口
-    return DragToMoveArea(
-      child: LiquidGlass(
-        borderRadius: 0,
-        tintAlpha: tint,
-        child: content,
-      ),
+    return LiquidGlass(
+      borderRadius: 0,
+      tintAlpha: tint,
+      child: content,
     );
   }
 }
