@@ -70,19 +70,22 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                       builder: (context, ref, child) {
                         final selected =
                             ref.watch(_categotySelectedProvider(originalIndex));
-                        return ListTile(
-                          title: Text(
-                            values[originalIndex],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onTap: () => ref
-                              .read(categoryProvider.notifier)
-                              .onSelected(originalIndex),
-                          selected: selected,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0,
-                            vertical: 1.0,
+                        return Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            title: Text(
+                              values[originalIndex],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () => ref
+                                .read(categoryProvider.notifier)
+                                .onSelected(originalIndex),
+                            selected: selected,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                              vertical: 1.0,
+                            ),
                           ),
                         );
                       },

@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:again/common/const.dart';
 import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
 import 'package:again/pages/lyric/components/line_indicator.dart';
@@ -24,15 +26,23 @@ class LyricBuilder extends ConsumerStatefulWidget {
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   bool _hasLyric = false;
   bool _readLyric = false;
-  final lyricUi = UINetease(
-    otherMainColor: Colors.white60,
-    highLightTextColor: Colors.purple[200],
-  );
 
   @override
   Widget build(BuildContext context) {
     final playingViPath = ref.watch(
         voiceItemProvider.select((state) => state.cachedPlayingVoiceItemPath!));
+
+    // 歌词文字颜色: 普通歌词跟随文字颜色设置 (独立设置时用固定色),
+    // 当前行高亮固定随主题色 (后续可能单独出歌词颜色调整)
+    final text = ref.watch(textColorProvider).valueOrNull;
+    final scheme = Theme.of(context).colorScheme;
+    final isCustom = text != null && text.mode == TEXT_MODE_CUSTOM;
+    final lyricUi = UINetease(
+      otherMainColor: isCustom
+          ? text.color.withValues(alpha: 0.62)
+          : scheme.onSurface.withValues(alpha: 0.55),
+      highLightTextColor: scheme.primary,
+    );
 
     final appSize = MediaQuery.of(context).size;
     final width = appSize.width * 0.70;

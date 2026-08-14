@@ -9,6 +9,7 @@ import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_acrylic/flutter_acrylic.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:window_manager/window_manager.dart';
@@ -288,6 +289,33 @@ class UIService {
       await hideToTray();
     } else {
       await onExit();
+    }
+  }
+
+  /// 应用窗口背景效果: transparent 全透明 / acrylic 毛玻璃 / opaque 不透明。
+  Future<void> applyWindowEffect(String effect) async {
+    if (const bool.fromEnvironment('OPAQUE_BG')) return;
+    try {
+      switch (effect) {
+        case WINDOW_EFFECT_TRANSPARENT:
+          await Window.setEffect(
+            effect: WindowEffect.transparent,
+            color: const Color(0xCC222222),
+          );
+        case WINDOW_EFFECT_OPAQUE:
+          await Window.setEffect(
+            effect: WindowEffect.solid,
+            color: const Color(0xFF202024),
+          );
+        default: // WINDOW_EFFECT_ACRYLIC
+          await Window.setEffect(
+            effect: WindowEffect.acrylic,
+            // tint 很浅 (25%), 模糊的桌面背景清晰透出。
+            color: const Color(0x40262A33),
+          );
+      }
+    } catch (e) {
+      Log.error('applyWindowEffect failed.\n$e.');
     }
   }
 }

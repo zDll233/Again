@@ -9,14 +9,14 @@ import 'package:flutter/painting.dart';
 
 const Color kDefaultThemeSeed = Color(0xFF9C6BFF);
 
-/// compute 入口(顶层函数): 返回 ARGB int。
-Future<int> _extractCoverColorInIsolate(String imagePath) async {
+/// compute 入口(顶层函数): 返回 ARGB int, 失败返回 null。
+Future<int?> _extractCoverColorInIsolate(String imagePath) async {
   final bytes = File(imagePath).readAsBytesSync();
   return _dominantColor(bytes);
 }
 
-/// 解码图片并统计主色。
-Future<int> _dominantColor(Uint8List bytes) async {
+/// 解码图片并统计主色, 解码失败/无彩色主色时返回 null。
+Future<int?> _dominantColor(Uint8List bytes) async {
   final codec =
       await ui.instantiateImageCodec(bytes, targetWidth: 64, targetHeight: 64);
   final frame = await codec.getNextFrame();
@@ -25,7 +25,7 @@ Future<int> _dominantColor(Uint8List bytes) async {
   image.dispose();
 
   if (data == null) {
-    return kDefaultThemeSeed.toARGB32();
+    return null;
   }
 
   // 量化颜色桶: 每通道 4bit -> 4096 桶
@@ -58,7 +58,7 @@ Future<int> _dominantColor(Uint8List bytes) async {
   }
 
   if (counts.isEmpty) {
-    return kDefaultThemeSeed.toARGB32();
+    return null;
   }
 
   // 取出现最多的桶
@@ -79,21 +79,24 @@ Future<int> _dominantColor(Uint8List bytes) async {
   ).toARGB32();
 }
 
-/// 提取封面主色(带内存缓存)。
+/// 提取封面主色(带内存缓存), 文件缺失/解码失败/无彩色主色时返回 null。
 class CoverColorExtractor {
   static const int _maxCacheSize = 64;
   static final Map<String, Color> _cache = {};
 
-  static Future<Color> extract(String imagePath) async {
+  static Future<Color?> extract(String imagePath) async {
     final cached = _cache[imagePath];
     if (cached != null) {
       return cached;
     }
     if (!File(imagePath).existsSync()) {
-      return kDefaultThemeSeed;
+      return null;
     }
 
     final argb = await compute(_extractCoverColorInIsolate, imagePath);
+    if (argb == null) {
+      return null;
+    }
     final color = Color(argb);
 
     if (_cache.length >= _maxCacheSize) {

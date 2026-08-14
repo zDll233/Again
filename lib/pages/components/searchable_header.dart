@@ -24,7 +24,8 @@ class SearchableHeader extends StatefulWidget {
   State<SearchableHeader> createState() => _SearchableHeaderState();
 }
 
-class _SearchableHeaderState extends State<SearchableHeader> {
+class _SearchableHeaderState extends State<SearchableHeader>
+    with WidgetsBindingObserver {
   final _controller = TextEditingController();
   final _focusNode = FocusNode();
   bool _searching = false;
@@ -32,6 +33,7 @@ class _SearchableHeaderState extends State<SearchableHeader> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _controller.text = widget.query;
   }
 
@@ -45,9 +47,19 @@ class _SearchableHeaderState extends State<SearchableHeader> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _controller.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // 窗口失焦或最小化时收起搜索框, 恢复为标题文本。
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.hidden) {
+      _stopSearch();
+    }
   }
 
   void _startSearch() {
@@ -74,46 +86,37 @@ class _SearchableHeaderState extends State<SearchableHeader> {
     return SizedBox(
       height: 40,
       child: _searching
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: scheme.onSurface.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: TextField(
-                  controller: _controller,
-                  focusNode: _focusNode,
-                  onChanged: widget.onQueryChanged,
-                  onSubmitted: (_) => _stopSearch(),
-                  onTapOutside: (_) => _stopSearch(),
-                  style: const TextStyle(fontSize: 13),
-                  decoration: InputDecoration(
-                    hintText: '搜索',
-                    hintStyle: TextStyle(
-                      fontSize: 12,
-                      color: scheme.onSurface.withValues(alpha: 0.35),
-                    ),
-                    prefixIcon: widget.compact
-                        ? null
-                        : Icon(
-                            Icons.search,
-                            size: 16,
-                            color: scheme.onSurface.withValues(alpha: 0.4),
-                          ),
-                    suffixIcon: widget.compact
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.clear, size: 15),
-                            onPressed: () {
-                              _controller.clear();
-                              widget.onQueryChanged('');
-                            },
-                          ),
-                    isDense: true,
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 10.5),
-                    border: InputBorder.none,
+          ? Center(
+              child: TextField(
+                controller: _controller,
+                focusNode: _focusNode,
+                onChanged: widget.onQueryChanged,
+                onSubmitted: (_) => _stopSearch(),
+                onTapOutside: (_) => _stopSearch(),
+                style: const TextStyle(fontSize: 13, height: 1.0),
+                decoration: InputDecoration(
+                  prefixIcon: widget.compact
+                      ? null
+                      : Icon(
+                          Icons.search,
+                          size: 16,
+                          color: scheme.onSurface.withValues(alpha: 0.4),
+                        ),
+                  suffixIcon: widget.compact
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear, size: 15),
+                          onPressed: () {
+                            _controller.clear();
+                            widget.onQueryChanged('');
+                          },
+                        ),
+                  isDense: true,
+                  filled: true,
+                  fillColor: scheme.onSurface.withValues(alpha: 0.08),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),

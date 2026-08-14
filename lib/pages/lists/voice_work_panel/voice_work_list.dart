@@ -22,7 +22,11 @@ class VoiceWorkListView extends ConsumerWidget {
         return Consumer(
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceWorkSelectedProvider(index));
-            return ListTile(
+            // 外包 Material: 让 ListTile 内部 InkWell 的 ink 画在本层而非根 Material,
+            // 避免选中高亮 (Ink) 在滚动后逃逸面板裁剪
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
               leading: ImageThumbnail(imagePath: voiceWork.coverPath),
               title: Padding(
                 padding: const EdgeInsets.only(left: 15.0, right: 5.0),
@@ -56,6 +60,7 @@ class VoiceWorkListView extends ConsumerWidget {
                 horizontal: 10.0,
               ),
               horizontalTitleGap: 0.0,
+            ),
             );
           },
         );

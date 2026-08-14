@@ -77,19 +77,22 @@ class _CvListState extends ConsumerState<CvList> {
                       builder: (_, WidgetRef ref, __) {
                         final selected =
                             ref.watch(_cvSelectedProvider(originalIndex));
-                        return ListTile(
-                          title: Text(
-                            values[originalIndex],
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          onTap: () => ref
-                              .read(cvProvider.notifier)
-                              .onSelected(originalIndex),
-                          selected: selected,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 10.0,
-                            vertical: 1.0,
+                        return Material(
+                          color: Colors.transparent,
+                          child: ListTile(
+                            title: Text(
+                              values[originalIndex],
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            onTap: () => ref
+                                .read(cvProvider.notifier)
+                                .onSelected(originalIndex),
+                            selected: selected,
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                              vertical: 1.0,
+                            ),
                           ),
                         );
                       },

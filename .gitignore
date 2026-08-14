@@ -48,3 +48,6 @@ app.*.map.json
 /config
 
 _build.bat
+# flutter mcp tool
+/.flutter_mcp
+

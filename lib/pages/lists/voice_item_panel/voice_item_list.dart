@@ -33,18 +33,23 @@ class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
         return Consumer(
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceItemSelectedProvider(index));
-            return ListTile(
-              title: Text(
-                voiceItem.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              onTap: () =>
-                  ref.read(voiceItemProvider.notifier).onSelected(index),
-              selected: selected,
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12.0,
-                vertical: 1.0,
+            // 外包 Material: 让 InkWell 的 ink 画在本层而非根 Material,
+            // 避免选中高亮在滚动后逃逸面板裁剪
+            return Material(
+              color: Colors.transparent,
+              child: ListTile(
+                title: Text(
+                  voiceItem.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                onTap: () =>
+                    ref.read(voiceItemProvider.notifier).onSelected(index),
+                selected: selected,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 1.0,
+                ),
               ),
             );
           },

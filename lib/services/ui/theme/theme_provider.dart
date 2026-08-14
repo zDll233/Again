@@ -4,39 +4,117 @@ import 'package:again/utils/cover_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 当前选中作品的封面路径(用于动态主题取色)。
-final selectedCoverPathProvider = Provider<String?>((ref) {
-  final selected =
-      ref.watch(voiceWorkProvider.select((state) => state.selectedItem));
-  return selected.coverPath;
+/// 当前正在播放作品的封面路径(仅在有效播放时返回, 避免越界), 否则 null。
+final playingCoverPathProvider = Provider<String?>((ref) {
+  final state = ref.watch(voiceWorkProvider);
+  if (!state.isPlayingIndexValid) return null;
+  final cover = state.playingItem.coverPath;
+  return cover.isEmpty ? null : cover;
 });
 
-/// 封面主色(异步提取, 失败回退默认紫色)。
+/// 解析自定义主题色, 缺省返回默认紫色 (#RRGGBB)。
+String resolveThemeSeedHex(Map<String, dynamic> config) {
+  final v = config['themeSeedColor'];
+  return v is String && v.isNotEmpty ? v : kDefaultThemeSeedHex;
+}
+
+/// 解析 #RRGGBB / RRGGBB 十六进制颜色, 非法返回 null。
+Color? parseHexColor(String hex) {
+  final cleaned = hex.replaceAll('#', '').trim();
+  if (cleaned.length != 6) return null;
+  final value = int.tryParse(cleaned, radix: 16);
+  if (value == null) return null;
+  return Color(0xFF000000 | value);
+}
+
+/// 主题色模式解析: 优先 `themeColorMode`, 兼容旧配置 `followCoverTheme`
+/// (true=cover, false=custom), 缺省跟随封面。
+String resolveThemeColorMode(Map<String, dynamic> config) {
+  final v = config['themeColorMode'];
+  if (v is String && v.isNotEmpty) return v;
+  return config['followCoverTheme'] == false
+      ? THEME_COLOR_MODE_CUSTOM
+      : THEME_COLOR_MODE_COVER;
+}
+
+/// 文字颜色模式解析: 优先 `textColorMode`, 兼容旧 `accentColorMode`, 缺省跟随主题色。
+String resolveTextColorMode(Map<String, dynamic> config) {
+  final v = config['textColorMode'] ?? config['accentColorMode'];
+  return v is String && v.isNotEmpty ? v : TEXT_MODE_FOLLOW;
+}
+
+/// 文字颜色解析 (#RRGGBB), 缺省 M3 dark onSurface。
+String resolveTextColorHex(Map<String, dynamic> config) {
+  final v = config['textColor'] ?? config['accentColor'];
+  return v is String && v.isNotEmpty ? v : kDefaultTextColorHex;
+}
+
+/// 主题种子色: 跟随封面时取正在播放作品的封面主色,
+/// 无播放/无封面/取色失败均回退到手动设置的主题色。
 final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
   final config = await ref.read(configJsonProvider).read();
-  if (config['followCoverTheme'] == false) {
-    return kDefaultThemeSeed;
+  final custom =
+      parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
+  if (resolveThemeColorMode(config) == THEME_COLOR_MODE_CUSTOM) {
+    return custom;
   }
-  final coverPath = ref.watch(selectedCoverPathProvider);
-  if (coverPath == null || coverPath.isEmpty) {
-    return kDefaultThemeSeed;
+  final coverPath = ref.watch(playingCoverPathProvider);
+  if (coverPath == null) {
+    return custom;
   }
-  return CoverColorExtractor.extract(coverPath);
+  return await CoverColorExtractor.extract(coverPath) ?? custom;
 });
 
-/// 应用主题: 跟随封面主色动态生成。
+/// 文字颜色 (主文字/选中项文字): follow=随主题色, custom=独立颜色。
+final textColorProvider = FutureProvider.autoDispose<({String mode, Color color})>(
+    (ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return (
+    mode: resolveTextColorMode(config),
+    color:
+        parseHexColor(resolveTextColorHex(config)) ?? kDefaultThemeSeed,
+  );
+});
+
+/// 窗口背景效果解析: 优先 `windowEffect`, 兼容旧配置 `liquidGlass`
+/// (true=acrylic, false=transparent), 缺省 acrylic。
+String resolveWindowEffect(Map<String, dynamic> config) {
+  final v = config['windowEffect'];
+  if (v is String && v.isNotEmpty) return v;
+  return config['liquidGlass'] == false
+      ? WINDOW_EFFECT_TRANSPARENT
+      : WINDOW_EFFECT_ACRYLIC;
+}
+
+/// 窗口背景效果模式 ('transparent' | 'acrylic' | 'opaque')。
+final windowEffectProvider = FutureProvider.autoDispose<String>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return resolveWindowEffect(config);
+});
+
+/// 应用主题: 跟随封面主色动态生成; 文字颜色独立设置时覆盖文字角色。
 final appThemeProvider = Provider<ThemeData>((ref) {
   final seed = ref.watch(coverSeedColorProvider).valueOrNull ??
       kDefaultThemeSeed;
-  return _buildTheme(seed);
+  final text = ref.watch(textColorProvider).valueOrNull;
+  return _buildTheme(seed, text);
 });
 
-ThemeData _buildTheme(Color seed) {
-  final scheme = ColorScheme.fromSeed(
+ThemeData _buildTheme(Color seed, ({String mode, Color color})? text) {
+  var scheme = ColorScheme.fromSeed(
     seedColor: seed,
     brightness: Brightness.dark,
     dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
   );
+  if (text != null && text.mode == TEXT_MODE_CUSTOM) {
+    // 文字独立: 主文字/次文字改用固定色; 选中项文字与高亮仍用主题色
+    final c = text.color;
+    scheme = scheme.copyWith(
+      onSurface: c,
+      onSurfaceVariant:
+          Color.alphaBlend(c.withValues(alpha: 0.72), scheme.surface),
+    );
+  }
   final base = ThemeData(colorScheme: scheme);
 
   return base.copyWith(
