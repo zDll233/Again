@@ -682,6 +682,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       tilePadding: const EdgeInsets.symmetric(horizontal: 16),
       // 子设置缩进, 层级更明显
       childrenPadding: const EdgeInsets.only(left: 20),
+      // trailing 与重置按钮同构 (40px 容器 + 18px 图标), 右边缘精确对齐
+      trailing: const SizedBox(
+        width: 40,
+        child: Icon(Icons.expand_more, size: 18),
+      ),
       // 去掉 ExpansionTile 自带的分隔线/边框, 由外层卡片统一
       shape: const Border(),
       collapsedShape: const Border(),
