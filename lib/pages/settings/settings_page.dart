@@ -383,16 +383,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 12),
-                        Center(
-                          child: Text(
-                            'Again v1.0.0',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: scheme.onSurface.withValues(alpha: 0.35),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
             ),

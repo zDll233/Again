@@ -16,14 +16,17 @@ class VoiceItemTitle extends StatelessWidget {
         builder: (_, WidgetRef ref, __) {
           final playingViPath = ref.watch(voiceItemProvider
               .select((state) => state.cachedPlayingVoiceItemPath!));
-          return TextButton(
-              onPressed: ref.read(uiServiceProvider).selectPlayingVoiceItem,
-              child: Text(
-                p.basenameWithoutExtension(playingViPath),
-                style: Theme.of(context).textTheme.headlineMedium,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ));
+          return Tooltip(
+            message: '在资源管理器中显示该音轨',
+            child: TextButton(
+                onPressed: ref.read(uiServiceProvider).selectPlayingVoiceItem,
+                child: Text(
+                  p.basenameWithoutExtension(playingViPath),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                )),
+          );
         },
       ),
     );
