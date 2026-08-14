@@ -23,10 +23,11 @@ class LineIndicator extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     // 左图标区与右时间戳区等宽 (110), 使指示条内容整体居中,
     // 与歌词文本区 (列中心) 同轴对齐;
-    // 指示条宽度为歌词列宽的 55%, 居中显示
+    // 指示条宽度为窗口宽的 55% (横线范围覆盖歌词文本区), 居中显示
     const sideWidth = 110.0;
-    return FractionallySizedBox(
-      widthFactor: 0.55,
+    final indicatorWidth = MediaQuery.of(context).size.width * 0.55;
+    return SizedBox(
+      width: indicatorWidth,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
