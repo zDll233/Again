@@ -58,9 +58,9 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
                 onTap: () =>
                     ref.read(voiceItemProvider.notifier).onSelected(index),
                 selected: selected,
-                contentPadding: const EdgeInsets.symmetric(
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: ts?.listDensity == 'comfortable' ? 8.0 : 1.0,
                   horizontal: 12.0,
-                  vertical: 1.0,
                 ),
               ),
             );

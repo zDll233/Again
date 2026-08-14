@@ -36,6 +36,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ColorSetting? _progressTextColor;
   ColorSetting? _lyricHighlightColor;
   ColorSetting? _lyricColor;
+  double _lyricLineGap = 25;
+  String _lyricAlign = 'center';
+  String _listDensity = 'compact';
   bool _loading = true;
 
   @override
@@ -77,6 +80,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _progressTextColor = ts.progressTextColor;
       _lyricHighlightColor = ts.lyricHighlightColor;
       _lyricColor = ts.lyricColor;
+      _lyricLineGap = ts.lyricLineGap;
+      _lyricAlign = ts.lyricAlign;
+      _listDensity = ts.listDensity;
       _loading = false;
     });
   }
@@ -416,6 +422,44 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ],
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                              child: Row(
+                                children: [
+                                  const Expanded(child: Text('列表密度')),
+                                  SegmentedButton<String>(
+                                    segments: const [
+                                      ButtonSegment(
+                                        value: 'compact',
+                                        label: Text('紧凑'),
+                                      ),
+                                      ButtonSegment(
+                                        value: 'comfortable',
+                                        label: Text('舒适'),
+                                      ),
+                                    ],
+                                    selected: {_listDensity},
+                                    showSelectedIcon: false,
+                                    style: ButtonStyle(
+                                      visualDensity:
+                                          VisualDensity.compact,
+                                    ),
+                                    onSelectionChanged: (selection) async {
+                                      setState(() =>
+                                          _listDensity = selection.first);
+                                      await _save(
+                                          {'listDensity': _listDensity});
+                                      ref.invalidate(textSettingsProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['listDensity'], () {
+                                      _listDensity = 'compact';
+                                    });
+                                  }),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         _sectionTitle('文字'),
@@ -441,6 +485,48 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 (v) {
                               _lyricSize = v;
                             }),
+                            _textSizeTile('歌词行间距', _lyricLineGap,
+                                'lyricLineGap', 25, (v) {
+                              _lyricLineGap = v;
+                            }),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                              child: Row(
+                                children: [
+                                  const Expanded(child: Text('歌词对齐')),
+                                  SegmentedButton<String>(
+                                    segments: const [
+                                      ButtonSegment(
+                                        value: 'center',
+                                        label: Text('居中'),
+                                      ),
+                                      ButtonSegment(
+                                        value: 'left',
+                                        label: Text('靠左'),
+                                      ),
+                                    ],
+                                    selected: {_lyricAlign},
+                                    showSelectedIcon: false,
+                                    style: ButtonStyle(
+                                      visualDensity:
+                                          VisualDensity.compact,
+                                    ),
+                                    onSelectionChanged: (selection) async {
+                                      setState(
+                                          () => _lyricAlign = selection.first);
+                                      await _save({'lyricAlign': _lyricAlign});
+                                      ref.invalidate(textSettingsProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                        ['lyricAlign'], () {
+                                      _lyricAlign = 'center';
+                                    });
+                                  }),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         _card(

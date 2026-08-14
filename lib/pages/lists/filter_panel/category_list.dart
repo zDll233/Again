@@ -102,9 +102,9 @@ class _CategoryListState extends ConsumerState<CategoryList> {
             onTap: () =>
                 ref.read(categoryProvider.notifier).onSelected(index),
             selected: selected,
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
+              vertical: ts?.listDensity == 'comfortable' ? 8.0 : 1.0,
               horizontal: 10.0,
-              vertical: 1.0,
             ),
           ),
         );

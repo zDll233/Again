@@ -7,6 +7,7 @@ import 'package:again/services/key_event/key_event_handler.dart';
 import 'package:again/services/system_tray.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/services/window_bounds_memory.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,16 +22,20 @@ class Initialization extends ConsumerStatefulWidget {
 
 class _InitializationState extends ConsumerState<Initialization> {
   late final KeyEventHandler _keyEventHandler;
+  WindowBoundsMemory? _windowBoundsMemory;
 
   @override
   void initState() {
     super.initState();
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
+    // 窗口位置/尺寸记忆: 移动缩放后保存, 启动时恢复
+    _windowBoundsMemory = WindowBoundsMemory(ref.read(configJsonProvider));
   }
 
   @override
   void dispose() {
+    _windowBoundsMemory?.dispose();
     HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
     super.dispose();
   }
@@ -56,6 +61,8 @@ class _InitializationState extends ConsumerState<Initialization> {
 }
 
 final _initProvider = FutureProvider.autoDispose((ref) async {
+  // 恢复上次窗口位置/尺寸 (默认行为)
+  await restoreWindowBounds(ref.read(configJsonProvider));
   await ref.read(dbNotifierProvider).initialize();
   await ref.read(historyManagerProvider).loadHistory();
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突

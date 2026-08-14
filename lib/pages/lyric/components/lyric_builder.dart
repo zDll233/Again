@@ -57,6 +57,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
       highLightTextColor: highlightColor,
+      lineGap: ts?.lyricLineGap ?? 25,
+      lyricAlign:
+          ts?.lyricAlign == 'left' ? LyricAlign.LEFT : LyricAlign.CENTER,
     );
 
     final appSize = MediaQuery.of(context).size;

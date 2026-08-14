@@ -70,6 +70,9 @@ class TextSettings {
   final ColorSetting? progressTextColor;
   final ColorSetting? lyricHighlightColor;
   final ColorSetting? lyricColor;
+  final double lyricLineGap;
+  final String lyricAlign; // 'center' | 'left'
+  final String listDensity; // 'compact' | 'comfortable'
 
   const TextSettings({
     this.panelTextSize = 16,
@@ -82,6 +85,9 @@ class TextSettings {
     this.progressTextColor,
     this.lyricHighlightColor,
     this.lyricColor,
+    this.lyricLineGap = 25,
+    this.lyricAlign = 'center',
+    this.listDensity = 'compact',
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -119,6 +125,10 @@ class TextSettings {
       progressTextColor: color('progressTextColor'),
       lyricHighlightColor: color('lyricHighlightColor'),
       lyricColor: color('lyricColor'),
+      lyricLineGap: size('lyricLineGap', 25),
+      lyricAlign: config['lyricAlign'] == 'left' ? 'left' : 'center',
+      listDensity:
+          config['listDensity'] == 'comfortable' ? 'comfortable' : 'compact',
     );
   }
 
@@ -129,6 +139,9 @@ class TextSettings {
     'progressTextSize',
     'lyricTitleSize',
     'lyricSize',
+    'lyricLineGap',
+    'lyricAlign',
+    'listDensity',
   ];
 
   static const List<String> colorBaseKeys = [

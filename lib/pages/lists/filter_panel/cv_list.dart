@@ -108,9 +108,9 @@ class _CvListState extends ConsumerState<CvList> {
             ),
             onTap: () => ref.read(cvProvider.notifier).onSelected(index),
             selected: selected,
-            contentPadding: const EdgeInsets.symmetric(
+            contentPadding: EdgeInsets.symmetric(
+              vertical: ts?.listDensity == 'comfortable' ? 8.0 : 1.0,
               horizontal: 10.0,
-              vertical: 1.0,
             ),
           ),
         );

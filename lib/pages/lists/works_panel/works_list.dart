@@ -137,8 +137,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
             onTap: () =>
                 ref.read(voiceWorkProvider.notifier).onSelected(index),
             selected: selected,
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 5.0,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: ts?.listDensity == 'comfortable' ? 12.0 : 5.0,
               horizontal: 10.0,
             ),
             horizontalTitleGap: 0.0,
