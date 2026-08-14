@@ -52,7 +52,14 @@ class VoicePanel<T> extends ConsumerWidget {
                     ),
                   ),
                 ),
-                for (final action in actions) action,
+                // 标题行按钮 (含排序菜单) 统一用主题色
+                IconTheme(
+                  data: IconThemeData(color: scheme.primary),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [for (final action in actions) action],
+                  ),
+                ),
               ],
             ),
           ),

@@ -30,7 +30,10 @@ class WorksPanel extends ConsumerWidget {
               CheckedPopupMenuItem(
                 value: s,
                 checked: s == sortOrder,
-                child: Text(s.label),
+                // 紧凑: 缩小行高与内边距, 避免菜单过空
+                height: 34,
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Text(s.label, style: const TextStyle(fontSize: 13)),
               ),
           ],
         ),
