@@ -41,13 +41,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final lineColor = isCustom
         ? text.color.withValues(alpha: 0.62)
         : scheme.onSurface.withValues(alpha: 0.55);
+    // 高亮部分提高明度一档, 与变暗的未播放部分拉开对比 (不混白, 保持色相)
+    final hsv = HSVColor.fromColor(scheme.primary);
+    final highlightColor =
+        hsv.withValue((hsv.value + 0.2).clamp(0.0, 1.0)).toColor();
     final lyricUi = UINetease(
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
-      // 高亮部分提亮一档, 与变暗的未播放部分拉开对比
-      highLightTextColor:
-          Color.lerp(scheme.primary, Colors.white, 0.22),
+      highLightTextColor: highlightColor,
     );
 
     final appSize = MediaQuery.of(context).size;
