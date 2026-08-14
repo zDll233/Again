@@ -75,7 +75,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       height: height,
       // 左: 封面; 右: 歌词
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           FutureBuilder<String>(
             future: _getCoverPath(workPath),
