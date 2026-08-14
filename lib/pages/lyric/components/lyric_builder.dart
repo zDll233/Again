@@ -39,16 +39,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final scheme = Theme.of(context).colorScheme;
     final isCustom = text != null && text.mode == TEXT_MODE_CUSTOM;
     final ts = ref.watch(textSettingsProvider).valueOrNull;
+    final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
     // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
-    final lineColor = ts?.lyricColor ??
+    final lineColor = ts?.lyricColor?.resolve(
+            scheme.onSurface.withValues(alpha: 0.55), themeHue) ??
         (isCustom
             ? text.color.withValues(alpha: 0.62)
             : scheme.onSurface.withValues(alpha: 0.55));
-    // 高亮歌词色: 用户设置优先; 否则保持主题色相, 饱和度拉高 + 明度钳制。
-    // 极端主题 (如亮黄) 下 M3 的 primary 可能退化为纯白 (HSV 无色相),
-    // 此时回退用用户设置的 seed 色相, 保证高亮与主题色一致
-    final highlightColor = ts?.lyricHighlightColor ??
-        _autoHighlightColor(scheme, ref);
+    // 高亮歌词色: 用户设置优先; 否则自动 (主题色相, 饱和 0.7 明度 0.9)
+    final highlightColor = ts?.lyricHighlightColor?.resolve(
+            scheme.primary, themeHue) ??
+        HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
     final lyricUi = UINetease(
       defaultSize: ts?.lyricSize ?? 18,
       otherMainSize: (ts?.lyricSize ?? 18) - 2,
@@ -181,17 +182,5 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
   LyricsReaderModel _getLrcModel(String lrcContent) {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
-  }
-
-  /// 自动高亮色: 保持主题色相, 饱和度 0.7 + 明度 0.9;
-  /// primary 无彩色 (极端主题退化为纯白) 时回退用 seed 色相。
-  Color _autoHighlightColor(ColorScheme scheme, WidgetRef ref) {
-    final seedColor =
-        ref.watch(coverSeedColorProvider).valueOrNull ?? kDefaultThemeSeed;
-    final primaryHsv = HSVColor.fromColor(scheme.primary);
-    final base = primaryHsv.saturation > 0.1
-        ? primaryHsv
-        : HSVColor.fromColor(seedColor);
-    return HSVColor.fromAHSV(1, base.hue, 0.7, 0.9).toColor();
   }
 }

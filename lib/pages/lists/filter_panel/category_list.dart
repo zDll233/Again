@@ -82,6 +82,8 @@ class _CategoryListState extends ConsumerState<CategoryList> {
       builder: (context, ref, child) {
         final selected = ref.watch(_categotySelectedProvider(index));
         final ts = ref.watch(textSettingsProvider).valueOrNull;
+        final themeHue = resolveThemeHueSource(
+            Theme.of(context).colorScheme, kDefaultThemeSeed);
         return Material(
           color: Colors.transparent,
           child: ListTile(
@@ -93,7 +95,8 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                   ? null
                   : TextStyle(
                       fontSize: ts.panelTextSize,
-                      color: ts.panelTextColor,
+                      color: ts.panelTextColor?.resolve(
+                          Colors.transparent, themeHue),
                     ),
             ),
             onTap: () =>

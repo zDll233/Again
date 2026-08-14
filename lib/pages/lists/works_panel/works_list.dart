@@ -92,6 +92,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_voiceWorkSelectedProvider(index));
         final ts = ref.watch(textSettingsProvider).valueOrNull;
+        final themeHue = resolveThemeHueSource(
+            Theme.of(context).colorScheme, kDefaultThemeSeed);
         // 外包 Material: 让 ListTile 内部 InkWell 的 ink 画在本层而非根 Material,
         // 避免选中高亮 (Ink) 在滚动后逃逸面板裁剪
         return Material(
@@ -108,7 +110,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                     ? null
                     : TextStyle(
                         fontSize: ts.panelTextSize,
-                        color: ts.panelTextColor,
+                        color: ts.panelTextColor?.resolve(
+                            Colors.transparent, themeHue),
                       ),
               ),
             ),

@@ -1,4 +1,5 @@
 import 'package:again/common/const.dart';
+import 'package:again/pages/settings/components/font_color_dialog.dart';
 import 'package:again/pages/settings/components/theme_color_dialog.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
@@ -30,17 +31,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _progressTextSize = 16;
   double _lyricTitleSize = 28;
   double _lyricSize = 18;
-  Color? _panelTextColor;
-  Color? _panelTitleColor;
-  Color? _progressTextColor;
-  Color? _lyricHighlightColor;
-  Color? _lyricColor;
+  ColorSetting? _panelTextColor;
+  ColorSetting? _panelTitleColor;
+  ColorSetting? _progressTextColor;
+  ColorSetting? _lyricHighlightColor;
+  ColorSetting? _lyricColor;
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _load();
+  }
+
+  /// 主题色相来源: primary 无彩色时回退 seed (极端主题下 primary 可能退化)。
+  HSVColor _themeHueSource() {
+    final scheme = Theme.of(context).colorScheme;
+    final primaryHsv = HSVColor.fromColor(scheme.primary);
+    if (primaryHsv.saturation > 0.1) return primaryHsv;
+    final seed = ref.read(coverSeedColorProvider).valueOrNull ??
+        kDefaultThemeSeed;
+    return HSVColor.fromColor(seed);
   }
 
   Future<void> _load() async {
@@ -138,6 +149,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await _saveMigrated({}, keys);
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textColorProvider);
+    ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
     if (reapplyWindowEffect) {
       ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
@@ -573,27 +585,46 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   /// 字体颜色设置行: 色块 + 名称 + 恢复默认; 未设置时显示默认色并标注。
   Widget _textColorTile(
     String label,
-    Color? color,
-    String key,
+    ColorSetting? setting,
+    String baseKey,
     Color fallback,
-    ValueChanged<Color?> onChanged,
+    ValueChanged<ColorSetting?> onChanged,
   ) {
+    final themeHueSource = _themeHueSource();
+    final displayColor = setting?.resolve(fallback, themeHueSource) ??
+        fallback;
     return ListTile(
       dense: true,
-      leading: _colorSwatch(color ?? fallback),
+      leading: _colorSwatch(displayColor),
       title: Text(label),
-      subtitle: color == null ? const Text('跟随主题') : null,
+      subtitle: setting == null ? const Text('跟随主题') : null,
       trailing: _resetButton(() {
-        _resetToDefault([key], () => onChanged(null));
+        _resetToDefault(ColorSetting.keys(baseKey), () => onChanged(null));
       }),
-      onTap: () => _pickColor(
-        initial: color ?? fallback,
-        onPicked: (picked) async {
-          setState(() => onChanged(picked));
-          await _save({key: _toHex(picked)});
-          ref.invalidate(textSettingsProvider);
-        },
-      ),
+      onTap: () async {
+        final result = await showDialog<FontColorResult>(
+          context: context,
+          builder: (context) => FontColorDialog(
+            initial: setting,
+            fallbackColor: fallback,
+            themeHueColor: themeHueSource.toColor(),
+          ),
+        );
+        if (result == null) return;
+        final updated = result.themeHue
+            ? ColorSetting(
+                themeHue: true, sat: result.sat, val: result.val)
+            : ColorSetting(color: result.color);
+        setState(() => onChanged(updated));
+        // 先写完整配置 (含清除旧的 Theme/Sat/Val 或 hex 键) 再刷新
+        final config = await ref.read(configJsonProvider).read();
+        for (final key in ColorSetting.keys(baseKey)) {
+          config.remove(key);
+        }
+        await ref.read(configJsonProvider).write(
+            {...config, ...updated.toConfig(baseKey)});
+        ref.invalidate(textSettingsProvider);
+      },
     );
   }
 }

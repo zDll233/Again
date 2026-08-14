@@ -1,5 +1,6 @@
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -35,6 +36,8 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
           builder: (_, WidgetRef ref, __) {
             final selected = ref.watch(_voiceItemSelectedProvider(index));
             final ts = ref.watch(textSettingsProvider).valueOrNull;
+            final themeHue = resolveThemeHueSource(
+                Theme.of(context).colorScheme, kDefaultThemeSeed);
             // 外包 Material: 让 InkWell 的 ink 画在本层而非根 Material,
             // 避免选中高亮在滚动后逃逸面板裁剪
             return Material(
@@ -48,7 +51,8 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
                       ? null
                       : TextStyle(
                           fontSize: ts.panelTextSize,
-                          color: ts.panelTextColor,
+                          color: ts.panelTextColor?.resolve(
+                              Colors.transparent, themeHue),
                         ),
                 ),
                 onTap: () =>

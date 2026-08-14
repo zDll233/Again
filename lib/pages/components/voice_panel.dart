@@ -24,6 +24,11 @@ class VoicePanel<T> extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final ts = ref.watch(textSettingsProvider).valueOrNull;
+    // 主题色相来源 (primary 无彩色时回退 seed)
+    final primaryHsv = HSVColor.fromColor(scheme.primary);
+    final themeHue = primaryHsv.saturation > 0.1
+        ? primaryHsv
+        : HSVColor.fromColor(kDefaultThemeSeed);
     // 三种窗口效果统一使用 LiquidGlass 表面 (高亮细边 + 玻璃质感),
     // 毛玻璃模式着色更淡 (背景透出), 透明/不透明模式着色更深 (面板层次)。
     final effect =
@@ -49,7 +54,10 @@ class VoicePanel<T> extends ConsumerWidget {
                         title,
                         style: textTheme.titleSmall?.copyWith(
                           fontSize: ts?.panelTitleSize,
-                          color: ts?.panelTitleColor ??
+                          color: ts?.panelTitleColor
+                                  ?.resolve(
+                                      scheme.onSurface.withValues(alpha: 0.75),
+                                      themeHue) ??
                               scheme.onSurface.withValues(alpha: 0.75),
                         ),
                       ),

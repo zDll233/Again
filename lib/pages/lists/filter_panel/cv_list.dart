@@ -89,6 +89,8 @@ class _CvListState extends ConsumerState<CvList> {
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_cvSelectedProvider(index));
         final ts = ref.watch(textSettingsProvider).valueOrNull;
+        final themeHue = resolveThemeHueSource(
+            Theme.of(context).colorScheme, kDefaultThemeSeed);
         return Material(
           color: Colors.transparent,
           child: ListTile(
@@ -100,7 +102,8 @@ class _CvListState extends ConsumerState<CvList> {
                   ? null
                   : TextStyle(
                       fontSize: ts.panelTextSize,
-                      color: ts.panelTextColor,
+                      color: ts.panelTextColor?.resolve(
+                          Colors.transparent, themeHue),
                     ),
             ),
             onTap: () => ref.read(cvProvider.notifier).onSelected(index),
