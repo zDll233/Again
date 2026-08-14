@@ -313,6 +313,80 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
+                        _sectionTitle('界面'),
+                        _card(
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.search),
+                              title: const Text('列表搜索'),
+                              subtitle: const Text('作品/分类/声优列表的搜索框'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _searchEnabled,
+                                    onChanged: (value) async {
+                                      setState(() => _searchEnabled = value);
+                                      // 先写完配置再刷新, 避免读到旧值
+                                      await _save({'searchEnabled': value});
+                                      ref.invalidate(searchEnabledProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                      ['searchEnabled'],
+                                      () => _searchEnabled = true,
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                              child: Row(
+                                children: [
+                                  const Expanded(child: Text('列表密度')),
+                                  SizedBox(
+                                    width: 144,
+                                    child: SegmentedButton<String>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: 'compact',
+                                          label: Text('紧凑'),
+                                        ),
+                                        ButtonSegment(
+                                          value: 'comfortable',
+                                          label: Text('宽松'),
+                                        ),
+                                      ],
+                                      selected: {_listDensity},
+                                      showSelectedIcon: false,
+                                      style: ButtonStyle(
+                                        visualDensity:
+                                            VisualDensity.compact,
+                                      ),
+                                      // 与"歌词对齐"行同宽, 保证重置按钮对齐
+                                      onSelectionChanged: (selection) async {
+                                        setState(() =>
+                                            _listDensity = selection.first);
+                                        await _save(
+                                            {'listDensity': _listDensity});
+                                        ref.invalidate(textSettingsProvider);
+                                      },
+                                    ),
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['listDensity'], () {
+                                      _listDensity = 'compact';
+                                    });
+                                  }),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                         _sectionTitle('主题'),
                         _card(
                           children: [
@@ -456,194 +530,132 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        _sectionTitle('界面'),
-                        _card(
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.search),
-                              title: const Text('列表搜索'),
-                              subtitle: const Text('作品/分类/声优列表的搜索框'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _searchEnabled,
-                                    onChanged: (value) async {
-                                      setState(() => _searchEnabled = value);
-                                      // 先写完配置再刷新, 避免读到旧值
-                                      await _save({'searchEnabled': value});
-                                      ref.invalidate(searchEnabledProvider);
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['searchEnabled'],
-                                      () => _searchEnabled = true,
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                              child: Row(
-                                children: [
-                                  const Expanded(child: Text('列表密度')),
-                                  SizedBox(
-                                    width: 144,
-                                    child: SegmentedButton<String>(
-                                      segments: const [
-                                        ButtonSegment(
-                                          value: 'compact',
-                                          label: Text('紧凑'),
-                                        ),
-                                        ButtonSegment(
-                                          value: 'comfortable',
-                                          label: Text('宽松'),
-                                        ),
-                                      ],
-                                      selected: {_listDensity},
-                                      showSelectedIcon: false,
-                                      style: ButtonStyle(
-                                        visualDensity:
-                                            VisualDensity.compact,
-                                      ),
-                                      // 与"歌词对齐"行同宽, 保证重置按钮对齐
-                                      onSelectionChanged: (selection) async {
-                                        setState(() =>
-                                            _listDensity = selection.first);
-                                        await _save(
-                                            {'listDensity': _listDensity});
-                                        ref.invalidate(textSettingsProvider);
-                                      },
-                                    ),
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(['listDensity'], () {
-                                      _listDensity = 'compact';
-                                    });
-                                  }),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
                         _sectionTitle('文字'),
                         _card(
                           children: [
-                            _textSizeTile('列表文字', _panelTextSize,
-                                'panelTextSize', 16, (v) {
-                              _panelTextSize = v;
-                            }),
-                            _textSizeTile('面板标题', _panelTitleSize,
-                                'panelTitleSize', 14, (v) {
-                              _panelTitleSize = v;
-                            }),
-                            _textSizeTile('进度时间', _progressTextSize,
-                                'progressTextSize', 16, (v) {
-                              _progressTextSize = v;
-                            }),
-                            _textSizeTile('歌词标题', _lyricTitleSize,
-                                'lyricTitleSize', 28, (v) {
-                              _lyricTitleSize = v;
-                            }),
-                            _textSizeTile('歌词', _lyricSize, 'lyricSize', 18,
-                                (v) {
-                              _lyricSize = v;
-                            }),
-                            _textSizeTile('歌词行间距', _lyricLineGap,
-                                'lyricLineGap', 25, (v) {
-                              _lyricLineGap = v;
-                            }),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                              child: Row(
-                                children: [
-                                  const Expanded(child: Text('歌词对齐')),
-                                  SizedBox(
-                                    width: 144,
-                                    child: SegmentedButton<String>(
-                                      segments: const [
-                                        ButtonSegment(
-                                          value: 'center',
-                                          label: Text('居中'),
-                                        ),
-                                        ButtonSegment(
-                                          value: 'left',
-                                          label: Text('靠左'),
-                                        ),
-                                      ],
-                                      selected: {_lyricAlign},
-                                      showSelectedIcon: false,
-                                      style: ButtonStyle(
-                                        visualDensity:
-                                            VisualDensity.compact,
-                                      ),
-                                      onSelectionChanged: (selection) async {
-                                        setState(() => _lyricAlign =
-                                            selection.first);
-                                        await _save(
-                                            {'lyricAlign': _lyricAlign});
-                                        ref.invalidate(
-                                            textSettingsProvider);
-                                      },
-                                    ),
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                        ['lyricAlign'], () {
-                                      _lyricAlign = 'center';
-                                    });
-                                  }),
-                                ],
-                              ),
+                            _textGroup(
+                              title: '界面文字',
+                              children: [
+                                _textSizeTile('列表文字', _panelTextSize,
+                                    'panelTextSize', 16, (v) {
+                                  _panelTextSize = v;
+                                }),
+                                _textColorTile(
+                                  '列表文字',
+                                  _panelTextColor,
+                                  'panelTextColor',
+                                  Theme.of(context).colorScheme.onSurface,
+                                  (v) => _panelTextColor = v,
+                                ),
+                                _textSizeTile('面板标题', _panelTitleSize,
+                                    'panelTitleSize', 14, (v) {
+                                  _panelTitleSize = v;
+                                }),
+                                _textColorTile(
+                                  '面板标题',
+                                  _panelTitleColor,
+                                  'panelTitleColor',
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.75),
+                                  (v) => _panelTitleColor = v,
+                                ),
+                                _textSizeTile('进度时间', _progressTextSize,
+                                    'progressTextSize', 16, (v) {
+                                  _progressTextSize = v;
+                                }),
+                                _textColorTile(
+                                  '进度时间',
+                                  _progressTextColor,
+                                  'progressTextColor',
+                                  Theme.of(context).colorScheme.onSurface,
+                                  (v) => _progressTextColor = v,
+                                ),
+                              ],
                             ),
                           ],
                         ),
                         _card(
                           children: [
-                            _textColorTile(
-                              '列表文字',
-                              _panelTextColor,
-                              'panelTextColor',
-                              Theme.of(context).colorScheme.onSurface,
-                              (v) => _panelTextColor = v,
-                            ),
-                            _textColorTile(
-                              '面板标题',
-                              _panelTitleColor,
-                              'panelTitleColor',
-                              Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.75),
-                              (v) => _panelTitleColor = v,
-                            ),
-                            _textColorTile(
-                              '进度时间',
-                              _progressTextColor,
-                              'progressTextColor',
-                              Theme.of(context).colorScheme.onSurface,
-                              (v) => _progressTextColor = v,
-                            ),
-                            _textColorTile(
-                              '歌词高亮',
-                              _lyricHighlightColor,
-                              'lyricHighlightColor',
-                              Theme.of(context).colorScheme.primary,
-                              (v) => _lyricHighlightColor = v,
-                            ),
-                            _textColorTile(
-                              '歌词其他',
-                              _lyricColor,
-                              'lyricColor',
-                              Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.55),
-                              (v) => _lyricColor = v,
+                            _textGroup(
+                              title: '歌词文字',
+                              children: [
+                                _textSizeTile('歌词标题', _lyricTitleSize,
+                                    'lyricTitleSize', 28, (v) {
+                                  _lyricTitleSize = v;
+                                }),
+                                _textSizeTile('歌词', _lyricSize, 'lyricSize',
+                                    18, (v) {
+                                  _lyricSize = v;
+                                }),
+                                _textSizeTile('歌词行间距', _lyricLineGap,
+                                    'lyricLineGap', 25, (v) {
+                                  _lyricLineGap = v;
+                                }),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      16, 4, 16, 12),
+                                  child: Row(
+                                    children: [
+                                      const Expanded(child: Text('歌词对齐')),
+                                      SizedBox(
+                                        width: 144,
+                                        child: SegmentedButton<String>(
+                                          segments: const [
+                                            ButtonSegment(
+                                              value: 'center',
+                                              label: Text('居中'),
+                                            ),
+                                            ButtonSegment(
+                                              value: 'left',
+                                              label: Text('靠左'),
+                                            ),
+                                          ],
+                                          selected: {_lyricAlign},
+                                          showSelectedIcon: false,
+                                          style: ButtonStyle(
+                                            visualDensity:
+                                                VisualDensity.compact,
+                                          ),
+                                          onSelectionChanged:
+                                              (selection) async {
+                                            setState(() => _lyricAlign =
+                                                selection.first);
+                                            await _save(
+                                                {'lyricAlign': _lyricAlign});
+                                            ref.invalidate(
+                                                textSettingsProvider);
+                                          },
+                                        ),
+                                      ),
+                                      _resetButton(() {
+                                        _resetToDefault(
+                                            ['lyricAlign'], () {
+                                          _lyricAlign = 'center';
+                                        });
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                _textColorTile(
+                                  '歌词高亮',
+                                  _lyricHighlightColor,
+                                  'lyricHighlightColor',
+                                  Theme.of(context).colorScheme.primary,
+                                  (v) => _lyricHighlightColor = v,
+                                ),
+                                _textColorTile(
+                                  '歌词其他',
+                                  _lyricColor,
+                                  'lyricColor',
+                                  Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.55),
+                                  (v) => _lyricColor = v,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -691,6 +703,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           ],
         ),
       ),
+    );
+  }
+
+  /// 可折叠的文字设置分组 (默认展开)。
+  Widget _textGroup({
+    required String title,
+    required List<Widget> children,
+  }) {
+    return ExpansionTile(
+      title: Text(title),
+      initiallyExpanded: true,
+      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+      childrenPadding: EdgeInsets.zero,
+      // 去掉 ExpansionTile 自带的分隔线/边框, 由外层卡片统一
+      shape: const Border(),
+      collapsedShape: const Border(),
+      iconColor: Theme.of(context).colorScheme.onSurface,
+      collapsedIconColor: Theme.of(context).colorScheme.onSurface,
+      children: children,
     );
   }
 
