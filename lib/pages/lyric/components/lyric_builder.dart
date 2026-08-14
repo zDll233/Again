@@ -45,7 +45,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
-      highLightTextColor: scheme.primary,
+      // 高亮部分提亮一档, 与变暗的未播放部分拉开对比
+      highLightTextColor:
+          Color.lerp(scheme.primary, Colors.white, 0.22),
     );
 
     final appSize = MediaQuery.of(context).size;
