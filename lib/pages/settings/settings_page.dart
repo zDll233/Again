@@ -41,7 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _lyricLineGap = 25;
   String _lyricAlign = 'left';
   String _listDensity = 'comfortable';
-  bool _lyricEnlarge = true;
+  double _lyricCurrentSize = 20;
   bool _loading = true;
 
   @override
@@ -88,7 +88,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = ts.listDensity;
       _coverTilt = ts.coverTilt;
       _coverReflection = ts.coverReflection;
-      _lyricEnlarge = ts.lyricEnlarge;
+      _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
   }
@@ -207,7 +207,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = 'comfortable';
       _coverTilt = true;
       _coverReflection = true;
-      _lyricEnlarge = true;
+      _lyricCurrentSize = _lyricSize + 2;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
@@ -761,26 +761,44 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         .onSurface
                                         .withValues(alpha: 0.6),
                                   ),
-                                  title: const Text('当前行字体放大'),
+                                  title: const Text('当前行字号'),
                                   contentPadding: const EdgeInsets.only(
                                       left: 16, right: 16),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      Switch(
-                                        value: _lyricEnlarge,
-                                        onChanged: (value) async {
-                                          setState(
-                                              () => _lyricEnlarge = value);
-                                          await _save(
-                                              {'lyricEnlarge': value});
-                                          ref.invalidate(
-                                              textSettingsProvider);
-                                        },
+                                      Text(
+                                        _lyricCurrentSize.toStringAsFixed(0),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Slider(
+                                          value: _lyricCurrentSize,
+                                          min: 10,
+                                          max: 30,
+                                          onChanged: (v) => setState(() =>
+                                              _lyricCurrentSize = v),
+                                          onChangeEnd: (v) async {
+                                            await _save({
+                                              'lyricCurrentSize': v.round()
+                                            });
+                                            ref.invalidate(
+                                                textSettingsProvider);
+                                          },
+                                        ),
                                       ),
                                       _resetButton(() {
-                                        _resetToDefault(['lyricEnlarge'],
-                                            () => _lyricEnlarge = true);
+                                        _resetToDefault(
+                                            ['lyricCurrentSize'], () {
+                                          _lyricCurrentSize = _lyricSize + 2;
+                                        });
                                       }),
                                     ],
                                   ),

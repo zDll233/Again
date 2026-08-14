@@ -76,7 +76,7 @@ class TextSettings {
   final String listDensity; // 'compact' | 'comfortable'
   final bool coverTilt; // 封面 3D 倾斜动画
   final bool coverReflection; // 封面倒影
-  final bool lyricEnlarge; // 当前播放歌词行字体放大
+  final double lyricCurrentSize; // 当前播放歌词行字号 (缺省 = 歌词字号 + 2)
 
   const TextSettings({
     this.panelTextSize = 14,
@@ -84,6 +84,7 @@ class TextSettings {
     this.progressTextSize = 16,
     this.lyricTitleSize = 28,
     this.lyricSize = 18,
+    this.lyricCurrentSize = 20,
     this.panelTextColor,
     this.panelTitleColor,
     this.progressTextColor,
@@ -95,7 +96,6 @@ class TextSettings {
     this.listDensity = 'comfortable',
     this.coverTilt = true,
     this.coverReflection = true,
-    this.lyricEnlarge = true,
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -128,6 +128,9 @@ class TextSettings {
       progressTextSize: size('progressTextSize', 16),
       lyricTitleSize: size('lyricTitleSize', 28),
       lyricSize: size('lyricSize', 18),
+      // 当前行字号缺省跟随歌词字号 + 2
+      lyricCurrentSize:
+          size('lyricCurrentSize', size('lyricSize', 18) + 2),
       panelTextColor: color('panelTextColor'),
       panelTitleColor: color('panelTitleColor'),
       progressTextColor: color('progressTextColor'),
@@ -141,7 +144,6 @@ class TextSettings {
           : 'comfortable',
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
-      lyricEnlarge: config['lyricEnlarge'] != false,
     );
   }
 
@@ -152,6 +154,7 @@ class TextSettings {
     'progressTextSize',
     'lyricTitleSize',
     'lyricSize',
+    'lyricCurrentSize',
     'lyricLineGap',
     'lyricAlign',
     'listDensity',

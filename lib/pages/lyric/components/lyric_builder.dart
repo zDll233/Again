@@ -50,11 +50,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             scheme.primary, themeHue) ??
         HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
     final lyricUi = UINetease(
-      defaultSize: ts?.lyricSize ?? 18,
-      // 当前行放大效果 (可关闭)
-      otherMainSize: (ts?.lyricEnlarge != false)
-          ? (ts?.lyricSize ?? 18) - 2
-          : (ts?.lyricSize ?? 18),
+      defaultSize: ts?.lyricCurrentSize ?? (ts?.lyricSize ?? 18) + 2,
+      otherMainSize: ts?.lyricSize ?? 18,
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
