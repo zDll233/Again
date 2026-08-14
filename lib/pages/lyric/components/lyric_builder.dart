@@ -207,10 +207,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           children: [
             cover(size, size),
             const SizedBox(height: 6),
-            // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3
-            SizedBox(
-              height: size / 3,
-              child: ClipRect(
+          // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3;
+          // 镜像顶部对齐封面底部 (只显示裁剪后可见部分的镜像)
+          SizedBox(
+            height: size / 3,
+            child: ClipRect(
+              child: Align(
+                alignment: Alignment.topCenter,
                 child: ShaderMask(
                   shaderCallback: (rect) => const LinearGradient(
                     begin: Alignment.topCenter,
@@ -220,12 +223,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   blendMode: BlendMode.modulate,
                   child: Opacity(
                     opacity: 0.5,
-                    child:
-                        Transform.flip(flipY: true, child: cover(size, size)),
+                    child: Transform.flip(
+                        flipY: true, child: cover(size, size)),
                   ),
                 ),
               ),
             ),
+          ),
           ],
         ),
       ),
