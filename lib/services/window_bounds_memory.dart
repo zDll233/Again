@@ -50,23 +50,29 @@ class WindowBoundsMemory extends WindowListener {
   }
 }
 
-/// 启动时恢复上次窗口位置/尺寸; 无记录或记录无效则跳过 (保持默认居中)。
+/// 启动时恢复上次窗口位置/尺寸 (按设置分别生效); 记录无效或开关关闭则跳过。
 Future<void> restoreWindowBounds(JsonStorage storage) async {
   try {
     final config = await storage.read();
     final b = config['windowBounds'];
-    if (b is Map &&
-        b['x'] is num &&
-        b['y'] is num &&
-        b['w'] is num &&
-        b['h'] is num) {
-      final x = (b['x'] as num).toDouble();
-      final y = (b['y'] as num).toDouble();
-      final w = (b['w'] as num).toDouble();
-      final h = (b['h'] as num).toDouble();
-      if (w >= 400 && h >= 300) {
-        await windowManager.setBounds(Rect.fromLTWH(x, y, w, h));
-      }
+    if (b is! Map) return;
+    final rememberPos = config['rememberWindowPos'] != false;
+    final rememberSize = config['rememberWindowSize'] != false;
+    final sizeValid =
+        b['w'] is num && b['h'] is num && (b['w'] as num) >= 400 &&
+            (b['h'] as num) >= 300;
+    final posValid = b['x'] is num && b['y'] is num;
+    if (rememberSize && sizeValid) {
+      await windowManager.setSize(Size(
+        (b['w'] as num).toDouble(),
+        (b['h'] as num).toDouble(),
+      ));
+    }
+    if (rememberPos && posValid) {
+      await windowManager.setPosition(Offset(
+        (b['x'] as num).toDouble(),
+        (b['y'] as num).toDouble(),
+      ));
     }
   } catch (e) {
     Log.error('restoreWindowBounds error: $e');

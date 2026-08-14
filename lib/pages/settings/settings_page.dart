@@ -20,6 +20,8 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _voiceWorkRoot = '';
   bool _closeToTray = true;
+  bool _rememberWindowPos = true;
+  bool _rememberWindowSize = true;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
   String _textColorMode = TEXT_MODE_FOLLOW;
@@ -63,6 +65,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() {
       _voiceWorkRoot = config['voiceWorkRoot'] ?? '';
       _closeToTray = config['closeToTray'] != false;
+      _rememberWindowPos = config['rememberWindowPos'] != false;
+      _rememberWindowSize = config['rememberWindowSize'] != false;
       _windowEffect = resolveWindowEffect(config);
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
           kDefaultThemeSeed;
@@ -255,6 +259,52 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ],
                               ),
                             ),
+                            ListTile(
+                              leading: const Icon(Icons.location_on_outlined),
+                              title: const Text('记住窗口位置'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _rememberWindowPos,
+                                    onChanged: (value) {
+                                      setState(
+                                          () => _rememberWindowPos = value);
+                                      _save({'rememberWindowPos': value});
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                      ['rememberWindowPos'],
+                                      () => _rememberWindowPos = true,
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.aspect_ratio),
+                              title: const Text('记住窗口大小'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _rememberWindowSize,
+                                    onChanged: (value) {
+                                      setState(
+                                          () => _rememberWindowSize = value);
+                                      _save({'rememberWindowSize': value});
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                      ['rememberWindowSize'],
+                                      () => _rememberWindowSize = true,
+                                    );
+                                  }),
+                                ],
+                              ),
+                            ),
                           ],
                         ),
                         _sectionTitle('主题'),
@@ -427,30 +477,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               child: Row(
                                 children: [
                                   const Expanded(child: Text('列表密度')),
-                                  SegmentedButton<String>(
-                                    segments: const [
-                                      ButtonSegment(
-                                        value: 'compact',
-                                        label: Text('紧凑'),
+                                  SizedBox(
+                                    width: 168,
+                                    child: SegmentedButton<String>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: 'compact',
+                                          label: Text('紧凑'),
+                                        ),
+                                        ButtonSegment(
+                                          value: 'comfortable',
+                                          label: Text('宽松'),
+                                        ),
+                                      ],
+                                      selected: {_listDensity},
+                                      showSelectedIcon: false,
+                                      style: ButtonStyle(
+                                        visualDensity:
+                                            VisualDensity.compact,
                                       ),
-                                      ButtonSegment(
-                                        value: 'comfortable',
-                                        label: Text('舒适'),
-                                      ),
-                                    ],
-                                    selected: {_listDensity},
-                                    showSelectedIcon: false,
-                                    style: ButtonStyle(
-                                      visualDensity:
-                                          VisualDensity.compact,
+                                      // 与"歌词对齐"行同宽, 保证重置按钮对齐
+                                      onSelectionChanged: (selection) async {
+                                        setState(() =>
+                                            _listDensity = selection.first);
+                                        await _save(
+                                            {'listDensity': _listDensity});
+                                        ref.invalidate(textSettingsProvider);
+                                      },
                                     ),
-                                    onSelectionChanged: (selection) async {
-                                      setState(() =>
-                                          _listDensity = selection.first);
-                                      await _save(
-                                          {'listDensity': _listDensity});
-                                      ref.invalidate(textSettingsProvider);
-                                    },
                                   ),
                                   _resetButton(() {
                                     _resetToDefault(['listDensity'], () {
@@ -494,29 +548,34 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               child: Row(
                                 children: [
                                   const Expanded(child: Text('歌词对齐')),
-                                  SegmentedButton<String>(
-                                    segments: const [
-                                      ButtonSegment(
-                                        value: 'center',
-                                        label: Text('居中'),
+                                  SizedBox(
+                                    width: 168,
+                                    child: SegmentedButton<String>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: 'center',
+                                          label: Text('居中'),
+                                        ),
+                                        ButtonSegment(
+                                          value: 'left',
+                                          label: Text('靠左'),
+                                        ),
+                                      ],
+                                      selected: {_lyricAlign},
+                                      showSelectedIcon: false,
+                                      style: ButtonStyle(
+                                        visualDensity:
+                                            VisualDensity.compact,
                                       ),
-                                      ButtonSegment(
-                                        value: 'left',
-                                        label: Text('靠左'),
-                                      ),
-                                    ],
-                                    selected: {_lyricAlign},
-                                    showSelectedIcon: false,
-                                    style: ButtonStyle(
-                                      visualDensity:
-                                          VisualDensity.compact,
+                                      onSelectionChanged: (selection) async {
+                                        setState(() => _lyricAlign =
+                                            selection.first);
+                                        await _save(
+                                            {'lyricAlign': _lyricAlign});
+                                        ref.invalidate(
+                                            textSettingsProvider);
+                                      },
                                     ),
-                                    onSelectionChanged: (selection) async {
-                                      setState(
-                                          () => _lyricAlign = selection.first);
-                                      await _save({'lyricAlign': _lyricAlign});
-                                      ref.invalidate(textSettingsProvider);
-                                    },
                                   ),
                                   _resetButton(() {
                                     _resetToDefault(

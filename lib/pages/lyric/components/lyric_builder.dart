@@ -100,11 +100,16 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                         .watch(audioProvider.select((state) => state.position));
                     final isPlaying = ref.watch(
                         audioProvider.select((state) => state.isPlaying));
-                    return LyricsReader(
-                      model: cachedLyricModel,
-                      position: position.inMilliseconds,
-                      playing: isPlaying,
-                      emptyBuilder: () => EmptyLyric(
+                  return LyricsReader(
+                    model: cachedLyricModel,
+                    position: position.inMilliseconds,
+                    playing: isPlaying,
+                    // 左对齐时歌词起点与指示条横线起点对齐
+                    // (指示条图标区 = 25 左边距 + 32 图标宽)
+                    padding: ts?.lyricAlign == 'left'
+                        ? const EdgeInsets.only(left: 57)
+                        : null,
+                    emptyBuilder: () => EmptyLyric(
                         haveLyric: _hasLyric,
                         readLyric: _readLyric,
                       ),
