@@ -61,17 +61,18 @@ class _InitializationState extends ConsumerState<Initialization> {
 }
 
 final _initProvider = FutureProvider.autoDispose((ref) async {
+  // 立即应用窗口背景效果 (transparent/acrylic/opaque), 不依赖后续初始化,
+  // 避免启动后窗口先以默认效果显示, 过一会才切到亚克力
+  final config = await ref.read(configJsonProvider).read();
+  unawaited(ref
+      .read(uiServiceProvider)
+      .applyWindowEffect(resolveWindowEffect(config)));
   // 恢复上次窗口位置/尺寸 (默认行为)
   await restoreWindowBounds(ref.read(configJsonProvider));
   await ref.read(dbNotifierProvider).initialize();
   await ref.read(historyManagerProvider).loadHistory();
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突
   await SystemTrayListener.init(ref);
-  // 应用窗口背景效果 (transparent/acrylic/opaque), 不阻塞初始化
-  final config = await ref.read(configJsonProvider).read();
-  unawaited(ref
-      .read(uiServiceProvider)
-      .applyWindowEffect(resolveWindowEffect(config)));
   // 启动完成后再静默增量刷新, 不阻塞初始化
   unawaited(ref.read(dbNotifierProvider).silentRefresh());
 });
