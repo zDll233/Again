@@ -170,9 +170,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
     if (confirmed != true || !mounted) return;
 
+    // 保留音声根目录 (重置应用设置, 不重置数据目录)
+    final config = await ref.read(configJsonProvider).read();
+    final voiceWorkRoot =
+        config['voiceWorkRoot'] is String && (config['voiceWorkRoot'] as String).isNotEmpty
+            ? config['voiceWorkRoot'] as String
+            : _voiceWorkRoot;
+
     setState(() {
       // 全部恢复默认值 (与 TextSettings / resolveWindowEffect 默认一致)
-      _voiceWorkRoot = '';
       _closeToTray = true;
       _rememberWindowPos = true;
       _rememberWindowSize = true;
@@ -194,8 +200,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricAlign = 'center';
       _listDensity = 'compact';
     });
-    // 清空配置文件 (所有键走默认), 刷新 provider 并重新应用窗口效果
-    await ref.read(configJsonProvider).write({});
+    // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
+    await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);

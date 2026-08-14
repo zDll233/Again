@@ -218,12 +218,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 shaderCallback: (rect) => const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x66FFFFFF), Color(0x00FFFFFF)],
+                  colors: [Color(0x40FFFFFF), Color(0x00FFFFFF)],
                   stops: [0.0, 0.33],
                 ).createShader(rect),
                 blendMode: BlendMode.modulate,
                 child: Opacity(
-                  opacity: 0.5,
+                  opacity: 0.35,
                   child:
                       Transform.flip(flipY: true, child: cover(size, size)),
                 ),
