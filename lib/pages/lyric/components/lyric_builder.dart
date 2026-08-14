@@ -51,7 +51,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         ? primaryHsv
         : HSVColor.fromColor(seedColor);
     final highlightColor =
-        HSVColor.fromAHSV(1, base.hue, 0.75, 0.92).toColor();
+        HSVColor.fromAHSV(1, base.hue, 0.7, 0.9).toColor();
     final lyricUi = UINetease(
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
