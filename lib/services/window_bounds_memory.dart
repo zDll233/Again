@@ -56,7 +56,7 @@ Future<void> restoreWindowBounds(JsonStorage storage) async {
     final config = await storage.read();
     final b = config['windowBounds'];
     if (b is! Map) return;
-    final rememberPos = config['rememberWindowPos'] != false;
+    final rememberPos = config['rememberWindowPos'] == true;
     final rememberSize = config['rememberWindowSize'] != false;
     final sizeValid =
         b['w'] is num && b['h'] is num && (b['w'] as num) >= 400 &&

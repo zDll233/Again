@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 默认主题种子色 (对应 kDefaultThemeSeedHex)。
-const Color kDefaultThemeSeed = Color(0xFF9C6BFF);
+const Color kDefaultThemeSeed = Color(0xFF00BCD4);
 
 /// 解析自定义主题色, 缺省返回默认紫色 (#RRGGBB)。
 String resolveThemeSeedHex(Map<String, dynamic> config) {

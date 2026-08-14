@@ -76,7 +76,7 @@ class TextSettings {
   final String listDensity; // 'compact' | 'comfortable'
 
   const TextSettings({
-    this.panelTextSize = 16,
+    this.panelTextSize = 14,
     this.panelTitleSize = 14,
     this.progressTextSize = 16,
     this.lyricTitleSize = 28,
@@ -88,8 +88,8 @@ class TextSettings {
     this.lyricColor,
     this.lyricTitleColor,
     this.lyricLineGap = 25,
-    this.lyricAlign = 'center',
-    this.listDensity = 'compact',
+    this.lyricAlign = 'left',
+    this.listDensity = 'comfortable',
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -129,9 +129,10 @@ class TextSettings {
       lyricColor: color('lyricColor'),
       lyricTitleColor: color('lyricTitleColor'),
       lyricLineGap: size('lyricLineGap', 25),
-      lyricAlign: config['lyricAlign'] == 'left' ? 'left' : 'center',
-      listDensity:
-          config['listDensity'] == 'comfortable' ? 'comfortable' : 'compact',
+      lyricAlign: config['lyricAlign'] == 'center' ? 'center' : 'left',
+      listDensity: config['listDensity'] == 'compact'
+          ? 'compact'
+          : 'comfortable',
     );
   }
 

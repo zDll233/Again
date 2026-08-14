@@ -31,7 +31,7 @@ const String WINDOW_EFFECT_ACRYLIC = 'acrylic';
 const String WINDOW_EFFECT_OPAQUE = 'opaque';
 
 /// 默认主题色 (config.json `themeSeedColor` 缺省值, #RRGGBB)。
-const String kDefaultThemeSeedHex = '#9C6BFF';
+const String kDefaultThemeSeedHex = '#00BCD4';
 
 final configJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
   return JsonStorage(filePath: CONFIG_FILE_PATH);

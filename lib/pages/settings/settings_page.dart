@@ -19,13 +19,13 @@ class SettingsPage extends ConsumerStatefulWidget {
 class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _voiceWorkRoot = '';
   bool _closeToTray = true;
-  bool _rememberWindowPos = true;
+  bool _rememberWindowPos = false;
   bool _rememberWindowSize = true;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
   bool _searchEnabled = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
-  double _panelTextSize = 16;
+  double _panelTextSize = 14;
   double _panelTitleSize = 14;
   double _progressTextSize = 16;
   double _lyricTitleSize = 28;
@@ -37,8 +37,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ColorSetting? _lyricColor;
   ColorSetting? _lyricTitleColor;
   double _lyricLineGap = 25;
-  String _lyricAlign = 'center';
-  String _listDensity = 'compact';
+  String _lyricAlign = 'left';
+  String _listDensity = 'comfortable';
   bool _loading = true;
 
   @override
@@ -63,7 +63,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() {
       _voiceWorkRoot = config['voiceWorkRoot'] ?? '';
       _closeToTray = config['closeToTray'] != false;
-      _rememberWindowPos = config['rememberWindowPos'] != false;
+      _rememberWindowPos = config['rememberWindowPos'] == true;
       _rememberWindowSize = config['rememberWindowSize'] != false;
       _windowEffect = resolveWindowEffect(config);
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
@@ -180,12 +180,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     setState(() {
       // 全部恢复默认值 (与 TextSettings / resolveWindowEffect 默认一致)
       _closeToTray = true;
-      _rememberWindowPos = true;
+      _rememberWindowPos = false;
       _rememberWindowSize = true;
       _windowEffect = 'acrylic';
       _themeSeedColor = kDefaultThemeSeed;
       _searchEnabled = true;
-      _panelTextSize = 16;
+      _panelTextSize = 14;
       _panelTitleSize = 14;
       _progressTextSize = 16;
       _lyricTitleSize = 28;
@@ -197,8 +197,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricColor = null;
       _lyricTitleColor = null;
       _lyricLineGap = 25;
-      _lyricAlign = 'center';
-      _listDensity = 'compact';
+      _lyricAlign = 'left';
+      _listDensity = 'comfortable';
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
@@ -330,7 +330,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['rememberWindowPos'],
-                                      () => _rememberWindowPos = true,
+                                      () => _rememberWindowPos = false,
                                     );
                                   }),
                                 ],
@@ -442,7 +442,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ),
                                   _resetButton(() {
                                     _resetToDefault(['listDensity'], () {
-                                      _listDensity = 'compact';
+                                      _listDensity = 'comfortable';
                                     });
                                   }),
                                 ],
@@ -510,7 +510,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         ),
                                         ButtonSegment(
                                           value: WINDOW_EFFECT_ACRYLIC,
-                                          label: Text('毛玻璃'),
+                                          label: Text('亚克力'),
                                         ),
                                         ButtonSegment(
                                           value: WINDOW_EFFECT_OPAQUE,
@@ -565,7 +565,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               children: [
                                 // 字体大小
                                 _textSizeTile('列表文字', _panelTextSize,
-                                    'panelTextSize', 16, (v) {
+                                    'panelTextSize', 14, (v) {
                                   _panelTextSize = v;
                                 }),
                                 _textSizeTile('面板标题', _panelTitleSize,
@@ -673,7 +673,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       _resetButton(() {
                                         _resetToDefault(
                                             ['lyricAlign'], () {
-                                          _lyricAlign = 'center';
+                                          _lyricAlign = 'left';
                                         });
                                       }),
                                     ],
