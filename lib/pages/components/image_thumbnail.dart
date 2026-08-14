@@ -80,13 +80,12 @@ class ImageThumbnail extends StatelessWidget {
     final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
         ? _cachedFileImage(imagePath)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
-    // 按 DPR 换算物理像素解码, 且同时限制宽高:
-    // 只限高时源图比例与显示框不同, cover 会产生缩放导致锯齿
+    // 只限高度保持源图比例解码 (同时限宽高会直接拉伸变形);
+    // 缓存高度取显示物理高度的 2 倍, cover 缩小显示, 无锯齿
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final w = imageWidth ?? imageSize;
     final h = imageHeight ?? imageSize;
-    final cacheWidth = (w * dpr).round();
-    final cacheHeight = (h * dpr).round();
+    final cacheHeight = (h * dpr * 2).round();
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
       child: DecoratedBox(
@@ -103,8 +102,7 @@ class ImageThumbnail extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(6.0),
           child: Image(
-            image: ResizeImage(imageProvider,
-                width: cacheWidth, height: cacheHeight),
+            image: ResizeImage(imageProvider, height: cacheHeight),
             width: w,
             height: h,
             fit: BoxFit.cover,
