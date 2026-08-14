@@ -342,7 +342,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 128,
+                                    width: 144,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
@@ -433,7 +433,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 192,
+                                    width: 216,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
@@ -573,7 +573,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SizedBox(
-                                        width: 128,
+                                        width: 144,
                                         child: SegmentedButton<String>(
                                           segments: const [
                                             ButtonSegment(
