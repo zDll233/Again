@@ -427,7 +427,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         title,
         style: TextStyle(
           fontSize: 12,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: scheme.primary,
         ),
       ),

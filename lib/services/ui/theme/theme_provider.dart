@@ -115,9 +115,31 @@ ThemeData _buildTheme(Color seed, ({String mode, Color color})? text) {
           Color.alphaBlend(c.withValues(alpha: 0.72), scheme.surface),
     );
   }
-  final base = ThemeData(colorScheme: scheme);
+  final base = ThemeData(
+    colorScheme: scheme,
+    // 统一字体族: 避免 Segoe UI + 微软雅黑混排, 中文粗细不一致
+    fontFamily: 'Microsoft YaHei',
+    fontFamilyFallback: const ['Microsoft YaHei UI', 'Segoe UI', 'SimHei'],
+  );
+
+  // 字重扁平化: 微软雅黑只有 400/700 真实字重,
+  // w500/w600 会被系统合成加粗导致粗细不均, 统一映射到真实字重
+  final textTheme = base.textTheme.copyWith(
+    titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    titleMedium:
+        base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+    titleSmall:
+        base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+    labelLarge:
+        base.textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w400),
+    labelMedium:
+        base.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w400),
+    labelSmall:
+        base.textTheme.labelSmall?.copyWith(fontWeight: FontWeight.w400),
+  );
 
   return base.copyWith(
+    textTheme: textTheme,
     scaffoldBackgroundColor: Colors.transparent,
     listTileTheme: ListTileThemeData(
       selectedColor: scheme.primary,
