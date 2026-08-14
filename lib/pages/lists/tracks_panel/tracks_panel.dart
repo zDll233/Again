@@ -1,5 +1,5 @@
 import 'package:again/pages/components/voice_panel.dart';
-import 'package:again/services/ui/presentation/voice_item/voice_item_notifier.dart';
+import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lists/tracks_panel/tracks_list.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +11,8 @@ class TracksPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiService = ref.watch(uiServiceProvider);
-    final sort = ref.read(voiceItemProvider.notifier).sort;
+    final sort =
+        ref.watch(voiceItemProvider.select((state) => state.sort));
     return VoicePanel(
       title:
           '音轨(${ref.watch(voiceItemProvider.select((state) => state.values)).length})',
