@@ -198,16 +198,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             filterQuality: FilterQuality.high,
           ),
         );
-    return GestureDetector(
+    return _TiltCover(
+      coverSize: size,
       onTap: () => openImageDialog(context, imageProvider),
-      child: _TiltCover(
-        coverSize: size,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            cover(size, size),
-            // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
-          // 用 OverflowBox 允许镜像超出显示区, 渐隐在 1/3 高度处已完全透明
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          cover(size, size),
+          // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
+          // 用 OverflowBox 允许镜像超出显示区, dstIn 只做 alpha 渐隐 (颜色不失真)
           SizedBox(
             height: size / 3,
             child: OverflowBox(
@@ -217,20 +216,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 shaderCallback: (rect) => const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x40FFFFFF), Color(0x00FFFFFF)],
+                  colors: [Color(0x59FFFFFF), Color(0x00FFFFFF)],
                   stops: [0.0, 0.33],
                 ).createShader(rect),
-                blendMode: BlendMode.modulate,
-                child: Opacity(
-                  opacity: 0.35,
-                  child:
-                      Transform.flip(flipY: true, child: cover(size, size)),
-                ),
+                blendMode: BlendMode.dstIn,
+                child: Transform.flip(flipY: true, child: cover(size, size)),
               ),
             ),
           ),
-          ],
-        ),
+        ],
       ),
     );
   }
@@ -312,12 +306,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
 /// 悬停 3D 倾斜封面: 鼠标在封面边缘时, 该侧向远离用户的方向倾斜,
 /// 并叠加顶部光源响应 — 上半部分后仰时顶部反光变浅, 下半部分后仰时顶部变暗。
-/// 倒影随封面一起倾斜; 光照遮罩只作用于封面本体。
+/// 倒影随封面一起倾斜 (被动跟随); 鼠标交互 (倾斜/点击) 只在封面本体上。
 class _TiltCover extends StatefulWidget {
   final Widget child;
   final double coverSize;
+  final VoidCallback onTap;
 
-  const _TiltCover({required this.child, required this.coverSize});
+  const _TiltCover({
+    required this.child,
+    required this.coverSize,
+    required this.onTap,
+  });
 
   @override
   State<_TiltCover> createState() => _TiltCoverState();
@@ -330,77 +329,91 @@ class _TiltCoverState extends State<_TiltCover> {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onHover: (event) {
-        // 倒影区悬停按封面底边处理, 封面中心 hover 时角度为 0
-        final dy = event.localPosition.dy.clamp(0.0, widget.coverSize);
-        final tx = ((event.localPosition.dx / widget.coverSize) - 0.5) * 2;
-        final ty = ((dy / widget.coverSize) - 0.5) * 2;
-        if (tx != _tx || ty != _ty) {
-          setState(() {
-            _tx = tx;
-            _ty = ty;
-          });
-        }
-      },
-      onExit: (_) => setState(() {
-        _tx = 0;
-        _ty = 0;
-      }),
-      // 用 TweenAnimationBuilder 平滑追赶目标角度, 移出时平滑回位
-      child: TweenAnimationBuilder<Offset>(
-        tween: Tween(begin: Offset.zero, end: Offset(_tx, _ty)),
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        builder: (context, t, child) {
-          const maxAngle = 0.12; // 约 7°
-          // 鼠标在的那一侧向远离用户的方向倾斜
-          final angleX = t.dy * maxAngle;
-          final angleY = -t.dx * maxAngle;
-          final strength = t.dy.abs().clamp(0.0, 1.0);
-          // 顶部光源: 上半部分后仰 (t.dy<0) → 顶部反光变浅;
-          // 下半部分后仰 (t.dy>0) → 上表面背光, 顶部变暗
-          final overlay = DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: t.dy < 0
-                    ? [
-                        Colors.white.withValues(alpha: 0.35 * strength),
-                        Colors.transparent,
-                      ]
-                    : [
-                        Colors.black.withValues(alpha: 0.35 * strength),
-                        Colors.transparent,
-                      ],
-              ),
-            ),
-          );
-          return Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.0012)
-              ..rotateX(angleX)
-              ..rotateY(angleY),
-            child: Stack(
-              children: [
-                child!,
-                // 光照遮罩只覆盖封面本体区域
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  width: widget.coverSize,
-                  height: widget.coverSize,
-                  child: IgnorePointer(child: overlay),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // 整组 (封面+倒影) 倾斜
+        TweenAnimationBuilder<Offset>(
+          tween: Tween(begin: Offset.zero, end: Offset(_tx, _ty)),
+          duration: const Duration(milliseconds: 180),
+          curve: Curves.easeOut,
+          builder: (context, t, child) {
+            const maxAngle = 0.12; // 约 7°
+            // 鼠标在的那一侧向远离用户的方向倾斜
+            final angleX = t.dy * maxAngle;
+            final angleY = -t.dx * maxAngle;
+            final strength = t.dy.abs().clamp(0.0, 1.0);
+            // 顶部光源: 上半部分后仰 (t.dy<0) → 顶部反光变浅;
+            // 下半部分后仰 (t.dy>0) → 上表面背光, 顶部变暗
+            final overlay = DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: t.dy < 0
+                      ? [
+                          Colors.white.withValues(alpha: 0.35 * strength),
+                          Colors.transparent,
+                        ]
+                      : [
+                          Colors.black.withValues(alpha: 0.35 * strength),
+                          Colors.transparent,
+                        ],
                 ),
-              ],
+              ),
+            );
+            return Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.identity()
+                ..setEntry(3, 2, 0.0012)
+                ..rotateX(angleX)
+                ..rotateY(angleY),
+              child: Stack(
+                children: [
+                  child!,
+                  // 光照遮罩只覆盖封面本体区域
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    width: widget.coverSize,
+                    height: widget.coverSize,
+                    child: IgnorePointer(child: overlay),
+                  ),
+                ],
+              ),
+            );
+          },
+          child: widget.child,
+        ),
+        // 鼠标交互层: 只覆盖封面本体区域 (倒影不响应)
+        Positioned(
+          width: widget.coverSize,
+          height: widget.coverSize,
+          child: MouseRegion(
+            onHover: (event) {
+              final tx =
+                  ((event.localPosition.dx / widget.coverSize) - 0.5) * 2;
+              final ty =
+                  ((event.localPosition.dy / widget.coverSize) - 0.5) * 2;
+              if (tx != _tx || ty != _ty) {
+                setState(() {
+                  _tx = tx;
+                  _ty = ty;
+                });
+              }
+            },
+            onExit: (_) => setState(() {
+              _tx = 0;
+              _ty = 0;
+            }),
+            child: GestureDetector(
+              onTap: widget.onTap,
+              child: const SizedBox.expand(),
             ),
-          );
-        },
-        child: widget.child,
-      ),
+          ),
+        ),
+      ],
     );
   }
 }
