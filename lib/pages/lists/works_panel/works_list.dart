@@ -94,54 +94,71 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
         final ts = ref.watch(textSettingsProvider).valueOrNull;
         final themeHue = resolveThemeHueSource(
             Theme.of(context).colorScheme, kDefaultThemeSeed);
-        // 外包 Material: 让 ListTile 内部 InkWell 的 ink 画在本层而非根 Material,
-        // 避免选中高亮 (Ink) 在滚动后逃逸面板裁剪
+        final scheme = Theme.of(context).colorScheme;
+        // 自绘条目: ListTile 的 leading 有最大高度约束 (dense 48/普通 56),
+        // 会压扁 75px 缩略图; 用 Row 布局保持真实 1:1 缩略图
         return Material(
           color: Colors.transparent,
-          child: ListTile(
-            leading: ImageThumbnail(imagePath: voiceWork.coverPath),
-            title: Padding(
-              padding: const EdgeInsets.only(left: 15.0, right: 5.0),
-              child: Text(
-                voiceWork.title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: ts == null
-                    ? null
-                    : TextStyle(
-                        fontSize: ts.panelTextSize,
-                        color: ts.panelTextColor?.resolve(
-                            Colors.transparent, themeHue),
-                      ),
-              ),
-            ),
-            subtitle: voiceWork.sourceId.isEmpty
-                ? null
-                : Padding(
-                    padding: const EdgeInsets.only(left: 15.0, top: 2.0),
-                    child: Text(
-                      voiceWork.sourceId,
-                      style: TextStyle(
-                        fontSize: 11.0,
-                        // 选中项的 RJ 号跟随主题色
-                        color: selected
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.45),
-                      ),
-                    ),
-                  ),
-            trailing: VwMenuBtn(voiceWork: voiceWork),
+          child: InkWell(
             onTap: () =>
                 ref.read(voiceWorkProvider.notifier).onSelected(index),
-            selected: selected,
-            contentPadding: EdgeInsets.symmetric(
-              vertical: ts?.listDensity == 'comfortable' ? 12.0 : 5.0,
-              horizontal: 10.0,
+            borderRadius: BorderRadius.circular(10),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                vertical: ts?.listDensity == 'comfortable' ? 12.0 : 5.0,
+                horizontal: 10.0,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                // 复刻 ListTile 的 selectedTileColor 高亮
+                color: selected
+                    ? scheme.secondaryContainer.withValues(alpha: 0.20)
+                    : Colors.transparent,
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ImageThumbnail(imagePath: voiceWork.coverPath),
+                  const SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          voiceWork.title,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: ts?.panelTextSize,
+                            color: selected
+                                ? scheme.primary
+                                : ts?.panelTextColor?.resolve(
+                                    Colors.transparent, themeHue),
+                          ),
+                        ),
+                        if (voiceWork.sourceId.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2.0),
+                            child: Text(
+                              voiceWork.sourceId,
+                              style: TextStyle(
+                                fontSize: 11.0,
+                                // 选中项的 RJ 号跟随主题色
+                                color: selected
+                                    ? scheme.primary
+                                    : scheme.onSurface
+                                        .withValues(alpha: 0.45),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  VwMenuBtn(voiceWork: voiceWork),
+                ],
+              ),
             ),
-            horizontalTitleGap: 0.0,
           ),
         );
       },
