@@ -90,7 +90,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
                   return Padding(
                     padding: EdgeInsets.only(top: (height - coverSize) / 2),
-                    child: _buildCover(snapshot.data!, coverSize),
+                    child: _buildCover(snapshot.data!, coverSize,
+                        tilt: ts?.coverTilt != false,
+                        reflection: ts?.coverReflection != false),
                   );
                 },
               ),
@@ -180,8 +182,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
   }
 
-  /// 封面 + 下方渐隐倒影 (镜像翻转), 点击可放大。
-  Widget _buildCover(String coverPath, double size) {
+  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大。
+  Widget _buildCover(String coverPath, double size,
+      {bool tilt = true, bool reflection = true}) {
     final coverFile = File(coverPath);
     final imageProvider = coverPath.isNotEmpty && coverFile.existsSync()
         ? FileImage(coverFile)
@@ -198,13 +201,11 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             filterQuality: FilterQuality.high,
           ),
         );
-    return _TiltCover(
-      coverSize: size,
-      onTap: () => openImageDialog(context, imageProvider),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          cover(size, size),
+    final coverBody = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        cover(size, size),
+        if (reflection)
           // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
           // 用 OverflowBox 允许镜像超出显示区, dstIn 只做 alpha 渐隐 (颜色不失真)
           SizedBox(
@@ -220,12 +221,24 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   stops: [0.0, 0.33],
                 ).createShader(rect),
                 blendMode: BlendMode.dstIn,
-                child: Transform.flip(flipY: true, child: cover(size, size)),
+                child:
+                    Transform.flip(flipY: true, child: cover(size, size)),
               ),
             ),
           ),
-        ],
-      ),
+      ],
+    );
+    if (!tilt) {
+      // 关闭倾斜: 直接显示封面, 保留点击放大
+      return GestureDetector(
+        onTap: () => openImageDialog(context, imageProvider),
+        child: coverBody,
+      );
+    }
+    return _TiltCover(
+      coverSize: size,
+      onTap: () => openImageDialog(context, imageProvider),
+      child: coverBody,
     );
   }
 

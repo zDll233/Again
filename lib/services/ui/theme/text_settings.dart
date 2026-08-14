@@ -74,6 +74,8 @@ class TextSettings {
   final double lyricLineGap;
   final String lyricAlign; // 'center' | 'left'
   final String listDensity; // 'compact' | 'comfortable'
+  final bool coverTilt; // 封面 3D 倾斜动画
+  final bool coverReflection; // 封面倒影
 
   const TextSettings({
     this.panelTextSize = 14,
@@ -90,6 +92,8 @@ class TextSettings {
     this.lyricLineGap = 25,
     this.lyricAlign = 'left',
     this.listDensity = 'comfortable',
+    this.coverTilt = true,
+    this.coverReflection = true,
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -133,6 +137,8 @@ class TextSettings {
       listDensity: config['listDensity'] == 'compact'
           ? 'compact'
           : 'comfortable',
+      coverTilt: config['coverTilt'] != false,
+      coverReflection: config['coverReflection'] != false,
     );
   }
 
@@ -146,6 +152,8 @@ class TextSettings {
     'lyricLineGap',
     'lyricAlign',
     'listDensity',
+    'coverTilt',
+    'coverReflection',
   ];
 
   static const List<String> colorBaseKeys = [

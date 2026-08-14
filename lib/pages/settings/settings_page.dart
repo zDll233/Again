@@ -24,6 +24,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
   bool _searchEnabled = false;
+  bool _coverTilt = true;
+  bool _coverReflection = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = 14;
   double _panelTitleSize = 14;
@@ -83,6 +85,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricLineGap = ts.lyricLineGap;
       _lyricAlign = ts.lyricAlign;
       _listDensity = ts.listDensity;
+      _coverTilt = ts.coverTilt;
+      _coverReflection = ts.coverReflection;
       _loading = false;
     });
   }
@@ -199,6 +203,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricLineGap = 25;
       _lyricAlign = 'left';
       _listDensity = 'comfortable';
+      _coverTilt = true;
+      _coverReflection = true;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
@@ -554,6 +560,50 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     );
                                   }),
                                 ],
+                              ),
+                            ),
+                            ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.threed_rotation,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                              title: const Text('封面倾斜动画'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
+                              trailing: Switch(
+                                value: _coverTilt,
+                                onChanged: (value) {
+                                  setState(() => _coverTilt = value);
+                                  _save({'coverTilt': value});
+                                  ref.invalidate(textSettingsProvider);
+                                },
+                              ),
+                            ),
+                            ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.filter_hdr,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                              title: const Text('封面倒影'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
+                              trailing: Switch(
+                                value: _coverReflection,
+                                onChanged: (value) {
+                                  setState(() => _coverReflection = value);
+                                  _save({'coverReflection': value});
+                                  ref.invalidate(textSettingsProvider);
+                                },
                               ),
                             ),
                           ],
