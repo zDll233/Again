@@ -163,8 +163,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                                 ref.read(audioProvider.notifier).resume();
                               }
                             },
-                            // hover 行边框 + 点击涟漪, 用主题色
-                            hoverColor: scheme.primary,
+                            // hover 行边框 (Material 风白色半透明) + 点击涟漪
+                            hoverColor: Colors.white,
                             rippleColor: scheme.primary,
                             lyricUi: lyricUi,
                             waitMilliseconds: 5000,
