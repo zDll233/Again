@@ -8,6 +8,7 @@ import 'package:again/services/system_tray.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/window_bounds_memory.dart';
+import 'package:again/services/window_size_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +24,7 @@ class Initialization extends ConsumerStatefulWidget {
 class _InitializationState extends ConsumerState<Initialization> {
   late final KeyEventHandler _keyEventHandler;
   WindowBoundsMemory? _windowBoundsMemory;
+  WindowSizeGuard? _windowSizeGuard;
 
   @override
   void initState() {
@@ -31,11 +33,15 @@ class _InitializationState extends ConsumerState<Initialization> {
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
     // 窗口位置/尺寸记忆: 移动缩放后保存, 启动时恢复
     _windowBoundsMemory = WindowBoundsMemory(ref.read(configJsonProvider));
+    // view 尺寸守卫: 启动渲染完成后检查一次窗口与 view 尺寸同步,
+    // 偶发不同步 (内容缩到角落) 时强制 resize 自愈
+    _windowSizeGuard = WindowSizeGuard();
   }
 
   @override
   void dispose() {
     _windowBoundsMemory?.dispose();
+    _windowSizeGuard?.dispose();
     HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
     super.dispose();
   }
