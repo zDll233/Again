@@ -23,7 +23,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _rememberWindowSize = true;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
-  bool _searchEnabled = true;
+  bool _searchEnabled = false;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = 14;
   double _panelTitleSize = 14;
@@ -68,7 +68,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _windowEffect = resolveWindowEffect(config);
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
           kDefaultThemeSeed;
-      _searchEnabled = config['searchEnabled'] != false;
+      _searchEnabled = config['searchEnabled'] == true;
       _panelTextSize = ts.panelTextSize;
       _panelTitleSize = ts.panelTitleSize;
       _progressTextSize = ts.progressTextSize;
@@ -184,7 +184,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _rememberWindowSize = true;
       _windowEffect = 'acrylic';
       _themeSeedColor = kDefaultThemeSeed;
-      _searchEnabled = true;
+      _searchEnabled = false;
       _panelTextSize = 14;
       _panelTitleSize = 14;
       _progressTextSize = 16;
@@ -387,7 +387,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['searchEnabled'],
-                                      () => _searchEnabled = true,
+                                      () => _searchEnabled = false,
                                     );
                                   }),
                                 ],

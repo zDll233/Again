@@ -42,10 +42,10 @@ final windowEffectProvider = FutureProvider.autoDispose<String>((ref) async {
   return resolveWindowEffect(config);
 });
 
-/// 列表搜索开关 (config.json `searchEnabled`, 默认开启)。
+/// 列表搜索开关 (config.json `searchEnabled`, 默认关闭)。
 final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
   final config = await ref.read(configJsonProvider).read();
-  return config['searchEnabled'] != false;
+  return config['searchEnabled'] == true;
 });
 
 /// 应用主题: 由自定义主题色生成。

@@ -39,7 +39,7 @@ class _CategoryListState extends ConsumerState<CategoryList> {
     }
     // 搜索关闭时直接显示全量列表
     final searchEnabled =
-        ref.watch(searchEnabledProvider).valueOrNull ?? true;
+        ref.watch(searchEnabledProvider).valueOrNull ?? false;
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,
