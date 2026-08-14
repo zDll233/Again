@@ -74,6 +74,10 @@ class ImageThumbnail extends StatelessWidget {
     final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
         ? _cachedFileImage(imagePath)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
+    // 按 DPR 换算物理像素解码: 否则 75px 的缓存图在 DPR 1.5 下
+    // 被放大到 112 物理像素, 看起来发糊
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final cacheHeight = (imageSize * dpr).round();
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
       child: DecoratedBox(
@@ -90,11 +94,11 @@ class ImageThumbnail extends StatelessWidget {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(6.0),
           child: Image(
-            image: ResizeImage(imageProvider, height: imageSize.toInt()),
+            image: ResizeImage(imageProvider, height: cacheHeight),
             width: imageSize,
             height: imageSize,
             fit: BoxFit.cover,
-            filterQuality: FilterQuality.medium,
+            filterQuality: FilterQuality.high,
           ),
         ),
       ),
