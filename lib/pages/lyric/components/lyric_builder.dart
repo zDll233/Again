@@ -332,21 +332,20 @@ class _TiltCoverState extends State<_TiltCover> {
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
         builder: (context, t, child) {
-          const maxAngle = 0.21; // 约 12°
-          // 鼠标在上边缘 (ty<0) → 上半部分后仰: rotateX 正角;
-          // 鼠标在左边缘 (tx<0) → 左侧后仰: rotateY 负角
-          final angleX = -t.dy * maxAngle;
-          final angleY = t.dx * maxAngle;
+          const maxAngle = 0.12; // 约 7°
+          // 鼠标在的那一侧向远离用户的方向倾斜
+          final angleX = t.dy * maxAngle;
+          final angleY = -t.dx * maxAngle;
           final strength = t.dy.abs().clamp(0.0, 1.0);
-          // 顶部光源: 上半部分后仰 (ty<0) → 顶部反光变浅;
-          // 下边缘后仰 (ty>0) → 上表面背光, 顶部变暗
+          // 顶部光源: 上半部分后仰 (t.dy>0) → 顶部反光变浅;
+          // 下半部分后仰 (t.dy<0) → 上表面背光, 顶部变暗
           final overlay = DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: t.dy < 0
+                colors: t.dy > 0
                     ? [
                         Colors.white.withValues(alpha: 0.35 * strength),
                         Colors.transparent,
