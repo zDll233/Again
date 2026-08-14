@@ -1,10 +1,10 @@
-import 'dart:io';
+﻿import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
-/// 封面 FileImage 实例缓存（FIFO）。
-/// 每次 build 新建 FileImage 会让全局 ImageCache 永远 miss，
+/// 封面 FileImage 实例缓存 (LRU)。
+/// 每次 build 新建 FileImage 会让全局 ImageCache 永远 miss;
 /// 复用同一实例 + ResizeImage 才能命中缓存。
 const int _maxCoverCacheSize = 300;
 final Map<String, FileImage> _coverImageCache = {};
@@ -40,39 +40,6 @@ class ImageThumbnail extends StatelessWidget {
     this.imageWidth,
     this.imageHeight,
   });
-
-  void openImageDialog(BuildContext context, ImageProvider imageProvider) =>
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          final controller = PhotoViewController();
-          return Listener(
-            onPointerSignal: (event) {
-              if (event is PointerScrollEvent) {
-                final scale = controller.scale ?? 1.0;
-                final newScale = scale - event.scrollDelta.dy / 1000;
-                controller.scale = newScale.clamp(0.1, 5.0);
-              }
-            },
-            child: Dialog(
-              insetPadding: EdgeInsets.all(70.0),
-              backgroundColor: Colors.transparent,
-              child: ClipRect(
-                child: PhotoView(
-                  tightMode: true,
-                  loadingBuilder: (_, __) =>
-                      const Center(child: CircularProgressIndicator()),
-                  backgroundDecoration:
-                      BoxDecoration(color: Colors.transparent),
-                  imageProvider: imageProvider,
-                  controller: controller,
-                  filterQuality: FilterQuality.medium,
-                ),
-              ),
-            ),
-          );
-        },
-      );
 
   @override
   Widget build(BuildContext context) {
@@ -113,3 +80,37 @@ class ImageThumbnail extends StatelessWidget {
     );
   }
 }
+
+/// 打开图片查看对话框 (支持滚轮缩放)。
+void openImageDialog(BuildContext context, ImageProvider imageProvider) =>
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final controller = PhotoViewController();
+        return Listener(
+          onPointerSignal: (event) {
+            if (event is PointerScrollEvent) {
+              final scale = controller.scale ?? 1.0;
+              final newScale = scale - event.scrollDelta.dy / 1000;
+              controller.scale = newScale.clamp(0.1, 5.0);
+            }
+          },
+          child: Dialog(
+              insetPadding: EdgeInsets.all(70.0),
+              backgroundColor: Colors.transparent,
+              child: ClipRect(
+                child: PhotoView(
+                  tightMode: true,
+                  loadingBuilder: (_, __) =>
+                      const Center(child: CircularProgressIndicator()),
+                  backgroundDecoration:
+                      BoxDecoration(color: Colors.transparent),
+                  imageProvider: imageProvider,
+                  controller: controller,
+                  filterQuality: FilterQuality.medium,
+                ),
+              ),
+            ),
+          );
+      },
+    );

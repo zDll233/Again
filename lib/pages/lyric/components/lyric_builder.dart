@@ -65,8 +65,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final appSize = MediaQuery.of(context).size;
     final width = appSize.width * 0.70;
     final height = appSize.height - 210.0;
-    // 左侧封面 1:1 方形, 高度与歌词区比例
-    final coverSize = height * 0.60;
+    // 左侧封面 1:1 方形, 高度与歌词区比例 (参考常规歌词播放器约 40%)
+    final coverSize = height * 0.40;
     // 歌词列宽 = 总宽 - 封面 - 间距
     final lyricWidth = width - coverSize - 28.0;
 
@@ -77,20 +77,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: coverSize,
-            height: coverSize,
-            child: FutureBuilder<String>(
-              future: _getCoverPath(workPath),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) return const SizedBox.shrink();
-                return ImageThumbnail(
-                  imagePath: snapshot.data!,
-                  imageWidth: coverSize,
-                  imageHeight: coverSize,
-                );
-              },
-            ),
+          FutureBuilder<String>(
+            future: _getCoverPath(workPath),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return const SizedBox.shrink();
+              return _buildCover(snapshot.data!, coverSize);
+            },
           ),
           const SizedBox(width: 28),
           Expanded(
@@ -166,6 +158,54 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     }
                   }
                 },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 封面 + 下方渐隐倒影 (镜像翻转), 点击可放大。
+  Widget _buildCover(String coverPath, double size) {
+    final coverFile = File(coverPath);
+    final imageProvider = coverPath.isNotEmpty && coverFile.existsSync()
+        ? FileImage(coverFile)
+        : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final cacheHeight = (size * dpr * 2).round();
+    Widget cover(double w, double h) => ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: Image(
+            image: ResizeImage(imageProvider, height: cacheHeight),
+            width: w,
+            height: h,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+          ),
+        );
+    return GestureDetector(
+      onTap: () => openImageDialog(context, imageProvider),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          cover(size, size),
+          const SizedBox(height: 6),
+          // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3
+          SizedBox(
+            height: size / 3,
+            child: ClipRect(
+              child: ShaderMask(
+                shaderCallback: (rect) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0x66FFFFFF), Colors.transparent],
+                ).createShader(rect),
+                blendMode: BlendMode.modulate,
+                child: Opacity(
+                  opacity: 0.5,
+                  child: Transform.flip(flipY: true, child: cover(size, size)),
+                ),
               ),
             ),
           ),
