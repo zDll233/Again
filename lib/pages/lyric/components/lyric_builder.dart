@@ -3,9 +3,12 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
+import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
-import 'package:again/pages/lyric/components/lyric_list.dart';
+import 'package:again/pages/lyric/components/line_indicator.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/utils/log.dart';
 import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +38,30 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final playingViPath = cached!.filePath;
     final workPath = cached.voiceWorkPath;
 
+    // 歌词文字颜色: 默认跟随主题的 onSurface, 可单独设置
+    final scheme = Theme.of(context).colorScheme;
+    final ts = ref.watch(textSettingsProvider).valueOrNull;
+    final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
+    // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
+    final lineColor = ts?.lyricColor?.resolve(
+            scheme.onSurface.withValues(alpha: 0.55), themeHue) ??
+        scheme.onSurface.withValues(alpha: 0.55);
+    // 高亮歌词色: 用户设置优先; 否则自动 (主题色相, 饱和 0.7 明度 0.9)
+    final highlightColor = ts?.lyricHighlightColor?.resolve(
+            scheme.primary, themeHue) ??
+        HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
+    final lyricUi = UINetease(
+      defaultSize: ts?.lyricSize ?? 18,
+      otherMainSize: (ts?.lyricSize ?? 18) - 2,
+      defaultColor: lineColor,
+      defaultExtColor: lineColor.withValues(alpha: 0.55),
+      otherMainColor: lineColor,
+      highLightTextColor: highlightColor,
+      lineGap: ts?.lyricLineGap ?? 25,
+      lyricAlign:
+          ts?.lyricAlign == 'left' ? LyricAlign.LEFT : LyricAlign.CENTER,
+    );
+
     final appSize = MediaQuery.of(context).size;
     final height = appSize.height - 210.0;
     // 左右边距: 左 10%, 右 5%
@@ -43,6 +70,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     // 封面 30% 宽 (1:1 方形), 封面-歌词间距 5%
     final coverSize = appSize.width * 0.30;
     final coverGap = appSize.width * 0.05;
+    // 歌词列宽 = 窗口宽 - 左边距 - 封面 - 间距 - 右边距
+    final lyricWidth = appSize.width - leftMargin - coverSize - coverGap - rightMargin;
 
     return Padding(
       padding: EdgeInsets.only(left: leftMargin, right: rightMargin),
@@ -94,14 +123,56 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     try {
                       final lrcContent = snapshot.data ?? '';
                       final cachedLyricModel = _getLrcModel(lrcContent);
-                      if (cachedLyricModel.lyrics.isEmpty) {
-                        return EmptyLyric(
-                          haveLyric: _hasLyric,
-                          readLyric: _readLyric,
-                        );
-                      }
-                      // 每行 InkWell 的歌词列表 (原生 hover/水波纹/点击跳转)
-                      return LyricList(model: cachedLyricModel);
+                      return Consumer(
+                        builder: (_, WidgetRef ref, __) {
+                          final position = ref.watch(audioProvider
+                              .select((state) => state.position));
+                          final isPlaying = ref.watch(
+                              audioProvider.select((state) => state.isPlaying));
+                          return LyricsReader(
+                            model: cachedLyricModel,
+                            position: position.inMilliseconds,
+                            playing: isPlaying,
+                            // 歌词行宽 < 指示条宽: 水平留白收窄歌词显示区,
+                            // 而指示条 (selectLineBuilder) 仍横贯歌词列全宽;
+                            // 左对齐时额外避开指示条定位图标 (25 边距+32 图标+余量)
+                            padding: ts?.lyricAlign == 'left'
+                                ? EdgeInsets.only(
+                                    left: 80, right: lyricWidth * 0.10)
+                                : EdgeInsets.symmetric(
+                                    horizontal: lyricWidth * 0.10),
+                            emptyBuilder: () => EmptyLyric(
+                                haveLyric: _hasLyric,
+                                readLyric: _readLyric,
+                              ),
+                            selectLineBuilder: (position, flashBack,
+                                    confirmPlay) =>
+                                LineIndicator(
+                              context: context,
+                              position: position,
+                              flashBack: flashBack,
+                              confirmPlay: confirmPlay,
+                              isPlaying: isPlaying,
+                            ),
+                            // 点击歌词行跳转到该行播放
+                            onTapLine: (index, startTime) {
+                              ref
+                                  .read(audioProvider.notifier)
+                                  .seek(startTime);
+                              if (!isPlaying) {
+                                ref.read(audioProvider.notifier).resume();
+                              }
+                            },
+                            // hover 行边框 (Material 风白色半透明) + 点击涟漪
+                            hoverColor: Colors.white,
+                            rippleColor: scheme.primary,
+                            lyricUi: lyricUi,
+                            waitMilliseconds: 5000,
+                            canScrollBack: isPlaying,
+                            canFlashBack: true,
+                          );
+                        },
+                      );
                     } catch (e) {
                       Log.error('Error parsing lyrics: $e');
                       return const EmptyLyric(
