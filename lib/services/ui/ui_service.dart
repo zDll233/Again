@@ -249,6 +249,14 @@ class UIService {
     scrollToSelectedIndex();
   }
 
+  /// 滚动四个列表到各自选中项。
+  /// 双层 addPostFrameCallback 是刻意的, 不要合并成单层:
+  /// - 第一层: 等 restoreAllPlayingState 修改的 state 触发列表 rebuild 完成
+  ///   (点击事件发生在帧间, 当帧 build 已结束, 回调执行时列表还是旧内容,
+  ///   此时滚动会滚错位置或索引越界);
+  /// - 第二层: 等 ScrollablePositionedList 完成 item 布局与位置测量
+  ///   (itemPositionsListener 在布局后才更新, scrollTo 依赖它计算滚动目标,
+  ///   一帧内位置数据未就绪会导致滚动失败/位置不准)。
   void scrollToSelectedIndex() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
