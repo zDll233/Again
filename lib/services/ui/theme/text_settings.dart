@@ -117,7 +117,7 @@ class TextSettings {
     }
 
     return TextSettings(
-      panelTextSize: size('panelTextSize', 16),
+      panelTextSize: size('panelTextSize', 14),
       panelTitleSize: size('panelTitleSize', 14),
       progressTextSize: size('progressTextSize', 16),
       lyricTitleSize: size('lyricTitleSize', 28),
