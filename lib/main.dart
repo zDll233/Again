@@ -42,10 +42,16 @@ Future<void> setupWindow() async {
         ..setMinimumSize(initialSize)
         ..setTitle('Again')
         ..setPreventClose(true);
-      // 窗口显示前应用配置的窗口背景效果, 启动即生效 (无透明→亚克力闪变)
+      // 窗口显示前应用配置的窗口背景效果
       final config = await JsonStorage(filePath: CONFIG_FILE_PATH).read();
-      await applyWindowEffectStandalone(resolveWindowEffect(config));
+      final effect = resolveWindowEffect(config);
+      await applyWindowEffectStandalone(effect);
       windowManager.show();
+      // DWM 在窗口可见并首次绘制后才真正合成 backdrop (SYSTEMBACKDROP_TYPE),
+      // 显示后立即重设一次, 消除启动时几十 ms 的延迟
+      Future<void>.delayed(const Duration(milliseconds: 80), () {
+        applyWindowEffectStandalone(effect);
+      });
     });
   }
 }
