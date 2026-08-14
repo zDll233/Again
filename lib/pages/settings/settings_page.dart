@@ -325,11 +325,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-                              child: Row(
+                            ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.view_list,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                              title: const Text('列表密度'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Expanded(child: Text('列表密度')),
                                   SizedBox(
                                     width: 144,
                                     child: SegmentedButton<String>(
@@ -350,12 +361,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                             VisualDensity.compact,
                                       ),
                                       // 与"歌词对齐"行同宽, 保证重置按钮对齐
-                                      onSelectionChanged: (selection) async {
-                                        setState(() =>
-                                            _listDensity = selection.first);
+                                      onSelectionChanged:
+                                          (selection) async {
+                                        setState(() => _listDensity =
+                                            selection.first);
                                         await _save(
                                             {'listDensity': _listDensity});
-                                        ref.invalidate(textSettingsProvider);
+                                        ref.invalidate(
+                                            textSettingsProvider);
                                       },
                                     ),
                                   ),
@@ -521,13 +534,24 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 _textSizeTile('歌词行间距', _lyricLineGap,
                                     'lyricLineGap', 25, (v) {
                                   _lyricLineGap = v;
-                                }),
-                                Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      16, 4, 16, 12),
-                                  child: Row(
+                                },
+                                    icon: Icons.format_line_spacing),
+                                ListTile(
+                                  dense: true,
+                                  leading: Icon(
+                                    Icons.format_align_center,
+                                    size: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  title: const Text('歌词对齐'),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
                                     children: [
-                                      const Expanded(child: Text('歌词对齐')),
                                       SizedBox(
                                         width: 144,
                                         child: SegmentedButton<String>(
@@ -622,22 +646,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Widget _card({required List<Widget> children}) {
     final scheme = Theme.of(context).colorScheme;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: ColoredBox(
-        color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-        child: Column(
-          children: [
-            for (var i = 0; i < children.length; i++) ...[
-              if (i > 0)
-                Divider(
-                  height: 1,
-                  indent: 56,
-                  color: scheme.onSurface.withValues(alpha: 0.06),
-                ),
-              children[i],
+    // 卡片间留间距, 独立模块视觉更清晰
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: ColoredBox(
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
+          child: Column(
+            children: [
+              for (var i = 0; i < children.length; i++) ...[
+                if (i > 0)
+                  Divider(
+                    height: 1,
+                    indent: 56,
+                    color: scheme.onSurface.withValues(alpha: 0.06),
+                  ),
+                children[i],
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -669,13 +697,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     double value,
     String key,
     double defaultValue,
-    ValueChanged<double> onChanged,
-  ) {
+    ValueChanged<double> onChanged, {
+    IconData icon = Icons.format_size,
+  }) {
     return ListTile(
       dense: true,
       // leading 占位与颜色行/主题区一致, 文字起点对齐
       leading: Icon(
-        Icons.format_size,
+        icon,
         size: 22,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       ),
