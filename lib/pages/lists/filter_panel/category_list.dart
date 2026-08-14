@@ -1,5 +1,6 @@
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -33,16 +34,16 @@ class _CategoryListState extends ConsumerState<CategoryList> {
   Widget build(BuildContext context) {
     final values = ref.watch(categoryProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const Column(
-        children: [
-          SearchableHeader(
-            title: '分类',
-            query: '',
-            onQueryChanged: _noop,
-            onClear: _noopClear,
-          ),
-          Expanded(child: EmptyState(icon: Icons.folder_open_outlined)),
-        ],
+      return const EmptyState(icon: Icons.folder_open_outlined);
+    }
+    // 搜索关闭时直接显示全量列表
+    final searchEnabled =
+        ref.watch(searchEnabledProvider).valueOrNull ?? true;
+    if (!searchEnabled) {
+      return ScrollablePositionedList.builder(
+        itemCount: values.length,
+        itemBuilder: (context, index) => _buildItem(values, index),
+        itemScrollController: ref.read(uiServiceProvider).cateScrollController,
       );
     }
     final filtered = _filteredIndices(values);
@@ -64,33 +65,8 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                 )
               : ScrollablePositionedList.builder(
                   itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final originalIndex = filtered[index];
-                    return Consumer(
-                      builder: (context, ref, child) {
-                        final selected =
-                            ref.watch(_categotySelectedProvider(originalIndex));
-                        return Material(
-                          color: Colors.transparent,
-                          child: ListTile(
-                            title: Text(
-                              values[originalIndex],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            onTap: () => ref
-                                .read(categoryProvider.notifier)
-                                .onSelected(originalIndex),
-                            selected: selected,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10.0,
-                              vertical: 1.0,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                  itemBuilder: (context, index) =>
+                      _buildItem(values, filtered[index]),
                   itemScrollController:
                       ref.read(uiServiceProvider).cateScrollController,
                 ),
@@ -99,9 +75,31 @@ class _CategoryListState extends ConsumerState<CategoryList> {
     );
   }
 
-  static void _noop(String _) {}
-
-  static void _noopClear() {}
+  /// 单个分类条目 (index 为原始列表索引)。
+  Widget _buildItem(List<String> values, int index) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final selected = ref.watch(_categotySelectedProvider(index));
+        return Material(
+          color: Colors.transparent,
+          child: ListTile(
+            title: Text(
+              values[index],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () =>
+                ref.read(categoryProvider.notifier).onSelected(index),
+            selected: selected,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 10.0,
+              vertical: 1.0,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 final _categotySelectedProvider =

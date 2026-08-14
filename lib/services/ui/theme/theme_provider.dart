@@ -92,6 +92,12 @@ final windowEffectProvider = FutureProvider.autoDispose<String>((ref) async {
   return resolveWindowEffect(config);
 });
 
+/// 列表搜索开关 (config.json `searchEnabled`, 默认开启)。
+final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return config['searchEnabled'] != false;
+});
+
 /// 应用主题: 跟随封面主色动态生成; 文字颜色独立设置时覆盖文字角色。
 final appThemeProvider = Provider<ThemeData>((ref) {
   final seed = ref.watch(coverSeedColorProvider).valueOrNull ??

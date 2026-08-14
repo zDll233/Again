@@ -24,6 +24,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Color _themeSeedColor = kDefaultThemeSeed;
   String _textColorMode = TEXT_MODE_FOLLOW;
   Color _textColor = parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed;
+  bool _searchEnabled = true;
   bool _loading = true;
 
   @override
@@ -44,6 +45,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _textColorMode = resolveTextColorMode(config);
       _textColor = parseHexColor(resolveTextColorHex(config)) ??
           (parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed);
+      _searchEnabled = config['searchEnabled'] != false;
       _loading = false;
     });
   }
@@ -389,14 +391,32 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        _sectionTitle('界面(规划中)'),
+                        _sectionTitle('界面'),
                         _card(
-                          children: const [
+                          children: [
                             ListTile(
-                              leading: Icon(Icons.construction_outlined),
-                              title: Text('更多界面设置即将到来'),
-                              subtitle: Text('播放器样式、列表密度、字体大小等'),
-                              enabled: false,
+                              leading: const Icon(Icons.search),
+                              title: const Text('列表搜索'),
+                              subtitle: const Text('作品/分类/声优列表的搜索框'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _searchEnabled,
+                                    onChanged: (value) {
+                                      setState(() => _searchEnabled = value);
+                                      _save({'searchEnabled': value});
+                                      ref.invalidate(searchEnabledProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                      ['searchEnabled'],
+                                      () => _searchEnabled = true,
+                                    );
+                                  }),
+                                ],
+                              ),
                             ),
                           ],
                         ),

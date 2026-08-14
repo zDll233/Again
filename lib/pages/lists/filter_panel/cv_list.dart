@@ -1,5 +1,6 @@
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
+import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/kana_romaji.dart';
 import 'package:flutter/material.dart';
@@ -40,16 +41,16 @@ class _CvListState extends ConsumerState<CvList> {
   Widget build(BuildContext context) {
     final values = ref.watch(cvProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return Column(
-        children: [
-          SearchableHeader(
-            title: '声优',
-            query: '',
-            onQueryChanged: _noop,
-            onClear: () {},
-          ),
-          const Expanded(child: EmptyState(icon: Icons.person_search_outlined)),
-        ],
+      return const EmptyState(icon: Icons.person_search_outlined);
+    }
+    // 搜索关闭时直接显示全量列表
+    final searchEnabled =
+        ref.watch(searchEnabledProvider).valueOrNull ?? true;
+    if (!searchEnabled) {
+      return ScrollablePositionedList.builder(
+        itemCount: values.length,
+        itemBuilder: (context, index) => _buildItem(values, index),
+        itemScrollController: ref.read(uiServiceProvider).cvScrollController,
       );
     }
     final filtered = _filteredIndices(values);
@@ -71,33 +72,8 @@ class _CvListState extends ConsumerState<CvList> {
                 )
               : ScrollablePositionedList.builder(
                   itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    final originalIndex = filtered[index];
-                    return Consumer(
-                      builder: (_, WidgetRef ref, __) {
-                        final selected =
-                            ref.watch(_cvSelectedProvider(originalIndex));
-                        return Material(
-                          color: Colors.transparent,
-                          child: ListTile(
-                            title: Text(
-                              values[originalIndex],
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            onTap: () => ref
-                                .read(cvProvider.notifier)
-                                .onSelected(originalIndex),
-                            selected: selected,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 10.0,
-                              vertical: 1.0,
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
+                  itemBuilder: (context, index) =>
+                      _buildItem(values, filtered[index]),
                   itemScrollController:
                       ref.read(uiServiceProvider).cvScrollController,
                 ),
@@ -106,7 +82,30 @@ class _CvListState extends ConsumerState<CvList> {
     );
   }
 
-  static void _noop(String _) {}
+  /// 单个声优条目 (index 为原始列表索引)。
+  Widget _buildItem(List<String> values, int index) {
+    return Consumer(
+      builder: (_, WidgetRef ref, __) {
+        final selected = ref.watch(_cvSelectedProvider(index));
+        return Material(
+          color: Colors.transparent,
+          child: ListTile(
+            title: Text(
+              values[index],
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            onTap: () => ref.read(cvProvider.notifier).onSelected(index),
+            selected: selected,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 10.0,
+              vertical: 1.0,
+            ),
+          ),
+        );
+      },
+    );
+  }
 }
 
 final _cvSelectedProvider =
