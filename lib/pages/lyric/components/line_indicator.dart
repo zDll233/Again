@@ -62,11 +62,11 @@ class LineIndicator extends ConsumerWidget {
           ),
         ),
         // 右: 可点击的时间戳 (下划线暗示可点击跳转)
-        Flexible(
-          flex: 1,
-          child: Tooltip(
-            message: '点击跳转到此时间',
-            child: TextButton(
+        // 不包 Flexible: 时间戳按内容自适应宽度, 不会被压缩截断,
+        // 剩余空间由中间引导线吸收
+        Tooltip(
+          message: '点击跳转到此时间',
+          child: TextButton(
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 minimumSize: const Size(40, 32),
@@ -95,7 +95,6 @@ class LineIndicator extends ConsumerWidget {
               },
             ),
           ),
-        ),
       ],
     );
   }
