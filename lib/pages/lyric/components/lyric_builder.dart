@@ -64,13 +64,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
     final appSize = MediaQuery.of(context).size;
     final height = appSize.height - 210.0;
+    // 左右各留 10% 边距
+    final contentWidth = appSize.width * 0.80;
     // 左侧封面 1:1 方形, 高度与歌词区比例
     final coverSize = height * 0.50;
-    // 歌词列宽 = 窗口宽 - 封面 - 间距 (无额外宽度限制)
-    final lyricWidth = appSize.width - coverSize - 28.0;
+    // 歌词列宽 = 内容宽 - 封面 - 间距
+    final lyricWidth = contentWidth - coverSize - 28.0;
 
     return SizedBox(
-      width: appSize.width,
+      width: contentWidth,
       height: height,
       // 左: 封面; 右: 歌词
       child: Row(
