@@ -118,7 +118,11 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ImageThumbnail(imagePath: voiceWork.coverPath),
+                  ImageThumbnail(
+                    imagePath: voiceWork.coverPath,
+                    imageWidth: 60,
+                    imageHeight: 60,
+                  ),
                   const SizedBox(width: 15),
                   Expanded(
                     child: Column(

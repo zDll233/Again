@@ -29,10 +29,16 @@ class ImageThumbnail extends StatelessWidget {
   final String imagePath;
   final double imageSize;
 
+  /// 可选覆盖宽高 (默认正方形 [imageSize]×[imageSize])。
+  final double? imageWidth;
+  final double? imageHeight;
+
   const ImageThumbnail({
     super.key,
     required this.imagePath,
     this.imageSize = 75.0,
+    this.imageWidth,
+    this.imageHeight,
   });
 
   void openImageDialog(BuildContext context, ImageProvider imageProvider) =>
@@ -74,10 +80,12 @@ class ImageThumbnail extends StatelessWidget {
     final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
         ? _cachedFileImage(imagePath)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
-    // 按 DPR 换算物理像素解码: 否则 75px 的缓存图在 DPR 1.5 下
-    // 被放大到 112 物理像素, 看起来发糊
+    // 按 DPR 换算物理像素解码: 否则小尺寸缓存图在 DPR 1.5 下
+    // 被放大, 看起来发糊
     final dpr = MediaQuery.devicePixelRatioOf(context);
-    final cacheHeight = (imageSize * dpr).round();
+    final w = imageWidth ?? imageSize;
+    final h = imageHeight ?? imageSize;
+    final cacheHeight = (h * dpr).round();
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
       child: DecoratedBox(
@@ -95,8 +103,8 @@ class ImageThumbnail extends StatelessWidget {
           borderRadius: BorderRadius.circular(6.0),
           child: Image(
             image: ResizeImage(imageProvider, height: cacheHeight),
-            width: imageSize,
-            height: imageSize,
+            width: w,
+            height: h,
             fit: BoxFit.cover,
             filterQuality: FilterQuality.high,
           ),
