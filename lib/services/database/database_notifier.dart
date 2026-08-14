@@ -116,10 +116,17 @@ class DatabaseNotifier {
 
   List<VoiceWork> sortVoiceWorkList(List<VoiceWork> vwLs, {SortOrder? sort}) {
     switch (sort ?? ref.read(sortOrderProvider).cachedSelectedItem!) {
-      case SortOrder.byTitle:
+      case SortOrder.byTitleAsc:
         vwLs.sort((a, b) => compareNatural(a.title, b.title));
         break;
-      case SortOrder.byCreatedAt:
+      case SortOrder.byTitleDesc:
+        vwLs.sort((a, b) => compareNatural(b.title, a.title));
+        break;
+      case SortOrder.byCreatedAtAsc:
+        vwLs.sort((a, b) => (a.createdAt ?? DateTime(1970))
+            .compareTo(b.createdAt ?? DateTime(1970)));
+        break;
+      case SortOrder.byCreatedAtDesc:
         vwLs.sort((a, b) => (b.createdAt ?? DateTime(1970))
             .compareTo(a.createdAt ?? DateTime(1970)));
         break;

@@ -10,23 +10,29 @@ class WorksPanel extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sortOrderIndex =
-        ref.watch(sortOrderProvider.select((state) => state.selectedIndex));
-    final byTitle = SortOrder.values[sortOrderIndex] == SortOrder.byTitle;
+    final sortOrder = ref
+            .watch(sortOrderProvider.select((state) => state.cachedSelectedItem))
+        ??
+        SortOrder.byTitleAsc;
     return VoicePanel(
       title:
           '作品(${ref.watch(voiceWorkProvider.select((state) => state.values)).length})',
       listView: const WorksListView(),
       actions: [
-        IconButton(
-          icon: Icon(
-            byTitle ? Icons.sort_by_alpha : Icons.history,
-            size: 18,
-          ),
-          tooltip: byTitle ? '排序: 标题' : '排序: 时间',
-          // 点击切换排序 (标题/时间), 对应列表由 sortOrder notifier 驱动
-          onPressed: () =>
-              ref.read(sortOrderProvider.notifier).onSelected(sortOrderIndex),
+        PopupMenuButton<SortOrder>(
+          icon: const Icon(Icons.sort, size: 18),
+          tooltip: '排序',
+          initialValue: sortOrder,
+          onSelected: (value) =>
+              ref.read(sortOrderProvider.notifier).setSortOrder(value),
+          itemBuilder: (context) => [
+            for (final s in SortOrder.values)
+              CheckedPopupMenuItem(
+                value: s,
+                checked: s == sortOrder,
+                child: Text(s.label),
+              ),
+          ],
         ),
       ],
     );

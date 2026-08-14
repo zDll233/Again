@@ -6,12 +6,29 @@ import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart'
 import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 
+/// 音轨排序方式: 标题升/降序, 文件顺序 (数据库原始顺序) 升/降序。
+enum VoiceItemSort {
+  titleAsc,
+  titleDesc,
+  fileAsc,
+  fileDesc,
+}
+
+extension VoiceItemSortExtension on VoiceItemSort {
+  String get label => switch (this) {
+        VoiceItemSort.titleAsc => '标题顺序',
+        VoiceItemSort.titleDesc => '标题倒序',
+        VoiceItemSort.fileAsc => '时间顺序',
+        VoiceItemSort.fileDesc => '时间倒序',
+      };
+}
+
 class VoiceItemNotifier
     extends VariableListStateNotifier<VoiceItemState, VoiceItem> {
-  /// 音轨排序状态: true=按标题自然排序, false=文件原始顺序。
-  bool byTitleSort = true;
+  /// 当前音轨排序方式, 默认按标题升序。
+  VoiceItemSort sort = VoiceItemSort.titleAsc;
 
-  /// 最近一次数据刷新 (updateViList) 的原始顺序, 切回"文件顺序"时使用。
+  /// 最近一次数据刷新 (updateViList) 的原始顺序, 作为"时间顺序"基准。
   List<VoiceItem>? _originalOrder;
 
   @override
@@ -26,14 +43,16 @@ class VoiceItemNotifier
     super.setValues(newValues);
   }
 
-  /// 切换音轨排序: 按标题自然序 <-> 文件原始顺序。
-  /// 排序后保持选中与播放指向同一个音轨。
-  void toggleSortOrder() {
-    byTitleSort = !byTitleSort;
-    final sorted = List.of(_originalOrder ?? state.values);
-    if (byTitleSort) {
-      sorted.sort((a, b) => compareNatural(a.title, b.title));
-    }
+  /// 菜单选择排序方式, 保持选中与播放指向同一个音轨。
+  void setSortOrder(VoiceItemSort newSort) {
+    sort = newSort;
+    final base = List.of(_originalOrder ?? state.values);
+    final sorted = switch (newSort) {
+      VoiceItemSort.titleAsc => base..sort((a, b) => compareNatural(a.title, b.title)),
+      VoiceItemSort.titleDesc => base..sort((a, b) => compareNatural(b.title, a.title)),
+      VoiceItemSort.fileAsc => base,
+      VoiceItemSort.fileDesc => base.reversed.toList(),
+    };
     final selected = state.cachedSelectedItem;
     final playing = state.cachedPlayingItem;
     // 用 super.setValues 避免覆盖 _originalOrder

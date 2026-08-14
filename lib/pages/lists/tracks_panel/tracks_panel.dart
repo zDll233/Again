@@ -1,4 +1,5 @@
 import 'package:again/pages/components/voice_panel.dart';
+import 'package:again/services/ui/presentation/voice_item/voice_item_notifier.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lists/tracks_panel/tracks_list.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class TracksPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiService = ref.watch(uiServiceProvider);
-    final byTitle = ref.read(voiceItemProvider.notifier).byTitleSort;
+    final sort = ref.read(voiceItemProvider.notifier).sort;
     return VoicePanel(
       title:
           '音轨(${ref.watch(voiceItemProvider.select((state) => state.values)).length})',
@@ -26,14 +27,20 @@ class TracksPanel extends ConsumerWidget {
           tooltip: '打开所在目录',
           onPressed: uiService.revealInExplorerView,
         ),
-        IconButton(
-          icon: Icon(
-            byTitle ? Icons.sort_by_alpha : Icons.numbers,
-            size: 18,
-          ),
-          tooltip: byTitle ? '排序: 标题' : '排序: 文件顺序',
-          onPressed: () =>
-              ref.read(voiceItemProvider.notifier).toggleSortOrder(),
+        PopupMenuButton<VoiceItemSort>(
+          icon: const Icon(Icons.sort, size: 18),
+          tooltip: '排序',
+          initialValue: sort,
+          onSelected: (value) =>
+              ref.read(voiceItemProvider.notifier).setSortOrder(value),
+          itemBuilder: (context) => [
+            for (final s in VoiceItemSort.values)
+              CheckedPopupMenuItem(
+                value: s,
+                checked: s == sort,
+                child: Text(s.label),
+              ),
+          ],
         ),
       ],
     );

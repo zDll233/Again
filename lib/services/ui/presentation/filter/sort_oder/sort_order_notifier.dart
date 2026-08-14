@@ -17,4 +17,11 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     await ref.read(dbNotifierProvider).updateVwList();
     await ref.read(uiServiceProvider).filterSelected();
   }
+
+  /// 菜单选择排序方式, 按新排序刷新作品列表。
+  Future<void> setSortOrder(SortOrder order) async {
+    cacheSelectedIndexAndItemByValue(order);
+    await ref.read(dbNotifierProvider).updateVwList();
+    await ref.read(uiServiceProvider).filterSelected();
+  }
 }
