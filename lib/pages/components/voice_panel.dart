@@ -9,19 +9,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class VoicePanel<T> extends ConsumerWidget {
   final String title;
   final Widget listView;
-  final Widget icon;
-  final String? iconTooltip;
-  final Function()? onIconBtnPressed;
-  final Function()? onTextBtnPressed;
+  final List<Widget> actions;
 
   const VoicePanel({
     super.key,
     required this.title,
     required this.listView,
-    required this.icon,
-    this.iconTooltip,
-    this.onIconBtnPressed,
-    this.onTextBtnPressed,
+    this.actions = const [],
   });
 
   @override
@@ -42,51 +36,23 @@ class VoicePanel<T> extends ConsumerWidget {
             child: Row(
               children: [
                 Expanded(
-                  child: onTextBtnPressed != null
-                      ? InkWell(
-                          onTap: onTextBtnPressed,
-                          borderRadius: BorderRadius.circular(8),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12.0,
-                              vertical: 8.0,
-                            ),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                title,
-                                style: textTheme.titleSmall?.copyWith(
-                                  color: scheme.onSurface
-                                      .withValues(alpha: 0.75),
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12.0,
-                            vertical: 8.0,
-                          ),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              title,
-                              style: textTheme.titleSmall?.copyWith(
-                                color:
-                                    scheme.onSurface.withValues(alpha: 0.75),
-                              ),
-                            ),
-                          ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12.0,
+                      vertical: 8.0,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        title,
+                        style: textTheme.titleSmall?.copyWith(
+                          color: scheme.onSurface.withValues(alpha: 0.75),
                         ),
-                ),
-                if (onIconBtnPressed != null)
-                  IconButton(
-                    onPressed: onIconBtnPressed,
-                    icon: icon,
-                    tooltip: iconTooltip,
-                    iconSize: 18.0,
+                      ),
+                    ),
                   ),
+                ),
+                for (final action in actions) action,
               ],
             ),
           ),

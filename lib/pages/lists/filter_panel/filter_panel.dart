@@ -13,8 +13,13 @@ class FilterPanel extends ConsumerWidget {
     return VoicePanel(
       title: '筛选',
       listView: const FilterListView(),
-      icon: const Icon(Icons.remove),
-      onIconBtnPressed: ref.read(uiServiceProvider).onResetFilterPressed,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.remove, size: 18),
+          tooltip: '重置筛选',
+          onPressed: ref.read(uiServiceProvider).onResetFilterPressed,
+        ),
+      ],
     );
   }
 }
