@@ -296,6 +296,7 @@ class UIService {
   Future<void> applyWindowEffect(String effect) async {
     if (const bool.fromEnvironment('OPAQUE_BG')) return;
     try {
+      Log.info('applyWindowEffect: $effect');
       switch (effect) {
         case WINDOW_EFFECT_TRANSPARENT:
           await Window.setEffect(
@@ -314,8 +315,9 @@ class UIService {
             color: const Color(0x40262A33),
           );
       }
-    } catch (e) {
-      Log.error('applyWindowEffect failed.\n$e.');
+      Log.info('applyWindowEffect: $effect done');
+    } catch (e, s) {
+      Log.error('applyWindowEffect failed.\n$e.\n$s');
     }
   }
 }
