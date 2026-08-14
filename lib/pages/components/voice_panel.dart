@@ -10,6 +10,7 @@ class VoicePanel<T> extends ConsumerWidget {
   final String title;
   final Widget listView;
   final Widget icon;
+  final String? iconTooltip;
   final Function()? onIconBtnPressed;
   final Function()? onTextBtnPressed;
 
@@ -18,6 +19,7 @@ class VoicePanel<T> extends ConsumerWidget {
     required this.title,
     required this.listView,
     required this.icon,
+    this.iconTooltip,
     this.onIconBtnPressed,
     this.onTextBtnPressed,
   });
@@ -82,7 +84,7 @@ class VoicePanel<T> extends ConsumerWidget {
                   IconButton(
                     onPressed: onIconBtnPressed,
                     icon: icon,
-                    tooltip: null,
+                    tooltip: iconTooltip,
                     iconSize: 18.0,
                   ),
               ],
