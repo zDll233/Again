@@ -7,6 +7,7 @@ import 'package:again/services/key_event/key_event_handler.dart';
 import 'package:again/services/system_tray.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/services/window_size_guard.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,16 +22,20 @@ class Initialization extends ConsumerStatefulWidget {
 
 class _InitializationState extends ConsumerState<Initialization> {
   late final KeyEventHandler _keyEventHandler;
+  WindowSizeGuard? _windowSizeGuard;
 
   @override
   void initState() {
     super.initState();
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
+    // view 尺寸守卫: 周期校验窗口与 view 尺寸同步, 偶发不同步时自愈
+    _windowSizeGuard = WindowSizeGuard();
   }
 
   @override
   void dispose() {
+    _windowSizeGuard?.dispose();
     HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
     super.dispose();
   }
