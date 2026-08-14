@@ -417,55 +417,75 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               },
                             ),
                             ListTile(
-                              leading: const Icon(Icons.blur_on),
+                              dense: true,
+                              leading: Icon(
+                                Icons.blur_on,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
                               title: const Text('窗口背景效果'),
                               contentPadding: const EdgeInsets.only(
                                   left: 16, right: 16),
-                              trailing: _resetButton(() {
-                                _resetToDefault(
-                                  ['windowEffect', 'liquidGlass'],
-                                  () => _windowEffect = WINDOW_EFFECT_ACRYLIC,
-                                  reapplyWindowEffect: true,
-                                );
-                              }),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                              child: SizedBox(
-                                width: double.infinity,
-                                child: SegmentedButton<String>(
-                                  segments: const [
-                                    ButtonSegment(
-                                      value: WINDOW_EFFECT_TRANSPARENT,
-                                      label: Text('透明'),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: 168,
+                                    child: SegmentedButton<String>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: WINDOW_EFFECT_TRANSPARENT,
+                                          label: Text('透明'),
+                                        ),
+                                        ButtonSegment(
+                                          value: WINDOW_EFFECT_ACRYLIC,
+                                          label: Text('毛玻璃'),
+                                        ),
+                                        ButtonSegment(
+                                          value: WINDOW_EFFECT_OPAQUE,
+                                          label: Text('不透明'),
+                                        ),
+                                      ],
+                                      selected: {_windowEffect},
+                                      showSelectedIcon: false,
+                                      style: ButtonStyle(
+                                        visualDensity:
+                                            VisualDensity.compact,
+                                      ),
+                                      onSelectionChanged:
+                                          (selection) async {
+                                        final value = selection.first;
+                                        setState(() => _windowEffect = value);
+                                        // 迁移: 移除旧的 liquidGlass 布尔配置
+                                        final config = await ref
+                                            .read(configJsonProvider)
+                                            .read();
+                                        config.remove('liquidGlass');
+                                        await ref
+                                            .read(configJsonProvider)
+                                            .write({
+                                          ...config,
+                                          'windowEffect': value
+                                        });
+                                        ref.invalidate(
+                                            windowEffectProvider);
+                                        ref.read(uiServiceProvider)
+                                            .applyWindowEffect(value);
+                                      },
                                     ),
-                                    ButtonSegment(
-                                      value: WINDOW_EFFECT_ACRYLIC,
-                                      label: Text('毛玻璃'),
-                                    ),
-                                    ButtonSegment(
-                                      value: WINDOW_EFFECT_OPAQUE,
-                                      label: Text('不透明'),
-                                    ),
-                                  ],
-                                  selected: {_windowEffect},
-                                  showSelectedIcon: false,
-                                  onSelectionChanged: (selection) async {
-                                    final value = selection.first;
-                                    setState(() => _windowEffect = value);
-                                    // 迁移: 移除旧的 liquidGlass 布尔配置
-                                    final config = await ref
-                                        .read(configJsonProvider)
-                                        .read();
-                                    config.remove('liquidGlass');
-                                    await ref.read(configJsonProvider).write(
-                                        {...config, 'windowEffect': value});
-                                    ref.invalidate(windowEffectProvider);
-                                    ref
-                                        .read(uiServiceProvider)
-                                        .applyWindowEffect(value);
-                                  },
-                                ),
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(
+                                      ['windowEffect', 'liquidGlass'],
+                                      () => _windowEffect =
+                                          WINDOW_EFFECT_ACRYLIC,
+                                      reapplyWindowEffect: true,
+                                    );
+                                  }),
+                                ],
                               ),
                             ),
                           ],
