@@ -9,7 +9,6 @@ Windows-only Flutter desktop app: local audio player for ASMR voice works. UI te
 - `dart run build_runner build` — required after editing `lib/services/database/db/database.dart` (drift); `database.g.dart` is generated and committed.
 - `flutter test` — unit suite in `test/` (parsing logic, model map round-trips, `scanRoot` + full incremental sync with temp dirs). Run after touching those areas.
 - `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/`.
-- 撤销提交按场景选: 未推送的本地提交用 `git reset --hard` (不留历史, 干净); 已推送/公共分支用 `git revert` (保留历史, 需审计)。
 
 ## Architecture
 
