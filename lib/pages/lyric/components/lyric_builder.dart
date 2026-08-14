@@ -48,58 +48,73 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final width = appSize.width * 0.70;
     final height = appSize.height - 210.0;
 
-    return SizedBox(
-      width: width,
-      height: height,
-      child: FutureBuilder<String>(
-        future: _getLrcContent(playingViPath),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading lyrics'));
-          } else {
-            try {
-              final lrcContent = snapshot.data ?? '';
-              final cachedLyricModel = _getLrcModel(lrcContent);
-              return Consumer(
-                builder: (_, WidgetRef ref, __) {
-                  final position = ref
-                      .watch(audioProvider.select((state) => state.position));
-                  final isPlaying = ref
-                      .watch(audioProvider.select((state) => state.isPlaying));
-                  return LyricsReader(
-                    model: cachedLyricModel,
-                    position: position.inMilliseconds,
-                    playing: isPlaying,
-                    emptyBuilder: () => EmptyLyric(
-                      haveLyric: _hasLyric,
-                      readLyric: _readLyric,
-                    ),
-                    selectLineBuilder: (position, flashBack, confirmPlay) =>
-                        LineIndicator(
-                      context: context,
-                      position: position,
-                      flashBack: flashBack,
-                      confirmPlay: confirmPlay,
-                      isPlaying: isPlaying,
-                    ),
-                    lyricUi: lyricUi,
-                    waitMilliseconds: 5000,
-                    canScrollBack: isPlaying,
-                    canFlashBack: true,
-                  );
-                },
-              );
-            } catch (e) {
-              Log.error('Error parsing lyrics: $e');
-              return const EmptyLyric(
-                haveLyric: true,
-                readLyric: false,
-              );
+    // 歌词区上下边缘渐隐, 营造沉浸感
+    return ShaderMask(
+      shaderCallback: (rect) => const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.transparent,
+          Colors.white,
+          Colors.white,
+          Colors.transparent
+        ],
+        stops: [0.0, 0.14, 0.86, 1.0],
+      ).createShader(rect),
+      blendMode: BlendMode.dstIn,
+      child: SizedBox(
+        width: width,
+        height: height,
+        child: FutureBuilder<String>(
+          future: _getLrcContent(playingViPath),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('Error loading lyrics'));
+            } else {
+              try {
+                final lrcContent = snapshot.data ?? '';
+                final cachedLyricModel = _getLrcModel(lrcContent);
+                return Consumer(
+                  builder: (_, WidgetRef ref, __) {
+                    final position = ref
+                        .watch(audioProvider.select((state) => state.position));
+                    final isPlaying = ref.watch(
+                        audioProvider.select((state) => state.isPlaying));
+                    return LyricsReader(
+                      model: cachedLyricModel,
+                      position: position.inMilliseconds,
+                      playing: isPlaying,
+                      emptyBuilder: () => EmptyLyric(
+                        haveLyric: _hasLyric,
+                        readLyric: _readLyric,
+                      ),
+                      selectLineBuilder: (position, flashBack, confirmPlay) =>
+                          LineIndicator(
+                        context: context,
+                        position: position,
+                        flashBack: flashBack,
+                        confirmPlay: confirmPlay,
+                        isPlaying: isPlaying,
+                      ),
+                      lyricUi: lyricUi,
+                      waitMilliseconds: 5000,
+                      canScrollBack: isPlaying,
+                      canFlashBack: true,
+                    );
+                  },
+                );
+              } catch (e) {
+                Log.error('Error parsing lyrics: $e');
+                return const EmptyLyric(
+                  haveLyric: true,
+                  readLyric: false,
+                );
+              }
             }
-          }
-        },
+          },
+        ),
       ),
     );
   }

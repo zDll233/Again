@@ -20,9 +20,11 @@ class LineIndicator extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // 左: 回到当前播放位置 (定位图标, 避免播放三角的"在此播放"歧义)
         Flexible(
           flex: 1,
           child: Padding(
@@ -31,24 +33,55 @@ class LineIndicator extends ConsumerWidget {
               onPressed: () {
                 flashBack.call();
               },
-              icon: const Icon(Icons.location_searching),
+              tooltip: '回到当前播放位置',
+              icon: Icon(
+                Icons.my_location,
+                color: scheme.primary,
+              ),
+              iconSize: 18,
+              // 视觉紧凑但保留足够点击热区
+              padding: const EdgeInsets.all(4),
+              constraints:
+                  const BoxConstraints(minWidth: 32, minHeight: 32),
             ),
           ),
         ),
+        // 中: 主题色渐变引导线
         Flexible(
           flex: 8,
           child: Container(
-            decoration: const BoxDecoration(color: Colors.grey),
             height: 1,
-            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  scheme.primary.withValues(alpha: 0.05),
+                  scheme.primary.withValues(alpha: 0.55),
+                  scheme.primary.withValues(alpha: 0.05),
+                ],
+              ),
+            ),
           ),
         ),
+        // 右: 可点击的时间戳 (下划线暗示可点击跳转)
         Flexible(
           flex: 1,
           child: TextButton(
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              minimumSize: const Size(40, 32),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            ),
             child: Text(
               Duration(milliseconds: position).toString().split('.').first,
-              style: Theme.of(context).textTheme.bodyMedium,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 13,
+                color: scheme.primary.withValues(alpha: 0.9),
+                decoration: TextDecoration.underline,
+                decorationColor: scheme.primary.withValues(alpha: 0.35),
+                decorationThickness: 1,
+              ),
             ),
             onPressed: () {
               ref
