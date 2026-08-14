@@ -1,4 +1,5 @@
 import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -9,11 +10,15 @@ class TimeDisplay extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final duration = ref.watch(audioProvider.select((state) => state.duration));
     final position = ref.watch(audioProvider.select((state) => state.position));
+    final ts = ref.watch(textSettingsProvider).valueOrNull;
     return Align(
       alignment: Alignment.center,
       child: Text(
         getTimeDisplayText(position, duration),
-        style: Theme.of(context).textTheme.bodyLarge,
+        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+          fontSize: ts?.progressTextSize,
+          color: ts?.progressTextColor,
+        ),
       ),
     );
   }

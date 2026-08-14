@@ -1,5 +1,6 @@
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/kana_romaji.dart';
@@ -87,6 +88,7 @@ class _CvListState extends ConsumerState<CvList> {
     return Consumer(
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_cvSelectedProvider(index));
+        final ts = ref.watch(textSettingsProvider).valueOrNull;
         return Material(
           color: Colors.transparent,
           child: ListTile(
@@ -94,6 +96,12 @@ class _CvListState extends ConsumerState<CvList> {
               values[index],
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: ts == null
+                  ? null
+                  : TextStyle(
+                      fontSize: ts.panelTextSize,
+                      color: ts.panelTextColor,
+                    ),
             ),
             onTap: () => ref.read(cvProvider.notifier).onSelected(index),
             selected: selected,

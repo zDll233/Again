@@ -1,5 +1,6 @@
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,7 @@ class _CategoryListState extends ConsumerState<CategoryList> {
     return Consumer(
       builder: (context, ref, child) {
         final selected = ref.watch(_categotySelectedProvider(index));
+        final ts = ref.watch(textSettingsProvider).valueOrNull;
         return Material(
           color: Colors.transparent,
           child: ListTile(
@@ -87,6 +89,12 @@ class _CategoryListState extends ConsumerState<CategoryList> {
               values[index],
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
+              style: ts == null
+                  ? null
+                  : TextStyle(
+                      fontSize: ts.panelTextSize,
+                      color: ts.panelTextColor,
+                    ),
             ),
             onTap: () =>
                 ref.read(categoryProvider.notifier).onSelected(index),

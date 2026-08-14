@@ -1,6 +1,7 @@
 import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/theme_color_dialog.dart';
 import 'package:again/services/database/database_providers.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:file_picker/file_picker.dart';
@@ -23,6 +24,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _textColorMode = TEXT_MODE_FOLLOW;
   Color _textColor = parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed;
   bool _searchEnabled = true;
+  // 文字设置 (大小/颜色, 颜色 null=跟随默认)
+  double _panelTextSize = 16;
+  double _panelTitleSize = 14;
+  double _progressTextSize = 16;
+  double _lyricTitleSize = 28;
+  double _lyricSize = 18;
+  Color? _panelTextColor;
+  Color? _panelTitleColor;
+  Color? _progressTextColor;
+  Color? _lyricHighlightColor;
+  Color? _lyricColor;
   bool _loading = true;
 
   @override
@@ -33,6 +45,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   Future<void> _load() async {
     final config = await ref.read(configJsonProvider).read();
+    final ts = TextSettings.fromConfig(config);
     setState(() {
       _voiceWorkRoot = config['voiceWorkRoot'] ?? '';
       _closeToTray = config['closeToTray'] != false;
@@ -43,6 +56,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _textColor = parseHexColor(resolveTextColorHex(config)) ??
           (parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed);
       _searchEnabled = config['searchEnabled'] != false;
+      _panelTextSize = ts.panelTextSize;
+      _panelTitleSize = ts.panelTitleSize;
+      _progressTextSize = ts.progressTextSize;
+      _lyricTitleSize = ts.lyricTitleSize;
+      _lyricSize = ts.lyricSize;
+      _panelTextColor = ts.panelTextColor;
+      _panelTitleColor = ts.panelTitleColor;
+      _progressTextColor = ts.progressTextColor;
+      _lyricHighlightColor = ts.lyricHighlightColor;
+      _lyricColor = ts.lyricColor;
       _loading = false;
     });
   }
@@ -383,6 +406,76 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
+                        _sectionTitle('文字'),
+                        _card(
+                          children: [
+                            _textSizeTile('列表文字', _panelTextSize,
+                                'panelTextSize', 16, (v) {
+                              _panelTextSize = v;
+                            }),
+                            _textSizeTile('面板标题', _panelTitleSize,
+                                'panelTitleSize', 14, (v) {
+                              _panelTitleSize = v;
+                            }),
+                            _textSizeTile('进度时间', _progressTextSize,
+                                'progressTextSize', 16, (v) {
+                              _progressTextSize = v;
+                            }),
+                            _textSizeTile('歌词标题', _lyricTitleSize,
+                                'lyricTitleSize', 28, (v) {
+                              _lyricTitleSize = v;
+                            }),
+                            _textSizeTile('歌词', _lyricSize, 'lyricSize', 18,
+                                (v) {
+                              _lyricSize = v;
+                            }),
+                          ],
+                        ),
+                        _card(
+                          children: [
+                            _textColorTile(
+                              '列表文字',
+                              _panelTextColor,
+                              'panelTextColor',
+                              Theme.of(context).colorScheme.onSurface,
+                              (v) => _panelTextColor = v,
+                            ),
+                            _textColorTile(
+                              '面板标题',
+                              _panelTitleColor,
+                              'panelTitleColor',
+                              Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.75),
+                              (v) => _panelTitleColor = v,
+                            ),
+                            _textColorTile(
+                              '进度时间',
+                              _progressTextColor,
+                              'progressTextColor',
+                              Theme.of(context).colorScheme.onSurface,
+                              (v) => _progressTextColor = v,
+                            ),
+                            _textColorTile(
+                              '歌词高亮',
+                              _lyricHighlightColor,
+                              'lyricHighlightColor',
+                              Theme.of(context).colorScheme.primary,
+                              (v) => _lyricHighlightColor = v,
+                            ),
+                            _textColorTile(
+                              '歌词其他',
+                              _lyricColor,
+                              'lyricColor',
+                              Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.55),
+                              (v) => _lyricColor = v,
+                            ),
+                          ],
+                        ),
                       ],
                     ),
             ),
@@ -426,6 +519,80 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             ],
           ],
         ),
+      ),
+    );
+  }
+
+  /// 字体大小设置行: 名称 + 滑杆 + 当前值 + 恢复默认。
+  Widget _textSizeTile(
+    String label,
+    double value,
+    String key,
+    double defaultValue,
+    ValueChanged<double> onChanged,
+  ) {
+    return ListTile(
+      dense: true,
+      title: Text(label),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 24,
+            child: Text(
+              value.toStringAsFixed(0),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+          SizedBox(
+            width: 120,
+            child: Slider(
+              value: value,
+              min: 10,
+              max: 30,
+              onChanged: (v) => setState(() => onChanged(v)),
+              onChangeEnd: (v) async {
+                // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
+                await _save({key: v.round()});
+                ref.invalidate(textSettingsProvider);
+              },
+            ),
+          ),
+          _resetButton(() {
+            _resetToDefault([key], () => onChanged(defaultValue));
+          }),
+        ],
+      ),
+    );
+  }
+
+  /// 字体颜色设置行: 色块 + 名称 + 恢复默认; 未设置时显示默认色并标注。
+  Widget _textColorTile(
+    String label,
+    Color? color,
+    String key,
+    Color fallback,
+    ValueChanged<Color?> onChanged,
+  ) {
+    return ListTile(
+      dense: true,
+      leading: _colorSwatch(color ?? fallback),
+      title: Text(label),
+      subtitle: color == null ? const Text('跟随主题') : null,
+      trailing: _resetButton(() {
+        _resetToDefault([key], () => onChanged(null));
+      }),
+      onTap: () => _pickColor(
+        initial: color ?? fallback,
+        onPicked: (picked) async {
+          setState(() => onChanged(picked));
+          await _save({key: _toHex(picked)});
+          ref.invalidate(textSettingsProvider);
+        },
       ),
     );
   }

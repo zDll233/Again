@@ -1,6 +1,7 @@
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/liquid_glass.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,6 +23,7 @@ class VoicePanel<T> extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
+    final ts = ref.watch(textSettingsProvider).valueOrNull;
     // 三种窗口效果统一使用 LiquidGlass 表面 (高亮细边 + 玻璃质感),
     // 毛玻璃模式着色更淡 (背景透出), 透明/不透明模式着色更深 (面板层次)。
     final effect =
@@ -46,7 +48,9 @@ class VoicePanel<T> extends ConsumerWidget {
                       child: Text(
                         title,
                         style: textTheme.titleSmall?.copyWith(
-                          color: scheme.onSurface.withValues(alpha: 0.75),
+                          fontSize: ts?.panelTitleSize,
+                          color: ts?.panelTitleColor ??
+                              scheme.onSurface.withValues(alpha: 0.75),
                         ),
                       ),
                     ),

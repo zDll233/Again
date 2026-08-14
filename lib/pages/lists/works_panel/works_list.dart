@@ -1,6 +1,7 @@
 import 'package:again/models/voice_work.dart';
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
+import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
@@ -90,6 +91,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     return Consumer(
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_voiceWorkSelectedProvider(index));
+        final ts = ref.watch(textSettingsProvider).valueOrNull;
         // 外包 Material: 让 ListTile 内部 InkWell 的 ink 画在本层而非根 Material,
         // 避免选中高亮 (Ink) 在滚动后逃逸面板裁剪
         return Material(
@@ -102,6 +104,12 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                 voiceWork.title,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                style: ts == null
+                    ? null
+                    : TextStyle(
+                        fontSize: ts.panelTextSize,
+                        color: ts.panelTextColor,
+                      ),
               ),
             ),
             subtitle: voiceWork.sourceId.isEmpty
