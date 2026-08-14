@@ -67,7 +67,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     // 左右各留 10% 边距
     final contentWidth = appSize.width * 0.80;
     // 左侧封面 1:1 方形, 高度与歌词区比例
-    final coverSize = height * 0.50;
+    final coverSize = height * 0.55;
     // 歌词列宽 = 内容宽 - 封面 - 间距
     final lyricWidth = contentWidth - coverSize - 28.0;
 
@@ -190,7 +190,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          cover(size, size),
+          // 封面带悬停 3D 倾斜 + 顶部光源效果
+          _TiltCover(child: cover(size, size)),
           const SizedBox(height: 6),
           // 倒影: 镜像翻转 + 自上而下渐隐, 高度取封面的 1/3
           SizedBox(
@@ -287,5 +288,92 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
   LyricsReaderModel _getLrcModel(String lrcContent) {
     return LyricsModelBuilder.create().bindLyricToMain(lrcContent).getModel();
+  }
+}
+
+/// 悬停 3D 倾斜封面: 鼠标在封面边缘时, 该侧向远离用户的方向倾斜,
+/// 并叠加顶部光源响应 — 上半部分后仰时顶部反光变浅, 下边缘后仰时顶部变暗。
+class _TiltCover extends StatefulWidget {
+  final Widget child;
+
+  const _TiltCover({required this.child});
+
+  @override
+  State<_TiltCover> createState() => _TiltCoverState();
+}
+
+class _TiltCoverState extends State<_TiltCover> {
+  /// 鼠标相对封面中心的偏移 (-1..1), 0 表示回到水平。
+  double _tx = 0;
+  double _ty = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onHover: (event) {
+        final size = context.size;
+        if (size == null || size.isEmpty) return;
+        final tx = ((event.localPosition.dx / size.width) - 0.5) * 2;
+        final ty = ((event.localPosition.dy / size.height) - 0.5) * 2;
+        if (tx != _tx || ty != _ty) {
+          setState(() {
+            _tx = tx;
+            _ty = ty;
+          });
+        }
+      },
+      onExit: (_) => setState(() {
+        _tx = 0;
+        _ty = 0;
+      }),
+      // 用 TweenAnimationBuilder 平滑追赶目标角度, 移出时平滑回位
+      child: TweenAnimationBuilder<Offset>(
+        tween: Tween(begin: Offset.zero, end: Offset(_tx, _ty)),
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        builder: (context, t, child) {
+          const maxAngle = 0.21; // 约 12°
+          // 鼠标在上边缘 (ty<0) → 上半部分后仰: rotateX 正角;
+          // 鼠标在左边缘 (tx<0) → 左侧后仰: rotateY 负角
+          final angleX = -t.dy * maxAngle;
+          final angleY = t.dx * maxAngle;
+          final strength = t.dy.abs().clamp(0.0, 1.0);
+          // 顶部光源: 上半部分后仰 (ty<0) → 顶部反光变浅;
+          // 下边缘后仰 (ty>0) → 上表面背光, 顶部变暗
+          final overlay = DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: t.dy < 0
+                    ? [
+                        Colors.white.withValues(alpha: 0.35 * strength),
+                        Colors.transparent,
+                      ]
+                    : [
+                        Colors.black.withValues(alpha: 0.35 * strength),
+                        Colors.transparent,
+                      ],
+              ),
+            ),
+          );
+          return Transform(
+            alignment: Alignment.center,
+            transform: Matrix4.identity()
+              ..setEntry(3, 2, 0.0012)
+              ..rotateX(angleX)
+              ..rotateY(angleY),
+            child: Stack(
+              children: [
+                child!,
+                Positioned.fill(child: IgnorePointer(child: overlay)),
+              ],
+            ),
+          );
+        },
+        child: widget.child,
+      ),
+    );
   }
 }
