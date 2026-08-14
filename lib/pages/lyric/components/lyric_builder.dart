@@ -216,7 +216,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 shaderCallback: (rect) => const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x59FFFFFF), Color(0x00FFFFFF)],
+                  colors: [Color(0x33FFFFFF), Color(0x00FFFFFF)],
                   stops: [0.0, 0.33],
                 ).createShader(rect),
                 blendMode: BlendMode.dstIn,
