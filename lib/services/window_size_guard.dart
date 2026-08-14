@@ -6,11 +6,11 @@ import 'package:window_manager/window_manager.dart';
 
 /// 防御: Flutter Windows 引擎的 view 尺寸偶发与窗口不同步
 /// (内容渲染在窗口一角/偏小, 其余区域空白, 反复出现且无法稳定复现)。
-/// 周期性对比窗口尺寸与 view 尺寸, 发现偏差时强制触发一次 resize,
-/// 让引擎重新同步 view 尺寸。
+/// 低频 (10s) 对比窗口尺寸与 view 尺寸, 发现偏差时强制触发一次 resize,
+/// 让引擎重新同步 view 尺寸。开销可忽略: 每次仅两次平台通道调用。
 class WindowSizeGuard {
   WindowSizeGuard() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) => _check());
+    _timer = Timer.periodic(const Duration(seconds: 10), (_) => _check());
   }
 
   Timer? _timer;
@@ -19,6 +19,7 @@ class WindowSizeGuard {
     try {
       // 窗口不可见 (托盘隐藏/最小化) 时跳过, 避免打扰
       if (!await windowManager.isVisible()) return;
+      if (await windowManager.isMinimized()) return;
       final views = WidgetsBinding.instance.platformDispatcher.views;
       if (views.isEmpty) return;
       final view = views.first;
