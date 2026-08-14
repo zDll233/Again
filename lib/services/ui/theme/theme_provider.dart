@@ -1,19 +1,9 @@
 import 'package:again/common/const.dart';
-import 'package:again/services/ui/ui_providers.dart';
-import 'package:again/utils/cover_color.dart';
-import 'package:again/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 当前正在播放作品的封面路径(仅在有效播放时返回, 避免越界), 否则 null。
-/// 启动时历史记录会恢复 playingIndex (最后播放的作品), 因此"刚启动
-/// 未播放"也能拿到历史作品的封面; 选中但不播放不会改变主题色。
-final playingCoverPathProvider = Provider<String?>((ref) {
-  final state = ref.watch(voiceWorkProvider);
-  if (!state.isPlayingIndexValid) return null;
-  final cover = state.playingItem.coverPath;
-  return cover.isEmpty ? null : cover;
-});
+/// 默认主题种子色 (对应 kDefaultThemeSeedHex)。
+const Color kDefaultThemeSeed = Color(0xFF9C6BFF);
 
 /// 解析自定义主题色, 缺省返回默认紫色 (#RRGGBB)。
 String resolveThemeSeedHex(Map<String, dynamic> config) {
@@ -30,16 +20,6 @@ Color? parseHexColor(String hex) {
   return Color(0xFF000000 | value);
 }
 
-/// 主题色模式解析: 优先 `themeColorMode`, 兼容旧配置 `followCoverTheme`
-/// (true=cover, false=custom), 缺省跟随封面。
-String resolveThemeColorMode(Map<String, dynamic> config) {
-  final v = config['themeColorMode'];
-  if (v is String && v.isNotEmpty) return v;
-  return config['followCoverTheme'] == false
-      ? THEME_COLOR_MODE_CUSTOM
-      : THEME_COLOR_MODE_COVER;
-}
-
 /// 文字颜色模式解析: 优先 `textColorMode`, 兼容旧 `accentColorMode`, 缺省跟随主题色。
 String resolveTextColorMode(Map<String, dynamic> config) {
   final v = config['textColorMode'] ?? config['accentColorMode'];
@@ -52,22 +32,10 @@ String resolveTextColorHex(Map<String, dynamic> config) {
   return v is String && v.isNotEmpty ? v : kDefaultTextColorHex;
 }
 
-/// 主题种子色: 跟随封面时取正在播放作品的封面主色,
-/// 无播放/无封面/取色失败均回退到手动设置的主题色。
+/// 主题种子色: 手动设置的主题色 (跟随封面功能已移除)。
 final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
   final config = await ref.read(configJsonProvider).read();
-  final custom =
-      parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
-  if (resolveThemeColorMode(config) == THEME_COLOR_MODE_CUSTOM) {
-    return custom;
-  }
-  final coverPath = ref.watch(playingCoverPathProvider);
-  if (coverPath == null) {
-    return custom;
-  }
-  final extracted = await CoverColorExtractor.extract(coverPath);
-  Log.info('coverColor: cover=$coverPath -> ${extracted?.toARGB32().toRadixString(16)}');
-  return extracted ?? custom;
+  return parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
 });
 
 /// 文字颜色 (主文字/选中项文字): follow=随主题色, custom=独立颜色。
@@ -103,7 +71,7 @@ final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
   return config['searchEnabled'] != false;
 });
 
-/// 应用主题: 跟随封面主色动态生成; 文字颜色独立设置时覆盖文字角色。
+/// 应用主题: 由自定义主题色生成; 文字颜色独立设置时覆盖文字角色。
 final appThemeProvider = Provider<ThemeData>((ref) {
   final seed = ref.watch(coverSeedColorProvider).valueOrNull ??
       kDefaultThemeSeed;

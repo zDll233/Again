@@ -30,14 +30,6 @@ const String WINDOW_EFFECT_TRANSPARENT = 'transparent';
 const String WINDOW_EFFECT_ACRYLIC = 'acrylic';
 const String WINDOW_EFFECT_OPAQUE = 'opaque';
 
-/// 主题色模式 (config.json `themeColorMode`)。
-const String THEME_COLOR_MODE_CUSTOM = 'custom';
-const String THEME_COLOR_MODE_COVER = 'cover';
-
-/// 强调色模式 (config.json `accentColorMode`, 旧名, 现为文字颜色): follow=跟随主题色, custom=独立设置。
-const String ACCENT_MODE_FOLLOW = 'follow';
-const String ACCENT_MODE_CUSTOM = 'custom';
-
 /// 文字颜色模式 (config.json `textColorMode`): follow=随主题色, custom=独立设置。
 const String TEXT_MODE_FOLLOW = 'follow';
 const String TEXT_MODE_CUSTOM = 'custom';

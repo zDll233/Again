@@ -3,7 +3,6 @@ import 'package:again/pages/settings/components/theme_color_dialog.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
-import 'package:again/utils/cover_color.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,7 +19,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _voiceWorkRoot = '';
   bool _closeToTray = true;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
-  String _themeColorMode = THEME_COLOR_MODE_COVER;
   Color _themeSeedColor = kDefaultThemeSeed;
   String _textColorMode = TEXT_MODE_FOLLOW;
   Color _textColor = parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed;
@@ -39,9 +37,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _voiceWorkRoot = config['voiceWorkRoot'] ?? '';
       _closeToTray = config['closeToTray'] != false;
       _windowEffect = resolveWindowEffect(config);
-      _themeColorMode = resolveThemeColorMode(config);
-      _themeSeedColor =
-          parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
+      _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
+          kDefaultThemeSeed;
       _textColorMode = resolveTextColorMode(config);
       _textColor = parseHexColor(resolveTextColorHex(config)) ??
           (parseHexColor(kDefaultTextColorHex) ?? kDefaultThemeSeed);
@@ -108,13 +105,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   /// 恢复设置: 移除配置键回到默认值, 并刷新相关 provider。
-  void _resetToDefault(
+  Future<void> _resetToDefault(
     List<String> keys,
     VoidCallback setDefault, {
     bool reapplyWindowEffect = false,
-  }) {
+  }) async {
     setState(setDefault);
-    _saveMigrated({}, keys);
+    // 先写完配置再刷新, 避免 provider 读到旧值
+    await _saveMigrated({}, keys);
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textColorProvider);
     ref.invalidate(windowEffectProvider);
@@ -232,54 +230,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               }),
                               onTap: () => _pickColor(
                                 initial: _themeSeedColor,
-                                onPicked: (picked) {
-                                  // 选色即切换为自定义模式, 保证所选颜色立即生效
-                                  setState(() {
-                                    _themeSeedColor = picked;
-                                    _themeColorMode = THEME_COLOR_MODE_CUSTOM;
-                                  });
-                                  _save({
-                                    'themeSeedColor': _toHex(picked),
-                                    'themeColorMode': THEME_COLOR_MODE_CUSTOM,
-                                  });
+                                onPicked: (picked) async {
+                                  setState(() => _themeSeedColor = picked);
+                                  // 先写完配置再刷新主题, 避免 provider 读到旧值
+                                  await _saveMigrated(
+                                    {'themeSeedColor': _toHex(picked)},
+                                    ['themeColorMode', 'followCoverTheme'],
+                                  );
                                   ref.invalidate(coverSeedColorProvider);
                                 },
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 56.0),
-                              child: ListTile(
-                                // 不用 dense、不改 contentPadding:
-                                // 保证 title 与 trailing 位置与带 leading 的普通行精确对齐
-                                title: const Text('跟随封面主色'),
-                                trailing: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Switch(
-                                      value: _themeColorMode ==
-                                          THEME_COLOR_MODE_COVER,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _themeColorMode = value
-                                              ? THEME_COLOR_MODE_COVER
-                                              : THEME_COLOR_MODE_CUSTOM;
-                                        });
-                                        _saveMigrated(
-                                          {'themeColorMode': _themeColorMode},
-                                          ['followCoverTheme'],
-                                        );
-                                        ref.invalidate(coverSeedColorProvider);
-                                      },
-                                    ),
-                                    _resetButton(() {
-                                      _resetToDefault(
-                                        ['themeColorMode', 'followCoverTheme'],
-                                        () => _themeColorMode =
-                                            THEME_COLOR_MODE_COVER,
-                                      );
-                                    }),
-                                  ],
-                                ),
                               ),
                             ),
                             ListTile(
@@ -291,14 +250,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 children: [
                                   Switch(
                                     value: _textColorMode == TEXT_MODE_CUSTOM,
-                                    onChanged: (value) {
+                                    onChanged: (value) async {
                                       setState(() {
                                         _textColorMode = value
                                             ? TEXT_MODE_CUSTOM
                                             : TEXT_MODE_FOLLOW;
                                       });
-                                      // 迁移: 移除旧的 accentColorMode 键
-                                      _saveMigrated(
+                                      // 迁移: 移除旧的 accentColorMode 键;
+                                      // 先写完配置再刷新, 避免读到旧值
+                                      await _saveMigrated(
                                         {'textColorMode': _textColorMode},
                                         ['accentColorMode'],
                                       );
@@ -329,10 +289,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 }),
                                 onTap: () => _pickColor(
                                   initial: _textColor,
-                                  onPicked: (picked) {
+                                  onPicked: (picked) async {
                                     setState(() => _textColor = picked);
-                                    // 迁移: 移除旧的 accentColor 键
-                                    _saveMigrated(
+                                    // 迁移: 移除旧的 accentColor 键;
+                                    // 先写完配置再刷新, 避免读到旧值
+                                    await _saveMigrated(
                                       {'textColor': _toHex(picked)},
                                       ['accentColor'],
                                     );
@@ -404,9 +365,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 children: [
                                   Switch(
                                     value: _searchEnabled,
-                                    onChanged: (value) {
+                                    onChanged: (value) async {
                                       setState(() => _searchEnabled = value);
-                                      _save({'searchEnabled': value});
+                                      // 先写完配置再刷新, 避免读到旧值
+                                      await _save({'searchEnabled': value});
                                       ref.invalidate(searchEnabledProvider);
                                     },
                                   ),
