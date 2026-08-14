@@ -342,7 +342,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 144,
+                                    width: 208,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
@@ -433,7 +433,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   SizedBox(
-                                    width: 168,
+                                    width: 208,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
@@ -454,11 +454,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       style: ButtonStyle(
                                         visualDensity:
                                             VisualDensity.compact,
-                                        // 压缩段内边距, 三段三字在 168 内不换行
-                                        padding: WidgetStatePropertyAll(
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 6),
-                                        ),
                                       ),
                                       onSelectionChanged:
                                           (selection) async {
@@ -578,7 +573,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SizedBox(
-                                        width: 144,
+                                        width: 208,
                                         child: SegmentedButton<String>(
                                           segments: const [
                                             ButtonSegment(
