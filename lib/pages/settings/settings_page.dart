@@ -277,8 +277,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               onTap: () => _pickColor(
                                 initial: _themeSeedColor,
                                 onPicked: (picked) {
-                                  setState(() => _themeSeedColor = picked);
-                                  _save({'themeSeedColor': _toHex(picked)});
+                                  // 选色即切换为自定义模式, 保证所选颜色立即生效
+                                  setState(() {
+                                    _themeSeedColor = picked;
+                                    _themeColorMode = THEME_COLOR_MODE_CUSTOM;
+                                  });
+                                  _save({
+                                    'themeSeedColor': _toHex(picked),
+                                    'themeColorMode': THEME_COLOR_MODE_CUSTOM,
+                                  });
                                   ref.invalidate(coverSeedColorProvider);
                                 },
                               ),
@@ -300,8 +307,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                             ? TEXT_MODE_CUSTOM
                                             : TEXT_MODE_FOLLOW;
                                       });
-                                      _save(
-                                          {'textColorMode': _textColorMode});
+                                      // 迁移: 移除旧的 accentColorMode 键
+                                      _saveMigrated(
+                                        {'textColorMode': _textColorMode},
+                                        ['accentColorMode'],
+                                      );
                                       ref.invalidate(textColorProvider);
                                     },
                                   ),
@@ -332,7 +342,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   initial: _textColor,
                                   onPicked: (picked) {
                                     setState(() => _textColor = picked);
-                                    _save({'textColor': _toHex(picked)});
+                                    // 迁移: 移除旧的 accentColor 键
+                                    _saveMigrated(
+                                      {'textColor': _toHex(picked)},
+                                      ['accentColor'],
+                                    );
                                     ref.invalidate(textColorProvider);
                                   },
                                 ),
