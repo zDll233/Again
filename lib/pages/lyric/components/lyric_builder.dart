@@ -206,8 +206,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           mainAxisSize: MainAxisSize.min,
           children: [
             cover(size, size),
-            const SizedBox(height: 6),
-          // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
+            // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
           // 用 OverflowBox 允许镜像超出显示区, 渐隐在 1/3 高度处已完全透明
           SizedBox(
             height: size / 3,
