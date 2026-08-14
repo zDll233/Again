@@ -207,25 +207,25 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           children: [
             cover(size, size),
             const SizedBox(height: 6),
-          // 倒影: 完整镜像 (整张裁剪后的方形封面), FittedBox 缩放到 1/3 高,
-          // 自上而下渐隐
+          // 倒影: 完整 1:1 镜像 (裁剪后的方形封面翻转), 从封面底边向下延伸;
+          // 用 OverflowBox 允许镜像超出显示区, 渐隐在 1/3 高度处已完全透明
           SizedBox(
             height: size / 3,
-            child: ClipRect(
+            child: OverflowBox(
+              maxHeight: size,
+              alignment: Alignment.topCenter,
               child: ShaderMask(
                 shaderCallback: (rect) => const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x66FFFFFF), Colors.transparent],
+                  colors: [Color(0x66FFFFFF), Color(0x00FFFFFF)],
+                  stops: [0.0, 0.33],
                 ).createShader(rect),
                 blendMode: BlendMode.modulate,
-                child: FittedBox(
-                  fit: BoxFit.cover,
-                  child: Opacity(
-                    opacity: 0.5,
-                    child:
-                        Transform.flip(flipY: true, child: cover(size, size)),
-                  ),
+                child: Opacity(
+                  opacity: 0.5,
+                  child:
+                      Transform.flip(flipY: true, child: cover(size, size)),
                 ),
               ),
             ),
