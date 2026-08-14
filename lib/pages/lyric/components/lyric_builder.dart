@@ -104,10 +104,10 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     model: cachedLyricModel,
                     position: position.inMilliseconds,
                     playing: isPlaying,
-                    // 左对齐时歌词起点与指示条横线起点对齐
-                    // (指示条图标区 = 25 左边距 + 32 图标宽)
+                    // 左对齐时歌词起点略右移, 与指示条横线错开一点更好看
+                    // (指示条图标区 = 25 左边距 + 32 图标宽 + 15 余量)
                     padding: ts?.lyricAlign == 'left'
-                        ? const EdgeInsets.only(left: 57)
+                        ? const EdgeInsets.only(left: 72)
                         : null,
                     emptyBuilder: () => EmptyLyric(
                         haveLyric: _hasLyric,
