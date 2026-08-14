@@ -538,10 +538,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             _textGroup(
                               title: '界面文字',
                               children: [
+                                // 字体大小
                                 _textSizeTile('列表文字', _panelTextSize,
                                     'panelTextSize', 16, (v) {
                                   _panelTextSize = v;
                                 }),
+                                _textSizeTile('面板标题', _panelTitleSize,
+                                    'panelTitleSize', 14, (v) {
+                                  _panelTitleSize = v;
+                                }),
+                                _textSizeTile('进度时间', _progressTextSize,
+                                    'progressTextSize', 16, (v) {
+                                  _progressTextSize = v;
+                                }),
+                                // 字体颜色
                                 _textColorTile(
                                   '列表文字',
                                   _panelTextColor,
@@ -549,10 +559,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   Theme.of(context).colorScheme.onSurface,
                                   (v) => _panelTextColor = v,
                                 ),
-                                _textSizeTile('面板标题', _panelTitleSize,
-                                    'panelTitleSize', 14, (v) {
-                                  _panelTitleSize = v;
-                                }),
                                 _textColorTile(
                                   '面板标题',
                                   _panelTitleColor,
@@ -563,10 +569,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       .withValues(alpha: 0.75),
                                   (v) => _panelTitleColor = v,
                                 ),
-                                _textSizeTile('进度时间', _progressTextSize,
-                                    'progressTextSize', 16, (v) {
-                                  _progressTextSize = v;
-                                }),
                                 _textColorTile(
                                   '进度时间',
                                   _progressTextColor,
@@ -583,6 +585,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             _textGroup(
                               title: '歌词文字',
                               children: [
+                                // 字体大小
                                 _textSizeTile('歌词标题', _lyricTitleSize,
                                     'lyricTitleSize', 28, (v) {
                                   _lyricTitleSize = v;
@@ -640,6 +643,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ],
                                   ),
                                 ),
+                                // 字体颜色
                                 _textColorTile(
                                   '歌词高亮',
                                   _lyricHighlightColor,
@@ -745,6 +749,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ) {
     return ListTile(
       dense: true,
+      // leading 占位与颜色行/主题区一致, 文字起点对齐
+      leading: Icon(
+        Icons.format_size,
+        size: 22,
+        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+      ),
       title: Text(label),
       contentPadding: const EdgeInsets.only(left: 16, right: 16),
       trailing: Row(

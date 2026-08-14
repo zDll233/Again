@@ -179,16 +179,18 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
                 onChanged: (v) => setState(() => _themeHue = v),
               ),
             const SizedBox(height: 8),
-            _SliderBar(
-              label: '色相',
-              value: _hsv.hue / 360,
-              enabled: !_themeHue,
-              colors: [
-                for (var h = 0.0; h <= 360; h += 60)
-                  HSVColor.fromAHSV(1, h, 1, 1).toColor(),
-              ],
-              onChanged: (v) => setState(() => _hsv = _hsv.withHue(v * 360)),
-            ),
+            // 色相跟随主题时隐藏色相滑块, 只保留饱和/明度
+            if (!_themeHue)
+              _SliderBar(
+                label: '色相',
+                value: _hsv.hue / 360,
+                colors: [
+                  for (var h = 0.0; h <= 360; h += 60)
+                    HSVColor.fromAHSV(1, h, 1, 1).toColor(),
+                ],
+                onChanged: (v) =>
+                    setState(() => _hsv = _hsv.withHue(v * 360)),
+              ),
             _SliderBar(
               label: '饱和度',
               value: _hsv.saturation,
