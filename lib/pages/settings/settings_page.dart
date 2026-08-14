@@ -691,6 +691,58 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     18, (v) {
                                   _lyricSize = v;
                                 }),
+                                ListTile(
+                                  dense: true,
+                                  leading: Icon(
+                                    Icons.text_increase,
+                                    size: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  title: const Text('当前行字号'),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        _lyricCurrentSize.toStringAsFixed(0),
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: Slider(
+                                          value: _lyricCurrentSize,
+                                          min: 10,
+                                          max: 30,
+                                          onChanged: (v) => setState(() =>
+                                              _lyricCurrentSize = v),
+                                          onChangeEnd: (v) async {
+                                            await _save({
+                                              'lyricCurrentSize': v.round()
+                                            });
+                                            ref.invalidate(
+                                                textSettingsProvider);
+                                          },
+                                        ),
+                                      ),
+                                      _resetButton(() {
+                                        _resetToDefault(
+                                            ['lyricCurrentSize'], () {
+                                          _lyricCurrentSize = _lyricSize + 2;
+                                        });
+                                      }),
+                                    ],
+                                  ),
+                                ),
                                 _textSizeTile('歌词行间距', _lyricLineGap,
                                     'lyricLineGap', 25, (v) {
                                   _lyricLineGap = v;
@@ -746,58 +798,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         _resetToDefault(
                                             ['lyricAlign'], () {
                                           _lyricAlign = 'left';
-                                        });
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.text_increase,
-                                    size: 22,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  title: const Text('当前行字号'),
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 16, right: 16),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        _lyricCurrentSize.toStringAsFixed(0),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
-                                        child: Slider(
-                                          value: _lyricCurrentSize,
-                                          min: 10,
-                                          max: 30,
-                                          onChanged: (v) => setState(() =>
-                                              _lyricCurrentSize = v),
-                                          onChangeEnd: (v) async {
-                                            await _save({
-                                              'lyricCurrentSize': v.round()
-                                            });
-                                            ref.invalidate(
-                                                textSettingsProvider);
-                                          },
-                                        ),
-                                      ),
-                                      _resetButton(() {
-                                        _resetToDefault(
-                                            ['lyricCurrentSize'], () {
-                                          _lyricCurrentSize = _lyricSize + 2;
                                         });
                                       }),
                                     ],
