@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:again/common/const.dart';
+import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -26,11 +28,15 @@ class LyricBuilder extends ConsumerStatefulWidget {
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   bool _hasLyric = false;
   bool _readLyric = false;
+  String _lastWorkPath = '';
+  String _lastCoverPath = '';
 
   @override
   Widget build(BuildContext context) {
-    final playingViPath = ref.watch(
-        voiceItemProvider.select((state) => state.cachedPlayingVoiceItemPath!));
+    final cached = ref
+        .watch(voiceItemProvider.select((state) => state.cachedPlayingItem));
+    final playingViPath = cached!.filePath;
+    final workPath = cached.voiceWorkPath;
 
     // 歌词文字颜色: 默认跟随主题的 onSurface, 可单独设置
     final scheme = Theme.of(context).colorScheme;
@@ -59,81 +65,137 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final appSize = MediaQuery.of(context).size;
     final width = appSize.width * 0.70;
     final height = appSize.height - 210.0;
+    // 左侧封面 1:1 方形, 高度与歌词区比例
+    final coverSize = height * 0.60;
+    // 歌词列宽 = 总宽 - 封面 - 间距
+    final lyricWidth = width - coverSize - 28.0;
 
-    // 歌词区上下边缘渐隐, 营造沉浸感
-    return ShaderMask(
-      shaderCallback: (rect) => const LinearGradient(
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        colors: [
-          Colors.transparent,
-          Colors.white,
-          Colors.white,
-          Colors.transparent
+    return SizedBox(
+      width: width,
+      height: height,
+      // 左: 封面; 右: 歌词
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: coverSize,
+            height: coverSize,
+            child: FutureBuilder<String>(
+              future: _getCoverPath(workPath),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                return ImageThumbnail(
+                  imagePath: snapshot.data!,
+                  imageWidth: coverSize,
+                  imageHeight: coverSize,
+                );
+              },
+            ),
+          ),
+          const SizedBox(width: 28),
+          Expanded(
+            // 歌词区上下边缘渐隐, 营造沉浸感
+            child: ShaderMask(
+              shaderCallback: (rect) => const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.white,
+                  Colors.white,
+                  Colors.transparent
+                ],
+                stops: [0.0, 0.14, 0.86, 1.0],
+              ).createShader(rect),
+              blendMode: BlendMode.dstIn,
+              child: FutureBuilder<String>(
+                future: _getLrcContent(playingViPath),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return const Center(child: Text('Error loading lyrics'));
+                  } else {
+                    try {
+                      final lrcContent = snapshot.data ?? '';
+                      final cachedLyricModel = _getLrcModel(lrcContent);
+                      return Consumer(
+                        builder: (_, WidgetRef ref, __) {
+                          final position = ref.watch(audioProvider
+                              .select((state) => state.position));
+                          final isPlaying = ref.watch(
+                              audioProvider.select((state) => state.isPlaying));
+                          return LyricsReader(
+                            model: cachedLyricModel,
+                            position: position.inMilliseconds,
+                            playing: isPlaying,
+                            // 歌词行宽 < 指示条宽: 水平留白收窄歌词显示区,
+                            // 而指示条 (selectLineBuilder) 仍横贯歌词列全宽;
+                            // 左对齐时额外避开指示条定位图标 (25 边距+32 图标+余量)
+                            padding: ts?.lyricAlign == 'left'
+                                ? EdgeInsets.only(
+                                    left: 80, right: lyricWidth * 0.10)
+                                : EdgeInsets.symmetric(
+                                    horizontal: lyricWidth * 0.10),
+                            emptyBuilder: () => EmptyLyric(
+                                haveLyric: _hasLyric,
+                                readLyric: _readLyric,
+                              ),
+                            selectLineBuilder: (position, flashBack,
+                                    confirmPlay) =>
+                                LineIndicator(
+                              context: context,
+                              position: position,
+                              flashBack: flashBack,
+                              confirmPlay: confirmPlay,
+                              isPlaying: isPlaying,
+                            ),
+                            lyricUi: lyricUi,
+                            waitMilliseconds: 5000,
+                            canScrollBack: isPlaying,
+                            canFlashBack: true,
+                          );
+                        },
+                      );
+                    } catch (e) {
+                      Log.error('Error parsing lyrics: $e');
+                      return const EmptyLyric(
+                        haveLyric: true,
+                        readLyric: false,
+                      );
+                    }
+                  }
+                },
+              ),
+            ),
+          ),
         ],
-        stops: [0.0, 0.14, 0.86, 1.0],
-      ).createShader(rect),
-      blendMode: BlendMode.dstIn,
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: FutureBuilder<String>(
-          future: _getLrcContent(playingViPath),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Error loading lyrics'));
-            } else {
-              try {
-                final lrcContent = snapshot.data ?? '';
-                final cachedLyricModel = _getLrcModel(lrcContent);
-                return Consumer(
-                  builder: (_, WidgetRef ref, __) {
-                    final position = ref
-                        .watch(audioProvider.select((state) => state.position));
-                    final isPlaying = ref.watch(
-                        audioProvider.select((state) => state.isPlaying));
-                  return LyricsReader(
-                    model: cachedLyricModel,
-                    position: position.inMilliseconds,
-                    playing: isPlaying,
-                    // 左对齐时歌词起点略右移, 与指示条横线错开一点更好看
-                    // (指示条图标区 = 25 左边距 + 32 图标宽 + 23 余量)
-                    padding: ts?.lyricAlign == 'left'
-                        ? const EdgeInsets.only(left: 80)
-                        : null,
-                    emptyBuilder: () => EmptyLyric(
-                        haveLyric: _hasLyric,
-                        readLyric: _readLyric,
-                      ),
-                      selectLineBuilder: (position, flashBack, confirmPlay) =>
-                          LineIndicator(
-                        context: context,
-                        position: position,
-                        flashBack: flashBack,
-                        confirmPlay: confirmPlay,
-                        isPlaying: isPlaying,
-                      ),
-                      lyricUi: lyricUi,
-                      waitMilliseconds: 5000,
-                      canScrollBack: isPlaying,
-                      canFlashBack: true,
-                    );
-                  },
-                );
-              } catch (e) {
-                Log.error('Error parsing lyrics: $e');
-                return const EmptyLyric(
-                  haveLyric: true,
-                  readLyric: false,
-                );
-              }
-            }
-          },
-        ),
       ),
     );
+  }
+
+  /// 查询作品封面 (作品目录下递归第一张图), 结果按作品目录缓存。
+  Future<String> _getCoverPath(String workPath) async {
+    if (workPath == _lastWorkPath) return _lastCoverPath;
+    _lastWorkPath = workPath;
+    _lastCoverPath = _findCover(workPath);
+    return _lastCoverPath;
+  }
+
+  String _findCover(String workPath) {
+    final dir = Directory(workPath);
+    if (!dir.existsSync()) return '';
+    try {
+      for (final e in dir.listSync(recursive: true)) {
+        if (e is File &&
+            IMG_EXTENSIONS.contains(p.extension(e.path).toLowerCase())) {
+          return e.path;
+        }
+      }
+    } catch (e) {
+      Log.error('Error finding cover: $e');
+    }
+    return '';
   }
 
   Future<String> _getLrcContent(String playingViPath) async {
