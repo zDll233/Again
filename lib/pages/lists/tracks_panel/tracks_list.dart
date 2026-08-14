@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class VoiceItemListView extends ConsumerStatefulWidget {
-  const VoiceItemListView({super.key});
+class TracksListView extends ConsumerStatefulWidget {
+  const TracksListView({super.key});
 
   @override
-  ConsumerState<VoiceItemListView> createState() => _VoiceItemListViewState();
+  ConsumerState<TracksListView> createState() => _TracksListViewState();
 }
 
-class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
+class _TracksListViewState extends ConsumerState<TracksListView> {
   @override
   void initState() {
     super.initState();
@@ -55,7 +55,7 @@ class _VoiceItemListViewState extends ConsumerState<VoiceItemListView> {
           },
         );
       },
-      itemScrollController: ref.read(uiServiceProvider).viScrollController,
+      itemScrollController: ref.read(uiServiceProvider).tracksScrollController,
     );
   }
 }

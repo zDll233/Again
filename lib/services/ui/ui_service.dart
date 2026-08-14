@@ -22,8 +22,8 @@ class UIService {
 
   final cateScrollController = ItemScrollController();
   final cvScrollController = ItemScrollController();
-  final vwScrollController = ItemScrollController();
-  final viScrollController = ItemScrollController();
+  final worksScrollController = ItemScrollController();
+  final tracksScrollController = ItemScrollController();
 
   Future<void> filterSelected() async {
     final voiceWorkNotifier = ref.read(voiceWorkProvider.notifier);
@@ -226,7 +226,7 @@ class UIService {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       scrollToIndex(cateScrollController, 0);
       scrollToIndex(cvScrollController, 0);
-      scrollToIndex(vwScrollController, 0);
+      scrollToIndex(worksScrollController, 0);
     });
   }
 
@@ -256,13 +256,13 @@ class UIService {
             cateScrollController, ref.read(categoryProvider).selectedIndex);
         scrollToIndex(cvScrollController, ref.read(cvProvider).selectedIndex);
         scrollToIndex(
-            vwScrollController, ref.read(voiceWorkProvider).selectedIndex);
+            worksScrollController, ref.read(voiceWorkProvider).selectedIndex);
 
-        // final viIdx = ref.read(audioProvider).isShufflePlay
+        // final tracksIdx = ref.read(audioProvider).isShufflePlay
         //     ? ref.read(voiceItemProvider).selectedIndex
         //     : ref.read(voiceItemProvider).playingIndex;
         scrollToIndex(
-            viScrollController, ref.read(voiceItemProvider).selectedIndex);
+            tracksScrollController, ref.read(voiceItemProvider).selectedIndex);
       });
     });
   }
