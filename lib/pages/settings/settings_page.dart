@@ -148,6 +148,68 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
+  /// 重置所有设置: 二次确认后清空配置并恢复全部默认值。
+  Future<void> _resetAllSettings() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('重置所有设置'),
+        content: const Text('将恢复所有设置的默认值, 包括主题色、文字样式、窗口效果等。确定继续吗?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            style: TextButton.styleFrom(foregroundColor: schemeError()),
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('重置'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() {
+      // 全部恢复默认值 (与 TextSettings / resolveWindowEffect 默认一致)
+      _voiceWorkRoot = '';
+      _closeToTray = true;
+      _rememberWindowPos = true;
+      _rememberWindowSize = true;
+      _windowEffect = 'acrylic';
+      _themeSeedColor = kDefaultThemeSeed;
+      _searchEnabled = true;
+      _panelTextSize = 16;
+      _panelTitleSize = 14;
+      _progressTextSize = 16;
+      _lyricTitleSize = 28;
+      _lyricSize = 18;
+      _panelTextColor = null;
+      _panelTitleColor = null;
+      _progressTextColor = null;
+      _lyricHighlightColor = null;
+      _lyricColor = null;
+      _lyricTitleColor = null;
+      _lyricLineGap = 25;
+      _lyricAlign = 'center';
+      _listDensity = 'compact';
+    });
+    // 清空配置文件 (所有键走默认), 刷新 provider 并重新应用窗口效果
+    await ref.read(configJsonProvider).write({});
+    ref.invalidate(coverSeedColorProvider);
+    ref.invalidate(textSettingsProvider);
+    ref.invalidate(windowEffectProvider);
+    ref.invalidate(searchEnabledProvider);
+    ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已重置所有设置')),
+      );
+    }
+  }
+
+  Color schemeError() => Theme.of(context).colorScheme.error;
+
   Future<void> _changeRootDir() async {
     final selectedDirPath = await FilePicker.getDirectoryPath(
       dialogTitle: '请选择音声作品根目录',
@@ -639,6 +701,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ],
                             ),
                           ],
+                        ),
+                        // 重置所有设置
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: _card(
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.restart_alt,
+                                  color: scheme.error,
+                                ),
+                                title: Text(
+                                  '重置所有设置',
+                                  style: TextStyle(color: scheme.error),
+                                ),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                onTap: _resetAllSettings,
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
