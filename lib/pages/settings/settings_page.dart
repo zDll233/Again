@@ -478,7 +478,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 children: [
                                   const Expanded(child: Text('列表密度')),
                                   SizedBox(
-                                    width: 168,
+                                    width: 144,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
@@ -549,7 +549,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 children: [
                                   const Expanded(child: Text('歌词对齐')),
                                   SizedBox(
-                                    width: 168,
+                                    width: 144,
                                     child: SegmentedButton<String>(
                                       segments: const [
                                         ButtonSegment(
