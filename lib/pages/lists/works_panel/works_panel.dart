@@ -25,17 +25,33 @@ class WorksPanel extends ConsumerWidget {
           initialValue: sortOrder,
           onSelected: (value) =>
               ref.read(sortOrderProvider.notifier).setSortOrder(value),
-          itemBuilder: (context) => [
-            for (final s in SortOrder.values)
-              CheckedPopupMenuItem(
-                value: s,
-                checked: s == sortOrder,
-                // 紧凑: 缩小行高与内边距, 避免菜单过空
-                height: 34,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                child: Text(s.label, style: const TextStyle(fontSize: 13)),
-              ),
-          ],
+          itemBuilder: (context) {
+            final scheme = Theme.of(context).colorScheme;
+            return [
+              for (final s in SortOrder.values)
+                PopupMenuItem(
+                  value: s,
+                  height: 34,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  // 自定义 Row: 避免 CheckedPopupMenuItem 的 ListTile
+                  // 布局在文字右侧留下大量空白
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      SizedBox(
+                        width: 16,
+                        child: s == sortOrder
+                            ? Icon(Icons.check,
+                                size: 16, color: scheme.primary)
+                            : null,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(s.label, style: const TextStyle(fontSize: 13)),
+                    ],
+                  ),
+                ),
+            ];
+          },
         ),
       ],
     );
