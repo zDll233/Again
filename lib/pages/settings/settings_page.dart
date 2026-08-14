@@ -575,13 +575,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               title: const Text('封面倾斜动画'),
                               contentPadding: const EdgeInsets.only(
                                   left: 16, right: 16),
-                              trailing: Switch(
-                                value: _coverTilt,
-                                onChanged: (value) {
-                                  setState(() => _coverTilt = value);
-                                  _save({'coverTilt': value});
-                                  ref.invalidate(textSettingsProvider);
-                                },
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _coverTilt,
+                                    onChanged: (value) async {
+                                      setState(() => _coverTilt = value);
+                                      await _save({'coverTilt': value});
+                                      ref.invalidate(textSettingsProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['coverTilt'],
+                                        () => _coverTilt = true);
+                                  }),
+                                ],
                               ),
                             ),
                             ListTile(
@@ -597,13 +606,23 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               title: const Text('封面倒影'),
                               contentPadding: const EdgeInsets.only(
                                   left: 16, right: 16),
-                              trailing: Switch(
-                                value: _coverReflection,
-                                onChanged: (value) {
-                                  setState(() => _coverReflection = value);
-                                  _save({'coverReflection': value});
-                                  ref.invalidate(textSettingsProvider);
-                                },
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _coverReflection,
+                                    onChanged: (value) async {
+                                      setState(() => _coverReflection = value);
+                                      await _save(
+                                          {'coverReflection': value});
+                                      ref.invalidate(textSettingsProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['coverReflection'],
+                                        () => _coverReflection = true);
+                                  }),
+                                ],
                               ),
                             ),
                           ],
