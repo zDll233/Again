@@ -70,6 +70,7 @@ class TextSettings {
   final ColorSetting? progressTextColor;
   final ColorSetting? lyricHighlightColor;
   final ColorSetting? lyricColor;
+  final ColorSetting? lyricTitleColor;
   final double lyricLineGap;
   final String lyricAlign; // 'center' | 'left'
   final String listDensity; // 'compact' | 'comfortable'
@@ -85,6 +86,7 @@ class TextSettings {
     this.progressTextColor,
     this.lyricHighlightColor,
     this.lyricColor,
+    this.lyricTitleColor,
     this.lyricLineGap = 25,
     this.lyricAlign = 'center',
     this.listDensity = 'compact',
@@ -125,6 +127,7 @@ class TextSettings {
       progressTextColor: color('progressTextColor'),
       lyricHighlightColor: color('lyricHighlightColor'),
       lyricColor: color('lyricColor'),
+      lyricTitleColor: color('lyricTitleColor'),
       lyricLineGap: size('lyricLineGap', 25),
       lyricAlign: config['lyricAlign'] == 'left' ? 'left' : 'center',
       listDensity:
@@ -150,6 +153,7 @@ class TextSettings {
     'progressTextColor',
     'lyricHighlightColor',
     'lyricColor',
+    'lyricTitleColor',
   ];
 
   static List<String> get allKeys => [

@@ -1,6 +1,5 @@
 import 'package:again/common/const.dart';
-import 'package:again/pages/settings/components/font_color_dialog.dart';
-import 'package:again/pages/settings/components/theme_color_dialog.dart';
+import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
@@ -38,6 +37,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ColorSetting? _progressTextColor;
   ColorSetting? _lyricHighlightColor;
   ColorSetting? _lyricColor;
+  ColorSetting? _lyricTitleColor;
   double _lyricLineGap = 25;
   String _lyricAlign = 'center';
   String _listDensity = 'compact';
@@ -84,6 +84,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _progressTextColor = ts.progressTextColor;
       _lyricHighlightColor = ts.lyricHighlightColor;
       _lyricColor = ts.lyricColor;
+      _lyricTitleColor = ts.lyricTitleColor;
       _lyricLineGap = ts.lyricLineGap;
       _lyricAlign = ts.lyricAlign;
       _listDensity = ts.listDensity;
@@ -134,19 +135,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   /// Color → #RRGGBB。
   String _toHex(Color color) =>
       '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2)}';
-
-  /// 弹出取色器。
-  Future<void> _pickColor({
-    required Color initial,
-    required void Function(Color picked) onPicked,
-  }) async {
-    final picked = await showDialog<Color>(
-      context: context,
-      builder: (context) => ThemeColorDialog(initial: initial),
-    );
-    if (picked == null) return;
-    onPicked(picked);
-  }
 
   /// 恢复设置: 移除配置键回到默认值, 并刷新相关 provider。
   Future<void> _resetToDefault(
@@ -401,18 +389,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   () => _themeSeedColor = kDefaultThemeSeed,
                                 );
                               }),
-                              onTap: () => _pickColor(
-                                initial: _themeSeedColor,
-                                onPicked: (picked) async {
-                                  setState(() => _themeSeedColor = picked);
-                                  // 先写完配置再刷新主题, 避免 provider 读到旧值
-                                  await _saveMigrated(
-                                    {'themeSeedColor': _toHex(picked)},
-                                    ['themeColorMode', 'followCoverTheme'],
-                                  );
-                                  ref.invalidate(coverSeedColorProvider);
-                                },
-                              ),
+                              onTap: () async {
+                                final result =
+                                    await showDialog<ColorPickerResult>(
+                                  context: context,
+                                  builder: (context) => ColorPickerDialog(
+                                    initial: _themeSeedColor,
+                                    fallbackColor: kDefaultThemeSeed,
+                                  ),
+                                );
+                                if (result == null) return;
+                                final picked = result.color;
+                                setState(() => _themeSeedColor = picked);
+                                // 先写完配置再刷新主题, 避免 provider 读到旧值
+                                await _saveMigrated(
+                                  {'themeSeedColor': _toHex(picked)},
+                                  ['themeColorMode', 'followCoverTheme'],
+                                );
+                                ref.invalidate(coverSeedColorProvider);
+                              },
                             ),
                             ListTile(
                               leading: const Icon(Icons.text_fields),
@@ -462,19 +457,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                             kDefaultThemeSeed,
                                   );
                                 }),
-                                onTap: () => _pickColor(
-                                  initial: _textColor,
-                                  onPicked: (picked) async {
-                                    setState(() => _textColor = picked);
-                                    // 迁移: 移除旧的 accentColor 键;
-                                    // 先写完配置再刷新, 避免读到旧值
-                                    await _saveMigrated(
-                                      {'textColor': _toHex(picked)},
-                                      ['accentColor'],
-                                    );
-                                    ref.invalidate(textColorProvider);
-                                  },
-                                ),
+                                onTap: () async {
+                                  final result =
+                                      await showDialog<ColorPickerResult>(
+                                    context: context,
+                                    builder: (context) => ColorPickerDialog(
+                                      initial: _textColor,
+                                      fallbackColor: _textColor,
+                                    ),
+                                  );
+                                  if (result == null) return;
+                                  final picked = result.color;
+                                  setState(() => _textColor = picked);
+                                  // 迁移: 移除旧的 accentColor 键;
+                                  // 先写完配置再刷新, 避免读到旧值
+                                  await _saveMigrated(
+                                    {'textColor': _toHex(picked)},
+                                    ['accentColor'],
+                                  );
+                                  ref.invalidate(textColorProvider);
+                                },
                               ),
                             ListTile(
                               leading: const Icon(Icons.blur_on),
@@ -655,6 +657,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       .withValues(alpha: 0.55),
                                   (v) => _lyricColor = v,
                                 ),
+                                _textColorTile(
+                                  '歌词标题',
+                                  _lyricTitleColor,
+                                  'lyricTitleColor',
+                                  Theme.of(context).colorScheme.onSurface,
+                                  (v) => _lyricTitleColor = v,
+                                ),
                               ],
                             ),
                           ],
@@ -715,7 +724,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       title: Text(title),
       initiallyExpanded: true,
       tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-      childrenPadding: EdgeInsets.zero,
+      // 子设置缩进, 层级更明显
+      childrenPadding: const EdgeInsets.only(left: 20),
       // 去掉 ExpansionTile 自带的分隔线/边框, 由外层卡片统一
       shape: const Border(),
       collapsedShape: const Border(),
@@ -794,12 +804,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         _resetToDefault(ColorSetting.keys(baseKey), () => onChanged(null));
       }),
       onTap: () async {
-        final result = await showDialog<FontColorResult>(
+        final result = await showDialog<ColorPickerResult>(
           context: context,
-          builder: (context) => FontColorDialog(
-            initial: setting,
+          builder: (context) => ColorPickerDialog(
+            initial: setting?.color ?? fallback,
             fallbackColor: fallback,
             themeHueColor: themeHueSource.toColor(),
+            setting: setting,
           ),
         );
         if (result == null) return;
