@@ -7,6 +7,7 @@ import 'package:again/pages/player/components/volume_control.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:window_manager/window_manager.dart';
 
 class PlayerWidget extends ConsumerWidget {
   const PlayerWidget({super.key});
@@ -43,10 +44,15 @@ class PlayerWidget extends ConsumerWidget {
         ],
       ),
     );
-    return LiquidGlass(
-      borderRadius: 0,
-      tintAlpha: tint,
-      child: content,
+    // LiquidGlass 背景会拦截命中, 导致底层 MoveWindow 的拖动区收不到事件,
+    // 这里给播放器自身包一层 DragToMoveArea: 按钮/进度条有自己的手势优先,
+    // 空白区域可拖动窗口
+    return DragToMoveArea(
+      child: LiquidGlass(
+        borderRadius: 0,
+        tintAlpha: tint,
+        child: content,
+      ),
     );
   }
 }
