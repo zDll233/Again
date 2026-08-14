@@ -433,11 +433,9 @@ packages:
   flutter_lyric:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: c8fe27b50d219d0df328d08450a2cb72672433d6
-      url: "https://github.com/zDll233/flutter_lyric.git"
-    source: git
+      path: "../flutter_lyric"
+      relative: true
+    source: path
     version: "2.0.4+6"
   flutter_plugin_android_lifecycle:
     dependency: transitive

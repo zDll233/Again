@@ -154,6 +154,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                               confirmPlay: confirmPlay,
                               isPlaying: isPlaying,
                             ),
+                            // 点击歌词行跳转到该行播放
+                            onTapLine: (index, startTime) {
+                              ref
+                                  .read(audioProvider.notifier)
+                                  .seek(startTime);
+                              if (!isPlaying) {
+                                ref.read(audioProvider.notifier).resume();
+                              }
+                            },
                             lyricUi: lyricUi,
                             waitMilliseconds: 5000,
                             canScrollBack: isPlaying,
