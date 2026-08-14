@@ -1,19 +1,13 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
 /// 从封面图片中提取主色, 用于动态主题。
-/// 在后台 isolate 中解码并降采样统计, 避免阻塞 UI。
+/// 解码降采样到 64x64 后统计, 控制主线程开销。
 
 const Color kDefaultThemeSeed = Color(0xFF9C6BFF);
-
-/// compute 入口(顶层函数): 返回 ARGB int, 失败返回 null。
-Future<int?> _extractCoverColorInIsolate(String imagePath) async {
-  final bytes = File(imagePath).readAsBytesSync();
-  return _dominantColor(bytes);
-}
 
 /// 解码图片并统计主色, 解码失败/无彩色主色时返回 null。
 Future<int?> _dominantColor(Uint8List bytes) async {
@@ -80,6 +74,8 @@ Future<int?> _dominantColor(Uint8List bytes) async {
 }
 
 /// 提取封面主色(带内存缓存), 文件缺失/解码失败/无彩色主色时返回 null。
+/// 注意: 不能在 compute isolate 中调用 dart:ui 解码 (Windows 上后台
+/// isolate 没有图像解码器注册表, 会抛异常), 必须在主 isolate 解码。
 class CoverColorExtractor {
   static const int _maxCacheSize = 64;
   static final Map<String, Color> _cache = {};
@@ -93,7 +89,8 @@ class CoverColorExtractor {
       return null;
     }
 
-    final argb = await compute(_extractCoverColorInIsolate, imagePath);
+    final bytes = await File(imagePath).readAsBytes();
+    final argb = await _dominantColor(bytes);
     if (argb == null) {
       return null;
     }

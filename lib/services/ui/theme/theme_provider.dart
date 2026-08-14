@@ -1,10 +1,13 @@
 import 'package:again/common/const.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/cover_color.dart';
+import 'package:again/utils/log.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 当前正在播放作品的封面路径(仅在有效播放时返回, 避免越界), 否则 null。
+/// 启动时历史记录会恢复 playingIndex (最后播放的作品), 因此"刚启动
+/// 未播放"也能拿到历史作品的封面; 选中但不播放不会改变主题色。
 final playingCoverPathProvider = Provider<String?>((ref) {
   final state = ref.watch(voiceWorkProvider);
   if (!state.isPlayingIndexValid) return null;
@@ -62,7 +65,9 @@ final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
   if (coverPath == null) {
     return custom;
   }
-  return await CoverColorExtractor.extract(coverPath) ?? custom;
+  final extracted = await CoverColorExtractor.extract(coverPath);
+  Log.info('coverColor: cover=$coverPath -> ${extracted?.toARGB32().toRadixString(16)}');
+  return extracted ?? custom;
 });
 
 /// 文字颜色 (主文字/选中项文字): follow=随主题色, custom=独立颜色。

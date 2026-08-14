@@ -228,46 +228,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         _card(
                           children: [
                             ListTile(
-                              leading: const Icon(Icons.palette_outlined),
-                              title: const Text('跟随封面主色'),
-                              subtitle: const Text('界面配色随正在播放作品的封面变化'),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _themeColorMode ==
-                                        THEME_COLOR_MODE_COVER,
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _themeColorMode = value
-                                            ? THEME_COLOR_MODE_COVER
-                                            : THEME_COLOR_MODE_CUSTOM;
-                                      });
-                                      _saveMigrated(
-                                        {'themeColorMode': _themeColorMode},
-                                        ['followCoverTheme'],
-                                      );
-                                      ref.invalidate(coverSeedColorProvider);
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['themeColorMode', 'followCoverTheme'],
-                                      () => _themeColorMode =
-                                          THEME_COLOR_MODE_COVER,
-                                    );
-                                  }),
-                                ],
-                              ),
-                            ),
-                            ListTile(
                               leading: _colorSwatch(_themeSeedColor),
                               title: const Text('主题色'),
-                              subtitle: Text(
-                                _themeColorMode == THEME_COLOR_MODE_CUSTOM
-                                    ? '界面统一使用该颜色'
-                                    : '没有封面时使用该颜色',
-                              ),
                               trailing: _resetButton(() {
                                 _resetToDefault(
                                   ['themeSeedColor'],
@@ -288,6 +250,43 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   });
                                   ref.invalidate(coverSeedColorProvider);
                                 },
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 56.0),
+                              child: ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                title: const Text('跟随封面主色'),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: _themeColorMode ==
+                                          THEME_COLOR_MODE_COVER,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _themeColorMode = value
+                                              ? THEME_COLOR_MODE_COVER
+                                              : THEME_COLOR_MODE_CUSTOM;
+                                        });
+                                        _saveMigrated(
+                                          {'themeColorMode': _themeColorMode},
+                                          ['followCoverTheme'],
+                                        );
+                                        ref.invalidate(coverSeedColorProvider);
+                                      },
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['themeColorMode', 'followCoverTheme'],
+                                        () => _themeColorMode =
+                                            THEME_COLOR_MODE_COVER,
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
                             ),
                             ListTile(
