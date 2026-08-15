@@ -65,10 +65,9 @@ class VoiceItemNotifier
   }
 
   Future<void> _persistSort(VoiceItemSort sort) async {
-    final config = await ref.read(configJsonProvider).read();
     await ref
         .read(configJsonProvider)
-        .write({...config, 'voiceItemSort': sort.toString()});
+        .mutate((config) => {...config, 'voiceItemSort': sort.toString()});
   }
 
   @override

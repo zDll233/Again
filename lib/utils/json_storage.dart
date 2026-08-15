@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:convert';
 
@@ -11,6 +12,9 @@ class JsonStorage {
   final Future<String> Function()? pathResolver;
 
   JsonStorage({this.filePath, this.pathResolver});
+
+  /// 写队列: 读改写操作串行执行, 避免并发覆盖 (如排序切换与窗口记忆同时写)。
+  Future<void> _queue = Future<void>.value();
 
   Future<String> _resolvePath() async {
     if (filePath != null) {
@@ -35,7 +39,25 @@ class JsonStorage {
     }
   }
 
-  Future<void> write(Map<String, dynamic> data) async {
+  /// 读改写合并写入 (串行化, 不会互相覆盖)。
+  Future<Map<String, dynamic>> mutate(
+      FutureOr<Map<String, dynamic>> Function(Map<String, dynamic> old)
+          update) {
+    final prev = _queue;
+    final next = prev.then((_) async {
+      final old = await read();
+      final updated = await update(old);
+      await _writeRaw(updated);
+      return updated;
+    });
+    _queue = next;
+    return next;
+  }
+
+  Future<void> write(Map<String, dynamic> data) =>
+      mutate((_) => data).then((_) {});
+
+  Future<void> _writeRaw(Map<String, dynamic> data) async {
     final filePath = await _resolvePath();
     final file = File(filePath);
     if (!await file.exists()) {

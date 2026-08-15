@@ -10,12 +10,11 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
     return SortOrderState();
   }
 
-  /// 持久化当前排序到 config.json。
+  /// 持久化当前排序到 config.json (读改写串行化, 防并发覆盖)。
   Future<void> _persist(SortOrder order) async {
-    final config = await ref.read(configJsonProvider).read();
     await ref
         .read(configJsonProvider)
-        .write({...config, 'sortOrder': order.toString()});
+        .mutate((config) => {...config, 'sortOrder': order.toString()});
   }
 
   @override
