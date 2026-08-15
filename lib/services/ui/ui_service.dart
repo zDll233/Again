@@ -184,6 +184,8 @@ class UIService {
   }
 
   Future<void> revealInExplorerView() async {
+    // Windows 专属功能 (资源管理器定位), 其他平台无操作
+    if (!Platform.isWindows) return;
     if (ref.read(isSelectedVoiceWorkPlaying)) {
       selectPlayingVoiceItem();
     } else {
@@ -206,6 +208,8 @@ class UIService {
   }
 
   void selectPlayingVoiceItem() {
+    // Windows 专属功能 (资源管理器定位), 其他平台无操作
+    if (!Platform.isWindows) return;
     // flutter will replace " with /" in arg list. weird
     // code below doesn't work
     // Process.run('explorer', ['/select,', '"$playingViPath"']); // wrap path in "" so that Windows can resolve it
@@ -278,19 +282,25 @@ class UIService {
   Future<void> onExit() async {
     await ref.read(historyManagerProvider).saveHistory();
 
+    // Android 无窗口概念, 由系统回收; 无需显式退出
+    if (!Platform.isWindows) return;
+
     // 不要用windowManager.destroy()，有明显的卡顿
     windowManager
       ..setPreventClose(false)
       ..close();
   }
 
-  /// 保存状态并隐藏到系统托盘（不退出）。
+  /// 保存状态并隐藏到系统托盘（不退出）。仅 Windows 生效。
   Future<void> hideToTray() async {
     await ref.read(historyManagerProvider).saveHistory();
-    windowManager.hide();
+    if (Platform.isWindows) {
+      windowManager.hide();
+    }
   }
 
   /// 窗口关闭请求: 根据设置决定隐藏到托盘还是退出。
+  /// Android 上系统返回键走 [onExit] 语义 (保存历史后退出)。
   Future<void> onWindowClose() async {
     final config = await ref.read(configJsonProvider).read();
     if (config['closeToTray'] ?? kDefaultCloseToTray) {
@@ -301,8 +311,11 @@ class UIService {
   }
 
   /// 应用窗口背景效果: transparent 全透明 / acrylic 毛玻璃 / opaque 不透明。
+  /// 仅 Windows 生效 (系统级 acrylic 窗口效果)。
   Future<void> applyWindowEffect(String effect) async {
-    await applyWindowEffectStandalone(effect);
+    if (Platform.isWindows) {
+      await applyWindowEffectStandalone(effect);
+    }
   }
 }
 

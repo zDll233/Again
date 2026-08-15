@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/pages/components/voice_panel.dart';
 import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -23,11 +25,13 @@ class TracksPanel extends ConsumerWidget {
           tooltip: '定位到当前播放位置',
           onPressed: uiService.onLocateBtnPressed,
         ),
-        IconButton(
-          icon: const Icon(Icons.folder_open, size: 18),
-          tooltip: '打开所在目录',
-          onPressed: uiService.revealInExplorerView,
-        ),
+        // Windows 专属: 资源管理器定位
+        if (Platform.isWindows)
+          IconButton(
+            icon: const Icon(Icons.folder_open, size: 18),
+            tooltip: '打开所在目录',
+            onPressed: uiService.revealInExplorerView,
+          ),
         PopupMenuButton<VoiceItemSort>(
           icon: const Icon(Icons.sort, size: 18),
           tooltip: '排序',

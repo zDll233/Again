@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/common/const.dart';
 import 'package:again/pages/window_title_bar/caption_buttons/window_caption_buttons.dart';
 import 'package:again/pages/window_title_bar/move_window.dart';
@@ -28,7 +30,9 @@ class WindowTitleBar extends StatelessWidget {
               Expanded(child: Container()),
               const RefreshBtn(buttonHeight: 40),
               const SettingsBtn(buttonHeight: 40),
-              const CaptionButtons(buttonHeight: 40),
+              // 最小化/最大化/关闭按钮: Windows 专属
+              if (Platform.isWindows)
+                const CaptionButtons(buttonHeight: 40),
             ],
           ),
         ),

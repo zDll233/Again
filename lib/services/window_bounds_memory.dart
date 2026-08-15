@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 import 'package:again/common/const.dart';
 import 'package:again/utils/json_storage.dart';
@@ -51,7 +52,9 @@ class WindowBoundsMemory extends WindowListener {
 }
 
 /// 启动时恢复上次窗口位置/尺寸 (按设置分别生效); 记录无效或开关关闭则跳过。
+/// 仅 Windows 生效。
 Future<void> restoreWindowBounds(JsonStorage storage) async {
+  if (!Platform.isWindows) return;
   try {
     final config = await storage.read();
     final b = config['windowBounds'];

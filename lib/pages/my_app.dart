@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:again/pages/components/initialization.dart';
 import 'package:again/pages/components/list_lyric_switch.dart';
@@ -19,7 +20,10 @@ class MyApp extends ConsumerWidget {
     final theme = ref.watch(appThemeProvider);
     return Initialization(
       child: ColoredBox(
-        color: _opaqueBackground ? const Color(0xFF202024) : Colors.transparent,
+        // 透明窗口仅 Windows 支持; Android 等平台恒用不透明深色背景
+        color: (_opaqueBackground || !Platform.isWindows)
+            ? const Color(0xFF202024)
+            : Colors.transparent,
         child: MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: theme,

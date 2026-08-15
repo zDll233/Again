@@ -7,14 +7,18 @@ import 'package:again/utils/log.dart';
 import 'package:ffi/ffi.dart';
 import 'package:http/http.dart' as http;
 
-final DynamicLibrary _shell32 = DynamicLibrary.open('shell32.dll');
+DynamicLibrary? _shell32;
+
+DynamicLibrary get _shell32Lib {
+  return _shell32 ??= DynamicLibrary.open('shell32.dll');
+}
 
 typedef _ShellExecuteWNative = Pointer<Void> Function(Pointer<Void>,
     Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Int32);
 typedef _ShellExecuteWDart = Pointer<Void> Function(Pointer<Void>,
     Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, int);
 final _ShellExecuteWDart _shellExecuteW =
-    _shell32.lookupFunction<_ShellExecuteWNative, _ShellExecuteWDart>(
+    _shell32Lib.lookupFunction<_ShellExecuteWNative, _ShellExecuteWDart>(
         'ShellExecuteW');
 
 /// 隐藏窗口启动程序 (SW_HIDE), 无 PowerShell/cmd 中间层, 参数直传。
@@ -168,7 +172,9 @@ Future<String?> downloadUpdateZip(
 /// 启动更新安装脚本并退出应用。
 /// 脚本等待应用退出后解压覆盖 Release 目录, 再重启应用。
 /// 执行过程写入 update_log.txt 便于排查。
+/// 仅 Windows 支持 (zip 覆盖模式对 Android APK 无意义)。
 Future<void> applyUpdate(String zipPath) async {
+  if (!Platform.isWindows) return;
   final exePath = Platform.resolvedExecutable;
   final appDir = File(exePath).parent.path;
   final batPath = '$appDir${Platform.pathSeparator}update_again.bat';

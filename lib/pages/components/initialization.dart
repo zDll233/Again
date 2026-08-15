@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/services/database/database_providers.dart';
@@ -33,11 +34,13 @@ class _InitializationState extends ConsumerState<Initialization> {
     super.initState();
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
-    // 窗口位置/尺寸记忆: 移动缩放后保存, 启动时恢复
-    _windowBoundsMemory = WindowBoundsMemory(ref.read(configJsonProvider));
-    // view 尺寸守卫: 启动渲染完成后检查一次窗口与 view 尺寸同步,
-    // 偶发不同步 (内容缩到角落) 时强制 resize 自愈
-    _windowSizeGuard = WindowSizeGuard();
+    // 窗口位置/尺寸记忆 + view 尺寸守卫: Windows 专属
+    if (Platform.isWindows) {
+      _windowBoundsMemory = WindowBoundsMemory(ref.read(configJsonProvider));
+      // view 尺寸守卫: 启动渲染完成后检查一次窗口与 view 尺寸同步,
+      // 偶发不同步 (内容缩到角落) 时强制 resize 自愈
+      _windowSizeGuard = WindowSizeGuard();
+    }
   }
 
   @override
@@ -94,8 +97,10 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
         .read(voiceItemProvider.notifier)
         .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
   }
-  // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突
-  await SystemTrayListener.init(ref);
+  // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突; 仅 Windows
+  if (Platform.isWindows) {
+    await SystemTrayListener.init(ref);
+  }
   // 启动完成后再静默增量刷新, 不阻塞初始化
   unawaited(ref.read(dbNotifierProvider).silentRefresh());
 });

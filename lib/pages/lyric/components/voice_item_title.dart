@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -22,24 +24,31 @@ class VoiceItemTitle extends StatelessWidget {
           final scheme = Theme.of(context).colorScheme;
           final themeHue =
               resolveThemeHueSource(scheme, kDefaultThemeSeed);
-          return Tooltip(
-            message: '在资源管理器中显示该音轨',
-            child: TextButton(
-                onPressed: ref.read(uiServiceProvider).selectPlayingVoiceItem,
-                child: Text(
-                  p.basenameWithoutExtension(playingViPath),
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineMedium
-                      ?.copyWith(
-                        fontSize: ts?.lyricTitleSize,
-                        color: ts?.lyricTitleColor?.resolve(
-                            scheme.onSurface, themeHue),
-                      ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                )),
+          final title = Text(
+            p.basenameWithoutExtension(playingViPath),
+            style: Theme.of(context)
+                .textTheme
+                .headlineMedium
+                ?.copyWith(
+                  fontSize: ts?.lyricTitleSize,
+                  color: ts?.lyricTitleColor?.resolve(
+                      scheme.onSurface, themeHue),
+                ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           );
+          // Windows: 点击在资源管理器中定位; Android: 纯文本展示
+          if (Platform.isWindows) {
+            return Tooltip(
+              message: '在资源管理器中显示该音轨',
+              child: TextButton(
+                  onPressed:
+                      ref.read(uiServiceProvider).selectPlayingVoiceItem,
+                  child: title),
+            );
+          } else {
+            return title;
+          }
         },
       ),
     );

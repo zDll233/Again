@@ -32,31 +32,43 @@ class VoiceWorkNotifier
         return;
       }
 
-      if (!await File(DELETE_SCRIPT_PATH).exists()) {
-        Log.error(
-            'Error deleting "${movedVoiceWork.title}". Cannot find "$DELETE_SCRIPT_PATH".\nStart to generate delete script.');
-        await generateDeleteScript();
-      }
-
       await playingOrSelected(movedVoiceWork);
 
-      List<String> arguments = [
-        '-ExecutionPolicy',
-        'Bypass',
-        '-File',
-        DELETE_SCRIPT_PATH,
-        '-path',
-        movedVoiceWork.directoryPath,
-      ];
-      ProcessResult result = await Process.run('powershell', arguments);
-
-      Log.info('Delete ${movedVoiceWork.title}.\n'
-          'exitcode: ${result.exitCode}.\n'
-          'stdout: ${result.stdout}\n'
-          'stderr: ${result.stderr}');
+      // Windows: 回收站删除 (PowerShell 脚本); Android: 无回收站, 直接删除
+      if (Platform.isWindows) {
+        await _deleteToRecycleBin(movedVoiceWork);
+      } else {
+        await Directory(movedVoiceWork.directoryPath)
+            .delete(recursive: true);
+        Log.info('Deleted ${movedVoiceWork.title} (Android).');
+      }
     } catch (e) {
       Log.error('Error deleting VoiceWork directory.\n$e');
     }
+  }
+
+  /// Windows: 通过生成的 PowerShell 脚本移入回收站。
+  Future<void> _deleteToRecycleBin(VoiceWork movedVoiceWork) async {
+    if (!await File(DELETE_SCRIPT_PATH).exists()) {
+      Log.error(
+          'Error deleting "${movedVoiceWork.title}". Cannot find "$DELETE_SCRIPT_PATH".\nStart to generate delete script.');
+      await generateDeleteScript();
+    }
+
+    List<String> arguments = [
+      '-ExecutionPolicy',
+      'Bypass',
+      '-File',
+      DELETE_SCRIPT_PATH,
+      '-path',
+      movedVoiceWork.directoryPath,
+    ];
+    ProcessResult result = await Process.run('powershell', arguments);
+
+    Log.info('Delete ${movedVoiceWork.title}.\n'
+        'exitcode: ${result.exitCode}.\n'
+        'stdout: ${result.stdout}\n'
+        'stderr: ${result.stderr}');
   }
 
   Future<void> changeCategory(

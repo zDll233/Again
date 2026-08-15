@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/liquid_glass.dart';
 import 'package:again/pages/player/components/play_back_controls/playback_controls.dart';
@@ -22,11 +24,13 @@ class PlayerWidget extends ConsumerWidget {
       height: PLAYER_WIDGET_HEIGHT,
       child: Stack(
         children: [
-          // 空白区域拖动窗口: DragToMoveArea 放最底层, 控件命中优先;
-          // 若包住整个播放器, 其内部 onDoubleTap 会拖慢所有按钮的单击响应
-          Positioned.fill(
-            child: DragToMoveArea(child: Container()),
-          ),
+          // 空白区域拖动窗口 (Windows 专属): DragToMoveArea 放最底层,
+          // 控件命中优先; 若包住整个播放器, 其内部 onDoubleTap 会拖慢
+          // 所有按钮的单击响应
+          if (Platform.isWindows)
+            Positioned.fill(
+              child: DragToMoveArea(child: Container()),
+            ),
           const Positioned(
             child: ProgressBar(),
           ),
