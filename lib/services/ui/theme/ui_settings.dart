@@ -7,6 +7,7 @@ class UiSettings {
   final bool coverReflection; // 封面倒影
   final bool showSliderThumb; // 进度条/音量条滑块圆点
   final double sliderThickness; // 进度条/音量条轨道粗细
+  final double sliderThumbSize; // 滑块圆点大小 (半径)
   final String listDensity; // 列表密度 'compact' | 'comfortable'
   final bool showHoverTime; // 歌词 hover 行起始时间
   final double hoverTimeSize; // hover 行起始时间字号
@@ -16,6 +17,7 @@ class UiSettings {
     this.coverReflection = true,
     this.showSliderThumb = false,
     this.sliderThickness = 1,
+    this.sliderThumbSize = 10,
     this.listDensity = 'comfortable',
     this.showHoverTime = true,
     this.hoverTimeSize = 14,
@@ -23,12 +25,14 @@ class UiSettings {
 
   factory UiSettings.fromConfig(Map<String, dynamic> config) {
     final thickness = config['sliderThickness'];
+    final thumbSize = config['sliderThumbSize'];
     final hoverTimeSize = config['hoverTimeSize'];
     return UiSettings(
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
       showSliderThumb: config['showSliderThumb'] == true,
       sliderThickness: thickness is num ? thickness.toDouble() : 1,
+      sliderThumbSize: thumbSize is num ? thumbSize.toDouble() : 10,
       listDensity: config['listDensity'] == 'compact'
           ? 'compact'
           : 'comfortable',
@@ -43,6 +47,7 @@ class UiSettings {
     'coverReflection',
     'showSliderThumb',
     'sliderThickness',
+    'sliderThumbSize',
     'listDensity',
     'showHoverTime',
     'hoverTimeSize',
