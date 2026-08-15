@@ -2,6 +2,8 @@ import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/pages/settings/components/settings_widgets.dart';
 import 'package:again/services/database/database_providers.dart';
+import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
@@ -316,6 +318,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _hoverTimeSize = 14;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
+    // 排序先恢复默认 (此时 config 尚未清空, 键会被写掉), 随后清空 config
+    await ref
+        .read(sortOrderProvider.notifier)
+        .setSortOrder(SortOrder.byTitleAsc);
+    ref
+        .read(voiceItemProvider.notifier)
+        .setSortOrder(VoiceItemSort.titleAsc);
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
     ref.invalidate(coverSeedColorProvider);

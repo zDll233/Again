@@ -16,6 +16,14 @@ extension VoiceItemSortExtension on VoiceItemSort {
         VoiceItemSort.fileAsc => '时间顺序',
         VoiceItemSort.fileDesc => '时间倒序',
       };
+
+  /// 从 config 字符串恢复, 未知值回退标题升序。
+  static VoiceItemSort fromString(String value) {
+    return VoiceItemSort.values.firstWhere(
+      (e) => e.toString() == value,
+      orElse: () => VoiceItemSort.titleAsc,
+    );
+  }
 }
 
 class VoiceItemState extends VariableListState<VoiceItem> {

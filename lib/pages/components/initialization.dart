@@ -5,6 +5,8 @@ import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/key_event/key_event_handler.dart';
 import 'package:again/services/system_tray.dart';
+import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
+import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/window_bounds_memory.dart';
@@ -79,6 +81,19 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
     ref.read(dbNotifierProvider).initialize(),
     ref.read(historyManagerProvider).loadHistory(),
   ]);
+  // 恢复作品/音轨排序设置 (config.json, 未知值回退默认)
+  final sortOrder = config['sortOrder'];
+  if (sortOrder is String) {
+    await ref
+        .read(sortOrderProvider.notifier)
+        .setSortOrder(SortOrderExtension.fromString(sortOrder));
+  }
+  final voiceItemSort = config['voiceItemSort'];
+  if (voiceItemSort is String) {
+    ref
+        .read(voiceItemProvider.notifier)
+        .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
+  }
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突
   await SystemTrayListener.init(ref);
   // 启动完成后再静默增量刷新, 不阻塞初始化

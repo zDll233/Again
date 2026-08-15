@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:again/common/const.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/presentation/state_interface/variable_list_state/variable_list_state_notifier.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -57,6 +60,15 @@ class VoiceItemNotifier
     setPlayingIndexByValue(playing);
     setCachedPlayingItem(playing);
     state = state.copyWith(sort: newSort);
+    // 持久化排序到 config.json
+    unawaited(_persistSort(newSort));
+  }
+
+  Future<void> _persistSort(VoiceItemSort sort) async {
+    final config = await ref.read(configJsonProvider).read();
+    await ref
+        .read(configJsonProvider)
+        .write({...config, 'voiceItemSort': sort.toString()});
   }
 
   @override
