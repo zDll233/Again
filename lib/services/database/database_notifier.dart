@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class DatabaseNotifier {
   late VoiceUpdater _voiceUpdater;
   late final AppDatabase _database;
+  bool _rootReady = false;
 
   final Ref ref;
   DatabaseNotifier(this.ref) : _database = ref.read(dbProvider);
@@ -25,18 +26,26 @@ class DatabaseNotifier {
     final data = await ref.read(configJsonProvider).read();
     final vwRootDirPath = data['voiceWorkRoot'] ?? '';
 
-    if (await Directory(vwRootDirPath).exists()) {
+    // 注意: 路径必须非空 — Android 上 Directory('') 指向根目录 / 且 exists() 为 true,
+    // 会把整个文件系统当音声根目录扫描
+    if (vwRootDirPath.isNotEmpty && await Directory(vwRootDirPath).exists()) {
       _voiceUpdater = VoiceUpdater(_database, vwRootDirPath);
+      _rootReady = true;
     } else {
       await selectAndSaveRootDirectory();
     }
   }
 
   Future<void> selectAndSaveRootDirectory() async {
-    // Android: 全文件访问权限是扫描外部存储的前提, 未授权时先请求
+    // Android: 全文件访问权限是扫描外部存储的前提, 未授权时先请求。
+    // 权限未授予时继续选目录会导致 FUSE 过滤 (.nomedia 目录只显示目录骨架,
+    // 音频/封面全部隐藏, 扫描结果为空), 因此未授权则直接返回。
     if (Platform.isAndroid && !await hasExternalStorageAccess()) {
-      if (!await requestExternalStorageAccess()) {
-        Log.error('Android storage permission not granted, skip picker.');
+      final granted = await requestExternalStorageAccess();
+      if (!granted) {
+        Log.error(
+            'Android storage permission not granted, skip root dir picker.');
+        return;
       }
     }
     final selectedDirPath = await FilePicker.getDirectoryPath(
@@ -53,6 +62,7 @@ class DatabaseNotifier {
   /// 设置音声作品根目录并刷新数据库(不弹目录选择框)。
   Future<void> setRootDirectory(String selectedDirPath) async {
     _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
+    _rootReady = true;
     await ref
         .read(configJsonProvider)
         .write({'voiceWorkRoot': selectedDirPath});
@@ -195,6 +205,11 @@ class DatabaseNotifier {
 
   /// 启动后的静默增量刷新，失败只记日志，不影响启动。
   Future<void> silentRefresh() async {
+    if (!_rootReady) {
+      // 根目录未设置 (用户取消选择等), 跳过
+      Log.info('Silent refresh skipped: no voice work root.');
+      return;
+    }
     try {
       await onUpdatePressed();
       Log.info('Silent refresh finished.');
