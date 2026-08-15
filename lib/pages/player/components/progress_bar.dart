@@ -1,4 +1,5 @@
 import 'package:again/pages/player/components/slider_thumb_shape.dart';
+import 'package:again/services/audio/audio_notifier.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:flutter/gestures.dart';
@@ -7,6 +8,65 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProgressBar extends ConsumerWidget {
   const ProgressBar({super.key});
+
+  /// 窄屏进度条: 纯轨道贴底 (紧邻时间行), 点击/拖动 seek。
+  Widget _buildNarrow(BuildContext context, WidgetRef ref,
+      AudioNotifier audioNotifier) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      height: 24,
+      width: double.infinity,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final duration =
+              ref.watch(audioProvider.select((state) => state.duration));
+          final position =
+              ref.watch(audioProvider.select((state) => state.position));
+          final appearance = ref.watch(uiSettingsProvider).valueOrNull;
+          final thickness =
+              (appearance?.sliderThickness ?? 1).clamp(1.0, 6.0);
+          final progress = (duration == Duration.zero ||
+                  position == Duration.zero)
+              ? 0.0
+              : (position.inMilliseconds / duration.inMilliseconds)
+                  .clamp(0.0, 1.0);
+
+          void seekAt(double dx) {
+            if (duration == Duration.zero) return;
+            final ratio = (dx / constraints.maxWidth).clamp(0.0, 1.0);
+            audioNotifier.seek(
+                Duration(milliseconds: (duration.inMilliseconds * ratio).round()));
+          }
+
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (d) => seekAt(d.localPosition.dx),
+            onHorizontalDragUpdate: (d) => seekAt(d.localPosition.dx),
+            child: Stack(
+              children: [
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  height: thickness,
+                  child: Container(
+                    color: scheme.onSurface.withValues(alpha: 0.12),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  width: constraints.maxWidth * progress,
+                  height: thickness,
+                  child: Container(color: scheme.primary),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 
   double _getProgressBarValue(Duration position, Duration duration) {
     if (position != Duration.zero &&
@@ -22,6 +82,10 @@ class ProgressBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final audioNotifier = ref.read(audioProvider.notifier);
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
+    if (isNarrow) {
+      return _buildNarrow(context, ref, audioNotifier);
+    }
     final appWidth = MediaQuery.of(context).size.width;
     return Listener(
       onPointerSignal: (pointerSignal) {

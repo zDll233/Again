@@ -13,7 +13,7 @@ class LyricPanel extends ConsumerWidget {
     final hasAudioSource =
         ref.watch(voiceItemProvider.select((state) => state.isPlaying));
 
-    final content = hasAudioSource
+    return hasAudioSource
         ? Column(
             children: [
               const SizedBox(
@@ -31,20 +31,5 @@ class LyricPanel extends ConsumerWidget {
             ],
           )
         : const EmptyLyric();
-
-    // 窄屏: 歌词界面下滑关闭 (歌词滚动区域由 Scrollable 消费手势,
-    // 封面页/空白区域下滑可触发关闭)
-    if (MediaQuery.sizeOf(context).width >= 600) {
-      return content;
-    }
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onVerticalDragEnd: (details) {
-        if ((details.primaryVelocity ?? 0) > 300) {
-          ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
-        }
-      },
-      child: content,
-    );
   }
 }

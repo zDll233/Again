@@ -57,18 +57,27 @@ class PlayerWidget extends ConsumerWidget {
         child: Column(
           children: [
             const ProgressBar(),
-            // 进度文字: 当前时间左 / 总时长右
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18),
+            // 进度文字贴近进度条: 当前时间左 / 总时长右
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 18),
               child: Row(
-                children: const [
+                children: [
                   PositionTimeText(),
                   Spacer(),
                   DurationTimeText(),
                 ],
               ),
             ),
-            const Expanded(child: PlaybackControls()),
+            // 按钮组贴底但留出底边距
+            Expanded(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: const PlaybackControls(),
+                ),
+              ),
+            ),
           ],
         ),
       ),

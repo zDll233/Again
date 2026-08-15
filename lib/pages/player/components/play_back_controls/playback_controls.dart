@@ -1,3 +1,4 @@
+import 'package:again/pages/player/components/play_back_controls/cover_lyric_button.dart';
 import 'package:again/pages/player/components/play_back_controls/playback_mode_button.dart';
 import 'package:again/pages/player/components/play_back_controls/next_button.dart';
 import 'package:again/pages/player/components/play_back_controls/play_pause_button.dart';
@@ -14,17 +15,22 @@ class PlaybackControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final isNarrow = MediaQuery.sizeOf(context).width < 600;
     if (isNarrow) {
-      // 窄屏: 按钮 Expanded 均分整行, 避免挤压堆叠;
+      // 窄屏: 封面缩略图按钮 (开歌词) + 紧凑居中的控制按钮组;
       // 无音量按钮 (移动端用系统音量键)
       return SizedBox(
         height: 60.0,
         child: const Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Expanded(child: Center(child: ShowLryicButton(iconSize: 24))),
-            Expanded(child: Center(child: PrevButton(iconSize: 34))),
-            Expanded(child: Center(child: PlayPauseButton(iconSize: 40))),
-            Expanded(child: Center(child: NextButton(iconSize: 34))),
-            Expanded(child: Center(child: PlaybackModeButton(iconSize: 24))),
+            CoverLyricButton(size: 34),
+            SizedBox(width: 18),
+            PrevButton(iconSize: 32),
+            SizedBox(width: 10),
+            PlayPauseButton(iconSize: 38),
+            SizedBox(width: 10),
+            NextButton(iconSize: 32),
+            SizedBox(width: 18),
+            PlaybackModeButton(iconSize: 26),
           ],
         ),
       );
