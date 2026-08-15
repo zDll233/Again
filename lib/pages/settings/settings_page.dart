@@ -30,6 +30,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _searchEnabled = false;
   bool _coverTilt = true;
   bool _coverReflection = true;
+  bool _showSliderThumb = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -94,6 +95,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = ts.listDensity;
       _coverTilt = config['coverTilt'] != false;
       _coverReflection = config['coverReflection'] != false;
+      _showSliderThumb = config['showSliderThumb'] != false;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -196,6 +198,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = _defaults.listDensity;
       _coverTilt = true;
       _coverReflection = true;
+      _showSliderThumb = true;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
@@ -618,6 +621,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(['coverReflection'],
                                         () => _coverReflection = true);
+                                  }),
+                                ],
+                              ),
+                            ),
+                            ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.trip_origin,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                              title: const Text('进度/音量条滑块圆点'),
+                              contentPadding: const EdgeInsets.only(
+                                  left: 16, right: 16),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Switch(
+                                    value: _showSliderThumb,
+                                    onChanged: (value) async {
+                                      setState(
+                                          () => _showSliderThumb = value);
+                                      await _save(
+                                          {'showSliderThumb': value});
+                                      ref.invalidate(
+                                          appearanceSettingsProvider);
+                                    },
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['showSliderThumb'],
+                                        () => _showSliderThumb = true);
                                   }),
                                 ],
                               ),

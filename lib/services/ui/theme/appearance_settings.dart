@@ -5,21 +5,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class AppearanceSettings {
   final bool coverTilt; // 封面 3D 倾斜动画
   final bool coverReflection; // 封面倒影
+  final bool showSliderThumb; // 进度条/音量条滑块圆点
 
   const AppearanceSettings({
     this.coverTilt = true,
     this.coverReflection = true,
+    this.showSliderThumb = true,
   });
 
   factory AppearanceSettings.fromConfig(Map<String, dynamic> config) {
     return AppearanceSettings(
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
+      showSliderThumb: config['showSliderThumb'] != false,
     );
   }
 
   /// 重置时移除的配置键。
-  static const List<String> baseKeys = ['coverTilt', 'coverReflection'];
+  static const List<String> baseKeys = [
+    'coverTilt',
+    'coverReflection',
+    'showSliderThumb',
+  ];
 }
 
 final appearanceSettingsProvider =

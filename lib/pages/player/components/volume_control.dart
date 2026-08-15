@@ -1,4 +1,6 @@
+import 'package:again/pages/player/components/slider_thumb_shape.dart';
 import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/ui/theme/appearance_settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -42,13 +44,24 @@ class VolumeControl extends ConsumerWidget {
                 builder: (_, WidgetRef ref, __) {
                   final volume =
                       ref.watch(audioProvider.select((state) => state.volume));
-                  return Slider(
-                    value: volume,
-                    min: 0.0,
-                    max: 1.0,
-                    onChanged: (double value) {
-                      audioNotifier.setVolume(value);
-                    },
+                  final showThumb = ref
+                          .watch(appearanceSettingsProvider)
+                          .valueOrNull
+                          ?.showSliderThumb ??
+                      true;
+                  return SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      thumbShape: showThumb ? null : const NoThumbShape(),
+                      overlayShape: showThumb ? null : const NoThumbShape(),
+                    ),
+                    child: Slider(
+                      value: volume,
+                      min: 0.0,
+                      max: 1.0,
+                      onChanged: (double value) {
+                        audioNotifier.setVolume(value);
+                      },
+                    ),
                   );
                 },
               ),

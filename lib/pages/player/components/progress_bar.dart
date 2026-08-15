@@ -1,4 +1,6 @@
+import 'package:again/pages/player/components/slider_thumb_shape.dart';
 import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/ui/theme/appearance_settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,17 +45,29 @@ class ProgressBar extends ConsumerWidget {
                 ref.watch(audioProvider.select((state) => state.duration));
             final position =
                 ref.watch(audioProvider.select((state) => state.position));
+            // 是否显示滑块圆点 (设置项)
+            final showThumb = ref
+                    .watch(appearanceSettingsProvider)
+                    .valueOrNull
+                    ?.showSliderThumb ??
+                true;
 
-            return Slider(
-              focusNode: FocusNode(canRequestFocus: false),
-              onChanged: (value) {
-                if (duration != Duration.zero) {
-                  final position = value * duration.inMilliseconds;
-                  audioNotifier
-                      .seek(Duration(milliseconds: position.round()));
-                }
-              },
-              value: _getProgressBarValue(position, duration),
+            return SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                thumbShape: showThumb ? null : const NoThumbShape(),
+                overlayShape: showThumb ? null : const NoThumbShape(),
+              ),
+              child: Slider(
+                focusNode: FocusNode(canRequestFocus: false),
+                onChanged: (value) {
+                  if (duration != Duration.zero) {
+                    final position = value * duration.inMilliseconds;
+                    audioNotifier
+                        .seek(Duration(milliseconds: position.round()));
+                  }
+                },
+                value: _getProgressBarValue(position, duration),
+              ),
             );
           },
         ),
