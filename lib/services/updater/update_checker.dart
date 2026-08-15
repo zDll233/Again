@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -45,8 +46,27 @@ List<int> _parts(String version) {
       .toList();
 }
 
+/// 清理历史更新残留的临时目录 (again_update_*)。
+Future<void> cleanStaleUpdateDirs() async {
+  try {
+    final tempDir = await Directory.systemTemp.createTemp('again_update_');
+    final tempRoot = tempDir.parent;
+    await tempDir.delete(recursive: true);
+    await for (final entity in tempRoot.list()) {
+      if (entity is Directory &&
+          entity.path.contains('again_update_')) {
+        await entity.delete(recursive: true);
+      }
+    }
+  } catch (e) {
+    Log.error('Clean stale update dirs error: $e');
+  }
+}
+
 /// 查询 GitHub 最新 Release。
 Future<UpdateCheckResult?> checkForUpdate() async {
+  // 顺手清理历史下载残留
+  unawaited(cleanStaleUpdateDirs());
   try {
     final resp = await http.get(
       Uri.parse('https://api.github.com/repos/zDll233/Again/releases/latest'),
@@ -101,24 +121,37 @@ Future<String?> downloadUpdateZip(String url) async {
 
 /// 启动更新安装脚本并退出应用。
 /// 脚本等待应用退出后解压覆盖 Release 目录, 再重启应用。
+/// 执行过程写入 update_log.txt 便于排查。
 Future<void> applyUpdate(String zipPath) async {
   final exePath = Platform.resolvedExecutable;
   final appDir = File(exePath).parent.path;
   final batPath = '$appDir${Platform.pathSeparator}update_again.bat';
+  final logPath = '$appDir${Platform.pathSeparator}update_log.txt';
   final script = '''
 @echo off
-timeout /t 2 > nul
+echo %date% %time% start >> "%LOG%"
+timeout /t 2 /nobreak > nul
 taskkill /f /im Again.exe > nul 2>&1
-powershell -NoProfile -Command "Expand-Archive -Force -LiteralPath '%ZIP%' -DestinationPath '%DIR%'"
+ping -n 3 127.0.0.1 > nul
+echo %date% %time% killed >> "%LOG%"
+powershell -NoProfile -Command "Expand-Archive -Force -LiteralPath '%ZIP%' -DestinationPath '%DIR%'" >> "%LOG%" 2>&1
+echo %date% %time% extracted >> "%LOG%"
 start "" "%DIR%\\Again.exe"
+echo %date% %time% restarted >> "%LOG%"
 del "%~f0"
 ''';
-  await File(batPath).writeAsString(
-    script
-        .replaceAll('%ZIP%', zipPath)
-        .replaceAll('%DIR%', appDir),
-  );
-  // 分离启动脚本, 不等待
-  Process.start('cmd', ['/c', batPath], mode: ProcessStartMode.detached);
+  Log.info('applyUpdate: zip=$zipPath appDir=$appDir');
+  try {
+    await File(batPath).writeAsString(
+      script
+          .replaceAll('%ZIP%', zipPath)
+          .replaceAll('%DIR%', appDir)
+          .replaceAll('%LOG%', logPath),
+    );
+    // 分离启动脚本, 不等待
+    Process.start('cmd', ['/c', batPath], mode: ProcessStartMode.detached);
+  } catch (e) {
+    Log.error('applyUpdate failed: $e');
+  }
   exit(0);
 }
