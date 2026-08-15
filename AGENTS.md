@@ -38,14 +38,20 @@ Flutter 桌面 + Android 本地音声播放器 (ASMR voice works)。**Android �
 - 桌面插件隔离: `lib/services/window_setup.dart` (入口, `Platform.isWindows` 守卫) + `window_setup_windows.dart` (真实实现, 唯一持有 flutter_acrylic/window_manager 初始化的文件)。`MoveWindow`/`WindowTitleBar`/设置页在 Android 自动降级 (无标题栏/无窗口设置/无更新入口/无资源管理器按钮)。
 - 平台守卫 (运行时, 非条件编译): 托盘 (`initialization.dart` 仅 Windows init)、`UIService.onExit/hideToTray/applyWindowEffect`、`restoreWindowBounds`、`window_size_guard`、`deleteVoiceWork` (Android 直删, 无回收站)、explorer 定位、`file_time.dart` 创建时间 (Android 返回 null, 回退 mtime)、`update_checker.dart` (懒加载 shell32 FFI, `applyUpdate` 仅 Windows)。
 - 存储权限: `lib/services/storage_permission.dart` — MANAGE_EXTERNAL_STORAGE (file_picker 11 在 Android 11+ 返回真实路径, 配合全文件权限 dart:io 可直接读写)。
-- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `main.dart` AudioService.init (仅 Android)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK。
+- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `initialization.dart` 的 `initAudioServiceAndroid` (AudioService.init 必须在首帧渲染后调用, runApp 前会黑屏)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK; `MainActivity` 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)` (audio_service 共享 engine 的硬性要求)。
 - 生命周期: `initialization.dart` 监听 detached 保存播放历史 (系统杀进程不丢进度)。
 
 未验证 (需要真机):
-- 权限申请 → 选根目录 → 全量扫描流程 (file_picker 目录选择在部分厂商 ROM 可能返回不可读路径, 兜底是手动输入路径)。
-- 后台播放/锁屏控制/音频焦点 (来电) 行为。
+- 权限申请 → 选根目录 → 全量扫描流程 — **已在真机验证通过** (小米 HyperOS/Android 16; 注意: 权限未授予时 FUSE 对 `.nomedia` 目录隐藏全部文件, 扫描只有目录骨架, 因此选目录前必须先完成「所有文件访问」授权)。
+- 后台播放/锁屏控制/音频焦点 — **媒体通知/MediaSession/前台服务已在真机验证通过**; 音频焦点 (来电) 行为未验证。
 - 竖屏布局可用性 (filter 默认收起, 不精调)。
 - CI (`android-release.yml`) 未实际跑过 (需要配 4 个 secrets)。
+
+真机踩坑记录 (小米 HyperOS / Android 16 / Mali GPU):
+- **黑屏两连坑**: ① `AudioService.init` 必须在首帧渲染后调用 — runApp 前初始化会让 FlutterView 尺寸停在 0x0 (Dart 正常、日志正常、0 帧渲染); ② MainActivity 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)`, 否则 audio_service 报 "Activity class wrong or has not provided the correct FlutterEngine"。
+- **MCPToolkit 仅 Windows debug**: Android 上初始化疑会阻塞首帧, `main.dart` 已限定 `kDebugMode && Platform.isWindows`。
+- **设备渲染**: 该设备需开发者选项关闭「HW 叠加层」(`settings put global disable_hw_overlays 1`), 否则 Flutter 应用 (含官方 hello world) 黑屏; Impeller/Skia 都受影响, 是设备 ROM 问题非 app 问题。
+- **adb 调试坑**: PowerShell 重定向会破坏二进制 (截图/DB 拉取必须 `cmd /c "adb exec-out ... > file"`); 中文路径参数经 PowerShell → adb 会编码损坏 (用不带中文参数的命令或 find 验证)。
 
 ## Domain conventions (from README.md)
 
