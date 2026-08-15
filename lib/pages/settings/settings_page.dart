@@ -1,5 +1,6 @@
 import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
+import 'package:again/pages/settings/components/settings_widgets.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
@@ -111,29 +112,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   /// 小号"恢复默认"按钮。
-  Widget _resetButton(VoidCallback onPressed) {
-    return IconButton(
-      icon: const Icon(Icons.settings_backup_restore, size: 18),
-      tooltip: '恢复默认',
-      visualDensity: VisualDensity.compact,
-      onPressed: onPressed,
-    );
-  }
+  Widget _resetButton(VoidCallback onPressed) =>
+      SettingsResetButton(onPressed: onPressed);
 
   /// 颜色圆点。
-  Widget _colorSwatch(Color color) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
-        ),
-      ),
-    );
-  }
+  Widget _colorSwatch(Color color) => SettingsColorSwatch(color: color);
 
   /// Color → #RRGGBB。
   String _toHex(Color color) =>
@@ -864,72 +847,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _sectionTitle(String title) {
-    final scheme = Theme.of(context).colorScheme;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 14, 4, 6),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: scheme.primary,
-        ),
-      ),
-    );
-  }
+  Widget _sectionTitle(String title) => SettingsSectionTitle(title: title);
 
-  Widget _card({required List<Widget> children}) {
-    final scheme = Theme.of(context).colorScheme;
-    // 卡片间留间距, 独立模块视觉更清晰
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: ColoredBox(
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.4),
-          child: Column(
-            children: [
-              for (var i = 0; i < children.length; i++) ...[
-                if (i > 0)
-                  Divider(
-                    height: 1,
-                    indent: 56,
-                    color: scheme.onSurface.withValues(alpha: 0.06),
-                  ),
-                children[i],
-              ],
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _card({required List<Widget> children}) =>
+      SettingsCard(children: children);
 
   /// 可折叠的文字设置分组 (默认展开)。
   Widget _textGroup({
     required String title,
     required List<Widget> children,
-  }) {
-    return ExpansionTile(
-      title: Text(title),
-      initiallyExpanded: true,
-      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
-      // 子设置缩进, 层级更明显
-      childrenPadding: const EdgeInsets.only(left: 20),
-      // trailing 与重置按钮同构 (40px 容器 + 18px 图标), 右边缘精确对齐
-      trailing: const SizedBox(
-        width: 40,
-        child: Icon(Icons.expand_more, size: 18),
-      ),
-      // 去掉 ExpansionTile 自带的分隔线/边框, 由外层卡片统一
-      shape: const Border(),
-      collapsedShape: const Border(),
-      iconColor: Theme.of(context).colorScheme.onSurface,
-      collapsedIconColor: Theme.of(context).colorScheme.onSurface,
-      children: children,
-    );
-  }
+  }) =>
+      SettingsTextGroup(title: title, children: children);
 
   /// 字体大小设置行: 名称 + 滑杆 + 当前值 + 恢复默认。
   Widget _textSizeTile(
@@ -940,49 +868,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ValueChanged<double> onChanged, {
     IconData icon = Icons.format_size,
   }) {
-    return ListTile(
-      dense: true,
-      // leading 占位与颜色行/主题区一致, 文字起点对齐
-      leading: Icon(
-        icon,
-        size: 22,
-        color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
-      ),
-      title: Text(label),
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          SizedBox(
-            width: 24,
-            child: Text(
-              value.toStringAsFixed(0),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-          SizedBox(
-            width: 120,
-            child: Slider(
-              value: value,
-              min: 10,
-              max: 30,
-              onChanged: (v) => setState(() => onChanged(v)),
-              onChangeEnd: (v) async {
-                // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
-                await _save({key: v.round()});
-                ref.invalidate(textSettingsProvider);
-              },
-            ),
-          ),
-          _resetButton(() {
-            _resetToDefault([key], () => onChanged(defaultValue));
-          }),
-        ],
-      ),
+    return SettingsTextSizeTile(
+      label: label,
+      value: value,
+      defaultValue: defaultValue,
+      icon: icon,
+      onChanged: (v) => setState(() => onChanged(v)),
+      onChangedEnd: (v) async {
+        // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
+        await _save({key: v.round()});
+        ref.invalidate(textSettingsProvider);
+      },
+      onReset: () {
+        _resetToDefault([key], () => onChanged(defaultValue));
+      },
     );
   }
 
@@ -995,33 +894,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ValueChanged<ColorSetting?> onChanged,
   ) {
     final themeHueSource = _themeHueSource();
-    final displayColor = setting?.resolve(fallback, themeHueSource) ??
-        fallback;
-    return ListTile(
-      dense: true,
-      leading: _colorSwatch(displayColor),
-      title: Text(label),
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
-      subtitle: setting == null ? const Text('跟随主题') : null,
-      trailing: _resetButton(() {
+    return SettingsTextColorTile(
+      label: label,
+      setting: setting,
+      fallback: fallback,
+      themeHueColor: themeHueSource.toColor(),
+      onChanged: (v) => setState(() => onChanged(v)),
+      onReset: () {
         _resetToDefault(ColorSetting.keys(baseKey), () => onChanged(null));
-      }),
-      onTap: () async {
-        final result = await showDialog<ColorPickerResult>(
-          context: context,
-          builder: (context) => ColorPickerDialog(
-            initial: setting?.color ?? fallback,
-            fallbackColor: fallback,
-            themeHueColor: themeHueSource.toColor(),
-            setting: setting,
-          ),
-        );
-        if (result == null) return;
-        final updated = result.themeHue
-            ? ColorSetting(
-                themeHue: true, sat: result.sat, val: result.val)
-            : ColorSetting(color: result.color);
-        setState(() => onChanged(updated));
+      },
+      onSave: (updated) async {
         // 先写完整配置 (含清除旧的 Theme/Sat/Val 或 hex 键) 再刷新
         final config = await ref.read(configJsonProvider).read();
         for (final key in ColorSetting.keys(baseKey)) {
