@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
@@ -71,8 +72,10 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     // 左右边距: 左 10%, 右 5%
     final leftMargin = appSize.width * 0.10;
     final rightMargin = appSize.width * 0.05;
-    // 封面 30% 宽 (1:1 方形), 封面-歌词间距与左边距一致 10%
-    final coverSize = appSize.width * 0.30;
+    // 封面 30% 宽 (1:1 方形), 封面-歌词间距与左边距一致 10%;
+    // 高度约束: 封面列 (封面 + 倒影 1/3) 总高须 ≤ 歌词区高, 否则溢出
+    final coverSize =
+        math.min(appSize.width * 0.30, height * 0.60);
     final coverGap = appSize.width * 0.10;
     // 歌词列宽 = 窗口宽 - 左边距 - 封面 - 间距 - 右边距
     final lyricWidth = appSize.width - leftMargin - coverSize - coverGap - rightMargin;
