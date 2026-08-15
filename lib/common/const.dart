@@ -1,3 +1,4 @@
+import 'package:again/common/paths.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,10 +21,7 @@ const List<String> IMG_EXTENSIONS = [
   '.webp',
 ];
 
-const CONFIG_FILE_PATH = 'config/config.json';
-const HISTORY_FILE_PATH = 'history/last_played.json';
-const DELETE_SCRIPT_PATH = 'scripts/delete.ps1';
-const SQLITE_DB_PATH = 'data/storage/again_voiceworks.db';
+const String DELETE_SCRIPT_PATH = 'scripts/delete.ps1';
 
 /// 窗口背景效果模式 (config.json `windowEffect`)。
 const String WINDOW_EFFECT_TRANSPARENT = 'transparent';
@@ -40,9 +38,9 @@ const bool kDefaultRememberWindowSize = true;
 const bool kDefaultSearchEnabled = false;
 
 final configJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
-  return JsonStorage(filePath: CONFIG_FILE_PATH);
+  return JsonStorage(pathResolver: configFilePath);
 });
 
 final historyJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
-  return JsonStorage(filePath: HISTORY_FILE_PATH);
+  return JsonStorage(pathResolver: historyFilePath);
 });

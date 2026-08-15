@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:again/common/const.dart';
+import 'package:again/common/paths.dart';
 import 'package:again/pages/my_app.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_service.dart';
@@ -43,7 +43,7 @@ Future<void> setupWindow() async {
         ..setTitle('Again')
         ..setPreventClose(true);
       // 窗口显示前应用配置的窗口背景效果
-      final config = await JsonStorage(filePath: CONFIG_FILE_PATH).read();
+      final config = await JsonStorage(filePath: await configFilePath()).read();
       final effect = resolveWindowEffect(config);
       await applyWindowEffectStandalone(effect);
       windowManager.show();

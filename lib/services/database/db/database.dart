@@ -1,4 +1,4 @@
-import 'package:again/common/const.dart';
+import 'package:again/common/paths.dart';
 import 'package:drift/drift.dart';
 
 // These additional imports are necessary to open the sqlite3 database
@@ -261,7 +261,7 @@ LazyDatabase _openConnection() {
     // put the database file, called db.sqlite here, into the documents folder
     // for your app.
 
-    final file = File(SQLITE_DB_PATH);
+    final file = File(await sqliteDbPath());
 
     // Also work around limitations on old Android versions
     if (Platform.isAndroid) {

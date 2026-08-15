@@ -4,11 +4,27 @@ import 'dart:convert';
 import 'package:again/utils/log.dart';
 
 class JsonStorage {
-  final String filePath;
+  /// 固定路径; 与 [pathResolver] 二选一。
+  final String? filePath;
 
-  JsonStorage({required this.filePath});
+  /// 懒解析路径 (Android 需异步取应用目录, Windows 保持相对路径)。
+  final Future<String> Function()? pathResolver;
+
+  JsonStorage({this.filePath, this.pathResolver});
+
+  Future<String> _resolvePath() async {
+    if (filePath != null) {
+      return filePath!;
+    }
+    final resolver = pathResolver;
+    if (resolver == null) {
+      throw StateError('JsonStorage: filePath and pathResolver are both null');
+    }
+    return resolver();
+  }
 
   Future<Map<String, dynamic>> read() async {
+    final filePath = await _resolvePath();
     try {
       final file = File(filePath);
       final contents = await file.readAsString();
@@ -20,6 +36,7 @@ class JsonStorage {
   }
 
   Future<void> write(Map<String, dynamic> data) async {
+    final filePath = await _resolvePath();
     final file = File(filePath);
     if (!await file.exists()) {
       await file.create(recursive: true);
