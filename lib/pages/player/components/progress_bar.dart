@@ -50,7 +50,7 @@ class ProgressBar extends ConsumerWidget {
                 ref.watch(uiSettingsProvider).valueOrNull;
             final showThumb = appearance?.showSliderThumb ?? false;
             final thickness = appearance?.sliderThickness ?? 1;
-            final thumbSize = appearance?.sliderThumbSize ?? 10;
+            final thumbSize = appearance?.sliderThumbSize ?? 5;
 
             return SliderTheme(
               data: SliderTheme.of(context).copyWith(

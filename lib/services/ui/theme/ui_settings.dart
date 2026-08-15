@@ -17,7 +17,7 @@ class UiSettings {
     this.coverReflection = true,
     this.showSliderThumb = false,
     this.sliderThickness = 1,
-    this.sliderThumbSize = 10,
+    this.sliderThumbSize = 5,
     this.listDensity = 'comfortable',
     this.showHoverTime = true,
     this.hoverTimeSize = 14,
@@ -32,7 +32,7 @@ class UiSettings {
       coverReflection: config['coverReflection'] != false,
       showSliderThumb: config['showSliderThumb'] == true,
       sliderThickness: thickness is num ? thickness.toDouble() : 1,
-      sliderThumbSize: thumbSize is num ? thumbSize.toDouble() : 10,
+      sliderThumbSize: thumbSize is num ? thumbSize.toDouble() : 5,
       listDensity: config['listDensity'] == 'compact'
           ? 'compact'
           : 'comfortable',

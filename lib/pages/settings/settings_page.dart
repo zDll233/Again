@@ -38,7 +38,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverReflection = true;
   bool _showSliderThumb = false;
   double _sliderThickness = 1;
-  double _sliderThumbSize = 10;
+  double _sliderThumbSize = 5;
   bool _showHoverTime = true;
   double _hoverTimeSize = 14;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
@@ -114,7 +114,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final thickness = config['sliderThickness'];
       _sliderThickness = thickness is num ? thickness.toDouble() : 1;
       final thumbSize = config['sliderThumbSize'];
-      _sliderThumbSize = thumbSize is num ? thumbSize.toDouble() : 10;
+      _sliderThumbSize = thumbSize is num ? thumbSize.toDouble() : 5;
       _showHoverTime = config['showHoverTime'] != false;
       final hoverTimeSize = config['hoverTimeSize'];
       _hoverTimeSize = hoverTimeSize is num ? hoverTimeSize.toDouble() : 14;
@@ -360,7 +360,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverReflection = true;
       _showSliderThumb = false;
       _sliderThickness = 1;
-      _sliderThumbSize = 10;
+      _sliderThumbSize = 5;
       _showHoverTime = true;
       _hoverTimeSize = 14;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
@@ -876,7 +876,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             // 圆点大小: 滑块圆点的子设置, 关闭时折叠
                             if (_showSliderThumb)
                               _textSizeTile('滑块圆点大小', _sliderThumbSize,
-                                  'sliderThumbSize', 10, (v) {
+                                  'sliderThumbSize', 5, (v) {
                                 _sliderThumbSize = v;
                               },
                                   icon: Icons.circle_outlined,
