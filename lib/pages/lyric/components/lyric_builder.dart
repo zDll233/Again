@@ -197,42 +197,50 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
   }
 
-  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大 (无封面时不响应点击)。
+  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大;
+  /// 无封面时显示占位图标块, 同样有倾斜/倒影, 仅不可点击查看大图。
   Widget _buildCover(String coverPath, double size,
       {bool tilt = true, bool reflection = true}) {
     final hasCover = coverPath.isNotEmpty && File(coverPath).existsSync();
-    // 无封面: 纯 UI 占位 (图标块), 不可点击查看大图
-    if (!hasCover) {
-      final scheme = Theme.of(context).colorScheme;
-      return Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
-        ),
-        child: Icon(
-          Icons.music_note,
-          size: size * 0.4,
-          color: scheme.onSurface.withValues(alpha: 0.25),
+    final imageProvider = hasCover ? FileImage(File(coverPath)) : null;
+    // 有封面才允许点击查看大图
+    void onCoverTap() {
+      if (imageProvider != null) {
+        openImageDialog(context, imageProvider);
+      }
+    }
+
+    final dpr = MediaQuery.devicePixelRatioOf(context);
+    final cacheHeight = (size * dpr * 2).round();
+    Widget cover(double w, double h) {
+      if (!hasCover) {
+        // 无封面: 纯 UI 占位 (图标块)
+        final scheme = Theme.of(context).colorScheme;
+        return Container(
+          width: w,
+          height: h,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          ),
+          child: Icon(
+            Icons.music_note,
+            size: w * 0.4,
+            color: scheme.onSurface.withValues(alpha: 0.25),
+          ),
+        );
+      }
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image(
+          image: ResizeImage(imageProvider!, height: cacheHeight),
+          width: w,
+          height: h,
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
         ),
       );
     }
-    final imageProvider = FileImage(File(coverPath));
-    // 有封面才允许点击查看大图
-    void onCoverTap() => openImageDialog(context, imageProvider);
-    final dpr = MediaQuery.devicePixelRatioOf(context);
-    final cacheHeight = (size * dpr * 2).round();
-    Widget cover(double w, double h) => ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Image(
-            image: ResizeImage(imageProvider, height: cacheHeight),
-            width: w,
-            height: h,
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
-          ),
-        );
     final coverBody = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
