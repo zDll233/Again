@@ -136,8 +136,13 @@ ping -n 3 127.0.0.1 > nul
 echo %date% %time% killed >> "%LOG%"
 powershell -NoProfile -Command "Expand-Archive -Force -LiteralPath '%ZIP%' -DestinationPath '%DIR%'" >> "%LOG%" 2>&1
 echo %date% %time% extracted >> "%LOG%"
+if exist "%DIR%\\Again.exe" (
+  echo %date% %time% done >> "%LOG%"
+  del "%LOG%"
+) else (
+  echo %date% %time% FAILED: exe missing >> "%LOG%"
+)
 start "" "%DIR%\\Again.exe"
-echo %date% %time% restarted >> "%LOG%"
 del "%~f0"
 ''';
   Log.info('applyUpdate: zip=$zipPath appDir=$appDir');
@@ -148,11 +153,15 @@ del "%~f0"
           .replaceAll('%DIR%', appDir)
           .replaceAll('%LOG%', logPath),
     );
-    // 分离启动脚本, 不等待;
-    // 必须 await start 并给 cmd 一点启动时间, 否则 exit(0) 会杀死
-    // 尚未创建的子进程, 导致更新脚本从未执行
-    await Process.start('cmd', ['/c', batPath],
-        mode: ProcessStartMode.detached);
+    // 用 PowerShell 隐藏窗口启动脚本, 避免 cmd 黑窗口闪现;
+    // 必须 await 并给子进程启动时间, 否则 exit(0) 会杀死尚未创建的子进程
+    final psCmd =
+        'Start-Process -FilePath cmd.exe -ArgumentList "/c \'${batPath.replaceAll("'", "''")}\'" -WindowStyle Hidden';
+    await Process.start(
+      'powershell',
+      ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', psCmd],
+      mode: ProcessStartMode.detached,
+    );
     await Future<void>.delayed(const Duration(milliseconds: 800));
   } catch (e) {
     Log.error('applyUpdate failed: $e');
