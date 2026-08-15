@@ -76,14 +76,21 @@ class DatabaseNotifier {
     );
   }
 
-  /// 刷新 CV 列表: 跟随分类 + 按作品数倒序, 并重置选中为 All。
+  /// 刷新 CV 列表: 跟随分类 + 按作品数倒序。
+  /// 保留当前选中的 CV (若仍在新列表中), 否则回退 All, 避免刷新丢失筛选。
   Future<void> updateCvList(String category) async {
     final cvs = await _database.selectCvsOrderedByCount(
       category == 'All' ? null : category,
     );
+    final cvList = ['All', ...cvs];
     final cvNotifier = ref.read(cvProvider.notifier);
-    cvNotifier.setValues(['All', ...cvs]);
-    cvNotifier.cacheSelectedIndexAndItem(0);
+    final prevSelected = ref.read(cvProvider).cachedSelectedItem;
+    cvNotifier.setValues(cvList);
+    if (prevSelected != null && cvList.contains(prevSelected)) {
+      cvNotifier.cacheSelectedIndexAndItem(cvList.indexOf(prevSelected));
+    } else {
+      cvNotifier.cacheSelectedIndexAndItem(0);
+    }
   }
 
   Future<List<TVoiceWorkCategoryData>> get _getCategoryDataList async {

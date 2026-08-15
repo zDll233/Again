@@ -190,13 +190,18 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
   }
 
-  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大。
+  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大 (无封面时不响应点击)。
   Widget _buildCover(String coverPath, double size,
       {bool tilt = true, bool reflection = true}) {
+    final hasCover = coverPath.isNotEmpty && File(coverPath).existsSync();
     final coverFile = File(coverPath);
-    final imageProvider = coverPath.isNotEmpty && coverFile.existsSync()
+    final imageProvider = hasCover
         ? FileImage(coverFile)
         : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
+    // 无封面 (占位图) 时禁用点击查看大图
+    final onCoverTap = hasCover
+        ? () => openImageDialog(context, imageProvider)
+        : null;
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final cacheHeight = (size * dpr * 2).round();
     Widget cover(double w, double h) => ClipRRect(
@@ -237,15 +242,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       ],
     );
     if (!tilt) {
-      // 关闭倾斜: 直接显示封面, 保留点击放大
+      // 关闭倾斜: 直接显示封面
       return GestureDetector(
-        onTap: () => openImageDialog(context, imageProvider),
+        onTap: onCoverTap,
         child: coverBody,
       );
     }
     return _TiltCover(
       coverSize: size,
-      onTap: () => openImageDialog(context, imageProvider),
+      onTap: onCoverTap,
       child: coverBody,
     );
   }
@@ -331,12 +336,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 class _TiltCover extends StatefulWidget {
   final Widget child;
   final double coverSize;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _TiltCover({
     required this.child,
     required this.coverSize,
-    required this.onTap,
+    this.onTap,
   });
 
   @override

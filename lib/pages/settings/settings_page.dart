@@ -31,7 +31,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverTilt = true;
   bool _coverReflection = true;
   bool _showSliderThumb = true;
-  double _sliderThickness = 4;
+  double _sliderThickness = 1;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -100,7 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverReflection = config['coverReflection'] != false;
       _showSliderThumb = config['showSliderThumb'] != false;
       final thickness = config['sliderThickness'];
-      _sliderThickness = thickness is num ? thickness.toDouble() : 4;
+      _sliderThickness = thickness is num ? thickness.toDouble() : 1;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -204,7 +204,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverTilt = true;
       _coverReflection = true;
       _showSliderThumb = true;
-      _sliderThickness = 4;
+      _sliderThickness = 1;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
@@ -667,11 +667,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ),
                             ),
                             _textSizeTile('进度/音量条粗细', _sliderThickness,
-                                'sliderThickness', 4, (v) {
+                                'sliderThickness', 1, (v) {
                               _sliderThickness = v;
                             },
                                 icon: Icons.line_weight,
-                                min: 2,
+                                min: 1,
                                 max: 12,
                                 refreshAppearance: true),
                           ],
