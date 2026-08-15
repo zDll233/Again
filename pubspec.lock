@@ -434,8 +434,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "v0.5.1"
-      resolved-ref: "7fee1d69b7940ddf5d04e5aa2e15ca8b0e6379c5"
+      ref: "v0.5.2"
+      resolved-ref: "7143b2f5954f980fcc2aa67a2727211ba6a55ed7"
       url: "https://github.com/zDll233/flutter_lyric.git"
     source: git
     version: "2.0.4+6"
