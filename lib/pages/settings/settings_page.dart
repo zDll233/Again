@@ -32,6 +32,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverReflection = true;
   bool _showSliderThumb = false;
   double _sliderThickness = 1;
+  bool _showHoverTime = true;
+  double _hoverTimeSize = 14;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -101,6 +103,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _showSliderThumb = config['showSliderThumb'] == true;
       final thickness = config['sliderThickness'];
       _sliderThickness = thickness is num ? thickness.toDouble() : 1;
+      _showHoverTime = config['showHoverTime'] != false;
+      final hoverTimeSize = config['hoverTimeSize'];
+      _hoverTimeSize = hoverTimeSize is num ? hoverTimeSize.toDouble() : 14;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -205,6 +210,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverReflection = true;
       _showSliderThumb = false;
       _sliderThickness = 1;
+      _showHoverTime = true;
+      _hoverTimeSize = 14;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
@@ -849,6 +856,49 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ],
                                   ),
                                 ),
+                                ListTile(
+                                  dense: true,
+                                  leading: Icon(
+                                    Icons.timer_outlined,
+                                    size: 22,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.6),
+                                  ),
+                                  title: const Text('hover 起始时间'),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Switch(
+                                        value: _showHoverTime,
+                                        onChanged: (value) async {
+                                          setState(
+                                              () => _showHoverTime = value);
+                                          await _save(
+                                              {'showHoverTime': value});
+                                          ref.invalidate(
+                                              uiSettingsProvider);
+                                        },
+                                      ),
+                                      _resetButton(() {
+                                        _resetToDefault(['showHoverTime'],
+                                            () => _showHoverTime = true);
+                                      }),
+                                    ],
+                                  ),
+                                ),
+                                _textSizeTile('hover 起始时间字号',
+                                    _hoverTimeSize, 'hoverTimeSize', 14,
+                                    (v) {
+                                  _hoverTimeSize = v;
+                                },
+                                    icon: Icons.timer_outlined,
+                                    min: 10,
+                                    max: 24,
+                                    refreshAppearance: true),
                                 // 字体颜色
                                 _textColorTile(
                                   '歌词高亮',

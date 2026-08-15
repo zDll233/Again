@@ -164,9 +164,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                             },
                             // hover 行边框 (Material 风白色半透明) + 点击涟漪
                             hoverColor: Colors.white,
-                            // hover 行左侧起始时间
+                            // hover 行左侧起始时间 (可开关/调字号)
                             hoverTimeColor:
-                                Colors.white.withValues(alpha: 0.45),
+                                (appearance?.showHoverTime ?? true)
+                                    ? Colors.white.withValues(alpha: 0.45)
+                                    : null,
+                            hoverTimeSize:
+                                appearance?.hoverTimeSize ?? 14,
                             rippleColor: scheme.primary,
                             lyricUi: lyricUi,
                             waitMilliseconds: 5000,

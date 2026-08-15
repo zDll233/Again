@@ -8,6 +8,8 @@ class UiSettings {
   final bool showSliderThumb; // 进度条/音量条滑块圆点
   final double sliderThickness; // 进度条/音量条轨道粗细
   final String listDensity; // 列表密度 'compact' | 'comfortable'
+  final bool showHoverTime; // 歌词 hover 行起始时间
+  final double hoverTimeSize; // hover 行起始时间字号
 
   const UiSettings({
     this.coverTilt = true,
@@ -15,10 +17,13 @@ class UiSettings {
     this.showSliderThumb = false,
     this.sliderThickness = 1,
     this.listDensity = 'comfortable',
+    this.showHoverTime = true,
+    this.hoverTimeSize = 14,
   });
 
   factory UiSettings.fromConfig(Map<String, dynamic> config) {
     final thickness = config['sliderThickness'];
+    final hoverTimeSize = config['hoverTimeSize'];
     return UiSettings(
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
@@ -27,6 +32,8 @@ class UiSettings {
       listDensity: config['listDensity'] == 'compact'
           ? 'compact'
           : 'comfortable',
+      showHoverTime: config['showHoverTime'] != false,
+      hoverTimeSize: hoverTimeSize is num ? hoverTimeSize.toDouble() : 14,
     );
   }
 
@@ -37,6 +44,8 @@ class UiSettings {
     'showSliderThumb',
     'sliderThickness',
     'listDensity',
+    'showHoverTime',
+    'hoverTimeSize',
   ];
 }
 
