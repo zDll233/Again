@@ -1018,12 +1018,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         child: SegmentedButton<String>(
                                           segments: const [
                                             ButtonSegment(
-                                              value: 'center',
-                                              label: Text('居中'),
-                                            ),
-                                            ButtonSegment(
                                               value: 'left',
                                               label: Text('靠左'),
+                                            ),
+                                            ButtonSegment(
+                                              value: 'center',
+                                              label: Text('居中'),
                                             ),
                                           ],
                                           selected: {_lyricAlign},
@@ -1086,15 +1086,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ],
                                   ),
                                 ),
-                                _textSizeTile('hover 起始时间字号',
-                                    _hoverTimeSize, 'hoverTimeSize', 14,
-                                    (v) {
-                                  _hoverTimeSize = v;
-                                },
-                                    icon: Icons.timer_outlined,
-                                    min: 10,
-                                    max: 24,
-                                    refreshAppearance: true),
+                                // hover 起始时间字号: 子设置, 关闭时折叠
+                                if (_showHoverTime)
+                                  _textSizeTile('hover 起始时间字号',
+                                      _hoverTimeSize, 'hoverTimeSize', 14,
+                                      (v) {
+                                    _hoverTimeSize = v;
+                                  },
+                                      icon: Icons.timer_outlined,
+                                      min: 10,
+                                      max: 24,
+                                      refreshAppearance: true),
                                 // 字体颜色
                                 _textColorTile(
                                   '歌词高亮',
