@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 全文件访问 (音声根目录在 /storage/emulated/0 下, 路径模型依赖直接文件系统访问) -->
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     <application
-        android:label="again"
+        android:label="Again"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

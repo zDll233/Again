@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:again/common/const.dart';
+import 'package:again/services/storage_permission.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/database/voice_updater.dart';
@@ -32,6 +33,12 @@ class DatabaseNotifier {
   }
 
   Future<void> selectAndSaveRootDirectory() async {
+    // Android: 全文件访问权限是扫描外部存储的前提, 未授权时先请求
+    if (Platform.isAndroid && !await hasExternalStorageAccess()) {
+      if (!await requestExternalStorageAccess()) {
+        Log.error('Android storage permission not granted, skip picker.');
+      }
+    }
     final selectedDirPath = await FilePicker.getDirectoryPath(
       dialogTitle: '请选择音声作品根目录',
       // 以主窗口为 owner, 无 owner 的 IFileDialog 在部分 Windows 上会

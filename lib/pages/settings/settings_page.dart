@@ -1,7 +1,11 @@
+import 'dart:io';
+
 import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/pages/settings/components/settings_widgets.dart';
+import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/services/database/database_providers.dart';
+import 'package:again/services/storage_permission.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
@@ -12,7 +16,6 @@ import 'package:again/services/updater/update_checker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:window_manager/window_manager.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -388,6 +391,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Color schemeError() => Theme.of(context).colorScheme.error;
 
   Future<void> _changeRootDir() async {
+    // Android: 全文件访问权限是扫描外部存储的前提, 未授权时先请求并提示
+    if (Platform.isAndroid && !await hasExternalStorageAccess()) {
+      final granted = await requestExternalStorageAccess();
+      if (!granted && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('需要"所有文件访问"权限才能选择音声根目录')),
+        );
+        return;
+      }
+    }
     final selectedDirPath = await FilePicker.getDirectoryPath(
       dialogTitle: '请选择音声作品根目录',
       lockParentWindow: true,
@@ -417,7 +431,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                   Expanded(
-                    child: DragToMoveArea(
+                    child: MoveWindow(
+                      moveOnChildWidget: true,
                       child: SizedBox.expand(
                         child: Align(
                           alignment: Alignment.centerLeft,
@@ -455,88 +470,91 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        _sectionTitle('窗口'),
-                        _card(
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.close_fullscreen),
-                              title: const Text('关闭时最小化到托盘'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _closeToTray,
-                                    onChanged: (value) {
-                                      setState(() => _closeToTray = value);
-                                      _save({'closeToTray': value});
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['closeToTray'],
-                                      () => _closeToTray =
-                                          kDefaultCloseToTray,
-                                    );
-                                  }),
-                                ],
+                        // 窗口设置: Windows 专属
+                        if (Platform.isWindows) ...[
+                          _sectionTitle('窗口'),
+                          _card(
+                            children: [
+                              ListTile(
+                                leading: const Icon(Icons.close_fullscreen),
+                                title: const Text('关闭时最小化到托盘'),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: _closeToTray,
+                                      onChanged: (value) {
+                                        setState(() => _closeToTray = value);
+                                        _save({'closeToTray': value});
+                                      },
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['closeToTray'],
+                                        () => _closeToTray =
+                                            kDefaultCloseToTray,
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.location_on_outlined),
-                              title: const Text('记住窗口位置'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _rememberWindowPos,
-                                    onChanged: (value) {
-                                      setState(
-                                          () => _rememberWindowPos = value);
-                                      _save({'rememberWindowPos': value});
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['rememberWindowPos'],
-                                      () => _rememberWindowPos =
-                                          kDefaultRememberWindowPos,
-                                    );
-                                  }),
-                                ],
+                              ListTile(
+                                leading: const Icon(Icons.location_on_outlined),
+                                title: const Text('记住窗口位置'),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: _rememberWindowPos,
+                                      onChanged: (value) {
+                                        setState(
+                                            () => _rememberWindowPos = value);
+                                        _save({'rememberWindowPos': value});
+                                      },
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['rememberWindowPos'],
+                                        () => _rememberWindowPos =
+                                            kDefaultRememberWindowPos,
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.aspect_ratio),
-                              title: const Text('记住窗口大小'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _rememberWindowSize,
-                                    onChanged: (value) {
-                                      setState(
-                                          () => _rememberWindowSize = value);
-                                      _save({'rememberWindowSize': value});
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['rememberWindowSize'],
-                                      () => _rememberWindowSize =
-                                          kDefaultRememberWindowSize,
-                                    );
-                                  }),
-                                ],
+                              ListTile(
+                                leading: const Icon(Icons.aspect_ratio),
+                                title: const Text('记住窗口大小'),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: _rememberWindowSize,
+                                      onChanged: (value) {
+                                        setState(
+                                            () => _rememberWindowSize = value);
+                                        _save({'rememberWindowSize': value});
+                                      },
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['rememberWindowSize'],
+                                        () => _rememberWindowSize =
+                                            kDefaultRememberWindowSize,
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                         _sectionTitle('界面'),
                         _card(
                           children: [
@@ -698,17 +716,19 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ref.invalidate(coverSeedColorProvider);
                               },
                             ),
-                            ListTile(
-                              dense: true,
-                              leading: Icon(
-                                Icons.blur_on,
-                                size: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.6),
-                              ),
-                              title: const Text('窗口背景效果'),
+                            // 窗口背景效果: Windows 专属 (系统级 acrylic)
+                            if (Platform.isWindows)
+                              ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  Icons.blur_on,
+                                  size: 22,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                title: const Text('窗口背景效果'),
                               contentPadding: const EdgeInsets.only(
                                   left: 16, right: 16),
                               trailing: Row(
@@ -1124,26 +1144,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        // 检查更新
-                        Padding(
-                          padding: const EdgeInsets.only(top: 20),
-                          child: _card(
-                            children: [
-                              ListTile(
-                                leading: Icon(
-                                  Icons.system_update_alt,
-                                  color: scheme.onSurface
-                                      .withValues(alpha: 0.7),
+                        // 检查更新: Windows 专属 (zip 覆盖式更新)
+                        if (Platform.isWindows)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 20),
+                            child: _card(
+                              children: [
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.system_update_alt,
+                                    color: scheme.onSurface
+                                        .withValues(alpha: 0.7),
+                                  ),
+                                  title: const Text('检查更新'),
+                                  subtitle: Text('当前版本 $kAppVersion'),
+                                  contentPadding: const EdgeInsets.only(
+                                      left: 16, right: 16),
+                                  onTap: _checkUpdate,
                                 ),
-                                title: const Text('检查更新'),
-                                subtitle: Text('当前版本 $kAppVersion'),
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
-                                onTap: _checkUpdate,
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
                         // 重置所有设置
                         Padding(
                           padding: const EdgeInsets.only(top: 20),

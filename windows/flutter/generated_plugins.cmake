@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_windows
   flutter_acrylic
+  permission_handler_windows
   screen_retriever_windows
   sqlite3_flutter_libs
   tray_manager
