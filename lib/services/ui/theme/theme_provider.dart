@@ -2,8 +2,8 @@ import 'package:again/common/const.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 默认主题种子色 (对应 kDefaultThemeSeedHex)。
-const Color kDefaultThemeSeed = Color(0xFF00BCD4);
+/// 默认主题种子色 (由 [kDefaultThemeSeedHex] 派生, 单一来源)。
+final Color kDefaultThemeSeed = parseHexColor(kDefaultThemeSeedHex)!;
 
 /// 解析自定义主题色, 缺省返回默认紫色 (#RRGGBB)。
 String resolveThemeSeedHex(Map<String, dynamic> config) {
@@ -45,7 +45,7 @@ final windowEffectProvider = FutureProvider.autoDispose<String>((ref) async {
 /// 列表搜索开关 (config.json `searchEnabled`, 默认关闭)。
 final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
   final config = await ref.read(configJsonProvider).read();
-  return config['searchEnabled'] == true;
+  return config['searchEnabled'] ?? kDefaultSearchEnabled;
 });
 
 /// 应用主题: 由自定义主题色生成。

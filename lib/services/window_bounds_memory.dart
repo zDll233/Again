@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-
+import 'package:again/common/const.dart';
 import 'package:again/utils/json_storage.dart';
 import 'package:again/utils/log.dart';
 import 'package:window_manager/window_manager.dart';
@@ -56,8 +56,8 @@ Future<void> restoreWindowBounds(JsonStorage storage) async {
     final config = await storage.read();
     final b = config['windowBounds'];
     if (b is! Map) return;
-    final rememberPos = config['rememberWindowPos'] == true;
-    final rememberSize = config['rememberWindowSize'] != false;
+    final rememberPos = config['rememberWindowPos'] ?? kDefaultRememberWindowPos;
+    final rememberSize = config['rememberWindowSize'] ?? kDefaultRememberWindowSize;
     final sizeValid =
         b['w'] is num && b['h'] is num && (b['w'] as num) >= 400 &&
             (b['h'] as num) >= 300;

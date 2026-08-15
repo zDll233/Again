@@ -22,9 +22,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   // 默认值统一取自 TextSettings()/常量, 避免散落硬编码
   static const _defaults = TextSettings();
   String _voiceWorkRoot = '';
-  bool _closeToTray = true;
-  bool _rememberWindowPos = false;
-  bool _rememberWindowSize = true;
+  bool _closeToTray = kDefaultCloseToTray;
+  bool _rememberWindowPos = kDefaultRememberWindowPos;
+  bool _rememberWindowSize = kDefaultRememberWindowSize;
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
   bool _searchEnabled = false;
@@ -69,9 +69,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final ts = TextSettings.fromConfig(config);
     setState(() {
       _voiceWorkRoot = config['voiceWorkRoot'] ?? '';
-      _closeToTray = config['closeToTray'] != false;
-      _rememberWindowPos = config['rememberWindowPos'] == true;
-      _rememberWindowSize = config['rememberWindowSize'] != false;
+      _closeToTray = config['closeToTray'] ?? kDefaultCloseToTray;
+      _rememberWindowPos =
+          config['rememberWindowPos'] ?? kDefaultRememberWindowPos;
+      _rememberWindowSize =
+          config['rememberWindowSize'] ?? kDefaultRememberWindowSize;
       _windowEffect = resolveWindowEffect(config);
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
           kDefaultThemeSeed;
@@ -172,9 +174,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     setState(() {
       // 全部恢复默认值 (统一取自 TextSettings()/常量)
-      _closeToTray = true;
-      _rememberWindowPos = false;
-      _rememberWindowSize = true;
+      _closeToTray = kDefaultCloseToTray;
+      _rememberWindowPos = kDefaultRememberWindowPos;
+      _rememberWindowSize = kDefaultRememberWindowSize;
       _windowEffect = WINDOW_EFFECT_ACRYLIC;
       _themeSeedColor = kDefaultThemeSeed;
       _searchEnabled = false;
@@ -301,7 +303,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['closeToTray'],
-                                      () => _closeToTray = true,
+                                      () => _closeToTray =
+                                          kDefaultCloseToTray,
                                     );
                                   }),
                                 ],
@@ -326,7 +329,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['rememberWindowPos'],
-                                      () => _rememberWindowPos = false,
+                                      () => _rememberWindowPos =
+                                          kDefaultRememberWindowPos,
                                     );
                                   }),
                                 ],
@@ -351,7 +355,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _resetButton(() {
                                     _resetToDefault(
                                       ['rememberWindowSize'],
-                                      () => _rememberWindowSize = true,
+                                      () => _rememberWindowSize =
+                                          kDefaultRememberWindowSize,
                                     );
                                   }),
                                 ],

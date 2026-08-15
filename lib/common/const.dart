@@ -33,6 +33,12 @@ const String WINDOW_EFFECT_OPAQUE = 'opaque';
 /// 默认主题色 (config.json `themeSeedColor` 缺省值, #RRGGBB)。
 const String kDefaultThemeSeedHex = '#00BCD4';
 
+// 布尔开关缺省值 (读取处与重置块统一引用, 避免语义默认与重置默认不一致)
+const bool kDefaultCloseToTray = true;
+const bool kDefaultRememberWindowPos = false;
+const bool kDefaultRememberWindowSize = true;
+const bool kDefaultSearchEnabled = false;
+
 final configJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
   return JsonStorage(filePath: CONFIG_FILE_PATH);
 });
