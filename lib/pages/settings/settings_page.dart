@@ -31,6 +31,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverTilt = true;
   bool _coverReflection = true;
   bool _showSliderThumb = true;
+  double _sliderThickness = 4;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -96,6 +97,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverTilt = config['coverTilt'] != false;
       _coverReflection = config['coverReflection'] != false;
       _showSliderThumb = config['showSliderThumb'] != false;
+      final thickness = config['sliderThickness'];
+      _sliderThickness = thickness is num ? thickness.toDouble() : 4;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -199,6 +202,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverTilt = true;
       _coverReflection = true;
       _showSliderThumb = true;
+      _sliderThickness = 4;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
@@ -659,6 +663,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ],
                               ),
                             ),
+                            _textSizeTile('进度/音量条粗细', _sliderThickness,
+                                'sliderThickness', 4, (v) {
+                              _sliderThickness = v;
+                            },
+                                icon: Icons.line_weight,
+                                min: 2,
+                                max: 12,
+                                refreshAppearance: true),
                           ],
                         ),
                         _card(
@@ -913,17 +925,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     double defaultValue,
     ValueChanged<double> onChanged, {
     IconData icon = Icons.format_size,
+    double min = 10,
+    double max = 30,
+    bool refreshAppearance = false,
   }) {
     return SettingsTextSizeTile(
       label: label,
       value: value,
       defaultValue: defaultValue,
       icon: icon,
+      min: min,
+      max: max,
       onChanged: (v) => setState(() => onChanged(v)),
       onChangedEnd: (v) async {
         // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
         await _save({key: v.round()});
-        ref.invalidate(textSettingsProvider);
+        if (refreshAppearance) {
+          ref.invalidate(appearanceSettingsProvider);
+        } else {
+          ref.invalidate(textSettingsProvider);
+        }
       },
       onReset: () {
         _resetToDefault([key], () => onChanged(defaultValue));

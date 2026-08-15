@@ -45,17 +45,17 @@ class ProgressBar extends ConsumerWidget {
                 ref.watch(audioProvider.select((state) => state.duration));
             final position =
                 ref.watch(audioProvider.select((state) => state.position));
-            // 是否显示滑块圆点 (设置项)
-            final showThumb = ref
-                    .watch(appearanceSettingsProvider)
-                    .valueOrNull
-                    ?.showSliderThumb ??
-                true;
+            // 是否显示滑块圆点 / 轨道粗细 (设置项)
+            final appearance =
+                ref.watch(appearanceSettingsProvider).valueOrNull;
+            final showThumb = appearance?.showSliderThumb ?? true;
+            final thickness = appearance?.sliderThickness ?? 4;
 
             return SliderTheme(
               data: SliderTheme.of(context).copyWith(
                 thumbShape: showThumb ? null : const NoThumbShape(),
                 overlayShape: showThumb ? null : const NoThumbShape(),
+                trackHeight: thickness,
               ),
               child: Slider(
                 focusNode: FocusNode(canRequestFocus: false),

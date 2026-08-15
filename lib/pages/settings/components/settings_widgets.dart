@@ -139,6 +139,8 @@ class SettingsTextSizeTile extends StatelessWidget {
   final String label;
   final double value;
   final double defaultValue;
+  final double min;
+  final double max;
   final IconData icon;
   final ValueChanged<double> onChanged;
   final ValueChanged<double> onChangedEnd;
@@ -152,6 +154,8 @@ class SettingsTextSizeTile extends StatelessWidget {
     required this.onChanged,
     required this.onChangedEnd,
     required this.onReset,
+    this.min = 10,
+    this.max = 30,
     this.icon = Icons.format_size,
   });
 
@@ -185,8 +189,8 @@ class SettingsTextSizeTile extends StatelessWidget {
             width: 120,
             child: Slider(
               value: value,
-              min: 10,
-              max: 30,
+              min: min,
+              max: max,
               onChanged: onChanged,
               onChangeEnd: onChangedEnd,
             ),

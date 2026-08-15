@@ -44,15 +44,15 @@ class VolumeControl extends ConsumerWidget {
                 builder: (_, WidgetRef ref, __) {
                   final volume =
                       ref.watch(audioProvider.select((state) => state.volume));
-                  final showThumb = ref
-                          .watch(appearanceSettingsProvider)
-                          .valueOrNull
-                          ?.showSliderThumb ??
-                      true;
+                  final appearance =
+                      ref.watch(appearanceSettingsProvider).valueOrNull;
+                  final showThumb = appearance?.showSliderThumb ?? true;
+                  final thickness = appearance?.sliderThickness ?? 4;
                   return SliderTheme(
                     data: SliderTheme.of(context).copyWith(
                       thumbShape: showThumb ? null : const NoThumbShape(),
                       overlayShape: showThumb ? null : const NoThumbShape(),
+                      trackHeight: thickness,
                     ),
                     child: Slider(
                       value: volume,
