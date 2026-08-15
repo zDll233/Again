@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:again/common/const.dart';
+import 'package:again/services/audio/audio_service_sync.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/key_event/key_event_handler.dart';
@@ -111,6 +112,9 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突; 仅 Windows
   if (Platform.isWindows) {
     await SystemTrayListener.init(ref);
+  } else {
+    // Android: 桥接 audio_service (媒体通知/锁屏控制) 到现有播放器状态
+    initAudioServiceBridge(ref);
   }
   // 启动完成后再静默增量刷新, 不阻塞初始化
   unawaited(ref.read(dbNotifierProvider).silentRefresh());
