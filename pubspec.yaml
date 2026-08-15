@@ -19,8 +19,9 @@ dependencies:
   file_picker: ^11.0.3
   flutter_acrylic: ^1.1.0
   flutter_lyric:
-    git: https://github.com/zDll233/flutter_lyric.git
-    # path: ../flutter_lyric
+    git:
+      url: https://github.com/zDll233/flutter_lyric.git
+      ref: v0.5.0
   flutter_riverpod: ^2.5.1
   logger: ^2.3.0
   path: ^1.9.0
