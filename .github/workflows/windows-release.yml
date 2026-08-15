@@ -36,7 +36,7 @@ jobs:
       - name: Build Windows Release
         shell: pwsh
         run: |
-          flutter build windows --release
+          flutter build windows --release --dart-define=APP_VERSION="${{ env.VERSION }}"
 
       - name: Compress Release Folder
         shell: pwsh

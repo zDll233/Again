@@ -6,6 +6,7 @@ import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/services/updater/update_checker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -152,6 +153,81 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(uiSettingsProvider);
     if (reapplyWindowEffect) {
       ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
+    }
+  }
+
+  /// 检查更新: 查询 GitHub 最新 Release, 有新版本时下载并重启更新。
+  Future<void> _checkUpdate() async {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('正在检查更新…')),
+    );
+    final result = await checkForUpdate();
+    if (!mounted) return;
+    if (result == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('检查更新失败, 请检查网络')),
+      );
+      return;
+    }
+    if (!result.hasUpdate || result.zipUrl == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('已是最新版本 ($kAppVersion)')),
+      );
+      return;
+    }
+
+    final download = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('发现新版本'),
+        content: Text('最新版本: ${result.latestTag}\n'
+            '当前版本: $kAppVersion\n\n是否下载并更新?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('下载更新'),
+          ),
+        ],
+      ),
+    );
+    if (download != true || !mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('正在下载更新包…')),
+    );
+    final zipPath = await downloadUpdateZip(result.zipUrl!);
+    if (!mounted) return;
+    if (zipPath == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('下载失败, 请稍后重试')),
+      );
+      return;
+    }
+
+    final apply = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('更新已下载'),
+        content: const Text('应用将关闭并自动完成更新, 确定现在更新吗?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text('稍后'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: const Text('立即更新'),
+          ),
+        ],
+      ),
+    );
+    if (apply == true) {
+      await applyUpdate(zipPath);
     }
   }
 
@@ -927,6 +1003,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ],
                             ),
                           ],
+                        ),
+                        // 检查更新
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: _card(
+                            children: [
+                              ListTile(
+                                leading: Icon(
+                                  Icons.system_update_alt,
+                                  color: scheme.onSurface
+                                      .withValues(alpha: 0.7),
+                                ),
+                                title: const Text('检查更新'),
+                                subtitle: Text('当前版本 $kAppVersion'),
+                                contentPadding: const EdgeInsets.only(
+                                    left: 16, right: 16),
+                                onTap: _checkUpdate,
+                              ),
+                            ],
+                          ),
                         ),
                         // 重置所有设置
                         Padding(
