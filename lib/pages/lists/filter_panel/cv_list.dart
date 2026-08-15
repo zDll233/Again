@@ -46,8 +46,7 @@ class _CvListState extends ConsumerState<CvList> {
       return const EmptyState(icon: Icons.person_search_outlined);
     }
     // 搜索关闭时直接显示全量列表
-    final searchEnabled =
-        ref.watch(searchEnabledProvider).valueOrNull ?? false;
+    final searchEnabled = searchEnabledFor(ref, searchFilterEnabledProvider);
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,

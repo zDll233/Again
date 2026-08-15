@@ -42,11 +42,41 @@ final windowEffectProvider = FutureProvider.autoDispose<String>((ref) async {
   return resolveWindowEffect(config);
 });
 
-/// 列表搜索开关 (config.json `searchEnabled`, 默认关闭)。
+/// 列表搜索总开关 (config.json `searchEnabled`, 默认关闭)。
 final searchEnabledProvider = FutureProvider.autoDispose<bool>((ref) async {
   final config = await ref.read(configJsonProvider).read();
   return config['searchEnabled'] ?? kDefaultSearchEnabled;
 });
+
+/// 各面板搜索子开关 (总开关的子项, 默认开; config 键缺失视为开)。
+/// 筛选面板 (分类/声优)。
+final searchFilterEnabledProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return config['searchFilter'] != false;
+});
+
+/// 作品面板。
+final searchWorksEnabledProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return config['searchWorks'] != false;
+});
+
+/// 音轨面板。
+final searchTracksEnabledProvider =
+    FutureProvider.autoDispose<bool>((ref) async {
+  final config = await ref.read(configJsonProvider).read();
+  return config['searchTracks'] != false;
+});
+
+/// 面板搜索是否启用 (总开关 && 该面板子开关)。
+bool searchEnabledFor(
+    WidgetRef ref, AutoDisposeFutureProvider<bool> panelProvider) {
+  final master = ref.watch(searchEnabledProvider).valueOrNull ?? false;
+  if (!master) return false;
+  return ref.watch(panelProvider).valueOrNull ?? true;
+}
 
 /// 应用主题: 由自定义主题色生成。
 final appThemeProvider = Provider<ThemeData>((ref) {

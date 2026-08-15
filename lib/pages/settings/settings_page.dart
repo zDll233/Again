@@ -31,6 +31,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   String _windowEffect = WINDOW_EFFECT_ACRYLIC;
   Color _themeSeedColor = kDefaultThemeSeed;
   bool _searchEnabled = false;
+  bool _searchFilter = true;
+  bool _searchWorks = true;
+  bool _searchTracks = true;
   bool _coverTilt = true;
   bool _coverReflection = true;
   bool _showSliderThumb = false;
@@ -85,6 +88,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
           kDefaultThemeSeed;
       _searchEnabled = config['searchEnabled'] == true;
+      _searchFilter = config['searchFilter'] != false;
+      _searchWorks = config['searchWorks'] != false;
+      _searchTracks = config['searchTracks'] != false;
       _panelTextSize = ts.panelTextSize;
       _panelTitleSize = ts.panelTitleSize;
       _progressTextSize = ts.progressTextSize;
@@ -133,6 +139,40 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget _resetButton(VoidCallback onPressed) =>
       SettingsResetButton(onPressed: onPressed);
 
+  /// 面板搜索子开关行 (总开关子项, 总开关关闭时禁用)。
+  Widget _searchSubSwitch(
+    String title,
+    String subtitle,
+    bool value,
+    ValueChanged<bool> onChanged,
+    List<String> resetKeys,
+    VoidCallback setDefault,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      dense: true,
+      enabled: _searchEnabled,
+      leading: Icon(
+        Icons.keyboard_arrow_right,
+        size: 22,
+        color: scheme.onSurface.withValues(alpha: 0.6),
+      ),
+      title: Text(title),
+      subtitle: Text(subtitle),
+      contentPadding: const EdgeInsets.only(left: 40, right: 16),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Switch(
+            value: _searchEnabled && value,
+            onChanged: onChanged,
+          ),
+          _resetButton(() => _resetToDefault(resetKeys, setDefault)),
+        ],
+      ),
+    );
+  }
+
   /// 颜色圆点。
   Widget _colorSwatch(Color color) => SettingsColorSwatch(color: color);
 
@@ -153,6 +193,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
     ref.invalidate(uiSettingsProvider);
+    ref.invalidate(searchEnabledProvider);
+    ref.invalidate(searchFilterEnabledProvider);
+    ref.invalidate(searchWorksEnabledProvider);
+    ref.invalidate(searchTracksEnabledProvider);
     if (reapplyWindowEffect) {
       ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
     }
@@ -296,6 +340,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _windowEffect = WINDOW_EFFECT_ACRYLIC;
       _themeSeedColor = kDefaultThemeSeed;
       _searchEnabled = false;
+      _searchFilter = true;
+      _searchWorks = true;
+      _searchTracks = true;
       _panelTextSize = _defaults.panelTextSize;
       _panelTitleSize = _defaults.panelTitleSize;
       _progressTextSize = _defaults.progressTextSize;
@@ -331,6 +378,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
     ref.invalidate(searchEnabledProvider);
+    ref.invalidate(searchFilterEnabledProvider);
+    ref.invalidate(searchWorksEnabledProvider);
+    ref.invalidate(searchTracksEnabledProvider);
     ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -497,7 +547,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: const Icon(Icons.search),
                               title: const Text('列表搜索'),
-                              subtitle: const Text('作品/分类/声优列表的搜索框'),
+                              subtitle: const Text('作品/分类/声优/音轨列表的搜索框'),
                               contentPadding: const EdgeInsets.only(
                                   left: 16, right: 16),
                               trailing: Row(
@@ -520,6 +570,43 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   }),
                                 ],
                               ),
+                            ),
+                            // 各面板搜索子开关: 总开关的子项, 总开关关闭时禁用
+                            _searchSubSwitch(
+                              '筛选面板',
+                              '分类/声优',
+                              _searchFilter,
+                              (value) async {
+                                setState(() => _searchFilter = value);
+                                await _save({'searchFilter': value});
+                                ref.invalidate(searchFilterEnabledProvider);
+                              },
+                              ['searchFilter'],
+                              () => _searchFilter = true,
+                            ),
+                            _searchSubSwitch(
+                              '作品面板',
+                              '作品列表',
+                              _searchWorks,
+                              (value) async {
+                                setState(() => _searchWorks = value);
+                                await _save({'searchWorks': value});
+                                ref.invalidate(searchWorksEnabledProvider);
+                              },
+                              ['searchWorks'],
+                              () => _searchWorks = true,
+                            ),
+                            _searchSubSwitch(
+                              '音轨面板',
+                              '音轨列表',
+                              _searchTracks,
+                              (value) async {
+                                setState(() => _searchTracks = value);
+                                await _save({'searchTracks': value});
+                                ref.invalidate(searchTracksEnabledProvider);
+                              },
+                              ['searchTracks'],
+                              () => _searchTracks = true,
                             ),
                             ListTile(
                               dense: true,

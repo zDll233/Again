@@ -39,8 +39,7 @@ class _CategoryListState extends ConsumerState<CategoryList> {
       return const EmptyState(icon: Icons.folder_open_outlined);
     }
     // 搜索关闭时直接显示全量列表
-    final searchEnabled =
-        ref.watch(searchEnabledProvider).valueOrNull ?? false;
+    final searchEnabled = searchEnabledFor(ref, searchFilterEnabledProvider);
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,

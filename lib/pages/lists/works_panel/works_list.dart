@@ -45,8 +45,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
       return const EmptyState();
     }
     // 搜索关闭时直接显示全量列表 (与开启时共用条目构建)
-    final searchEnabled =
-        ref.watch(searchEnabledProvider).valueOrNull ?? false;
+    final searchEnabled = searchEnabledFor(ref, searchWorksEnabledProvider);
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,
