@@ -5,6 +5,7 @@ import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/utils/kana_romaji.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/pages/lists/works_panel/vw_menu_btn.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     for (var i = 0; i < values.length; i++) {
       final v = values[i];
       if (v.title.toLowerCase().contains(q) ||
-          v.sourceId.toLowerCase().contains(q)) {
+          v.sourceId.toLowerCase().contains(q) ||
+          kanaToRomaji(v.title).toLowerCase().contains(q)) {
         indices.add(i);
       }
     }
