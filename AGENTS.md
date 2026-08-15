@@ -1,6 +1,13 @@
 # AGENTS.md
 
-Windows-only Flutter desktop app, **Android port in progress** (no `android/` dir yet): local audio player for ASMR voice works. UI text and commit messages are Chinese — keep that style (commit prefixes like `bugfix:`/`feat:`/`chore:`).
+Flutter 桌面 + Android 本地音声播放器 (ASMR voice works)。**Android 移植在 `android-port` 分支** (基于 main 分叉, 含桌面插件隔离等改造; main 保持 Windows 主开发线)。UI 文本和 commit 消息均为中文 — 保持该风格 (commit 前缀 `bugfix:`/`feat:`/`chore:`)。
+
+## 构建环境 (本机)
+
+- `JAVA_HOME=C:\Users\lzd\AndroidDev\jdk17\jdk-17.0.20+8`, `ANDROID_HOME=C:\Users\lzd\AndroidDev\sdk` (已写入用户环境变量; 新终端可用)。Android SDK 组件: platform-tools / platforms;android-36 / build-tools;36.0.0 / cmake;3.22.1。
+- `android/local.properties` 的 `sdk.dir` 必须指向 `C:\Users\lzd\AndroidDev\sdk` — flutter create 曾误写成 `AppData\Local\Programs` (从 PATH 猜的), 会导致 "CMake not found" 诡异报错。
+- 签名: `android/app/upload-keystore.jks` + `android/key.properties` (均 gitignored, 密码在 key.properties 里)。`build.gradle.kts` 无 key.properties 时回退 debug 签名。
+- Android 打包用 CI 需要 4 个 secrets: `ANDROID_KEYSTORE_B64` (jks 的 base64) / `ANDROID_KEYSTORE_PASSWORD` / `ANDROID_KEY_PASSWORD` / `ANDROID_KEY_ALIAS` (again)。
 
 ## Commands
 
@@ -8,8 +15,8 @@ Windows-only Flutter desktop app, **Android port in progress** (no `android/` di
 - `flutter analyze` — runs flutter_lints + custom_lint (riverpod_lint). Run after edits.
 - `dart run build_runner build` — required after editing `lib/services/database/db/database.dart` (drift); `database.g.dart` is generated and committed.
 - `flutter test` — unit suite in `test/` (parsing logic, model map round-trips, `scanRoot` + full incremental sync with temp dirs). Run after touching those areas.
-- `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/` and injects `APP_VERSION` for the self-updater. Windows-only CI — the Android port will need its own job.
-- Android port start: no `android/` dir exists; run `flutter create --platforms=android .` first, then fix the Windows-only code below before `flutter build apk` can succeed.
+- `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/` and injects `APP_VERSION` for the self-updater.
+- `flutter build apk --debug|--release` — Android build (android-port 分支)。`flutter build apk --release` 有 key.properties 时正式签名。Android CI: `.github/workflows/android-release.yml` (tag 触发出 APK, 4 个 secrets)。
 
 ## Architecture
 
@@ -26,16 +33,19 @@ Windows-only Flutter desktop app, **Android port in progress** (no `android/` di
 
 ## Platform split (Android port)
 
-Already Android-ready:
-- Drift DB: `_openConnection()` in `lib/services/database/db/database.dart` handles Android (`applyWorkaroundToOpenSqlite3OnOldAndroidVersions()` + `sqlite3.tempDirectory`); sqlite3_flutter_libs supports Android.
-- `lib/main.dart` `setupWindow()` is already behind `Platform.isWindows`.
-- Plugins with Android support: audioplayers, file_picker, dio, path_provider. `HardwareKeyboard` shortcuts work on Android (the `_isTextInputFocused` skip still applies).
+已完成 (android-port 分支):
+- 路径抽象: `lib/common/paths.dart` — Windows 保持 CWD 相对路径, Android 用 path_provider 文档目录 (`config/`/`history/`/`data/` 布局不变)。`JsonStorage` 支持懒路径 (filePath/pathResolver 二选一)。
+- 桌面插件隔离: `lib/services/window_setup.dart` (入口, `Platform.isWindows` 守卫) + `window_setup_windows.dart` (真实实现, 唯一持有 flutter_acrylic/window_manager 初始化的文件)。`MoveWindow`/`WindowTitleBar`/设置页在 Android 自动降级 (无标题栏/无窗口设置/无更新入口/无资源管理器按钮)。
+- 平台守卫 (运行时, 非条件编译): 托盘 (`initialization.dart` 仅 Windows init)、`UIService.onExit/hideToTray/applyWindowEffect`、`restoreWindowBounds`、`window_size_guard`、`deleteVoiceWork` (Android 直删, 无回收站)、explorer 定位、`file_time.dart` 创建时间 (Android 返回 null, 回退 mtime)、`update_checker.dart` (懒加载 shell32 FFI, `applyUpdate` 仅 Windows)。
+- 存储权限: `lib/services/storage_permission.dart` — MANAGE_EXTERNAL_STORAGE (file_picker 11 在 Android 11+ 返回真实路径, 配合全文件权限 dart:io 可直接读写)。
+- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `main.dart` AudioService.init (仅 Android)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK。
+- 生命周期: `initialization.dart` 监听 detached 保存播放历史 (系统杀进程不丢进度)。
 
-Blocks the Android build (all currently unconditional imports of desktop-only plugins — must be guarded/conditionally imported, don't just delete them):
-- flutter_acrylic, window_manager, tray_manager imports in `lib/main.dart`, `lib/services/ui/ui_service.dart`, `lib/services/system_tray.dart`, `lib/services/window_size_guard.dart`, `lib/services/window_bounds_memory.dart`, `lib/pages/window_title_bar/`, `lib/pages/settings/settings_page.dart`, `lib/pages/player/player_widget.dart`.
-- Windows-only features: system tray, self-updater (`lib/services/updater/update_checker.dart`, ShellExecuteW FFI), Recycle Bin delete via `scripts/delete.ps1`.
-- Win32 FFI creation-time read (`lib/utils/file_time.dart`, used by `voice_updater.dart` and creation-time sort) — dart:io has no creation-time API on Android; needs a fallback.
-- CWD-relative runtime paths in `lib/common/const.dart` (`config/config.json`, `data/storage/again_voiceworks.db`) — meaningless on Android; use `path_provider` for app dirs.
+未验证 (需要真机):
+- 权限申请 → 选根目录 → 全量扫描流程 (file_picker 目录选择在部分厂商 ROM 可能返回不可读路径, 兜底是手动输入路径)。
+- 后台播放/锁屏控制/音频焦点 (来电) 行为。
+- 竖屏布局可用性 (filter 默认收起, 不精调)。
+- CI (`android-release.yml`) 未实际跑过 (需要配 4 个 secrets)。
 
 ## Domain conventions (from README.md)
 
@@ -45,7 +55,7 @@ Blocks the Android build (all currently unconditional imports of desktop-only pl
 
 ## Quirks
 
-- App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback.
+- App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback. 移植相关改动只提交到 `android-port` 分支, main 保持 Windows 开发线 (用户会在 main 并行提交功能 — 改动前先 fetch 并 merge main)。
 - `--dart-define=OPAQUE_BG=true` builds an opaque window instead of transparent/acrylic — used for screenshots/visual verification (`lib/main.dart`, `lib/pages/my_app.dart`).
 - Debug and release builds must NOT run simultaneously — the second instance crashes at startup (exit code 1). Kill the release app before `flutter run -d windows --debug`.
 - Flutter MCP debugging (`flutter-mcp-toolkit`): server binary at `C:\Users\lzd\flutter-mcp-toolkit\fmtk-server.exe`, registered in `opencode.json`, `mcp_toolkit` initialized in `lib/main.dart` under `kDebugMode` — **must stay debug-only: in release builds it makes the window start minimized**. To debug: kill release instance → `flutter run -d windows --debug` → grab the VM service URI from the run log → use the `fmt_*` tools. Note: app view DPR is 1.5 on this machine — screenshots/coordinates must account for it. Screenshot capture needs an in-app permission bridge (not installed). Debug apps may crash on their own (audioplayers posts events from a non-platform thread — pre-existing bug).

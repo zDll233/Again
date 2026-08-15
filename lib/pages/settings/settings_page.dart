@@ -1038,12 +1038,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         child: SegmentedButton<String>(
                                           segments: const [
                                             ButtonSegment(
-                                              value: 'center',
-                                              label: Text('居中'),
-                                            ),
-                                            ButtonSegment(
                                               value: 'left',
                                               label: Text('靠左'),
+                                            ),
+                                            ButtonSegment(
+                                              value: 'center',
+                                              label: Text('居中'),
                                             ),
                                           ],
                                           selected: {_lyricAlign},
