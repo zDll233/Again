@@ -2,6 +2,7 @@ import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/kana_romaji.dart';
 import 'package:flutter/material.dart';
@@ -89,6 +90,7 @@ class _CvListState extends ConsumerState<CvList> {
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_cvSelectedProvider(index));
         final ts = ref.watch(textSettingsProvider).valueOrNull;
+        final ui = ref.watch(uiSettingsProvider).valueOrNull;
         final themeHue = resolveThemeHueSource(
             Theme.of(context).colorScheme, kDefaultThemeSeed);
         return Material(
@@ -109,7 +111,7 @@ class _CvListState extends ConsumerState<CvList> {
             onTap: () => ref.read(cvProvider.notifier).onSelected(index),
             selected: selected,
             contentPadding: EdgeInsets.symmetric(
-              vertical: ts?.listDensity == 'comfortable' ? 8.0 : 1.0,
+              vertical: ui?.listDensity == 'comfortable' ? 8.0 : 1.0,
               horizontal: 10.0,
             ),
           ),

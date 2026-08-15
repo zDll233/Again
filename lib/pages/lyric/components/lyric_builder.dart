@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/services/audio/audio_providers.dart';
-import 'package:again/services/ui/theme/appearance_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
@@ -41,7 +41,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     // 歌词文字颜色: 默认跟随主题的 onSurface, 可单独设置
     final scheme = Theme.of(context).colorScheme;
     final ts = ref.watch(textSettingsProvider).valueOrNull;
-    final appearance = ref.watch(appearanceSettingsProvider).valueOrNull;
+    final appearance = ref.watch(uiSettingsProvider).valueOrNull;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
     // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
     final lineColor = ts?.lyricColor?.resolve(

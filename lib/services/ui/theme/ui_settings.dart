@@ -1,27 +1,32 @@
 import 'package:again/common/const.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 封面外观设置 (与文字设置分离, config.json 键均可选, 缺省启用)。
-class AppearanceSettings {
+/// UI 外观设置 (封面/滑块/列表布局, 与文字设置分离, config.json 键均可选)。
+class UiSettings {
   final bool coverTilt; // 封面 3D 倾斜动画
   final bool coverReflection; // 封面倒影
   final bool showSliderThumb; // 进度条/音量条滑块圆点
   final double sliderThickness; // 进度条/音量条轨道粗细
+  final String listDensity; // 列表密度 'compact' | 'comfortable'
 
-  const AppearanceSettings({
+  const UiSettings({
     this.coverTilt = true,
     this.coverReflection = true,
     this.showSliderThumb = true,
     this.sliderThickness = 4,
+    this.listDensity = 'comfortable',
   });
 
-  factory AppearanceSettings.fromConfig(Map<String, dynamic> config) {
+  factory UiSettings.fromConfig(Map<String, dynamic> config) {
     final thickness = config['sliderThickness'];
-    return AppearanceSettings(
+    return UiSettings(
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
       showSliderThumb: config['showSliderThumb'] != false,
       sliderThickness: thickness is num ? thickness.toDouble() : 4,
+      listDensity: config['listDensity'] == 'compact'
+          ? 'compact'
+          : 'comfortable',
     );
   }
 
@@ -31,11 +36,11 @@ class AppearanceSettings {
     'coverReflection',
     'showSliderThumb',
     'sliderThickness',
+    'listDensity',
   ];
 }
 
-final appearanceSettingsProvider =
-    FutureProvider.autoDispose<AppearanceSettings>((ref) async {
+final uiSettingsProvider = FutureProvider.autoDispose<UiSettings>((ref) async {
   final config = await ref.read(configJsonProvider).read();
-  return AppearanceSettings.fromConfig(config);
+  return UiSettings.fromConfig(config);
 });

@@ -73,7 +73,6 @@ class TextSettings {
   final ColorSetting? lyricTitleColor;
   final double lyricLineGap;
   final String lyricAlign; // 'center' | 'left'
-  final String listDensity; // 'compact' | 'comfortable'
   final double lyricCurrentSize; // 当前播放歌词行字号 (缺省 = 歌词字号 + 2)
 
   const TextSettings({
@@ -91,7 +90,6 @@ class TextSettings {
     this.lyricTitleColor,
     this.lyricLineGap = 25,
     this.lyricAlign = 'left',
-    this.listDensity = 'comfortable',
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -135,9 +133,6 @@ class TextSettings {
       lyricTitleColor: color('lyricTitleColor'),
       lyricLineGap: size('lyricLineGap', 25),
       lyricAlign: config['lyricAlign'] == 'center' ? 'center' : 'left',
-      listDensity: config['listDensity'] == 'compact'
-          ? 'compact'
-          : 'comfortable',
     );
   }
 
@@ -151,7 +146,6 @@ class TextSettings {
     'lyricCurrentSize',
     'lyricLineGap',
     'lyricAlign',
-    'listDensity',
   ];
 
   static const List<String> colorBaseKeys = [

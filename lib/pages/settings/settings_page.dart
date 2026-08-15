@@ -2,9 +2,9 @@ import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/pages/settings/components/settings_widgets.dart';
 import 'package:again/services/database/database_providers.dart';
-import 'package:again/services/ui/theme/appearance_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +46,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ColorSetting? _lyricTitleColor;
   double _lyricLineGap = _defaults.lyricLineGap;
   String _lyricAlign = _defaults.lyricAlign;
-  String _listDensity = _defaults.listDensity;
+  String _listDensity = const UiSettings().listDensity;
   double _lyricCurrentSize = _defaults.lyricCurrentSize;
   bool _loading = true;
 
@@ -93,7 +93,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricTitleColor = ts.lyricTitleColor;
       _lyricLineGap = ts.lyricLineGap;
       _lyricAlign = ts.lyricAlign;
-      _listDensity = ts.listDensity;
+      _listDensity = config['listDensity'] == 'compact'
+          ? 'compact'
+          : const UiSettings().listDensity;
       _coverTilt = config['coverTilt'] != false;
       _coverReflection = config['coverReflection'] != false;
       _showSliderThumb = config['showSliderThumb'] != false;
@@ -142,7 +144,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
-    ref.invalidate(appearanceSettingsProvider);
+    ref.invalidate(uiSettingsProvider);
     if (reapplyWindowEffect) {
       ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
     }
@@ -198,7 +200,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricTitleColor = null;
       _lyricLineGap = _defaults.lyricLineGap;
       _lyricAlign = _defaults.lyricAlign;
-      _listDensity = _defaults.listDensity;
+      _listDensity = const UiSettings().listDensity;
       _coverTilt = true;
       _coverReflection = true;
       _showSliderThumb = true;
@@ -444,13 +446,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         await _save(
                                             {'listDensity': _listDensity});
                                         ref.invalidate(
-                                            textSettingsProvider);
+                                            uiSettingsProvider);
                                       },
                                     ),
                                   ),
                                   _resetButton(() {
                                     _resetToDefault(['listDensity'], () {
-                                      _listDensity = 'comfortable';
+                                      _listDensity =
+                                          const UiSettings().listDensity;
                                     });
                                   }),
                                 ],
@@ -586,7 +589,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       setState(() => _coverTilt = value);
                                       await _save({'coverTilt': value});
                                       ref.invalidate(
-                                          appearanceSettingsProvider);
+                                          uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -619,7 +622,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       await _save(
                                           {'coverReflection': value});
                                       ref.invalidate(
-                                          appearanceSettingsProvider);
+                                          uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -653,7 +656,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       await _save(
                                           {'showSliderThumb': value});
                                       ref.invalidate(
-                                          appearanceSettingsProvider);
+                                          uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -941,7 +944,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
         await _save({key: v.round()});
         if (refreshAppearance) {
-          ref.invalidate(appearanceSettingsProvider);
+    ref.invalidate(uiSettingsProvider);
         } else {
           ref.invalidate(textSettingsProvider);
         }

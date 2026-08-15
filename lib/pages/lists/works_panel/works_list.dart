@@ -3,6 +3,7 @@ import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
+import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
 import 'package:again/pages/lists/works_panel/vw_menu_btn.dart';
@@ -92,6 +93,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
       builder: (_, WidgetRef ref, __) {
         final selected = ref.watch(_voiceWorkSelectedProvider(index));
         final ts = ref.watch(textSettingsProvider).valueOrNull;
+        final ui = ref.watch(uiSettingsProvider).valueOrNull;
         final themeHue = resolveThemeHueSource(
             Theme.of(context).colorScheme, kDefaultThemeSeed);
         final scheme = Theme.of(context).colorScheme;
@@ -105,7 +107,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: EdgeInsets.symmetric(
-                vertical: ts?.listDensity == 'comfortable' ? 12.0 : 5.0,
+                vertical: ui?.listDensity == 'comfortable' ? 12.0 : 5.0,
                 horizontal: 10.0,
               ),
               decoration: BoxDecoration(
