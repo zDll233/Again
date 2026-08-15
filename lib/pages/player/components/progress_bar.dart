@@ -48,7 +48,7 @@ class ProgressBar extends ConsumerWidget {
             // 是否显示滑块圆点 / 轨道粗细 (设置项)
             final appearance =
                 ref.watch(uiSettingsProvider).valueOrNull;
-            final showThumb = appearance?.showSliderThumb ?? true;
+            final showThumb = appearance?.showSliderThumb ?? false;
             final thickness = appearance?.sliderThickness ?? 1;
 
             return SliderTheme(

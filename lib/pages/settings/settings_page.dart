@@ -30,7 +30,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _searchEnabled = false;
   bool _coverTilt = true;
   bool _coverReflection = true;
-  bool _showSliderThumb = true;
+  bool _showSliderThumb = false;
   double _sliderThickness = 1;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
@@ -98,7 +98,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           : const UiSettings().listDensity;
       _coverTilt = config['coverTilt'] != false;
       _coverReflection = config['coverReflection'] != false;
-      _showSliderThumb = config['showSliderThumb'] != false;
+      _showSliderThumb = config['showSliderThumb'] == true;
       final thickness = config['sliderThickness'];
       _sliderThickness = thickness is num ? thickness.toDouble() : 1;
       _lyricCurrentSize = ts.lyricCurrentSize;
@@ -203,7 +203,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _listDensity = const UiSettings().listDensity;
       _coverTilt = true;
       _coverReflection = true;
-      _showSliderThumb = true;
+      _showSliderThumb = false;
       _sliderThickness = 1;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
@@ -661,7 +661,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ),
                                   _resetButton(() {
                                     _resetToDefault(['showSliderThumb'],
-                                        () => _showSliderThumb = true);
+                                        () => _showSliderThumb = false);
                                   }),
                                 ],
                               ),

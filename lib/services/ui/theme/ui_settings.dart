@@ -12,7 +12,7 @@ class UiSettings {
   const UiSettings({
     this.coverTilt = true,
     this.coverReflection = true,
-    this.showSliderThumb = true,
+    this.showSliderThumb = false,
     this.sliderThickness = 1,
     this.listDensity = 'comfortable',
   });
@@ -22,7 +22,7 @@ class UiSettings {
     return UiSettings(
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
-      showSliderThumb: config['showSliderThumb'] != false,
+      showSliderThumb: config['showSliderThumb'] == true,
       sliderThickness: thickness is num ? thickness.toDouble() : 1,
       listDensity: config['listDensity'] == 'compact'
           ? 'compact'

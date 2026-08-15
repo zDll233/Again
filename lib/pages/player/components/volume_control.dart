@@ -46,7 +46,7 @@ class VolumeControl extends ConsumerWidget {
                       ref.watch(audioProvider.select((state) => state.volume));
                   final appearance =
                       ref.watch(uiSettingsProvider).valueOrNull;
-                  final showThumb = appearance?.showSliderThumb ?? true;
+                  final showThumb = appearance?.showSliderThumb ?? false;
                   final thickness = appearance?.sliderThickness ?? 1;
                   return SliderTheme(
                     data: SliderTheme.of(context).copyWith(
