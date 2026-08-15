@@ -1,0 +1,16 @@
+#!/bin/sh
+# pre-commit 钩子: 提交前运行 flutter analyze, 有 issue 则阻止提交。
+# 启用: git config core.hooksPath .githooks
+
+if command -v flutter >/dev/null 2>&1; then
+  output=$(flutter analyze --no-pub 2>&1)
+  if ! echo "$output" | grep -q "No issues found"; then
+    echo "pre-commit: flutter analyze 发现 issues, 阻止提交:"
+    echo "$output" | grep -E "error|warning|info" | head -20
+    exit 1
+  fi
+else
+  echo "pre-commit: flutter 不在 PATH, 跳过 analyze"
+fi
+
+exit 0
