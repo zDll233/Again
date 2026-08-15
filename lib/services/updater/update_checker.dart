@@ -124,24 +124,44 @@ Future<UpdateCheckResult?> checkForUpdate() async {
   }
 }
 
-/// 下载 zip 到临时目录, 返回本地路径。
-Future<String?> downloadUpdateZip(String url) async {
+/// 流式下载 zip 到临时目录, 返回本地路径; [onProgress] 回调已下载/总字节。
+Future<String?> downloadUpdateZip(
+  String url, {
+  void Function(int received, int total)? onProgress,
+}) async {
+  final client = http.Client();
   try {
-    final resp = await http.get(Uri.parse(url)).timeout(
-          const Duration(minutes: 10),
-        );
+    final resp = await client
+        .send(http.Request('GET', Uri.parse(url)))
+        .timeout(const Duration(minutes: 10));
     if (resp.statusCode != 200) {
       Log.error('Download update failed: HTTP ${resp.statusCode}');
       return null;
     }
+    final total = resp.contentLength ?? 0;
     final tempDir = await Directory.systemTemp.createTemp('again_update_');
     final zipPath =
         '${tempDir.path}${Platform.pathSeparator}update.zip';
-    await File(zipPath).writeAsBytes(resp.bodyBytes);
+    final sink = File(zipPath).openWrite();
+    var received = 0;
+    try {
+      await for (final chunk in resp.stream) {
+        received += chunk.length;
+        sink.add(chunk);
+        onProgress?.call(received, total);
+      }
+      await sink.close();
+    } catch (e) {
+      await sink.close();
+      Log.error('Download update error: $e');
+      return null;
+    }
     return zipPath;
   } catch (e) {
     Log.error('Download update error: $e');
     return null;
+  } finally {
+    client.close();
   }
 }
 

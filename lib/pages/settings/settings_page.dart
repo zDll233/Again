@@ -197,18 +197,44 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
     if (download != true || !mounted) return;
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('正在下载更新包…')),
+    // 下载进度对话框 (不可关闭)
+    final progress = ValueNotifier<double>(0);
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('正在下载更新…'),
+        content: ValueListenableBuilder<double>(
+          valueListenable: progress,
+          builder: (_, value, __) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              LinearProgressIndicator(value: value),
+              const SizedBox(height: 10),
+              Text('${(value * 100).toStringAsFixed(0)}%'),
+            ],
+          ),
+        ),
+      ),
     );
-    final zipPath = await downloadUpdateZip(result.zipUrl!);
-    if (!mounted) return;
+    final zipPath = await downloadUpdateZip(
+      result.zipUrl!,
+      onProgress: (received, total) {
+        progress.value = total > 0 ? received / total : 0;
+      },
+    );
+    if (mounted) {
+      Navigator.of(context, rootNavigator: true).pop();
+    }
     if (zipPath == null) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('下载失败, 请稍后重试')),
       );
       return;
     }
 
+    if (!mounted) return;
     final apply = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
