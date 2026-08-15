@@ -201,14 +201,26 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   Widget _buildCover(String coverPath, double size,
       {bool tilt = true, bool reflection = true}) {
     final hasCover = coverPath.isNotEmpty && File(coverPath).existsSync();
-    final coverFile = File(coverPath);
-    final imageProvider = hasCover
-        ? FileImage(coverFile)
-        : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
-    // 无封面 (占位图) 时禁用点击查看大图
-    final onCoverTap = hasCover
-        ? () => openImageDialog(context, imageProvider)
-        : null;
+    // 无封面: 纯 UI 占位 (图标块), 不可点击查看大图
+    if (!hasCover) {
+      final scheme = Theme.of(context).colorScheme;
+      return Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        ),
+        child: Icon(
+          Icons.music_note,
+          size: size * 0.4,
+          color: scheme.onSurface.withValues(alpha: 0.25),
+        ),
+      );
+    }
+    final imageProvider = FileImage(File(coverPath));
+    // 有封面才允许点击查看大图
+    void onCoverTap() => openImageDialog(context, imageProvider);
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final cacheHeight = (size * dpr * 2).round();
     Widget cover(double w, double h) => ClipRRect(

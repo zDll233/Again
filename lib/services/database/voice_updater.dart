@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/services/database/db/database.dart';
+import 'package:again/utils/file_time.dart';
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart';
@@ -91,7 +92,11 @@ ScanResult scanRoot(String rootDirPath) {
         directoryPath: directoryPath,
         coverPath: coverPath,
         category: category,
-        createdAt: workEntity.statSync().modified,
+        // 排序用的"时间"= 目录创建时间 (添加时间), 非修改时间:
+        // 批量添加时入库时间都一样, mtime 会随内容变动而变化;
+        // dart:io 无创建时间 API, 用 Win32 CreateFileW + GetFileTime 读取
+        createdAt: directoryCreationTime(directoryPath) ??
+            workEntity.statSync().modified,
         items: items,
       ));
     }

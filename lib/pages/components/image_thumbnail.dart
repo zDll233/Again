@@ -43,15 +43,30 @@ class ImageThumbnail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final coverFile = File(imagePath);
-    final imageProvider = imagePath.isNotEmpty && coverFile.existsSync()
-        ? _cachedFileImage(imagePath)
-        : const AssetImage('assets/images/nocover.jpg') as ImageProvider;
+    final hasCover = imagePath.isNotEmpty && File(imagePath).existsSync();
+    final w = imageWidth ?? imageSize;
+    final h = imageHeight ?? imageSize;
+    // 无封面: 纯 UI 占位 (图标块), 不可点击查看大图
+    if (!hasCover) {
+      final scheme = Theme.of(context).colorScheme;
+      return Container(
+        width: w,
+        height: h,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6.0),
+          color: scheme.surfaceContainerHighest.withValues(alpha: 0.35),
+        ),
+        child: Icon(
+          Icons.music_note,
+          size: w * 0.4,
+          color: scheme.onSurface.withValues(alpha: 0.25),
+        ),
+      );
+    }
+    final imageProvider = _cachedFileImage(imagePath);
     // 只限高度保持源图比例解码 (同时限宽高会直接拉伸变形);
     // 缓存高度取显示物理高度的 2 倍, cover 缩小显示, 无锯齿
     final dpr = MediaQuery.devicePixelRatioOf(context);
-    final w = imageWidth ?? imageSize;
-    final h = imageHeight ?? imageSize;
     final cacheHeight = (h * dpr * 2).round();
     return GestureDetector(
       onTap: () => openImageDialog(context, imageProvider),
