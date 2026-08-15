@@ -24,7 +24,8 @@ class Initialization extends ConsumerStatefulWidget {
   ConsumerState<Initialization> createState() => _InitializationState();
 }
 
-class _InitializationState extends ConsumerState<Initialization> {
+class _InitializationState extends ConsumerState<Initialization>
+    with WidgetsBindingObserver {
   late final KeyEventHandler _keyEventHandler;
   WindowBoundsMemory? _windowBoundsMemory;
   WindowSizeGuard? _windowSizeGuard;
@@ -32,6 +33,8 @@ class _InitializationState extends ConsumerState<Initialization> {
   @override
   void initState() {
     super.initState();
+    // Android 上系统杀进程/返回退出前保存播放历史 (Windows 退出走 onExit)
+    WidgetsBinding.instance.addObserver(this);
     _keyEventHandler = KeyEventHandler(ref);
     HardwareKeyboard.instance.addHandler(_keyEventHandler.handleKeyEvent);
     // 窗口位置/尺寸记忆 + view 尺寸守卫: Windows 专属
@@ -44,7 +47,15 @@ class _InitializationState extends ConsumerState<Initialization> {
   }
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.detached) {
+      unawaited(ref.read(historyManagerProvider).saveHistory());
+    }
+  }
+
+  @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _windowBoundsMemory?.dispose();
     _windowSizeGuard?.dispose();
     HardwareKeyboard.instance.removeHandler(_keyEventHandler.handleKeyEvent);
