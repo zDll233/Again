@@ -7,6 +7,7 @@ import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/pages/window_title_bar/window_title_bar.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 视觉验证/截图用: --dart-define=OPAQUE_BG=true 时给窗口不透明深色背景。
@@ -18,6 +19,10 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = ref.watch(appThemeProvider);
+    // Android: 深色背景上状态栏用浅色图标
+    if (Platform.isAndroid) {
+      SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light);
+    }
     return Initialization(
       child: ColoredBox(
         // 透明窗口仅 Windows 支持; Android 等平台恒用不透明深色背景
@@ -30,13 +35,15 @@ class MyApp extends ConsumerWidget {
           scrollBehavior: MyCustomScrollBehavior(),
           home: const Scaffold(
               backgroundColor: Colors.transparent,
-              body: MoveWindow(
-                child: Column(
-                  children: [
-                    WindowTitleBar(),
-                    ListLyricSwitch(),
-                    PlayerWidget()
-                  ],
+              body: SafeArea(
+                child: MoveWindow(
+                  child: Column(
+                    children: [
+                      WindowTitleBar(),
+                      ListLyricSwitch(),
+                      PlayerWidget()
+                    ],
+                  ),
                 ),
               )))),
     );
