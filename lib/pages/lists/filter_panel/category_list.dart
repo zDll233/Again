@@ -4,6 +4,7 @@ import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/utils/kana_romaji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -25,7 +26,12 @@ class _CategoryListState extends ConsumerState<CategoryList> {
     }
     final indices = <int>[];
     for (var i = 0; i < values.length; i++) {
-      if (values[i].toLowerCase().contains(q)) {
+      final category = values[i];
+      if (category.toLowerCase().contains(q)) {
+        indices.add(i);
+        continue;
+      }
+      if (kanaToRomaji(category).toLowerCase().contains(q)) {
         indices.add(i);
       }
     }

@@ -5,6 +5,7 @@ import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/utils/kana_romaji.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -27,7 +28,9 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
     }
     final indices = <int>[];
     for (var i = 0; i < values.length; i++) {
-      if (values[i].title.toLowerCase().contains(q)) {
+      final title = values[i].title;
+      if (title.toLowerCase().contains(q) ||
+          kanaToRomaji(title).toLowerCase().contains(q)) {
         indices.add(i);
       }
     }

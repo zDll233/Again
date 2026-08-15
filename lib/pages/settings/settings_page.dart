@@ -139,7 +139,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget _resetButton(VoidCallback onPressed) =>
       SettingsResetButton(onPressed: onPressed);
 
-  /// 面板搜索子开关行 (总开关子项, 总开关关闭时禁用)。
+  /// 面板搜索子开关行 (总开关的子项, 仅总开关开启时显示)。
   Widget _searchSubSwitch(
     String title,
     String subtitle,
@@ -151,7 +151,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final scheme = Theme.of(context).colorScheme;
     return ListTile(
       dense: true,
-      enabled: _searchEnabled,
       leading: Icon(
         Icons.keyboard_arrow_right,
         size: 22,
@@ -163,10 +162,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Switch(
-            value: _searchEnabled && value,
-            onChanged: onChanged,
-          ),
+          Switch(value: value, onChanged: onChanged),
           _resetButton(() => _resetToDefault(resetKeys, setDefault)),
         ],
       ),
@@ -571,43 +567,45 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ],
                               ),
                             ),
-                            // 各面板搜索子开关: 总开关的子项, 总开关关闭时禁用
-                            _searchSubSwitch(
-                              '筛选面板',
-                              '分类/声优',
-                              _searchFilter,
-                              (value) async {
-                                setState(() => _searchFilter = value);
-                                await _save({'searchFilter': value});
-                                ref.invalidate(searchFilterEnabledProvider);
-                              },
-                              ['searchFilter'],
-                              () => _searchFilter = true,
-                            ),
-                            _searchSubSwitch(
-                              '作品面板',
-                              '作品列表',
-                              _searchWorks,
-                              (value) async {
-                                setState(() => _searchWorks = value);
-                                await _save({'searchWorks': value});
-                                ref.invalidate(searchWorksEnabledProvider);
-                              },
-                              ['searchWorks'],
-                              () => _searchWorks = true,
-                            ),
-                            _searchSubSwitch(
-                              '音轨面板',
-                              '音轨列表',
-                              _searchTracks,
-                              (value) async {
-                                setState(() => _searchTracks = value);
-                                await _save({'searchTracks': value});
-                                ref.invalidate(searchTracksEnabledProvider);
-                              },
-                              ['searchTracks'],
-                              () => _searchTracks = true,
-                            ),
+                            // 各面板搜索子开关: 总开关的子项, 总开关关闭时折叠
+                            if (_searchEnabled) ...[
+                              _searchSubSwitch(
+                                '筛选面板',
+                                '分类/声优',
+                                _searchFilter,
+                                (value) async {
+                                  setState(() => _searchFilter = value);
+                                  await _save({'searchFilter': value});
+                                  ref.invalidate(searchFilterEnabledProvider);
+                                },
+                                ['searchFilter'],
+                                () => _searchFilter = true,
+                              ),
+                              _searchSubSwitch(
+                                '作品面板',
+                                '作品列表',
+                                _searchWorks,
+                                (value) async {
+                                  setState(() => _searchWorks = value);
+                                  await _save({'searchWorks': value});
+                                  ref.invalidate(searchWorksEnabledProvider);
+                                },
+                                ['searchWorks'],
+                                () => _searchWorks = true,
+                              ),
+                              _searchSubSwitch(
+                                '音轨面板',
+                                '音轨列表',
+                                _searchTracks,
+                                (value) async {
+                                  setState(() => _searchTracks = value);
+                                  await _save({'searchTracks': value});
+                                  ref.invalidate(searchTracksEnabledProvider);
+                                },
+                                ['searchTracks'],
+                                () => _searchTracks = true,
+                              ),
+                            ],
                             ListTile(
                               dense: true,
                               leading: Icon(
