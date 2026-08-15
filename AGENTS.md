@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Windows-only Flutter desktop app: local audio player for ASMR voice works. UI text and commit messages are Chinese — keep that style (commit prefixes like `bugfix:`/`feat:`/`chore:`).
+Windows-only Flutter desktop app, **Android port in progress** (no `android/` dir yet): local audio player for ASMR voice works. UI text and commit messages are Chinese — keep that style (commit prefixes like `bugfix:`/`feat:`/`chore:`).
 
 ## Commands
 
@@ -8,7 +8,8 @@ Windows-only Flutter desktop app: local audio player for ASMR voice works. UI te
 - `flutter analyze` — runs flutter_lints + custom_lint (riverpod_lint). Run after edits.
 - `dart run build_runner build` — required after editing `lib/services/database/db/database.dart` (drift); `database.g.dart` is generated and committed.
 - `flutter test` — unit suite in `test/` (parsing logic, model map round-trips, `scanRoot` + full incremental sync with temp dirs). Run after touching those areas.
-- `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/`.
+- `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/` and injects `APP_VERSION` for the self-updater. Windows-only CI — the Android port will need its own job.
+- Android port start: no `android/` dir exists; run `flutter create --platforms=android .` first, then fix the Windows-only code below before `flutter build apk` can succeed.
 
 ## Architecture
 
@@ -23,6 +24,19 @@ Windows-only Flutter desktop app: local audio player for ASMR voice works. UI te
 - `config/`, `data/`, `history/` are gitignored runtime state. `config/config.json` holds `voiceWorkRoot`, `closeToTray`, `windowEffect` (`transparent`/`acrylic`/`opaque`), `themeSeedColor` (`#RRGGBB`), `textColorMode` (`follow`/`custom`), `textColor` (`#RRGGBB`), `searchEnabled`, `recentColors` (最近使用主题色, 最多 10 个); legacy `liquidGlass`/`followCoverTheme`/`themeColorMode`/`accentColorMode`/`accentColor` keys are auto-migrated on read (`resolveWindowEffect`/`resolveTextColorMode`/`resolveTextColorHex` in `lib/services/ui/theme/theme_provider.dart`) and removed on write; `history/last_played.json` is play-position memory.
 - `scripts/delete.ps1` is auto-generated at first run by `lib/utils/generate_script.dart` (only if missing). To change the script, edit the Dart constant, not the file.
 
+## Platform split (Android port)
+
+Already Android-ready:
+- Drift DB: `_openConnection()` in `lib/services/database/db/database.dart` handles Android (`applyWorkaroundToOpenSqlite3OnOldAndroidVersions()` + `sqlite3.tempDirectory`); sqlite3_flutter_libs supports Android.
+- `lib/main.dart` `setupWindow()` is already behind `Platform.isWindows`.
+- Plugins with Android support: audioplayers, file_picker, dio, path_provider. `HardwareKeyboard` shortcuts work on Android (the `_isTextInputFocused` skip still applies).
+
+Blocks the Android build (all currently unconditional imports of desktop-only plugins — must be guarded/conditionally imported, don't just delete them):
+- flutter_acrylic, window_manager, tray_manager imports in `lib/main.dart`, `lib/services/ui/ui_service.dart`, `lib/services/system_tray.dart`, `lib/services/window_size_guard.dart`, `lib/services/window_bounds_memory.dart`, `lib/pages/window_title_bar/`, `lib/pages/settings/settings_page.dart`, `lib/pages/player/player_widget.dart`.
+- Windows-only features: system tray, self-updater (`lib/services/updater/update_checker.dart`, ShellExecuteW FFI), Recycle Bin delete via `scripts/delete.ps1`.
+- Win32 FFI creation-time read (`lib/utils/file_time.dart`, used by `voice_updater.dart` and creation-time sort) — dart:io has no creation-time API on Android; needs a fallback.
+- CWD-relative runtime paths in `lib/common/const.dart` (`config/config.json`, `data/storage/again_voiceworks.db`) — meaningless on Android; use `path_provider` for app dirs.
+
 ## Domain conventions (from README.md)
 
 - Voice works live under `root/category/<name>/`; folder name format is `cv1&cv2&...&cvN-title`. First subdirectory name = sourceId (regex `^(RJ|VJ|BJ)?\d+$`, uppercased); first image in the work folder = cover.
@@ -31,7 +45,7 @@ Windows-only Flutter desktop app: local audio player for ASMR voice works. UI te
 
 ## Quirks
 
-- App is Windows-only (flutter_acrylic, window_manager, audioplayers); don't plan for other platforms.
+- App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback.
 - `--dart-define=OPAQUE_BG=true` builds an opaque window instead of transparent/acrylic — used for screenshots/visual verification (`lib/main.dart`, `lib/pages/my_app.dart`).
 - Debug and release builds must NOT run simultaneously — the second instance crashes at startup (exit code 1). Kill the release app before `flutter run -d windows --debug`.
 - Flutter MCP debugging (`flutter-mcp-toolkit`): server binary at `C:\Users\lzd\flutter-mcp-toolkit\fmtk-server.exe`, registered in `opencode.json`, `mcp_toolkit` initialized in `lib/main.dart` under `kDebugMode` — **must stay debug-only: in release builds it makes the window start minimized**. To debug: kill release instance → `flutter run -d windows --debug` → grab the VM service URI from the run log → use the `fmt_*` tools. Note: app view DPR is 1.5 on this machine — screenshots/coordinates must account for it. Screenshot capture needs an in-app permission bridge (not installed). Debug apps may crash on their own (audioplayers posts events from a non-platform thread — pre-existing bug).
