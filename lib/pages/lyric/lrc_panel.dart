@@ -13,19 +13,38 @@ class LyricPanel extends ConsumerWidget {
     final hasAudioSource =
         ref.watch(voiceItemProvider.select((state) => state.isPlaying));
 
-    return hasAudioSource
-        ? const Column(
+    final content = hasAudioSource
+        ? Column(
             children: [
-              SizedBox(
+              const SizedBox(
                 height: 50.0,
                 child: VoiceItemTitle(),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: LyricBuilder(),
+              // 必须 Expanded: 窄屏下 LyricBuilder 是 PageView (左右滑动),
+              // 无高度约束会 collapse 到 0
+              Expanded(
+                child: const Padding(
+                  padding: EdgeInsets.only(top: 10.0),
+                  child: LyricBuilder(),
+                ),
               ),
             ],
           )
         : const EmptyLyric();
+
+    // 窄屏: 歌词界面下滑关闭 (歌词滚动区域由 Scrollable 消费手势,
+    // 封面页/空白区域下滑可触发关闭)
+    if (MediaQuery.sizeOf(context).width >= 600) {
+      return content;
+    }
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onVerticalDragEnd: (details) {
+        if ((details.primaryVelocity ?? 0) > 300) {
+          ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
+        }
+      },
+      child: content,
+    );
   }
 }

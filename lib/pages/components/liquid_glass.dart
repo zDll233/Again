@@ -16,12 +16,16 @@ class LiquidGlass extends StatelessWidget {
     this.borderRadius = 12,
     this.tintAlpha = 0.14,
     this.padding,
+    this.showTopHighlight = true,
   });
 
   final Widget child;
   final double borderRadius;
   final double tintAlpha;
   final EdgeInsetsGeometry? padding;
+
+  /// 顶部 1px 亮边 (玻璃受光的克制高光); 播放器等需要干净的顶边时可关闭。
+  final bool showTopHighlight;
 
   @override
   Widget build(BuildContext context) {
@@ -37,25 +41,26 @@ class LiquidGlass extends StatelessWidget {
             ),
           ),
           // 顶部 1px 亮边 (玻璃受光的克制高光)。
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: IgnorePointer(
-              child: Container(
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.06),
-                      Colors.white.withValues(alpha: 0.32),
-                      Colors.white.withValues(alpha: 0.06),
-                    ],
+          if (showTopHighlight)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: IgnorePointer(
+                child: Container(
+                  height: 1,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withValues(alpha: 0.06),
+                        Colors.white.withValues(alpha: 0.32),
+                        Colors.white.withValues(alpha: 0.06),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
           // 底部 2px 极淡阴影 (玻璃厚度收边)。
           Positioned(
             left: 0,

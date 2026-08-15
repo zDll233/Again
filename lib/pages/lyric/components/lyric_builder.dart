@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
+import 'package:again/pages/components/panel_switcher.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
@@ -34,8 +35,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
   @override
   Widget build(BuildContext context) {
-    final cached = ref
-        .watch(voiceItemProvider.select((state) => state.cachedPlayingItem));
+    final cached =
+        ref.watch(voiceItemProvider.select((state) => state.cachedPlayingItem));
     final playingViPath = cached!.filePath;
     final workPath = cached.voiceWorkPath;
 
@@ -45,13 +46,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final appearance = ref.watch(uiSettingsProvider).valueOrNull;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
     // 当前行未播放部分与其他行同色 (defaultColor 默认纯白太突兀)
-    final lineColor = ts?.lyricColor?.resolve(
-            scheme.onSurface.withValues(alpha: 0.55), themeHue) ??
+    final lineColor = ts?.lyricColor
+            ?.resolve(scheme.onSurface.withValues(alpha: 0.55), themeHue) ??
         scheme.onSurface.withValues(alpha: 0.55);
     // 高亮歌词色: 用户设置优先; 否则自动 (主题色相, 饱和 0.7 明度 0.9)
-    final highlightColor = ts?.lyricHighlightColor?.resolve(
-            scheme.primary, themeHue) ??
-        HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
+    final highlightColor =
+        ts?.lyricHighlightColor?.resolve(scheme.primary, themeHue) ??
+            HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
     // 默认值统一取自 TextSettings() 构造 (单一来源)
     const lyricDefaults = TextSettings();
     final lyricUi = UINetease(
@@ -68,132 +69,162 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
 
     final appSize = MediaQuery.of(context).size;
-    final height = appSize.height - 210.0;
-    // 左右边距: 左 10%, 右 5%
-    final leftMargin = appSize.width * 0.10;
+    // 窄屏 (手机竖屏): 封面/歌词改为左右滑动切换 (PanelSwitcher)
+    final isNarrow = appSize.width < 600;
+    // 左右边距: 左 10% (窄屏 5%), 右 5%
+    final leftMargin = appSize.width * (isNarrow ? 0.05 : 0.10);
     final rightMargin = appSize.width * 0.05;
-    // 封面 30% 宽 (1:1 方形), 封面-歌词间距与左边距一致 10%;
-    // 高度约束: 封面列 (封面 + 倒影 1/3) 总高须 ≤ 歌词区高, 否则溢出
-    final coverSize =
-        math.min(appSize.width * 0.30, height * 0.60);
-    final coverGap = appSize.width * 0.10;
-    // 歌词列宽 = 窗口宽 - 左边距 - 封面 - 间距 - 右边距
-    final lyricWidth = appSize.width - leftMargin - coverSize - coverGap - rightMargin;
 
-    return Padding(
-      padding: EdgeInsets.only(left: leftMargin, right: rightMargin),
-      child: SizedBox(
-        width: double.infinity,
-        height: height,
-        // 左: 封面; 右: 歌词
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: coverSize,
-              child: FutureBuilder<String>(
-                future: _getCoverPath(workPath),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) return const SizedBox.shrink();
-                  // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
-                  return Padding(
-                    padding: EdgeInsets.only(top: (height - coverSize) / 2),
-                    child: _buildCover(snapshot.data!, coverSize,
-                        tilt: appearance?.coverTilt ?? true,
-                        reflection: appearance?.coverReflection ?? true),
-                  );
-                },
-              ),
+    // 高度来自父级约束 (LyricPanel Expanded), 不再假设窗口高度:
+    // 窄屏下 PageView 需要有限高度, 宽屏保留原 "窗口高 - 210" 的布局
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final height = math.min(appSize.height - 210.0, constraints.maxHeight);
+        // 封面 30% 宽 (1:1 方形), 封面-歌词间距与左边距一致 10%;
+        // 高度约束: 封面列 (封面 + 倒影 1/3) 总高须 ≤ 歌词区高, 否则溢出;
+        // 窄屏独占一页, 封面可以更大
+        final coverSize = isNarrow
+            ? math.min(appSize.width * 0.55, height * 0.60)
+            : math.min(appSize.width * 0.30, height * 0.60);
+        final coverGap = appSize.width * 0.10;
+        // 歌词列宽 = 窗口宽 - 左边距 - 封面 - 间距 - 右边距 (窄屏独占全宽)
+        final lyricWidth = isNarrow
+            ? appSize.width - leftMargin - rightMargin
+            : appSize.width - leftMargin - coverSize - coverGap - rightMargin;
+
+        // 封面区 (含加载封面 + 垂直居中偏移)
+        Widget coverSection() {
+          return SizedBox(
+            width: coverSize,
+            child: FutureBuilder<String>(
+              future: _getCoverPath(workPath),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) return const SizedBox.shrink();
+                // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
+                return Padding(
+                  padding: EdgeInsets.only(
+                      top: isNarrow ? 0 : (height - coverSize) / 2),
+                  child: _buildCover(snapshot.data!, coverSize,
+                      tilt: appearance?.coverTilt ?? true,
+                      reflection: appearance?.coverReflection ?? true),
+                );
+              },
             ),
-            SizedBox(width: coverGap),
-          Expanded(
-            // 歌词区上下边缘渐隐, 营造沉浸感
-            child: ShaderMask(
-              shaderCallback: (rect) => const LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.transparent,
-                  Colors.white,
-                  Colors.white,
-                  Colors.transparent
-                ],
-                stops: [0.0, 0.14, 0.86, 1.0],
-              ).createShader(rect),
-              blendMode: BlendMode.dstIn,
-              child: FutureBuilder<String>(
-                future: _getLrcContent(playingViPath),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
-                    return const Center(child: Text('Error loading lyrics'));
-                  } else {
-                    try {
-                      final lrcContent = snapshot.data ?? '';
-                      final cachedLyricModel = _getLrcModel(lrcContent);
-                      return Consumer(
-                        builder: (_, WidgetRef ref, __) {
-                          final position = ref.watch(audioProvider
-                              .select((state) => state.position));
-                          final isPlaying = ref.watch(
-                              audioProvider.select((state) => state.isPlaying));
-                          return LyricsReader(
-                            model: cachedLyricModel,
-                            position: position.inMilliseconds,
-                            playing: isPlaying,
-                            // 歌词行宽 = 歌词列 - 水平留白; 左对齐时文字起点
-                            // 对齐 hover 框左缘 (行框内边距 12)
-                            padding: ts?.lyricAlign == 'left'
-                                ? EdgeInsets.only(
-                                    left: 12, right: lyricWidth * 0.10)
-                                : EdgeInsets.symmetric(
-                                    horizontal: lyricWidth * 0.10),
-                            emptyBuilder: () => EmptyLyric(
-                                haveLyric: _hasLyric,
-                                readLyric: _readLyric,
-                              ),
-                            // 点击歌词行跳转到该行播放
-                            onTapLine: (index, startTime) {
-                              ref
-                                  .read(audioProvider.notifier)
-                                  .seek(startTime);
-                              if (!isPlaying) {
-                                ref.read(audioProvider.notifier).resume();
-                              }
-                            },
-                            // hover 行边框 (Material 风白色半透明) + 点击涟漪
-                            hoverColor: Colors.white,
-                            // hover 行左侧起始时间 (可开关/调字号)
-                            hoverTimeColor:
-                                (appearance?.showHoverTime ?? true)
-                                    ? Colors.white.withValues(alpha: 0.45)
-                                    : null,
-                            hoverTimeSize:
-                                appearance?.hoverTimeSize ?? 14,
-                            rippleColor: scheme.primary,
-                            lyricUi: lyricUi,
-                            waitMilliseconds: 5000,
-                            canScrollBack: isPlaying,
-                            canFlashBack: true,
-                          );
-                        },
-                      );
-                    } catch (e) {
-                      Log.error('Error parsing lyrics: $e');
-                      return const EmptyLyric(
-                        haveLyric: true,
-                        readLyric: false,
-                      );
-                    }
+          );
+        }
+
+        // 歌词区 (上下边缘渐隐, 营造沉浸感)
+        Widget lyricSection() {
+          return ShaderMask(
+            shaderCallback: (rect) => const LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.transparent,
+                Colors.white,
+                Colors.white,
+                Colors.transparent
+              ],
+              stops: [0.0, 0.14, 0.86, 1.0],
+            ).createShader(rect),
+            blendMode: BlendMode.dstIn,
+            child: FutureBuilder<String>(
+              future: _getLrcContent(playingViPath),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading lyrics'));
+                } else {
+                  try {
+                    final lrcContent = snapshot.data ?? '';
+                    final cachedLyricModel = _getLrcModel(lrcContent);
+                    return Consumer(
+                      builder: (_, WidgetRef ref, __) {
+                        final position = ref.watch(
+                            audioProvider.select((state) => state.position));
+                        final isPlaying = ref.watch(
+                            audioProvider.select((state) => state.isPlaying));
+                        return LyricsReader(
+                          model: cachedLyricModel,
+                          position: position.inMilliseconds,
+                          playing: isPlaying,
+                          // 歌词行宽 = 歌词列 - 水平留白; 左对齐时文字起点
+                          // 对齐 hover 框左缘 (行框内边距 12)
+                          padding: ts?.lyricAlign == 'left'
+                              ? EdgeInsets.only(
+                                  left: 12, right: lyricWidth * 0.10)
+                              : EdgeInsets.symmetric(
+                                  horizontal: lyricWidth * 0.10),
+                          emptyBuilder: () => EmptyLyric(
+                            haveLyric: _hasLyric,
+                            readLyric: _readLyric,
+                          ),
+                          // 点击歌词行跳转到该行播放
+                          onTapLine: (index, startTime) {
+                            ref.read(audioProvider.notifier).seek(startTime);
+                            if (!isPlaying) {
+                              ref.read(audioProvider.notifier).resume();
+                            }
+                          },
+                          // hover 行边框 (Material 风白色半透明) + 点击涟漪
+                          hoverColor: Colors.white,
+                          // hover 行左侧起始时间 (可开关/调字号)
+                          hoverTimeColor: (appearance?.showHoverTime ?? true)
+                              ? Colors.white.withValues(alpha: 0.45)
+                              : null,
+                          hoverTimeSize: appearance?.hoverTimeSize ?? 14,
+                          rippleColor: scheme.primary,
+                          lyricUi: lyricUi,
+                          waitMilliseconds: 5000,
+                          canScrollBack: isPlaying,
+                          canFlashBack: true,
+                        );
+                      },
+                    );
+                  } catch (e) {
+                    Log.error('Error parsing lyrics: $e');
+                    return const EmptyLyric(
+                      haveLyric: true,
+                      readLyric: false,
+                    );
                   }
-                },
+                }
+              },
+            ),
+          );
+        }
+
+        // 窄屏: 封面/歌词左右滑动切换
+        if (isNarrow) {
+          return PanelSwitcher(
+            panels: [
+              Center(child: coverSection()),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: lyricSection(),
               ),
+            ],
+          );
+        }
+
+        return Padding(
+          padding: EdgeInsets.only(left: leftMargin, right: rightMargin),
+          child: SizedBox(
+            width: double.infinity,
+            height: height,
+            // 左: 封面; 右: 歌词
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                coverSection(),
+                SizedBox(width: coverGap),
+                Expanded(child: lyricSection()),
+              ],
             ),
           ),
-        ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -241,6 +272,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         ),
       );
     }
+
     final coverBody = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -261,8 +293,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   stops: [0.0, 0.33],
                 ).createShader(rect),
                 blendMode: BlendMode.dstIn,
-                child:
-                    Transform.flip(flipY: true, child: cover(size, size)),
+                child: Transform.flip(flipY: true, child: cover(size, size)),
               ),
             ),
           ),
