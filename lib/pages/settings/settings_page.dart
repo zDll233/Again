@@ -2,6 +2,7 @@ import 'package:again/common/const.dart';
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/pages/settings/components/settings_widgets.dart';
 import 'package:again/services/database/database_providers.dart';
+import 'package:again/services/ui/theme/appearance_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
@@ -89,8 +90,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricLineGap = ts.lyricLineGap;
       _lyricAlign = ts.lyricAlign;
       _listDensity = ts.listDensity;
-      _coverTilt = ts.coverTilt;
-      _coverReflection = ts.coverReflection;
+      _coverTilt = config['coverTilt'] != false;
+      _coverReflection = config['coverReflection'] != false;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -134,6 +135,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
+    ref.invalidate(appearanceSettingsProvider);
     if (reapplyWindowEffect) {
       ref.read(uiServiceProvider).applyWindowEffect(_windowEffect);
     }
@@ -571,7 +573,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     onChanged: (value) async {
                                       setState(() => _coverTilt = value);
                                       await _save({'coverTilt': value});
-                                      ref.invalidate(textSettingsProvider);
+                                      ref.invalidate(
+                                          appearanceSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -603,7 +606,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       setState(() => _coverReflection = value);
                                       await _save(
                                           {'coverReflection': value});
-                                      ref.invalidate(textSettingsProvider);
+                                      ref.invalidate(
+                                          appearanceSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
