@@ -154,9 +154,10 @@ del "%~f0"
           .replaceAll('%LOG%', logPath),
     );
     // 用 PowerShell 隐藏窗口启动脚本, 避免 cmd 黑窗口闪现;
-    // 必须 await 并给子进程启动时间, 否则 exit(0) 会杀死尚未创建的子进程
+    // -ArgumentList 用数组形式, cmd 不认单引号包裹的路径
+    // (必须 await 并给子进程启动时间, 否则 exit(0) 会杀死尚未创建的子进程)
     final psCmd =
-        'Start-Process -FilePath cmd.exe -ArgumentList "/c \'${batPath.replaceAll("'", "''")}\'" -WindowStyle Hidden';
+        'Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "${batPath.replaceAll('"', '`"')}" -WindowStyle Hidden';
     await Process.start(
       'powershell',
       ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', psCmd],
