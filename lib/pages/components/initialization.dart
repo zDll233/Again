@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:again/common/const.dart';
+import 'package:again/services/audio/again_audio_handler.dart';
 import 'package:again/services/audio/audio_service_sync.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/history/history_manager.dart';
@@ -13,6 +14,7 @@ import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/window_bounds_memory.dart';
 import 'package:again/services/window_size_guard.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -76,7 +78,11 @@ class _InitializationState extends ConsumerState<Initialization>
         ),
       );
     } else if (result.hasError) {
-      return const Text('Error initializing.');
+      // 注意: Initialization 在 MaterialApp 之外, Text 需要 Directionality
+      return Directionality(
+        textDirection: TextDirection.ltr,
+        child: Text('Error initializing: ${result.error}'),
+      );
     }
 
     return widget.child;
@@ -113,9 +119,24 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   if (Platform.isWindows) {
     await SystemTrayListener.init(ref);
   } else {
-    // Android: 桥接 audio_service (媒体通知/锁屏控制) 到现有播放器状态
-    initAudioServiceBridge(ref);
+    // Android: 桥接 audio_service (媒体通知/锁屏控制) 到现有播放器状态。
+    // AudioService.init 必须在首帧渲染之后调用 — runApp 前初始化会导致
+    // FlutterView 尺寸停在 0x0 (真机黑屏)。
+    await initAudioServiceAndroid(ref);
   }
   // 启动完成后再静默增量刷新, 不阻塞初始化
   unawaited(ref.read(dbNotifierProvider).silentRefresh());
 });
+
+/// Android: 初始化 audio_service 前台服务并桥接到现有播放器状态。
+Future<void> initAudioServiceAndroid(Ref ref) async {
+  await AudioService.init(
+    builder: () => againAudioHandler,
+    config: const AudioServiceConfig(
+      androidNotificationChannelId: 'com.zdl.again.audio',
+      androidNotificationChannelName: 'Again 播放',
+      androidNotificationOngoing: true,
+    ),
+  );
+  initAudioServiceBridge(ref);
+}
