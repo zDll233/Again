@@ -148,8 +148,12 @@ del "%~f0"
           .replaceAll('%DIR%', appDir)
           .replaceAll('%LOG%', logPath),
     );
-    // 分离启动脚本, 不等待
-    Process.start('cmd', ['/c', batPath], mode: ProcessStartMode.detached);
+    // 分离启动脚本, 不等待;
+    // 必须 await start 并给 cmd 一点启动时间, 否则 exit(0) 会杀死
+    // 尚未创建的子进程, 导致更新脚本从未执行
+    await Process.start('cmd', ['/c', batPath],
+        mode: ProcessStartMode.detached);
+    await Future<void>.delayed(const Duration(milliseconds: 800));
   } catch (e) {
     Log.error('applyUpdate failed: $e');
   }
