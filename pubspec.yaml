@@ -21,7 +21,7 @@ dependencies:
   flutter_lyric:
     git:
       url: https://github.com/zDll233/flutter_lyric.git
-      ref: v0.5.4
+      ref: v0.5.5
   flutter_riverpod: ^2.5.1
   logger: ^2.3.0
   path: ^1.9.0
