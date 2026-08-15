@@ -1,9 +1,35 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:again/utils/log.dart';
+import 'package:ffi/ffi.dart';
 import 'package:http/http.dart' as http;
+
+final DynamicLibrary _shell32 = DynamicLibrary.open('shell32.dll');
+
+typedef _ShellExecuteWNative = Pointer<Void> Function(Pointer<Void>,
+    Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Int32);
+typedef _ShellExecuteWDart = Pointer<Void> Function(Pointer<Void>,
+    Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, int);
+final _ShellExecuteWDart _shellExecuteW =
+    _shell32.lookupFunction<_ShellExecuteWNative, _ShellExecuteWDart>(
+        'ShellExecuteW');
+
+/// 隐藏窗口启动程序 (SW_HIDE), 无 PowerShell/cmd 中间层, 参数直传。
+void _launchHidden(String file, String arguments) {
+  final filePtr = file.toNativeUtf16();
+  final argsPtr = arguments.toNativeUtf16();
+  final verbPtr = 'open'.toNativeUtf16();
+  try {
+    _shellExecuteW(nullptr, verbPtr, filePtr, argsPtr, nullptr, 0 /*SW_HIDE*/);
+  } finally {
+    calloc.free(filePtr);
+    calloc.free(argsPtr);
+    calloc.free(verbPtr);
+  }
+}
 
 /// 当前应用版本 (CI 构建时通过 --dart-define=APP_VERSION 注入, 本地为 dev)。
 const String kAppVersion =
@@ -153,16 +179,9 @@ del "%~f0"
           .replaceAll('%DIR%', appDir)
           .replaceAll('%LOG%', logPath),
     );
-    // 用 PowerShell 隐藏窗口启动脚本, 避免 cmd 黑窗口闪现;
-    // -ArgumentList 用数组形式, cmd 不认单引号包裹的路径
-    // (必须 await 并给子进程启动时间, 否则 exit(0) 会杀死尚未创建的子进程)
-    final psCmd =
-        'Start-Process -FilePath "cmd.exe" -ArgumentList "/c", "${batPath.replaceAll('"', '`"')}" -WindowStyle Hidden';
-    await Process.start(
-      'powershell',
-      ['-NoProfile', '-WindowStyle', 'Hidden', '-Command', psCmd],
-      mode: ProcessStartMode.detached,
-    );
+    // 隐藏窗口启动 cmd 执行脚本 (ShellExecuteW SW_HIDE, 无黑窗口);
+    // 必须等待子进程启动, 否则 exit(0) 会杀死尚未创建的子进程
+    _launchHidden('cmd.exe', '/c "$batPath"');
     await Future<void>.delayed(const Duration(milliseconds: 800));
   } catch (e) {
     Log.error('applyUpdate failed: $e');
