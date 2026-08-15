@@ -49,14 +49,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     final highlightColor = ts?.lyricHighlightColor?.resolve(
             scheme.primary, themeHue) ??
         HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
+    // 默认值统一取自 TextSettings() 构造 (单一来源)
+    const lyricDefaults = TextSettings();
     final lyricUi = UINetease(
-      defaultSize: ts?.lyricCurrentSize ?? (ts?.lyricSize ?? 18) + 2,
-      otherMainSize: ts?.lyricSize ?? 18,
+      defaultSize: ts?.lyricCurrentSize ??
+          (ts?.lyricSize ?? lyricDefaults.lyricSize) + 2,
+      otherMainSize: ts?.lyricSize ?? lyricDefaults.lyricSize,
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
       highLightTextColor: highlightColor,
-      lineGap: ts?.lyricLineGap ?? 25,
+      lineGap: ts?.lyricLineGap ?? lyricDefaults.lyricLineGap,
       lyricAlign:
           ts?.lyricAlign == 'left' ? LyricAlign.LEFT : LyricAlign.CENTER,
     );

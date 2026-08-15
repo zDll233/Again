@@ -73,10 +73,12 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   unawaited(ref
       .read(uiServiceProvider)
       .applyWindowEffect(resolveWindowEffect(config)));
-  // 恢复上次窗口位置/尺寸 (默认行为)
-  await restoreWindowBounds(ref.read(configJsonProvider));
-  await ref.read(dbNotifierProvider).initialize();
-  await ref.read(historyManagerProvider).loadHistory();
+  // 窗口位置恢复 / 数据库初始化 / 历史加载互不依赖, 并行执行
+  await Future.wait([
+    restoreWindowBounds(ref.read(configJsonProvider)),
+    ref.read(dbNotifierProvider).initialize(),
+    ref.read(historyManagerProvider).loadHistory(),
+  ]);
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突
   await SystemTrayListener.init(ref);
   // 启动完成后再静默增量刷新, 不阻塞初始化

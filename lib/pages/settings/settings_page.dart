@@ -17,6 +17,8 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  // 默认值统一取自 TextSettings()/常量, 避免散落硬编码
+  static const _defaults = TextSettings();
   String _voiceWorkRoot = '';
   bool _closeToTray = true;
   bool _rememberWindowPos = false;
@@ -27,21 +29,21 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverTilt = true;
   bool _coverReflection = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
-  double _panelTextSize = 14;
-  double _panelTitleSize = 14;
-  double _progressTextSize = 16;
-  double _lyricTitleSize = 28;
-  double _lyricSize = 18;
+  double _panelTextSize = _defaults.panelTextSize;
+  double _panelTitleSize = _defaults.panelTitleSize;
+  double _progressTextSize = _defaults.progressTextSize;
+  double _lyricTitleSize = _defaults.lyricTitleSize;
+  double _lyricSize = _defaults.lyricSize;
   ColorSetting? _panelTextColor;
   ColorSetting? _panelTitleColor;
   ColorSetting? _progressTextColor;
   ColorSetting? _lyricHighlightColor;
   ColorSetting? _lyricColor;
   ColorSetting? _lyricTitleColor;
-  double _lyricLineGap = 25;
-  String _lyricAlign = 'left';
-  String _listDensity = 'comfortable';
-  double _lyricCurrentSize = 20;
+  double _lyricLineGap = _defaults.lyricLineGap;
+  String _lyricAlign = _defaults.lyricAlign;
+  String _listDensity = _defaults.listDensity;
+  double _lyricCurrentSize = _defaults.lyricCurrentSize;
   bool _loading = true;
 
   @override
@@ -184,30 +186,30 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
             : _voiceWorkRoot;
 
     setState(() {
-      // 全部恢复默认值 (与 TextSettings / resolveWindowEffect 默认一致)
+      // 全部恢复默认值 (统一取自 TextSettings()/常量)
       _closeToTray = true;
       _rememberWindowPos = false;
       _rememberWindowSize = true;
-      _windowEffect = 'acrylic';
+      _windowEffect = WINDOW_EFFECT_ACRYLIC;
       _themeSeedColor = kDefaultThemeSeed;
       _searchEnabled = false;
-      _panelTextSize = 14;
-      _panelTitleSize = 14;
-      _progressTextSize = 16;
-      _lyricTitleSize = 28;
-      _lyricSize = 18;
+      _panelTextSize = _defaults.panelTextSize;
+      _panelTitleSize = _defaults.panelTitleSize;
+      _progressTextSize = _defaults.progressTextSize;
+      _lyricTitleSize = _defaults.lyricTitleSize;
+      _lyricSize = _defaults.lyricSize;
       _panelTextColor = null;
       _panelTitleColor = null;
       _progressTextColor = null;
       _lyricHighlightColor = null;
       _lyricColor = null;
       _lyricTitleColor = null;
-      _lyricLineGap = 25;
-      _lyricAlign = 'left';
-      _listDensity = 'comfortable';
+      _lyricLineGap = _defaults.lyricLineGap;
+      _lyricAlign = _defaults.lyricAlign;
+      _listDensity = _defaults.listDensity;
       _coverTilt = true;
       _coverReflection = true;
-      _lyricCurrentSize = _lyricSize + 2;
+      _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
