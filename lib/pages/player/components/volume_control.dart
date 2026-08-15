@@ -48,10 +48,15 @@ class VolumeControl extends ConsumerWidget {
                       ref.watch(uiSettingsProvider).valueOrNull;
                   final showThumb = appearance?.showSliderThumb ?? false;
                   final thickness = appearance?.sliderThickness ?? 1;
+                  final thumbSize = appearance?.sliderThumbSize ?? 5;
                   return SliderTheme(
                     data: SliderTheme.of(context).copyWith(
-                      thumbShape: showThumb ? null : const NoThumbShape(),
-                      overlayShape: showThumb ? null : const NoThumbShape(),
+                      thumbShape: showThumb
+                          ? RoundSliderThumbShape(enabledThumbRadius: thumbSize)
+                          : const NoThumbShape(),
+                      overlayShape: showThumb
+                          ? RoundSliderOverlayShape(overlayRadius: thumbSize + 6)
+                          : const NoThumbShape(),
                       trackHeight: thickness,
                     ),
                     child: Slider(
