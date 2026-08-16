@@ -38,17 +38,34 @@ class PlayerWidget extends ConsumerWidget {
     );
   }
 
-  /// 窄屏: 上滑/点击空白打开歌词; 布局 = 进度条 + 时间行 + 按钮行。
+  /// 窄屏: 上滑/点击空白打开歌词 (拖动跟手); 布局 = 进度条 + 时间行 + 按钮行。
   Widget _buildNarrow(BuildContext context, WidgetRef ref) {
     void openLyric() =>
         ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
+    final screenHeight = MediaQuery.sizeOf(context).height;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: openLyric,
+      // 拖动直接驱动歌词面板位置 (跟手)
+      onVerticalDragUpdate: (details) {
+        ref.read(lyricPanelProgressProvider.notifier).state =
+            (ref.read(lyricPanelProgressProvider) -
+                    (details.primaryDelta ?? 0) / screenHeight)
+                .clamp(0.0, 1.0);
+      },
       onVerticalDragEnd: (details) {
-        // 上滑打开歌词
-        if ((details.primaryVelocity ?? 0) < -300) {
-          openLyric();
+        final v = details.primaryVelocity ?? 0;
+        final p = ref.read(lyricPanelProgressProvider);
+        // 高速上滑打开 / 高速下滑关闭 / 低速看位置
+        final open = v < -300 ? true : (v > 300 ? false : p >= 0.35);
+        final show = ref.read(miscUIProvider).showLyricPanel;
+        if (open != show) {
+          // 状态变化: toggle 触发 ListLyricSwitch 的动画
+          ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
+        } else {
+          // 状态一致: 直接请求动画回到目标
+          ref.read(lyricPanelAnimateRequestProvider.notifier).state =
+              open ? 1.0 : 0.0;
         }
       },
       child: SizedBox(

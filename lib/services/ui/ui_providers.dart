@@ -30,6 +30,14 @@ final voiceItemProvider =
 final miscUIProvider =
     NotifierProvider<MiscNotifier, MiscState>(MiscNotifier.new);
 
+/// 歌词面板当前进度 (0 = 完全关闭/屏幕外, 1 = 全开)。
+/// 拖动中由手势 (播放器/面板) 更新, 动画中由 AnimationController 驱动。
+final lyricPanelProgressProvider = StateProvider<double>((ref) => 0.0);
+
+/// 歌词面板动画请求: 非 null 时 ListLyricSwitch 从当前进度动画到该目标。
+final lyricPanelAnimateRequestProvider =
+    StateProvider<double?>((ref) => null);
+
 final uiServiceProvider = Provider<UIService>((ref) => UIService(ref));
 
 final isSelectedFilterPlaying = Provider<bool>(
