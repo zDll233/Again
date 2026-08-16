@@ -213,7 +213,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     const SizedBox(height: 6),
                     _buildLyricPreview(playingViPath, lineColor,
                         highlightColor, scheme),
-                    const SizedBox(height: 12),
+                    // 预览与控制区间距加大 (参考图 7% 间隔), 控制区整体下移
+                    const SizedBox(height: 48),
                     const LyricPanelControls(),
                   ],
                 ),
