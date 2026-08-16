@@ -51,8 +51,8 @@ class PlayerWidget extends ConsumerWidget {
           child: LiquidGlass(
             borderRadius: capsuleHeight / 2,
             tintAlpha: tint,
-            // 胶囊保留顶部亮边: 玻璃受光感
-            showTopHighlight: true,
+            // 上边界即进度条, 不再叠加玻璃亮边 (避免双线)
+            showTopHighlight: false,
             child: content,
           ),
         ),

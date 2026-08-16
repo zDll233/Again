@@ -194,13 +194,32 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           );
         }
 
-        // 窄屏: 封面在上 (占屏宽 85% 左右), 歌词在下 — 与参考播放器
-        // 同屏布局 (封面/歌词/进度/控制一屏显示)
+        // 窄屏: 两个独立部分 — 封面部分 (封面 + 歌词预览, 只展示) +
+        // 纯歌词部分 (完整歌词, 可滑可点); 预览歌词盖住封面倒影下半部
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.85, height * 0.48);
+          final narrowCover = math.min(appSize.width * 0.62, height - 220);
           return Column(
             children: [
-              Center(child: coverSection(narrowCover)),
+              // 封面部分: 封面 (倒影向下溢出) + 底部歌词预览
+              SizedBox(
+                height: narrowCover + 72,
+                width: double.infinity,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Center(child: coverSection(narrowCover)),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 72,
+                      child: _buildLyricPreview(playingViPath, lineColor,
+                          highlightColor, scheme),
+                    ),
+                  ],
+                ),
+              ),
+              // 纯歌词部分: 完整歌词
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8),
@@ -313,6 +332,91 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       coverSize: size,
       onTap: onCoverTap,
       child: coverBody,
+    );
+  }
+
+  /// 封面部分的歌词预览 (窄屏): 只展示当前句附近 3 行, 不可滑动/点击。
+  /// 渐变背景从透明过渡到面板色, 让封面倒影隐约透出后被歌词覆盖。
+  Widget _buildLyricPreview(String playingViPath, Color lineColor,
+      Color highlightColor, ColorScheme scheme) {
+    return FutureBuilder<String>(
+      future: _getLrcContent(playingViPath),
+      builder: (context, snapshot) {
+        final content = snapshot.data ?? '';
+        if (content.isEmpty) return const SizedBox.shrink();
+        try {
+          final model = _getLrcModel(content);
+          return Consumer(
+            builder: (_, WidgetRef ref, __) {
+              final position = ref.watch(
+                  audioProvider.select((state) => state.position));
+              final lines = model.lyrics;
+              var current = -1;
+              for (var j = 0; j < lines.length; j++) {
+                if ((lines[j].startTime ?? 0) <= position.inMilliseconds) {
+                  current = j;
+                } else {
+                  break;
+                }
+              }
+              String textOf(int i) {
+                if (i < 0 || i >= lines.length) return '';
+                return lines[i].mainText ?? '';
+              }
+
+              final prev = textOf(current - 1);
+              final cur = textOf(current);
+              final next = textOf(current + 1);
+              final hasAny = prev.isNotEmpty || cur.isNotEmpty || next.isNotEmpty;
+              if (!hasAny) return const SizedBox.shrink();
+
+              Widget line(String text, bool highlight) {
+                if (text.isEmpty) return const SizedBox(height: 22);
+                return Text(
+                  text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontSize: highlight ? 16 : 14,
+                    fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+                    color: highlight
+                        ? highlightColor
+                        : lineColor.withValues(alpha: 0.75),
+                  ),
+                );
+              }
+
+              return Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      scheme.surface.withValues(alpha: 0.95),
+                    ],
+                    stops: const [0.0, 0.55],
+                  ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    line(prev, false),
+                    const SizedBox(height: 2),
+                    line(cur, true),
+                    const SizedBox(height: 2),
+                    line(next, false),
+                  ],
+                ),
+              );
+            },
+          );
+        } catch (e) {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 

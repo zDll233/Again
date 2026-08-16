@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:again/pages/components/initialization.dart';
 import 'package:again/pages/components/list_lyric_switch.dart';
+import 'package:again/pages/components/lyric_panel_overlay.dart';
 import 'package:again/pages/player/player_widget.dart';
 import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/pages/window_title_bar/window_title_bar.dart';
@@ -67,6 +68,9 @@ class MyApp extends ConsumerWidget {
                           ? const SizedBox.shrink()
                           : const PlayerWidget(),
                     ),
+                    // 歌词面板层 (最顶层): 上划时面板盖住悬浮播放器
+                    if (isNarrow)
+                      const Positioned.fill(child: LyricPanelOverlay()),
                   ],
                 ),
               ),
