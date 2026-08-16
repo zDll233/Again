@@ -1076,7 +1076,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         .onSurface
                                         .withValues(alpha: 0.6),
                                   ),
-                                  title: const Text('hover 起始时间'),
+                                  title: const Text('歌词起始时间'),
                                   contentPadding: const EdgeInsets.only(
                                       left: 16, right: 16),
                                   trailing: Row(
@@ -1100,9 +1100,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ],
                                   ),
                                 ),
-                                // hover 起始时间字号: 子设置, 关闭时折叠
+                                // 歌词起始时间字号: 子设置, 关闭时折叠
                                 if (_showHoverTime)
-                                  _textSizeTile('hover 起始时间字号',
+                                  _textSizeTile('歌词起始时间字号',
                                       _hoverTimeSize, 'hoverTimeSize', 14,
                                       (v) {
                                     _hoverTimeSize = v;
