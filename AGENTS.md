@@ -1,6 +1,15 @@
 # AGENTS.md
 
-Flutter 桌面 + Android 本地音声播放器 (ASMR voice works)。**Android 移植在 `android-port` 分支** (基于 main 分叉, 含桌面插件隔离等改造; main 保持 Windows 主开发线)。UI 文本和 commit 消息均为中文 — 保持该风格 (commit 前缀 `bugfix:`/`feat:`/`chore:`)。
+Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**单一 main 分支同时开发两端** (Android 移植已合入 main, 平台差异用运行时守卫隔离, 无 android-port 并行分支)。UI 文本和 commit 消息均为中文 — 保持该风格 (commit 前缀 `bugfix:`/`feat:`/`chore:`)。
+
+## 平台守卫约定 (必读)
+
+跨平台改动的核心约定 — **每个改动必须想清楚它在另一端的表现**:
+
+- 按**能力差异**守卫, 不按平台名字: 布局/断点用 `MediaQuery.sizeOf(context).width < 600` (窄屏), 只有桌面专属能力 (托盘/窗口效果/资源管理器定位/回收站/更新) 才用 `Platform.isWindows`。
+- 新增共享 UI 改动时必须写好守卫, 否则一个平台的改动会悄悄影响另一端 (历史教训: 歌词界面重构/悬浮胶囊曾无守卫泄漏到 Windows, 导致面板延伸进播放器、标题左对齐、封面倒影丢失; 修复见 `33c8014`)。
+- 服务层用「入口 + 平台实现文件」隔离插件 (例: `lib/services/window_setup.dart` 判断平台, 真正初始化在 `window_setup_windows.dart`)。
+- 修改 `lib/` 下 UI/服务文件前, 先检查该改动是否需要 `isNarrow` 或 `Platform.isWindows` 守卫。
 
 ## 构建环境 (本机)
 
@@ -33,7 +42,7 @@ Flutter 桌面 + Android 本地音声播放器 (ASMR voice works)。**Android �
 
 ## Platform split (Android port)
 
-已完成 (android-port 分支):
+已完成 (Android 移植, 已合入 main):
 - 路径抽象: `lib/common/paths.dart` — Windows 保持 CWD 相对路径, Android 用 path_provider 文档目录 (`config/`/`history/`/`data/` 布局不变)。`JsonStorage` 支持懒路径 (filePath/pathResolver 二选一)。
 - 桌面插件隔离: `lib/services/window_setup.dart` (入口, `Platform.isWindows` 守卫) + `window_setup_windows.dart` (真实实现, 唯一持有 flutter_acrylic/window_manager 初始化的文件)。`MoveWindow`/`WindowTitleBar`/设置页在 Android 自动降级 (无标题栏/无窗口设置/无更新入口/无资源管理器按钮)。
 - 平台守卫 (运行时, 非条件编译): 托盘 (`initialization.dart` 仅 Windows init)、`UIService.onExit/hideToTray/applyWindowEffect`、`restoreWindowBounds`、`window_size_guard`、`deleteVoiceWork` (Android 直删, 无回收站)、explorer 定位、`file_time.dart` 创建时间 (Android 返回 null, 回退 mtime)、`update_checker.dart` (懒加载 shell32 FFI, `applyUpdate` 仅 Windows)。
@@ -61,7 +70,7 @@ Flutter 桌面 + Android 本地音声播放器 (ASMR voice works)。**Android �
 
 ## Quirks
 
-- App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback. 移植相关改动只提交到 `android-port` 分支, main 保持 Windows 开发线 (用户会在 main 并行提交功能 — 改动前先 fetch 并 merge main)。
+- App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback. **单一 main 分支开发两端**: 共享 UI/服务改动直接提交 main, 平台差异用守卫隔离 (见顶部「平台守卫约定」); release tag 一律打在 main, CI 会校验 tag 归属 (防止误从平台分支发布)。
 - `--dart-define=OPAQUE_BG=true` builds an opaque window instead of transparent/acrylic — used for screenshots/visual verification (`lib/main.dart`, `lib/pages/my_app.dart`).
 - Debug and release builds must NOT run simultaneously — the second instance crashes at startup (exit code 1). Kill the release app before `flutter run -d windows --debug`.
 - Flutter MCP debugging (`flutter-mcp-toolkit`): server binary at `C:\Users\lzd\flutter-mcp-toolkit\fmtk-server.exe`, registered in `opencode.json`, `mcp_toolkit` initialized in `lib/main.dart` under `kDebugMode` — **must stay debug-only: in release builds it makes the window start minimized**. To debug: kill release instance → `flutter run -d windows --debug` → grab the VM service URI from the run log → use the `fmt_*` tools. Note: app view DPR is 1.5 on this machine — screenshots/coordinates must account for it. Screenshot capture needs an in-app permission bridge (not installed). Debug apps may crash on their own (audioplayers posts events from a non-platform thread — pre-existing bug).
