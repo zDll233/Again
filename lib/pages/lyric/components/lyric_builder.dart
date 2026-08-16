@@ -196,26 +196,55 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         }
 
         // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
-        // 封面页 = 封面 (倒影向下溢出) + 底部 5 行歌词预览 (只展示, 渐变盖住倒影)
+        // 封面页 = 封面 (顶部对齐, 倒影向下溢出) + 紧跟封面的 5 行歌词预览
+        // (只展示, 渐变盖住倒影下部)
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.62, height - 240);
+          final narrowCover = math.min(appSize.width * 0.72, height - 240);
           return PanelSwitcher(
             panels: [
-              // 封面页: 封面偏上, 底部 5 行歌词预览 (渐变盖住倒影)
+              // 封面页: 封面贴标题栏下方, 预览歌词紧跟封面 (盖住倒影),
+              // 预览区延伸到底部控制区 (背景与面板同色, 无断层空白)
               Stack(
                 clipBehavior: Clip.none,
                 children: [
                   Align(
-                    alignment: const Alignment(0, -0.15),
-                    child: coverSection(narrowCover),
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: coverSection(narrowCover),
+                    ),
                   ),
+                  // 预览: top = 封面顶 + 封面高 + 倒影高 - 上移量
+                  // (上移盖住倒影下部, 视觉上预览紧跟封面); 向下延伸到底部,
+                  // 渐变背景与面板同色 — 文字下方无断层空白
                   Positioned(
                     left: 0,
                     right: 0,
+                    top: 12 + narrowCover + narrowCover / 3 - 36,
                     bottom: 0,
-                    height: 104,
-                    child: _buildLyricPreview(playingViPath, lineColor,
-                        highlightColor, scheme),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            scheme.surface.withValues(alpha: 0.95),
+                          ],
+                          stops: const [0.0, 0.35],
+                        ),
+                      ),
+                      // 文字顶部对齐 (紧跟封面, 盖住倒影下部)
+                      child: Align(
+                        alignment: Alignment.topCenter,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 30),
+                          child: _buildLyricPreview(playingViPath, lineColor,
+                              highlightColor, scheme),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -403,22 +432,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 );
               }
 
+              // 渐变背景已由外层 Positioned 提供, 这里只渲染 5 行文字
               return Container(
                 width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.transparent,
-                      scheme.surface.withValues(alpha: 0.95),
-                    ],
-                    stops: const [0.0, 0.5],
-                  ),
-                ),
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     line(previews[0], false),
                     line(previews[1], false),

@@ -52,7 +52,7 @@ class PlayerWidget extends ConsumerWidget {
       final scheme = Theme.of(context).colorScheme;
       return Center(
         child: Container(
-          width: screenW * 0.68,
+          width: screenW * 0.75,
           height: capsuleHeight,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(capsuleHeight / 2),
