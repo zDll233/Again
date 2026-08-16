@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show ImageFilter;
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/liquid_glass.dart';
@@ -37,8 +38,10 @@ class PlayerWidget extends ConsumerWidget {
     }
     if (isNarrow) {
       // 窄屏: 跑道形悬浮胶囊 — 整体即进度条 (从左到右颜色填充),
+      // 亚克力毛玻璃 (BackdropFilter 模糊 + 着色 + 顶部高光),
       // 缩略图 + 控制按钮居中; 悬浮在列表/面板上方 (MyApp Stack 底部 overlay)
       const capsuleHeight = 64.0;
+      final screenW = MediaQuery.sizeOf(context).width;
       final duration =
           ref.watch(audioProvider.select((state) => state.duration));
       final position =
@@ -48,52 +51,72 @@ class PlayerWidget extends ConsumerWidget {
           : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
       final scheme = Theme.of(context).colorScheme;
       return Center(
-        // Stack 在有界约束下会撑满全宽, 用 UnconstrainedBox 解除宽度约束
-        // (胶囊宽度由内容决定), Center 负责水平居中
-        child: UnconstrainedBox(
-          child: Container(
-            height: capsuleHeight,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(capsuleHeight / 2),
-              border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  blurRadius: 24,
-                  offset: const Offset(0, 10),
+        child: Container(
+          width: screenW * 0.68,
+          height: capsuleHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(capsuleHeight / 2),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.45),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(capsuleHeight / 2),
+            child: Stack(
+              children: [
+                // 亚克力毛玻璃底: 模糊下方列表内容 + 半透明着色
+                // (Windows 透明窗口不可用, 移动端背景是 Flutter 内容可模糊)
+                Positioned.fill(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                    child: ColoredBox(
+                      color: scheme.surface.withValues(alpha: 0.38),
+                    ),
+                  ),
                 ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(capsuleHeight / 2),
-              // 宽度由内容决定 (Stack 默认 loose, 不撑满), 胶囊收缩包住内容
-              child: Stack(
-                children: [
-                  // 进度填充: 从左到右 (底层)
-                  Positioned.fill(
-                    child: FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: progress,
-                      child: ColoredBox(
-                        color: scheme.primary.withValues(alpha: 0.38),
+                // 进度填充: 从左到右 (毛玻璃之上)
+                Positioned.fill(
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    widthFactor: progress,
+                    child: ColoredBox(
+                      color: scheme.primary.withValues(alpha: 0.34),
+                    ),
+                  ),
+                ),
+                // 顶部 1px 亮边 (液态玻璃受光感)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: IgnorePointer(
+                    child: Container(
+                      height: 1,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white.withValues(alpha: 0.06),
+                            Colors.white.withValues(alpha: 0.35),
+                            Colors.white.withValues(alpha: 0.06),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  // 毛玻璃着色 (盖在进度上, 半透明透出)
-                  Positioned.fill(
-                    child: ColoredBox(
-                      color: scheme.surface.withValues(alpha: tint),
-                    ),
+                ),
+                // 内容居中: 缩略图 (panel 缩略图 60 的 2/3 = 40) + 控制按钮
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18),
+                    child: content,
                   ),
-                  // 内容居中: 缩略图 (panel 缩略图 60 的 2/3 = 40) + 控制按钮
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: content,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
@@ -139,15 +162,16 @@ class PlayerWidget extends ConsumerWidget {
         }
       },
       // 缩略图 (panel 缩略图 60 的 2/3) + 控制按钮, 水平居中;
-      // 按钮用 SizedBox 收紧 (IconButton 默认 48px 最小尺寸会撑开胶囊)
+      // 按钮用 SizedBox 收紧 (IconButton 默认 48px 最小尺寸会撑开胶囊),
+      // 高度统一 40 与缩略图一致, 保证垂直居中对齐
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           const CoverLyricButton(size: 40),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           const SizedBox(
             width: 30,
-            height: 30,
+            height: 40,
             child: PrevButton(iconSize: 22),
           ),
           const SizedBox(width: 4),
@@ -159,13 +183,13 @@ class PlayerWidget extends ConsumerWidget {
           const SizedBox(width: 4),
           const SizedBox(
             width: 30,
-            height: 30,
+            height: 40,
             child: NextButton(iconSize: 22),
           ),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           const SizedBox(
-            width: 28,
-            height: 28,
+            width: 32,
+            height: 40,
             child: PlaybackModeButton(iconSize: 20),
           ),
         ],
