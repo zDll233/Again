@@ -202,19 +202,24 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           final narrowCover = math.min(appSize.width * 0.85, height - 300);
           return PanelSwitcher(
             panels: [
-              // 封面页: 封面 → 预览 → 控制区 紧凑堆叠, 略偏上
-              // (标题下空隙贴近参考 4%, 底部留白自然)
+              // 封面页: 封面 → 预览 → 控制区 紧凑堆叠, 顶部对齐
+              // (1:1 参考坐标: 封面 ~18% 起, 三按钮 ~85%, 功能行 ~94%)
               Align(
-                alignment: const Alignment(0, -0.1),
+                alignment: Alignment.topCenter,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    // 封面顶部间距 (参考图标题→封面 4%)
+                    const Padding(
+                      padding: EdgeInsets.only(top: 34),
+                      child: SizedBox.shrink(),
+                    ),
                     coverSection(narrowCover),
                     const SizedBox(height: 6),
                     _buildLyricPreview(playingViPath, lineColor,
                         highlightColor, scheme),
-                    // 预览与控制区间距加大 (参考图 7% 间隔), 控制区整体下移
-                    const SizedBox(height: 48),
+                    // 预览→控制区: 参考图约 5% 间距
+                    const SizedBox(height: 45),
                     const LyricPanelControls(),
                   ],
                 ),

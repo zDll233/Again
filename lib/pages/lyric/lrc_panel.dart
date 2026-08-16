@@ -4,6 +4,7 @@ import 'package:again/pages/lyric/components/voice_item_title.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 
 class LyricPanel extends ConsumerWidget {
   const LyricPanel({super.key});
@@ -18,14 +19,14 @@ class LyricPanel extends ConsumerWidget {
     }
     return Column(
       children: [
-        // 顶部控制栏: 标题左对齐 (参考播放器布局)
+        // 顶部控制栏: 歌名 + 作品名副标题, 左对齐 (1:1 复刻参考布局)
         SizedBox(
-          height: 50.0,
+          height: 56.0,
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 20),
-              child: const VoiceItemTitle(),
+            child: const Padding(
+              padding: EdgeInsets.only(left: 20),
+              child: _TitleBlock(),
             ),
           ),
         ),
@@ -35,6 +36,35 @@ class LyricPanel extends ConsumerWidget {
           child: const Padding(
             padding: EdgeInsets.only(top: 10.0),
             child: LyricBuilder(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// 歌名 (主) + 作品名 (副, 灰色小字) — 参考播放器标题区。
+class _TitleBlock extends ConsumerWidget {
+  const _TitleBlock();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final playingViPath = ref.watch(voiceItemProvider
+        .select((state) => state.cachedPlayingVoiceItemPath!));
+    final workName = p.basename(p.dirname(playingViPath));
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const VoiceItemTitle(),
+        Text(
+          workName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            fontSize: 12,
+            color: scheme.onSurface.withValues(alpha: 0.55),
           ),
         ),
       ],
