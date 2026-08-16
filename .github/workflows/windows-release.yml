@@ -19,13 +19,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          # 校验 tag 归属需要完整历史 (merge-base), 不能浅克隆
+          fetch-depth: 0
 
       # 校验发布 tag 必须在 main 分支上 (防止误从平台分支发布导致 UI 串台)
       - name: 校验 tag 归属 main
         shell: pwsh
         run: |
           $tag = "${{ github.ref_name }}"
-          git fetch origin main --depth=1
+          git fetch origin main
           if (-not (git merge-base --is-ancestor $tag origin/main)) {
             Write-Error "Tag $tag 不在 main 分支上, 拒绝发布。Windows 版本必须从 main 打 tag。"
             exit 1
