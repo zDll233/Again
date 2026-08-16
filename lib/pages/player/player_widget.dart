@@ -2,10 +2,16 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/liquid_glass.dart';
+import 'package:again/pages/player/components/play_back_controls/cover_lyric_button.dart';
+import 'package:again/pages/player/components/play_back_controls/next_button.dart';
+import 'package:again/pages/player/components/play_back_controls/play_pause_button.dart';
+import 'package:again/pages/player/components/play_back_controls/playback_mode_button.dart';
 import 'package:again/pages/player/components/play_back_controls/playback_controls.dart';
+import 'package:again/pages/player/components/play_back_controls/prev_button.dart';
 import 'package:again/pages/player/components/progress_bar.dart';
 import 'package:again/pages/player/components/time_display.dart';
 import 'package:again/pages/player/components/volume_control.dart';
+import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
@@ -30,30 +36,65 @@ class PlayerWidget extends ConsumerWidget {
       content = _buildWide(context);
     }
     if (isNarrow) {
-      // 窄屏: 跑道形悬浮胶囊 — 左右半圆 + 顶部直线段为进度条, 无时间文字;
-      // 悬浮在列表/面板上方 (MyApp Stack 底部 overlay)
-      const capsuleHeight = 88.0;
-      return Padding(
-        padding: const EdgeInsets.fromLTRB(12, 6, 12, 14),
-        child: Container(
-          height: capsuleHeight,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(capsuleHeight / 2),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.45),
-                blurRadius: 24,
-                offset: const Offset(0, 10),
+      // 窄屏: 跑道形悬浮胶囊 — 整体即进度条 (从左到右颜色填充),
+      // 缩略图 + 控制按钮居中; 悬浮在列表/面板上方 (MyApp Stack 底部 overlay)
+      const capsuleHeight = 64.0;
+      final duration =
+          ref.watch(audioProvider.select((state) => state.duration));
+      final position =
+          ref.watch(audioProvider.select((state) => state.position));
+      final progress = (duration == Duration.zero || position == Duration.zero)
+          ? 0.0
+          : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
+      final scheme = Theme.of(context).colorScheme;
+      return Center(
+        // Stack 在有界约束下会撑满全宽, 用 UnconstrainedBox 解除宽度约束
+        // (胶囊宽度由内容决定), Center 负责水平居中
+        child: UnconstrainedBox(
+          child: Container(
+            height: capsuleHeight,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(capsuleHeight / 2),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.45),
+                  blurRadius: 24,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(capsuleHeight / 2),
+              // 宽度由内容决定 (Stack 默认 loose, 不撑满), 胶囊收缩包住内容
+              child: Stack(
+                children: [
+                  // 进度填充: 从左到右 (底层)
+                  Positioned.fill(
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: progress,
+                      child: ColoredBox(
+                        color: scheme.primary.withValues(alpha: 0.38),
+                      ),
+                    ),
+                  ),
+                  // 毛玻璃着色 (盖在进度上, 半透明透出)
+                  Positioned.fill(
+                    child: ColoredBox(
+                      color: scheme.surface.withValues(alpha: tint),
+                    ),
+                  ),
+                  // 内容居中: 缩略图 (panel 缩略图 60 的 2/3 = 40) + 控制按钮
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: content,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: LiquidGlass(
-            borderRadius: capsuleHeight / 2,
-            tintAlpha: tint,
-            // 上边界即进度条, 不再叠加玻璃亮边 (避免双线)
-            showTopHighlight: false,
-            child: content,
+            ),
           ),
         ),
       );
@@ -67,7 +108,7 @@ class PlayerWidget extends ConsumerWidget {
     );
   }
 
-  /// 窄屏: 跑道胶囊 — 顶部直线段进度条 + 控制按钮行; 上滑/点击空白开歌词。
+  /// 窄屏: 胶囊内一行 — 缩略图 + 控制按钮; 上滑/点击空白开歌词。
   Widget _buildNarrow(BuildContext context, WidgetRef ref) {
     void openLyric() =>
         ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
@@ -97,19 +138,35 @@ class PlayerWidget extends ConsumerWidget {
               open ? 1.0 : 0.0;
         }
       },
-      child: Column(
+      // 缩略图 (panel 缩略图 60 的 2/3) + 控制按钮, 水平居中;
+      // 按钮用 SizedBox 收紧 (IconButton 默认 48px 最小尺寸会撑开胶囊)
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // 顶部直线段 = 进度条 (无时间文字)
-          const Padding(
-            padding: EdgeInsets.only(left: 18, right: 18, top: 2),
-            child: ProgressBar(trackAtTop: true),
+          const CoverLyricButton(size: 40),
+          const SizedBox(width: 10),
+          const SizedBox(
+            width: 30,
+            height: 30,
+            child: PrevButton(iconSize: 22),
           ),
-          // 按钮组垂直居中
-          Expanded(
-            child: Align(
-              alignment: Alignment.center,
-              child: const PlaybackControls(),
-            ),
+          const SizedBox(width: 4),
+          const SizedBox(
+            width: 40,
+            height: 40,
+            child: PlayPauseButton(iconSize: 32),
+          ),
+          const SizedBox(width: 4),
+          const SizedBox(
+            width: 30,
+            height: 30,
+            child: NextButton(iconSize: 22),
+          ),
+          const SizedBox(width: 10),
+          const SizedBox(
+            width: 28,
+            height: 28,
+            child: PlaybackModeButton(iconSize: 20),
           ),
         ],
       ),
