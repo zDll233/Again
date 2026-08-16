@@ -8,9 +8,10 @@ import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 歌词界面底部控制区 (参考主流播放器歌词页):
-/// 细线进度条 + 时间 (左当前/右总时长) + 控制行
-/// (左: 播放顺序切换, 中: 上一曲/播放/下一曲, 右: 队列列表)。
+/// 歌词界面底部控制区 (复刻主流播放器歌词页布局):
+/// 细线进度条 + 时间 (左当前/右总时长) +
+/// 主控制行 (上一曲/播放/下一曲 等距居中, 播放大) +
+/// 底部功能行 (播放顺序切换 / 队列列表, 小按钮居中分布)。
 class LyricPanelControls extends ConsumerWidget {
   const LyricPanelControls({super.key});
 
@@ -35,32 +36,42 @@ class LyricPanelControls extends ConsumerWidget {
             ],
           ),
         ),
-        // 控制行: 模式切换 (左) + 三按钮等距居中 (播放大) + 队列 (右)
+        // 主控制行: 三按钮等距居中 (播放大)
         SizedBox(
-          height: 64,
+          height: 58,
+          child: const Row(
+            children: [
+              Spacer(),
+              PrevButton(iconSize: 36),
+              SizedBox(width: 44),
+              PlayPauseButton(iconSize: 42),
+              SizedBox(width: 44),
+              NextButton(iconSize: 36),
+              Spacer(),
+            ],
+          ),
+        ),
+        // 底部功能行: 播放顺序切换 / 队列 (小按钮居中分布)
+        SizedBox(
+          height: 46,
           child: Row(
             children: [
-              const SizedBox(width: 12),
-              const PlaybackModeButton(iconSize: 26),
               const Spacer(),
-              const PrevButton(iconSize: 34),
-              const SizedBox(width: 14),
-              const PlayPauseButton(iconSize: 46),
-              const SizedBox(width: 14),
-              const NextButton(iconSize: 34),
+              const PlaybackModeButton(iconSize: 22),
               const Spacer(),
               // 队列: 切到音轨列表
               IconButton(
                 key: const Key('queue_button'),
                 tooltip: '队列',
-                iconSize: 26,
+                iconSize: 22,
+                padding: const EdgeInsets.all(4),
                 onPressed: () {
                   ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
                   ref.read(listsPanelPageProvider.notifier).state = 1;
                 },
                 icon: const Icon(Icons.queue_music),
               ),
-              const SizedBox(width: 12),
+              const Spacer(),
             ],
           ),
         ),
