@@ -36,17 +36,17 @@ class LyricPanelControls extends ConsumerWidget {
             ],
           ),
         ),
-        // 主控制行: 三按钮等距居中 (播放大)
+        // 主控制行: 三按钮等距居中, 大小一致 (参考播放器)
         SizedBox(
           height: 58,
           child: const Row(
             children: [
               Spacer(),
-              PrevButton(iconSize: 36),
-              SizedBox(width: 44),
-              PlayPauseButton(iconSize: 42),
-              SizedBox(width: 44),
-              NextButton(iconSize: 36),
+              PrevButton(iconSize: 38),
+              SizedBox(width: 48),
+              PlayPauseButton(iconSize: 38),
+              SizedBox(width: 48),
+              NextButton(iconSize: 38),
               Spacer(),
             ],
           ),

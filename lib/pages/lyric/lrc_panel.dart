@@ -20,9 +20,16 @@ class LyricPanel extends ConsumerWidget {
     }
     return Column(
       children: [
-        const SizedBox(
+        // 顶部控制栏: 标题左对齐 (参考播放器布局)
+        SizedBox(
           height: 50.0,
-          child: VoiceItemTitle(),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20),
+              child: const VoiceItemTitle(),
+            ),
+          ),
         ),
         // 必须 Expanded: 无高度约束会 collapse 到 0
         Expanded(

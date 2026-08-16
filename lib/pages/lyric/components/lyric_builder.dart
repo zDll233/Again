@@ -199,7 +199,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         // 封面页 = 封面 (顶部对齐, 倒影向下溢出) + 紧跟封面的 5 行歌词预览
         // (只展示, 渐变盖住倒影下部)
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.72, height - 240);
+          final narrowCover = math.min(appSize.width * 0.85, height - 240);
           return PanelSwitcher(
             panels: [
               // 封面页: 封面贴标题栏下方, 预览歌词紧跟封面 (盖住倒影),
