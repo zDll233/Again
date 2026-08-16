@@ -1,9 +1,9 @@
 name: Again Android Release Build
 
 on:
-  push:
-    tags:
-      - 'v*'
+  # Android 暂不自动发布 (secrets 未配 / 真机验证未全部完成),
+  # 需要时在 Actions 页面手动触发 (workflow_dispatch)。
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,19 +19,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          # 校验 tag 归属需要完整历史 (merge-base), 不能浅克隆
-          fetch-depth: 0
-
-      # 校验发布 tag 必须在 main 分支上 (防止误从平台分支发布)
-      - name: 校验 tag 归属 main
-        shell: bash
-        run: |
-          git fetch origin main
-          if ! git merge-base --is-ancestor "${{ github.ref_name }}" origin/main; then
-            echo "Tag ${{ github.ref_name }} 不在 main 分支上, 拒绝发布。"
-            exit 1
-          fi
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2

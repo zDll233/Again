@@ -27,10 +27,9 @@ jobs:
       - name: 校验 tag 归属 main
         shell: pwsh
         run: |
-          $tag = "${{ github.ref_name }}"
           git fetch origin main
-          if (-not (git merge-base --is-ancestor $tag origin/main)) {
-            Write-Error "Tag $tag 不在 main 分支上, 拒绝发布。Windows 版本必须从 main 打 tag。"
+          if (-not (git merge-base --is-ancestor "${{ github.ref_name }}" origin/main)) {
+            echo "Tag ${{ github.ref_name }} 不在 main 分支上, 拒绝发布。"
             exit 1
           }
 
