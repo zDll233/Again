@@ -51,23 +51,30 @@ class VolumeControl extends ConsumerWidget {
                   final showThumb = appearance?.showSliderThumb ?? false;
                   final thickness = appearance?.sliderThickness ?? 1;
                   final thumbSize = appearance?.sliderThumbSize ?? 5;
-                  return SliderTheme(
-                    data: SliderTheme.of(context).copyWith(
-                      thumbShape: showThumb
-                          ? RoundSliderThumbShape(enabledThumbRadius: thumbSize)
-                          : const NoThumbShape(),
-                      overlayShape: showThumb
-                          ? RoundSliderOverlayShape(overlayRadius: thumbSize + 6)
-                          : const NoThumbShape(),
-                      trackHeight: thickness,
-                    ),
-                    child: Slider(
-                      value: volume,
-                      min: 0.0,
-                      max: 1.0,
-                      onChanged: (double value) {
-                        audioNotifier.setVolume(value);
-                      },
+                  return SizedBox(
+                    // 固定操作区高度: thumb/overlay 隐藏时 Slider 固有高度
+                    // 会坍缩到轨道高度 (1px), 点击基本失效
+                    height: 40,
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        thumbShape: showThumb
+                            ? RoundSliderThumbShape(
+                                enabledThumbRadius: thumbSize)
+                            : const NoThumbShape(),
+                        overlayShape: showThumb
+                            ? RoundSliderOverlayShape(
+                                overlayRadius: thumbSize + 6)
+                            : const NoThumbShape(),
+                        trackHeight: thickness,
+                      ),
+                      child: Slider(
+                        value: volume,
+                        min: 0.0,
+                        max: 1.0,
+                        onChanged: (double value) {
+                          audioNotifier.setVolume(value);
+                        },
+                      ),
                     ),
                   );
                 },
