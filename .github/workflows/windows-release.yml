@@ -24,11 +24,14 @@ jobs:
           fetch-depth: 0
 
       # 校验发布 tag 必须在 main 分支上 (防止误从平台分支发布导致 UI 串台)
+      # 注意: 必须判断 $LASTEXITCODE, 不能用 if (-not (git ...)) —
+      # PowerShell 会按输出是否为空判断, git merge-base 成功输出为空会误判失败
       - name: 校验 tag 归属 main
         shell: pwsh
         run: |
           git fetch origin main
-          if (-not (git merge-base --is-ancestor "${{ github.ref_name }}" origin/main)) {
+          git merge-base --is-ancestor "${{ github.ref_name }}" origin/main
+          if ($LASTEXITCODE -ne 0) {
             echo "Tag ${{ github.ref_name }} 不在 main 分支上, 拒绝发布。"
             exit 1
           }
