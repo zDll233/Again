@@ -29,6 +29,32 @@ class PlayerWidget extends ConsumerWidget {
     } else {
       content = _buildWide(context);
     }
+    if (isNarrow) {
+      // 窄屏: 液态玻璃悬浮圆角胶囊 — 左右留白 + 圆角 + 玻璃描边 + 悬浮阴影
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(12, 4, 12, 14),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.30),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: LiquidGlass(
+            borderRadius: 24,
+            tintAlpha: tint,
+            // 移除顶部 1px 亮边: 进度条本身就是播放器的上边界
+            showTopHighlight: false,
+            child: content,
+          ),
+        ),
+      );
+    }
     return LiquidGlass(
       borderRadius: 0,
       tintAlpha: tint,
