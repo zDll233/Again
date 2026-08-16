@@ -48,14 +48,9 @@ class MyApp extends ConsumerWidget {
                     Column(
                       children: [
                         const WindowTitleBar(),
-                        // 窄屏: 底部留出悬浮播放器空间 (歌词打开时铺满)
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                bottom: isNarrow && !showLyric ? 120 : 0),
-                            child: const ListLyricSwitch(),
-                          ),
-                        ),
+                        // 列表铺满 (底部不预留空白), 悬浮胶囊盖在列表上方;
+                        // 列表自身底部 padding 保证内容可滚到胶囊上方
+                        const Expanded(child: ListLyricSwitch()),
                       ],
                     ),
                     // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),

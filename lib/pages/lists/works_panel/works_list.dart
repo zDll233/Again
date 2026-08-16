@@ -48,12 +48,16 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     }
     // 搜索关闭时直接显示全量列表 (与开启时共用条目构建)
     final searchEnabled = searchEnabledFor(ref, searchWorksEnabledProvider);
+    // 窄屏底部留出悬浮胶囊空间 (内容可滚到胶囊上方)
+    final bottomPad =
+        MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,
         itemBuilder: (context, index) => _buildItem(context, index),
         itemScrollController:
             ref.read(uiServiceProvider).worksScrollController,
+        padding: EdgeInsets.only(bottom: bottomPad),
       );
     }
     final filtered = _filteredIndices(values);
@@ -79,6 +83,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                       _buildItem(context, filtered[index]),
                   itemScrollController:
                       ref.read(uiServiceProvider).worksScrollController,
+                  padding: EdgeInsets.only(bottom: bottomPad),
                 ),
         ),
       ],

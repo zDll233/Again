@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
+import 'package:again/pages/components/panel_switcher.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
@@ -194,37 +195,34 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           );
         }
 
-        // 窄屏: 两个独立部分 — 封面部分 (封面 + 歌词预览, 只展示) +
-        // 纯歌词部分 (完整歌词, 可滑可点); 预览歌词盖住封面倒影下半部
+        // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
+        // 封面页 = 封面 (倒影向下溢出) + 底部 5 行歌词预览 (只展示, 渐变盖住倒影)
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.62, height - 220);
-          return Column(
-            children: [
-              // 封面部分: 封面 (倒影向下溢出) + 底部歌词预览
-              SizedBox(
-                height: narrowCover + 72,
-                width: double.infinity,
-                child: Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    Center(child: coverSection(narrowCover)),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      height: 72,
-                      child: _buildLyricPreview(playingViPath, lineColor,
-                          highlightColor, scheme),
-                    ),
-                  ],
-                ),
+          final narrowCover = math.min(appSize.width * 0.62, height - 240);
+          return PanelSwitcher(
+            panels: [
+              // 封面页: 封面偏上, 底部 5 行歌词预览 (渐变盖住倒影)
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Align(
+                    alignment: const Alignment(0, -0.15),
+                    child: coverSection(narrowCover),
+                  ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 104,
+                    child: _buildLyricPreview(playingViPath, lineColor,
+                        highlightColor, scheme),
+                  ),
+                ],
               ),
-              // 纯歌词部分: 完整歌词
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: lyricSection(),
-                ),
+              // 纯歌词页: 完整歌词
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: lyricSection(),
               ),
             ],
           );
@@ -335,7 +333,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
   }
 
-  /// 封面部分的歌词预览 (窄屏): 只展示当前句附近 3 行, 不可滑动/点击。
+  /// 封面部分的歌词预览 (窄屏): 只展示当前句附近 5 行 (上 2/下 2),
+  /// 不可滑动/点击; 长文本行字号自动缩小。
   /// 渐变背景从透明过渡到面板色, 让封面倒影隐约透出后被歌词覆盖。
   Widget _buildLyricPreview(String playingViPath, Color lineColor,
       Color highlightColor, ColorScheme scheme) {
@@ -351,34 +350,52 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
               final position = ref.watch(
                   audioProvider.select((state) => state.position));
               final lines = model.lyrics;
+              // 跳过空行 (多时间戳 lrc 在每句后带 [time] 空行占位)
+              final lyricLines = <LyricsLineModel>[];
+              for (final l in lines) {
+                if ((l.mainText ?? '').trim().isNotEmpty) {
+                  lyricLines.add(l);
+                }
+              }
               var current = -1;
-              for (var j = 0; j < lines.length; j++) {
-                if ((lines[j].startTime ?? 0) <= position.inMilliseconds) {
+              for (var j = 0; j < lyricLines.length; j++) {
+                if ((lyricLines[j].startTime ?? 0) <= position.inMilliseconds) {
                   current = j;
                 } else {
                   break;
                 }
               }
               String textOf(int i) {
-                if (i < 0 || i >= lines.length) return '';
-                return lines[i].mainText ?? '';
+                if (i < 0 || i >= lyricLines.length) return '';
+                return lyricLines[i].mainText ?? '';
               }
 
-              final prev = textOf(current - 1);
-              final cur = textOf(current);
-              final next = textOf(current + 1);
-              final hasAny = prev.isNotEmpty || cur.isNotEmpty || next.isNotEmpty;
-              if (!hasAny) return const SizedBox.shrink();
+              // 5 行: 上 2 + 当前 + 下 2
+              final previews = [
+                textOf(current - 2),
+                textOf(current - 1),
+                textOf(current),
+                textOf(current + 1),
+                textOf(current + 2),
+              ];
+              if (previews.every((t) => t.isEmpty)) return const SizedBox.shrink();
+
+              // 字号自适应: 按 5 行内最长文本长度缩放
+              final longest = previews
+                  .map((t) => t.length)
+                  .reduce(math.max);
+              final fontSize = longest > 20 ? 12.0 : (longest > 12 ? 13.5 : 15.0);
 
               Widget line(String text, bool highlight) {
-                if (text.isEmpty) return const SizedBox(height: 22);
+                if (text.isEmpty) return const SizedBox(height: 16);
                 return Text(
                   text,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: highlight ? 16 : 14,
-                    fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
+                    fontSize: highlight ? fontSize + 2 : fontSize,
+                    fontWeight:
+                        highlight ? FontWeight.bold : FontWeight.normal,
                     color: highlight
                         ? highlightColor
                         : lineColor.withValues(alpha: 0.75),
@@ -396,18 +413,18 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                       Colors.transparent,
                       scheme.surface.withValues(alpha: 0.95),
                     ],
-                    stops: const [0.0, 0.55],
+                    stops: const [0.0, 0.5],
                   ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    line(prev, false),
-                    const SizedBox(height: 2),
-                    line(cur, true),
-                    const SizedBox(height: 2),
-                    line(next, false),
+                    line(previews[0], false),
+                    line(previews[1], false),
+                    line(previews[2], true),
+                    line(previews[3], false),
+                    line(previews[4], false),
                   ],
                 ),
               );
