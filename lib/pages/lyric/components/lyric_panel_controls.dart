@@ -10,8 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 歌词界面底部控制区 (复刻主流播放器歌词页布局):
 /// 细线进度条 + 时间 (左当前/右总时长) +
-/// 主控制行 (上一曲/播放/下一曲 等距居中, 播放大) +
-/// 底部功能行 (播放顺序切换 / 队列列表, 小按钮居中分布)。
+/// 单排控制按钮 (播放顺序 / 上一曲/播放/下一曲紧凑排列 / 队列)。
 class LyricPanelControls extends ConsumerWidget {
   const LyricPanelControls({super.key});
 
@@ -36,34 +35,25 @@ class LyricPanelControls extends ConsumerWidget {
             ],
           ),
         ),
-        // 主控制行: 三按钮等距居中, 大小一致 (参考播放器)
+        // 单排控制按钮: 播放顺序 (左) + 三按钮紧凑 (中) + 队列 (右)
         SizedBox(
           height: 58,
-          child: const Row(
-            children: [
-              Spacer(),
-              PrevButton(iconSize: 38),
-              SizedBox(width: 48),
-              PlayPauseButton(iconSize: 38),
-              SizedBox(width: 48),
-              NextButton(iconSize: 38),
-              Spacer(),
-            ],
-          ),
-        ),
-        // 底部功能行: 播放顺序切换 / 队列 (小按钮居中分布)
-        SizedBox(
-          height: 46,
           child: Row(
             children: [
+              const SizedBox(width: 24),
+              const PlaybackModeButton(iconSize: 24),
               const Spacer(),
-              const PlaybackModeButton(iconSize: 22),
+              const PrevButton(iconSize: 32),
+              const SizedBox(width: 12),
+              const PlayPauseButton(iconSize: 38),
+              const SizedBox(width: 12),
+              const NextButton(iconSize: 32),
               const Spacer(),
               // 队列: 切到音轨列表
               IconButton(
                 key: const Key('queue_button'),
                 tooltip: '队列',
-                iconSize: 22,
+                iconSize: 24,
                 padding: const EdgeInsets.all(4),
                 onPressed: () {
                   ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
@@ -71,7 +61,7 @@ class LyricPanelControls extends ConsumerWidget {
                 },
                 icon: const Icon(Icons.queue_music),
               ),
-              const Spacer(),
+              const SizedBox(width: 24),
             ],
           ),
         ),

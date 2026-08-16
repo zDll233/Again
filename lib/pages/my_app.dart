@@ -41,11 +41,12 @@ class MyApp extends ConsumerWidget {
           scrollBehavior: MyCustomScrollBehavior(),
           home: Scaffold(
             backgroundColor: Colors.transparent,
-            body: SafeArea(
-              child: MoveWindow(
-                child: Stack(
-                  children: [
-                    Column(
+            body: MoveWindow(
+              child: Stack(
+                children: [
+                  // 内容区: SafeArea 避开状态栏/导航条
+                  SafeArea(
+                    child: Column(
                       children: [
                         const WindowTitleBar(),
                         // 列表铺满 (底部不预留空白), 悬浮胶囊盖在列表上方;
@@ -53,21 +54,23 @@ class MyApp extends ConsumerWidget {
                         const Expanded(child: ListLyricSwitch()),
                       ],
                     ),
-                    // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),
-                    // 桌面版保持贴底全宽; 歌词界面打开时隐藏 (自带控制区)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: isNarrow ? 12 : 0,
-                      child: isNarrow && showLyric
-                          ? const SizedBox.shrink()
-                          : const PlayerWidget(),
-                    ),
-                    // 歌词面板层 (最顶层): 上划时面板盖住悬浮播放器
-                    if (isNarrow)
-                      const Positioned.fill(child: LyricPanelOverlay()),
-                  ],
-                ),
+                  ),
+                  // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),
+                  // 桌面版保持贴底全宽; 歌词界面打开时隐藏 (自带控制区);
+                  // bottom 附加 SafeArea 底距避开系统导航条
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: (isNarrow ? 12 : 0) +
+                        MediaQuery.paddingOf(context).bottom,
+                    child: isNarrow && showLyric
+                        ? const SizedBox.shrink()
+                        : const PlayerWidget(),
+                  ),
+                  // 歌词面板层 (最顶层, 全屏含状态栏): 上划时面板盖住悬浮播放器
+                  if (isNarrow)
+                    const Positioned.fill(child: LyricPanelOverlay()),
+                ],
               ),
             ),
           ),

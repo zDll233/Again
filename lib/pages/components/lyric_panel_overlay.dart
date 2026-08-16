@@ -34,6 +34,8 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
     _lyricAnim.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
+        debugPrint(
+            '[LPO] anim ${status.name} value=${_lyricAnim.value}');
         ref.read(lyricPanelAnimateRequestProvider.notifier).state = null;
       }
     });
@@ -48,6 +50,7 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
   /// 从当前进度动画到 [target]。
   void _animateTo(double target) {
     _lyricAnim.value = ref.read(lyricPanelProgressProvider);
+    debugPrint('[LPO] animateTo $target from ${_lyricAnim.value}');
     _lyricAnim.animateTo(target);
   }
 
@@ -101,9 +104,10 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
         // 自身高度平移会露出面板顶部)
         offset: Offset(0, screenHeight * (1 - progress)),
         child: Container(
-          // 全不透明: 面板必须完全盖住底层列表与播放器
+          // 全不透明: 面板必须完全盖住底层列表与播放器;
+          // 全屏覆盖状态栏 (沉浸式), 内容用 SafeArea 避开状态栏/导航条
           color: scheme.surface,
-          child: const LyricPanel(),
+          child: const SafeArea(child: LyricPanel()),
         ),
       ),
     );

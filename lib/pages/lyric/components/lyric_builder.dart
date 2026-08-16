@@ -100,13 +100,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
               future: _getCoverPath(workPath),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) return const SizedBox.shrink();
-                // 以封面本体为对象垂直居中, 倒影向下延伸不参与居中
+                // 以封面本体为对象垂直居中
                 return Padding(
                   padding: EdgeInsets.only(
                       top: isNarrow ? 0 : (height - coverSize) / 2),
                   child: _buildCover(snapshot.data!, coverSize,
-                      tilt: appearance?.coverTilt ?? true,
-                      reflection: appearance?.coverReflection ?? true),
+                      tilt: false, reflection: false),
                 );
               },
             ),
@@ -196,14 +195,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         }
 
         // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
-        // 封面页 = 封面 (顶部对齐, 倒影向下溢出) + 紧跟封面的 5 行歌词预览
-        // (只展示, 渐变盖住倒影下部)
+        // 封面页 = 封面 (无倒影/倾斜, 顶部对齐) + 紧跟封面的 5 行歌词预览
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.85, height - 240);
+          final narrowCover = math.min(appSize.width * 0.85, height - 260);
           return PanelSwitcher(
             panels: [
-              // 封面页: 封面贴标题栏下方, 预览歌词紧跟封面 (盖住倒影),
-              // 预览区延伸到底部控制区 (背景与面板同色, 无断层空白)
+              // 封面页: 封面贴标题栏下方, 预览歌词紧跟封面底部
               Stack(
                 clipBehavior: Clip.none,
                 children: [
@@ -214,13 +211,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                       child: coverSection(narrowCover),
                     ),
                   ),
-                  // 预览: top = 封面顶 + 封面高 + 倒影高 - 上移量
-                  // (上移盖住倒影下部, 视觉上预览紧跟封面); 向下延伸到底部,
-                  // 渐变背景与面板同色 — 文字下方无断层空白
+                  // 预览: 紧跟封面底部 (上移 10 轻微衔接), 渐变背景延伸
+                  // 到底部控制区; 文字垂直居中填充剩余空间
                   Positioned(
                     left: 0,
                     right: 0,
-                    top: 12 + narrowCover + narrowCover / 3 - 36,
+                    top: 12 + narrowCover - 10,
                     bottom: 0,
                     child: Container(
                       width: double.infinity,
@@ -232,17 +228,14 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                             Colors.transparent,
                             scheme.surface.withValues(alpha: 0.95),
                           ],
-                          stops: const [0.0, 0.35],
+                          stops: const [0.0, 0.3],
                         ),
                       ),
-                      // 文字顶部对齐 (紧跟封面, 盖住倒影下部)
+                      // 略偏上 (盖住封面下缘的渐变衔接), 上下空白均衡
                       child: Align(
-                        alignment: Alignment.topCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 30),
-                          child: _buildLyricPreview(playingViPath, lineColor,
-                              highlightColor, scheme),
-                        ),
+                        alignment: const Alignment(0, -0.15),
+                        child: _buildLyricPreview(playingViPath, lineColor,
+                            highlightColor, scheme),
                       ),
                     ),
                   ),
