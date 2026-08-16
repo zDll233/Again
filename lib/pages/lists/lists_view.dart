@@ -32,9 +32,11 @@ class ListsView extends ConsumerWidget {
           .toDouble();
       return Stack(
         children: [
-          // 作品/音轨: 左右滑动切换 (面板自带标题, 无 tab 条)
-          const PanelSwitcher(
-            panels: [WorksPanel(), TracksPanel()],
+          // 作品/音轨: 左右滑动切换 (面板自带标题, 无 tab 条);
+          // 外部可请求跳页 (歌词界面队列按钮)
+          PanelSwitcher(
+            panels: const [WorksPanel(), TracksPanel()],
+            pageProvider: listsPanelPageProvider,
           ),
           // 筛选抽屉: 从左到右弹出, 不完全覆盖 (右侧留白点击收起)
           if (filterExpanded) ...[

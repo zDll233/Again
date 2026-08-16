@@ -30,12 +30,15 @@ class PlayerWidget extends ConsumerWidget {
       content = _buildWide(context);
     }
     if (isNarrow) {
-      // 窄屏: 液态玻璃悬浮圆角胶囊 — 左右留白 + 圆角 + 玻璃描边 + 悬浮阴影
+      // 窄屏: 跑道形悬浮胶囊 — 左右半圆 + 顶部直线段为进度条, 无时间文字;
+      // 悬浮在列表/面板上方 (MyApp Stack 底部 overlay)
+      const capsuleHeight = 88.0;
       return Padding(
         padding: const EdgeInsets.fromLTRB(12, 6, 12, 14),
         child: Container(
+          height: capsuleHeight,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(capsuleHeight / 2),
             border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
             boxShadow: [
               BoxShadow(
@@ -46,7 +49,7 @@ class PlayerWidget extends ConsumerWidget {
             ],
           ),
           child: LiquidGlass(
-            borderRadius: 24,
+            borderRadius: capsuleHeight / 2,
             tintAlpha: tint,
             // 胶囊保留顶部亮边: 玻璃受光感
             showTopHighlight: true,
@@ -64,7 +67,7 @@ class PlayerWidget extends ConsumerWidget {
     );
   }
 
-  /// 窄屏: 上滑/点击空白打开歌词 (拖动跟手); 布局 = 进度条 + 时间行 + 按钮行。
+  /// 窄屏: 跑道胶囊 — 顶部直线段进度条 + 控制按钮行; 上滑/点击空白开歌词。
   Widget _buildNarrow(BuildContext context, WidgetRef ref) {
     void openLyric() =>
         ref.read(miscUIProvider.notifier).toggleShowLyricPanel();
@@ -94,35 +97,21 @@ class PlayerWidget extends ConsumerWidget {
               open ? 1.0 : 0.0;
         }
       },
-      child: SizedBox(
-        // 窄屏高度加大: 进度条(40) + 时间行 + 按钮行, 90 放不下会溢出裁切
-        height: PLAYER_WIDGET_HEIGHT + 20,
-        child: Column(
-          children: [
-            const ProgressBar(),
-            // 进度文字贴近进度条: 当前时间左 / 总时长右
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 18),
-              child: Row(
-                children: [
-                  PositionTimeText(),
-                  Spacer(),
-                  DurationTimeText(),
-                ],
-              ),
+      child: Column(
+        children: [
+          // 顶部直线段 = 进度条 (无时间文字)
+          const Padding(
+            padding: EdgeInsets.only(left: 18, right: 18, top: 2),
+            child: ProgressBar(trackAtTop: true),
+          ),
+          // 按钮组垂直居中
+          Expanded(
+            child: Align(
+              alignment: Alignment.center,
+              child: const PlaybackControls(),
             ),
-            // 按钮组贴底但留出底边距
-            Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: const PlaybackControls(),
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -4,7 +4,6 @@ import 'dart:math' as math;
 
 import 'package:again/common/const.dart';
 import 'package:again/pages/components/image_thumbnail.dart';
-import 'package:again/pages/components/panel_switcher.dart';
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/ui/theme/theme_provider.dart';
 import 'package:again/services/ui/theme/ui_settings.dart';
@@ -93,7 +92,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             : appSize.width - leftMargin - coverSize - coverGap - rightMargin;
 
         // 封面区 (含加载封面 + 垂直居中偏移)
-        Widget coverSection() {
+        Widget coverSection(double coverSize) {
           return SizedBox(
             width: coverSize,
             child: FutureBuilder<String>(
@@ -195,14 +194,18 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           );
         }
 
-        // 窄屏: 封面/歌词左右滑动切换
+        // 窄屏: 封面在上 (占屏宽 85% 左右), 歌词在下 — 与参考播放器
+        // 同屏布局 (封面/歌词/进度/控制一屏显示)
         if (isNarrow) {
-          return PanelSwitcher(
-            panels: [
-              Center(child: coverSection()),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: lyricSection(),
+          final narrowCover = math.min(appSize.width * 0.85, height * 0.48);
+          return Column(
+            children: [
+              Center(child: coverSection(narrowCover)),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  child: lyricSection(),
+                ),
               ),
             ],
           );
@@ -217,7 +220,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                coverSection(),
+                coverSection(coverSize),
                 SizedBox(width: coverGap),
                 Expanded(child: lyricSection()),
               ],

@@ -38,6 +38,9 @@ final lyricPanelProgressProvider = StateProvider<double>((ref) => 0.0);
 final lyricPanelAnimateRequestProvider =
     StateProvider<double?>((ref) => null);
 
+/// 列表面板当前页 (0=作品, 1=音轨); 外部(如歌词界面队列按钮)可请求跳页。
+final listsPanelPageProvider = StateProvider<int>((ref) => 0);
+
 final uiServiceProvider = Provider<UIService>((ref) => UIService(ref));
 
 final isSelectedFilterPlaying = Provider<bool>(

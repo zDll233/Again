@@ -7,9 +7,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProgressBar extends ConsumerWidget {
-  const ProgressBar({super.key});
+  const ProgressBar({super.key, this.trackAtTop = false});
 
-  /// 窄屏进度条: 纯轨道贴底 (紧邻时间行), 点击/拖动 seek。
+  /// 窄屏进度条轨道位置: true 贴顶 (跑道胶囊/歌词控制区用), false 贴底。
+  final bool trackAtTop;
+
+  /// 窄屏进度条: 纯轨道 (紧邻时间行), 点击/拖动 seek。
   Widget _buildNarrow(BuildContext context, WidgetRef ref,
       AudioNotifier audioNotifier) {
     final scheme = Theme.of(context).colorScheme;
@@ -47,7 +50,8 @@ class ProgressBar extends ConsumerWidget {
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: 0,
+                  top: trackAtTop ? 0 : null,
+                  bottom: trackAtTop ? null : 0,
                   height: thickness,
                   child: Container(
                     color: scheme.onSurface.withValues(alpha: 0.12),
@@ -55,7 +59,8 @@ class ProgressBar extends ConsumerWidget {
                 ),
                 Positioned(
                   left: 0,
-                  bottom: 0,
+                  top: trackAtTop ? 0 : null,
+                  bottom: trackAtTop ? null : 0,
                   width: constraints.maxWidth * progress,
                   height: thickness,
                   child: Container(color: scheme.primary),
