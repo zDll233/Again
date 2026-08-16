@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
@@ -111,21 +111,23 @@ void openImageDialog(BuildContext context, ImageProvider imageProvider) =>
             }
           },
           child: Dialog(
-              insetPadding: EdgeInsets.all(70.0),
-              backgroundColor: Colors.transparent,
-              child: ClipRect(
-                child: PhotoView(
-                  tightMode: true,
-                  loadingBuilder: (_, __) =>
-                      const Center(child: CircularProgressIndicator()),
-                  backgroundDecoration:
-                      BoxDecoration(color: Colors.transparent),
-                  imageProvider: imageProvider,
-                  controller: controller,
-                  filterQuality: FilterQuality.medium,
-                ),
+            // Android 小屏预览尽量利用屏幕, 桌面保留较宽的对话框边距。
+            insetPadding: Platform.isAndroid
+                ? const EdgeInsets.all(8.0)
+                : const EdgeInsets.all(70.0),
+            backgroundColor: Colors.transparent,
+            child: ClipRect(
+              child: PhotoView(
+                tightMode: true,
+                loadingBuilder: (_, __) =>
+                    const Center(child: CircularProgressIndicator()),
+                backgroundDecoration: BoxDecoration(color: Colors.transparent),
+                imageProvider: imageProvider,
+                controller: controller,
+                filterQuality: FilterQuality.medium,
               ),
             ),
-          );
+          ),
+        );
       },
     );

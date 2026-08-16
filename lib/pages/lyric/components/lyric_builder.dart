@@ -11,7 +11,6 @@ import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
-import 'package:again/pages/lyric/components/lyric_panel_controls.dart';
 import 'package:again/utils/log.dart';
 import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
@@ -22,17 +21,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 class LyricBuilder extends ConsumerStatefulWidget {
-  const LyricBuilder({super.key});
+  const LyricBuilder({super.key, this.topInset = 0});
+
+  /// 状态栏高度 (SafeArea 外的真实值), 用于窄屏参考图比例定位。
+  final double topInset;
 
   @override
   ConsumerState<LyricBuilder> createState() => _LrcBuilderState();
 }
 
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
+  static const _previewColorStyleVersion = 2;
+
   bool _hasLyric = false;
   bool _readLyric = false;
   String _lastWorkPath = '';
   String _lastCoverPath = '';
+  String _previewUiKey = '';
+  UINetease? _previewUi;
 
   @override
   Widget build(BuildContext context) {
@@ -57,8 +63,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     // 默认值统一取自 TextSettings() 构造 (单一来源)
     const lyricDefaults = TextSettings();
     final lyricUi = UINetease(
-      defaultSize: ts?.lyricCurrentSize ??
-          (ts?.lyricSize ?? lyricDefaults.lyricSize) + 2,
+      defaultSize: ts?.lyricCurrentSize ?? lyricDefaults.lyricCurrentSize,
       otherMainSize: ts?.lyricSize ?? lyricDefaults.lyricSize,
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
@@ -113,6 +118,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     reflection: isNarrow
                         ? false
                         : (appearance?.coverReflection ?? true),
+                    allowPreview: !isNarrow,
                   ),
                 );
               },
@@ -146,48 +152,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   try {
                     final lrcContent = snapshot.data ?? '';
                     final cachedLyricModel = _getLrcModel(lrcContent);
-                    return Consumer(
-                      builder: (_, WidgetRef ref, __) {
-                        final position = ref.watch(
-                            audioProvider.select((state) => state.position));
-                        final isPlaying = ref.watch(
-                            audioProvider.select((state) => state.isPlaying));
-                        return LyricsReader(
-                          model: cachedLyricModel,
-                          position: position.inMilliseconds,
-                          playing: isPlaying,
-                          // 歌词行宽 = 歌词列 - 水平留白; 左对齐时文字起点
-                          // 对齐 hover 框左缘 (行框内边距 12)
-                          padding: ts?.lyricAlign == 'left'
-                              ? EdgeInsets.only(
-                                  left: 12, right: lyricWidth * 0.10)
-                              : EdgeInsets.symmetric(
-                                  horizontal: lyricWidth * 0.10),
-                          emptyBuilder: () => EmptyLyric(
-                            haveLyric: _hasLyric,
-                            readLyric: _readLyric,
-                          ),
-                          // 点击歌词行跳转到该行播放
-                          onTapLine: (index, startTime) {
-                            ref.read(audioProvider.notifier).seek(startTime);
-                            if (!isPlaying) {
-                              ref.read(audioProvider.notifier).resume();
-                            }
-                          },
-                          // hover 行边框 (Material 风白色半透明) + 点击涟漪
-                          hoverColor: Colors.white,
-                          // hover 行左侧起始时间 (可开关/调字号)
-                          hoverTimeColor: (appearance?.showHoverTime ?? true)
-                              ? Colors.white.withValues(alpha: 0.45)
-                              : null,
-                          hoverTimeSize: appearance?.hoverTimeSize ?? 14,
-                          rippleColor: scheme.primary,
-                          lyricUi: lyricUi,
-                          waitMilliseconds: 5000,
-                          canScrollBack: isPlaying,
-                          canFlashBack: true,
-                        );
-                      },
+                    return _buildLyricsReader(
+                      model: cachedLyricModel,
+                      lyricUi: lyricUi,
+                      padding: ts?.lyricAlign == 'left'
+                          ? EdgeInsets.only(left: 12, right: lyricWidth * 0.10)
+                          : EdgeInsets.symmetric(horizontal: lyricWidth * 0.10),
+                      interactive: true,
+                      emptyBuilder: () => EmptyLyric(
+                        haveLyric: _hasLyric,
+                        readLyric: _readLyric,
+                      ),
                     );
                   } catch (e) {
                     Log.error('Error parsing lyrics: $e');
@@ -203,44 +178,60 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         }
 
         // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
-        // 控制区在每页内部, 与内容紧凑堆叠 (参考播放器布局);
-        // 封面页 = 封面 + 5 行预览 + 控制区, 整体垂直居中
+        // 布局按参考播放器截图像素比例定位 (694x1503):
+        //   标题区 4.2%-10% / 封面约 18%-58% /
+        //   预览约 62%-79% (底部控制区固定在 PageView 外)
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.85, height - 300);
+          final screenH = appSize.height;
+          // 标题区底相对屏顶 = 状态栏 + 标题区 (标题区与 LyricPanel 一致),
+          // Positioned 相对 LyricBuilder 顶 (= 标题区底), 故各区块减去它
+          final titleH = math.max(screenH * 0.058, 56.0);
+          final contentTop = widget.topInset + titleH;
+          // Android 歌词页封面恢复原比例; 作品条目封面预览的放宽在
+          // image_thumbnail.dart 的对话框中单独处理。
+          final narrowCover = appSize.width * 0.849;
           return PanelSwitcher(
             panels: [
-              // 封面页: 封面 → 预览 → 控制区 紧凑堆叠, 顶部对齐
-              // (1:1 参考坐标: 封面 ~18% 起, 三按钮 ~85%, 功能行 ~94%)
-              Align(
-                alignment: Alignment.topCenter,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // 封面顶部间距 (参考图标题→封面 4%)
-                    const Padding(
-                      padding: EdgeInsets.only(top: 34),
-                      child: SizedBox.shrink(),
-                    ),
-                    coverSection(narrowCover),
-                    const SizedBox(height: 6),
-                    _buildLyricPreview(
-                        playingViPath, lineColor, highlightColor, scheme),
-                    // 预览→控制区: 参考图约 5% 间距
-                    const SizedBox(height: 45),
-                    const LyricPanelControls(),
-                  ],
-                ),
-              ),
-              // 纯歌词页: 完整歌词 + 控制区
-              Column(
+              // 封面页: 封面/预览/控制区按百分比定位
+              Stack(
+                fit: StackFit.expand,
                 children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8),
-                      child: lyricSection(),
-                    ),
+                  // 封面: 18% 屏高起, 水平居中, 给三句预览留出空间
+                  Positioned(
+                    top: screenH * 0.18 - contentTop,
+                    left: (appSize.width - narrowCover) / 2,
+                    child: coverSection(narrowCover),
                   ),
-                  const LyricPanelControls(),
+                  // 歌词预览: 62% 屏高起
+                  Positioned(
+                    top: screenH * 0.62 - contentTop,
+                    left: 0,
+                    right: 0,
+                    child: _buildLyricPreview(
+                        playingViPath,
+                        ts?.lyricPreviewColor?.resolve(lineColor, themeHue) ??
+                            lineColor,
+                        ts?.lyricPreviewHighlightColor
+                                ?.resolve(highlightColor, themeHue) ??
+                            highlightColor,
+                        ts?.lyricAlign ?? 'left',
+                        math.max(14.0, (ts?.lyricLineGap ?? 25.0) * 0.6),
+                        ts?.lyricPreviewSize ?? 16.0),
+                  ),
+                ],
+              ),
+              // 纯歌词页: 歌词 14%-80%; 底部控制区由 LyricPanel 固定覆盖。
+              Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    top: screenH * 0.14 - contentTop,
+                    left: 0,
+                    right: 0,
+                    bottom:
+                        constraints.maxHeight - (screenH * 0.80 - contentTop),
+                    child: lyricSection(),
+                  ),
                 ],
               ),
             ],
@@ -267,13 +258,14 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     );
   }
 
-  /// 封面 (+ 可选倒影/3D 倾斜), 点击可放大;
-  /// 无封面时显示占位图标块, 同样有倾斜/倒影, 仅不可点击查看大图。
+  /// 封面 (+ 可选倒影/3D 倾斜);
+  /// 无封面时显示占位图标块。Android 只负责展示, Windows 保留预览入口。
   Widget _buildCover(String coverPath, double size,
-      {bool tilt = true, bool reflection = true}) {
+      {bool tilt = true, bool reflection = true, bool allowPreview = true}) {
     final hasCover = coverPath.isNotEmpty && File(coverPath).existsSync();
-    final imageProvider = hasCover ? FileImage(File(coverPath)) : null;
-    // 有封面才允许点击查看大图
+    final imageProvider =
+        allowPreview && hasCover ? FileImage(File(coverPath)) : null;
+
     void onCoverTap() {
       if (imageProvider != null) {
         openImageDialog(context, imageProvider);
@@ -303,7 +295,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       return ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: Image(
-          image: ResizeImage(imageProvider!, height: cacheHeight),
+          image: ResizeImage(FileImage(File(coverPath)), height: cacheHeight),
           width: w,
           height: h,
           fit: BoxFit.cover,
@@ -341,22 +333,26 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     if (!tilt) {
       // 关闭倾斜: 直接显示封面
       return GestureDetector(
-        onTap: onCoverTap,
+        onTap: allowPreview ? onCoverTap : null,
         child: coverBody,
       );
     }
     return _TiltCover(
       coverSize: size,
-      onTap: onCoverTap,
+      onTap: allowPreview ? onCoverTap : null,
       child: coverBody,
     );
   }
 
-  /// 封面部分的歌词预览 (窄屏): 只展示当前句附近 5 行 (上 2/下 2),
-  /// 不可滑动/点击; 长文本行字号自动缩小。
-  /// 渐变背景从透明过渡到面板色, 让封面倒影隐约透出后被歌词覆盖。
-  Widget _buildLyricPreview(String playingViPath, Color lineColor,
-      Color highlightColor, ColorScheme scheme) {
+  /// 使用右侧相同的 LyricsReader, 仅缩小字号/行距并限制显示区域。
+  /// 封面预览不可滑动/点击; 对齐方式跟随设置。
+  Widget _buildLyricPreview(
+      String playingViPath,
+      Color lineColor,
+      Color highlightColor,
+      String lyricAlign,
+      double lineGap,
+      double previewSize) {
     return FutureBuilder<String>(
       future: _getLrcContent(playingViPath),
       builder: (context, snapshot) {
@@ -364,86 +360,94 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         if (content.isEmpty) return const SizedBox.shrink();
         try {
           final model = _getLrcModel(content);
-          return Consumer(
-            builder: (_, WidgetRef ref, __) {
-              final position =
-                  ref.watch(audioProvider.select((state) => state.position));
-              final lines = model.lyrics;
-              // 跳过空行 (多时间戳 lrc 在每句后带 [time] 空行占位)
-              final lyricLines = <LyricsLineModel>[];
-              for (final l in lines) {
-                if ((l.mainText ?? '').trim().isNotEmpty) {
-                  lyricLines.add(l);
-                }
-              }
-              var current = -1;
-              for (var j = 0; j < lyricLines.length; j++) {
-                if ((lyricLines[j].startTime ?? 0) <= position.inMilliseconds) {
-                  current = j;
-                } else {
-                  break;
-                }
-              }
-              String textOf(int i) {
-                if (i < 0 || i >= lyricLines.length) return '';
-                return lyricLines[i].mainText ?? '';
-              }
-
-              // 5 行: 上 2 + 当前 + 下 2
-              final previews = [
-                textOf(current - 2),
-                textOf(current - 1),
-                textOf(current),
-                textOf(current + 1),
-                textOf(current + 2),
-              ];
-              if (previews.every((t) => t.isEmpty)) {
-                return const SizedBox.shrink();
-              }
-
-              // 字号自适应: 按 5 行内最长文本长度缩放
-              final longest = previews.map((t) => t.length).reduce(math.max);
-              final fontSize =
-                  longest > 20 ? 12.0 : (longest > 12 ? 13.5 : 15.0);
-
-              Widget line(String text, bool highlight) {
-                if (text.isEmpty) return const SizedBox(height: 16);
-                return Text(
-                  text,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontSize: highlight ? fontSize + 2 : fontSize,
-                    fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
-                    color: highlight
-                        ? highlightColor
-                        : lineColor.withValues(alpha: 0.75),
-                  ),
-                );
-              }
-
-              // 渐变背景已由外层 Positioned 提供, 这里只渲染 5 行文字
-              return Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    line(previews[0], false),
-                    line(previews[1], false),
-                    line(previews[2], true),
-                    line(previews[3], false),
-                    line(previews[4], false),
-                  ],
-                ),
-              );
-            },
+          return SizedBox(
+            height: MediaQuery.sizeOf(context).height * 0.17,
+            child: _buildLyricsReader(
+              model: model,
+              lyricUi: _getPreviewUi(
+                  lineColor, highlightColor, lineGap, previewSize, lyricAlign),
+              padding: lyricAlign == 'left'
+                  ? const EdgeInsets.only(left: 12, right: 24)
+                  : const EdgeInsets.symmetric(horizontal: 24),
+              interactive: false,
+            ),
           );
         } catch (e) {
           return const SizedBox.shrink();
         }
       },
     );
+  }
+
+  /// 右侧歌词与封面预览共用的渲染入口。
+  /// [interactive] 为 false 时，保留自动跟随播放与逐字高亮，但屏蔽所有输入。
+  Widget _buildLyricsReader({
+    required LyricsReaderModel model,
+    required UINetease lyricUi,
+    required EdgeInsets padding,
+    required bool interactive,
+    Widget? Function()? emptyBuilder,
+  }) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final position =
+            ref.watch(audioProvider.select((state) => state.position));
+        final isPlaying =
+            ref.watch(audioProvider.select((state) => state.isPlaying));
+        final reader = LyricsReader(
+          model: model,
+          position: position.inMilliseconds,
+          playing: isPlaying,
+          padding: padding,
+          emptyBuilder: emptyBuilder,
+          onTapLine: interactive
+              ? (index, startTime) {
+                  ref.read(audioProvider.notifier).seek(startTime);
+                  if (!isPlaying) {
+                    ref.read(audioProvider.notifier).resume();
+                  }
+                }
+              : null,
+          hoverColor: interactive ? Colors.white : null,
+          hoverTimeColor: interactive
+              ? (ref.watch(uiSettingsProvider).valueOrNull?.showHoverTime ??
+                      true)
+                  ? Colors.white.withValues(alpha: 0.45)
+                  : null
+              : null,
+          hoverTimeSize:
+              ref.watch(uiSettingsProvider).valueOrNull?.hoverTimeSize ?? 14,
+          rippleColor:
+              interactive ? Theme.of(context).colorScheme.primary : null,
+          lyricUi: lyricUi,
+          waitMilliseconds: 5000,
+          canScrollBack: interactive && isPlaying,
+          canFlashBack: interactive,
+        );
+        return interactive ? reader : IgnorePointer(child: reader);
+      },
+    );
+  }
+
+  /// UI 实例也必须稳定, 否则 flutter_lyric 会把样式变化当成重置请求。
+  UINetease _getPreviewUi(Color lineColor, Color highlightColor, double lineGap,
+      double previewSize, String lyricAlign) {
+    final key =
+        '$_previewColorStyleVersion-${lineColor.toARGB32()}-${highlightColor.toARGB32()}-$lineGap-$previewSize-$lyricAlign';
+    if (_previewUi == null || _previewUiKey != key) {
+      _previewUiKey = key;
+      _previewUi = UINetease(
+        defaultSize: previewSize + 2,
+        otherMainSize: previewSize,
+        defaultColor: lineColor,
+        defaultExtColor: lineColor.withValues(alpha: 0.55),
+        otherMainColor: lineColor,
+        highLightTextColor: highlightColor,
+        lineGap: lineGap,
+        lyricAlign: lyricAlign == 'left' ? LyricAlign.LEFT : LyricAlign.CENTER,
+      );
+    }
+    return _previewUi!;
   }
 
   /// 查询作品封面 (作品目录下递归第一张图), 结果按作品目录缓存。
@@ -523,7 +527,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
 /// 悬停 3D 倾斜封面: 鼠标在封面边缘时, 该侧向远离用户的方向倾斜,
 /// 并叠加顶部光源响应 — 上半部分后仰时顶部反光变浅, 下半部分后仰时顶部变暗。
-/// 倒影随封面一起倾斜 (被动跟随); 鼠标交互 (倾斜/点击) 只在封面本体上。
+/// 倒影随封面一起倾斜 (被动跟随); 点击行为由平台布局决定。
 class _TiltCover extends StatefulWidget {
   final Widget child;
   final double coverSize;
@@ -625,7 +629,6 @@ class _TiltCoverState extends State<_TiltCover> {
               _ty = 0;
             }),
             child: GestureDetector(
-              // opaque: 透明区域也参与命中, 确保点击封面必响应
               behavior: HitTestBehavior.opaque,
               onTap: widget.onTap,
               child: const SizedBox.expand(),

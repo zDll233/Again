@@ -30,6 +30,9 @@ class MyApp extends ConsumerWidget {
     // 歌词面板打开时: 胶囊隐藏 + 内容区铺满 (歌词界面自带完整控制区)
     final showLyric =
         ref.watch(miscUIProvider.select((state) => state.showLyricPanel));
+    final filterExpanded =
+        ref.watch(miscUIProvider.select((state) => state.filterExpanded));
+    final canPop = !isNarrow || (!showLyric && !filterExpanded);
     return Initialization(
       child: ColoredBox(
         // 透明窗口仅 Windows 支持; Android 等平台恒用不透明深色背景
@@ -40,49 +43,60 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           theme: theme,
           scrollBehavior: MyCustomScrollBehavior(),
-          home: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: MoveWindow(
-              child: Stack(
-                children: [
-                  // 内容区: SafeArea 避开状态栏/导航条
-                  SafeArea(
-                    child: Column(
-                      children: [
-                        const WindowTitleBar(),
-                        // 窄屏: 列表铺满, 悬浮胶囊盖在列表上方,
-                        // 列表自身底部 padding 保证内容可滚到胶囊上方;
-                        // 宽屏: 底部留出全宽播放器高度, 面板与播放器分开,
-                        // 面板视口止于播放器顶部 (不延伸到播放器区域内)。
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                bottom: isNarrow ? 0 : PLAYER_WIDGET_HEIGHT),
-                            child: const ListLyricSwitch(),
+          home: PopScope(
+            canPop: canPop,
+            onPopInvokedWithResult: (didPop, _) {
+              if (didPop || !isNarrow) return;
+              if (showLyric) {
+                ref.read(miscUIProvider.notifier).hideLyricPanel();
+              } else if (filterExpanded) {
+                ref.read(miscUIProvider.notifier).toggleFilterExpanded();
+              }
+            },
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: MoveWindow(
+                child: Stack(
+                  children: [
+                    // 内容区: SafeArea 避开状态栏/导航条
+                    SafeArea(
+                      child: Column(
+                        children: [
+                          const WindowTitleBar(),
+                          // 窄屏: 列表铺满, 悬浮胶囊盖在列表上方,
+                          // 列表自身底部 padding 保证内容可滚到胶囊上方;
+                          // 宽屏: 底部留出全宽播放器高度, 面板与播放器分开,
+                          // 面板视口止于播放器顶部 (不延伸到播放器区域内)。
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: isNarrow ? 0 : PLAYER_WIDGET_HEIGHT),
+                              child: const ListLyricSwitch(),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),
-                  // 桌面版保持贴底全宽; 歌词界面打开时隐藏 (自带控制区);
-                  // 窄屏附加 SafeArea 底距避开系统导航条
-                  // (注意: 此 context 在 MaterialApp 外, MediaQuery 读的是
-                  // View 层默认值, 不能用于 Windows 计算偏移)
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    bottom: isNarrow
-                        ? 12 + MediaQuery.paddingOf(context).bottom
-                        : 0,
-                    child: isNarrow && showLyric
-                        ? const SizedBox.shrink()
-                        : const PlayerWidget(),
-                  ),
-                  // 歌词面板层 (最顶层, 全屏含状态栏): 上划时面板盖住悬浮播放器
-                  if (isNarrow)
-                    const Positioned.fill(child: LyricPanelOverlay()),
-                ],
+                    // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),
+                    // 桌面版保持贴底全宽; 歌词界面打开时隐藏 (自带控制区);
+                    // 窄屏附加 SafeArea 底距避开系统导航条
+                    // (注意: 此 context 在 MaterialApp 外, MediaQuery 读的是
+                    // View 层默认值, 不能用于 Windows 计算偏移)
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: isNarrow
+                          ? 12 + MediaQuery.paddingOf(context).bottom
+                          : 0,
+                      child: isNarrow && showLyric
+                          ? const SizedBox.shrink()
+                          : const PlayerWidget(),
+                    ),
+                    // 歌词面板层 (最顶层, 全屏含状态栏): 上划时面板盖住悬浮播放器
+                    if (isNarrow)
+                      const Positioned.fill(child: LyricPanelOverlay()),
+                  ],
+                ),
               ),
             ),
           ),

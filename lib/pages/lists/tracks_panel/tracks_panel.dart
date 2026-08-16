@@ -13,18 +13,19 @@ class TracksPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final uiService = ref.watch(uiServiceProvider);
-    final sort =
-        ref.watch(voiceItemProvider.select((state) => state.sort));
+    final sort = ref.watch(voiceItemProvider.select((state) => state.sort));
     return VoicePanel(
       title:
           '音轨(${ref.watch(voiceItemProvider.select((state) => state.values)).length})',
       listView: const TracksListView(),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.location_searching, size: 18),
-          tooltip: '定位到当前播放位置',
-          onPressed: uiService.onLocateBtnPressed,
-        ),
+        // Android 放在顶栏; 其他平台保留在音轨面板。
+        if (!Platform.isAndroid)
+          IconButton(
+            icon: const Icon(Icons.location_searching, size: 18),
+            tooltip: '定位到当前播放位置',
+            onPressed: uiService.onLocateBtnPressed,
+          ),
         // Windows 专属: 资源管理器定位
         if (Platform.isWindows)
           IconButton(

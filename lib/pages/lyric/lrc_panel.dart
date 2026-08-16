@@ -1,13 +1,18 @@
+import 'dart:math' as math;
+
 import 'package:again/pages/lyric/components/empty_lyric.dart';
 import 'package:again/pages/lyric/components/lyric_builder.dart';
+import 'package:again/pages/lyric/components/lyric_panel_controls.dart';
 import 'package:again/pages/lyric/components/voice_item_title.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:path/path.dart' as p;
 
 class LyricPanel extends ConsumerWidget {
-  const LyricPanel({super.key});
+  const LyricPanel({super.key, this.topInset = 0});
+
+  /// 状态栏高度 (SafeArea 外的真实值; 面板内 MediaQuery 读不到)。
+  final double topInset;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,54 +38,34 @@ class LyricPanel extends ConsumerWidget {
         ],
       );
     }
+    // 窄屏: 标题区高度 = 参考图比例 (4.2%->10% 屏高) 但保底 56dp。
+    final titleHeight =
+        math.max(MediaQuery.sizeOf(context).height * 0.058, 56.0);
     return Column(
       children: [
-        // 顶部控制栏: 歌名 + 作品名副标题, 左对齐 (1:1 复刻参考布局)
+        // 顶部标题区: 只保留当前音轨标题, 给歌词内容留出空间。
         SizedBox(
-          height: 56.0,
-          child: Align(
+          height: titleHeight,
+          child: const Align(
             alignment: Alignment.centerLeft,
-            child: const Padding(
+            child: Padding(
               padding: EdgeInsets.only(left: 20),
-              child: _TitleBlock(),
+              child: VoiceItemTitle(),
             ),
           ),
         ),
-        // 必须 Expanded: 无高度约束会 collapse 到 0;
-        // 控制区在页面内部 (LyricBuilder 每页), 与内容紧凑堆叠
+        // 标题和底部控制区固定在 PageView 外, 横向切换时只有封面/歌词移动。
         Expanded(
-          child: const Padding(
-            padding: EdgeInsets.only(top: 10.0),
-            child: LyricBuilder(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// 歌名 (主) + 作品名 (副, 灰色小字) — 参考播放器标题区。
-class _TitleBlock extends ConsumerWidget {
-  const _TitleBlock();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final scheme = Theme.of(context).colorScheme;
-    final playingViPath = ref.watch(voiceItemProvider
-        .select((state) => state.cachedPlayingVoiceItemPath!));
-    final workName = p.basename(p.dirname(playingViPath));
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const VoiceItemTitle(),
-        Text(
-          workName,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 12,
-            color: scheme.onSurface.withValues(alpha: 0.55),
+          child: Stack(
+            children: [
+              Positioned.fill(child: LyricBuilder(topInset: topInset)),
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 30,
+                child: LyricPanelControls(),
+              ),
+            ],
           ),
         ),
       ],

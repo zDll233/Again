@@ -14,7 +14,9 @@ class VoiceItemTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(
-        maxWidth: MediaQuery.of(context).size.width * 0.70,
+        maxWidth: MediaQuery.of(context).size.width < 600
+            ? MediaQuery.of(context).size.width * 0.78
+            : MediaQuery.of(context).size.width * 0.70,
       ),
       child: Consumer(
         builder: (_, WidgetRef ref, __) {
@@ -22,17 +24,13 @@ class VoiceItemTitle extends StatelessWidget {
               .select((state) => state.cachedPlayingVoiceItemPath!));
           final ts = ref.watch(textSettingsProvider).valueOrNull;
           final scheme = Theme.of(context).colorScheme;
-          final themeHue =
-              resolveThemeHueSource(scheme, kDefaultThemeSeed);
+          final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
           final title = Text(
             p.basenameWithoutExtension(playingViPath),
-            style: Theme.of(context)
-                .textTheme
-                .headlineMedium
-                ?.copyWith(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: ts?.lyricTitleSize,
-                  color: ts?.lyricTitleColor?.resolve(
-                      scheme.onSurface, themeHue),
+                  color:
+                      ts?.lyricTitleColor?.resolve(scheme.onSurface, themeHue),
                 ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -42,8 +40,7 @@ class VoiceItemTitle extends StatelessWidget {
             return Tooltip(
               message: '在资源管理器中显示该音轨',
               child: TextButton(
-                  onPressed:
-                      ref.read(uiServiceProvider).selectPlayingVoiceItem,
+                  onPressed: ref.read(uiServiceProvider).selectPlayingVoiceItem,
                   child: title),
             );
           } else {

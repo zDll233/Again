@@ -65,15 +65,18 @@ class TextSettings {
   final double progressTextSize;
   final double lyricTitleSize;
   final double lyricSize;
+  final double lyricPreviewSize;
   final ColorSetting? panelTextColor;
   final ColorSetting? panelTitleColor;
   final ColorSetting? progressTextColor;
   final ColorSetting? lyricHighlightColor;
   final ColorSetting? lyricColor;
+  final ColorSetting? lyricPreviewHighlightColor;
+  final ColorSetting? lyricPreviewColor;
   final ColorSetting? lyricTitleColor;
   final double lyricLineGap;
   final String lyricAlign; // 'center' | 'left'
-  final double lyricCurrentSize; // 当前播放歌词行字号 (缺省 = 歌词字号 + 2)
+  final double lyricCurrentSize; // 当前播放歌词行字号
 
   const TextSettings({
     this.panelTextSize = 14,
@@ -81,12 +84,15 @@ class TextSettings {
     this.progressTextSize = 16,
     this.lyricTitleSize = 28,
     this.lyricSize = 18,
-    this.lyricCurrentSize = 20,
+    this.lyricPreviewSize = 16,
+    this.lyricCurrentSize = 18,
     this.panelTextColor,
     this.panelTitleColor,
     this.progressTextColor,
     this.lyricHighlightColor,
     this.lyricColor,
+    this.lyricPreviewHighlightColor,
+    this.lyricPreviewColor,
     this.lyricTitleColor,
     this.lyricLineGap = 25,
     this.lyricAlign = 'left',
@@ -122,14 +128,15 @@ class TextSettings {
       progressTextSize: size('progressTextSize', 16),
       lyricTitleSize: size('lyricTitleSize', 28),
       lyricSize: size('lyricSize', 18),
-      // 当前行字号缺省跟随歌词字号 + 2
-      lyricCurrentSize:
-          size('lyricCurrentSize', size('lyricSize', 18) + 2),
+      lyricPreviewSize: size('lyricPreviewSize', 16),
+      lyricCurrentSize: size('lyricCurrentSize', 18),
       panelTextColor: color('panelTextColor'),
       panelTitleColor: color('panelTitleColor'),
       progressTextColor: color('progressTextColor'),
       lyricHighlightColor: color('lyricHighlightColor'),
       lyricColor: color('lyricColor'),
+      lyricPreviewHighlightColor: color('lyricPreviewHighlightColor'),
+      lyricPreviewColor: color('lyricPreviewColor'),
       lyricTitleColor: color('lyricTitleColor'),
       lyricLineGap: size('lyricLineGap', 25),
       lyricAlign: config['lyricAlign'] == 'center' ? 'center' : 'left',
@@ -143,6 +150,7 @@ class TextSettings {
     'progressTextSize',
     'lyricTitleSize',
     'lyricSize',
+    'lyricPreviewSize',
     'lyricCurrentSize',
     'lyricLineGap',
     'lyricAlign',
@@ -154,6 +162,8 @@ class TextSettings {
     'progressTextColor',
     'lyricHighlightColor',
     'lyricColor',
+    'lyricPreviewHighlightColor',
+    'lyricPreviewColor',
     'lyricTitleColor',
   ];
 

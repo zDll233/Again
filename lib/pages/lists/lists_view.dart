@@ -27,46 +27,60 @@ class ListsView extends ConsumerWidget {
 
     if (isNarrow) {
       final screenWidth = MediaQuery.sizeOf(context).width;
-      final drawerWidth = (screenWidth * _filterDrawerRatio)
-          .clamp(240.0, 360.0)
-          .toDouble();
+      final drawerWidth =
+          (screenWidth * _filterDrawerRatio).clamp(240.0, 360.0).toDouble();
       return Stack(
         children: [
           // 作品/音轨: 左右滑动切换 (面板自带标题, 无 tab 条);
-          // 外部可请求跳页 (歌词界面队列按钮)
+          // 外部可请求跳页 (歌词界面音轨列表按钮)
           PanelSwitcher(
             panels: const [WorksPanel(), TracksPanel()],
             pageProvider: listsPanelPageProvider,
           ),
-          // 筛选抽屉: 从左到右弹出, 不完全覆盖 (右侧留白点击收起)
-          if (filterExpanded) ...[
-            Positioned.fill(
-              child: GestureDetector(
-                // 点击右侧留白收起筛选
-                onTap: () => ref
-                    .read(miscUIProvider.notifier)
-                    .toggleFilterExpanded(),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.30),
+          // 筛选抽屉: 遮罩淡入, 面板从左侧滑入; 始终挂载才能完整播放收起动画。
+          Positioned.fill(
+            child: IgnorePointer(
+              ignoring: !filterExpanded,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 260),
+                curve: Curves.easeOut,
+                opacity: filterExpanded ? 1.0 : 0.0,
+                child: GestureDetector(
+                  // 点击右侧遮罩收起筛选
+                  onTap: () =>
+                      ref.read(miscUIProvider.notifier).toggleFilterExpanded(),
+                  child: ColoredBox(
+                    color: Colors.black.withValues(alpha: 0.30),
+                  ),
                 ),
               ),
             ),
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOutCubic,
-              left: 0,
-              top: 0,
-              bottom: 0,
-              width: drawerWidth,
-              child: Material(
-                color: scheme.surface.withValues(alpha: 0.98),
-                borderRadius: const BorderRadius.horizontal(
-                    right: Radius.circular(16)),
-                clipBehavior: Clip.antiAlias,
-                child: const FilterPanel(),
+          ),
+          Positioned(
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: drawerWidth,
+            child: IgnorePointer(
+              ignoring: !filterExpanded,
+              child: ClipRect(
+                child: AnimatedSlide(
+                  duration: const Duration(milliseconds: 260),
+                  curve: Curves.easeOutCubic,
+                  offset: filterExpanded ? Offset.zero : const Offset(-1, 0),
+                  child: Material(
+                    color: scheme.surface.withValues(alpha: 0.98),
+                    elevation: 18,
+                    shadowColor: Colors.black.withValues(alpha: 0.45),
+                    borderRadius: const BorderRadius.horizontal(
+                        right: Radius.circular(16)),
+                    clipBehavior: Clip.antiAlias,
+                    child: const FilterPanel(),
+                  ),
+                ),
               ),
             ),
-          ],
+          ),
         ],
       );
     }

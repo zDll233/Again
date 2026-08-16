@@ -7,17 +7,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class ProgressBar extends ConsumerWidget {
-  const ProgressBar({super.key, this.trackAtTop = false});
+  const ProgressBar({
+    super.key,
+    this.trackAtTop = false,
+    this.compact = false,
+  });
 
   /// 窄屏进度条轨道位置: true 贴顶 (跑道胶囊/歌词控制区用), false 贴底。
   final bool trackAtTop;
 
+  /// 缩小窄屏触控盒高度, 用于歌词页中紧贴时间文字的进度条。
+  final bool compact;
+
   /// 窄屏进度条: 纯轨道 (紧邻时间行), 点击/拖动 seek。
-  Widget _buildNarrow(BuildContext context, WidgetRef ref,
-      AudioNotifier audioNotifier) {
+  Widget _buildNarrow(
+      BuildContext context, WidgetRef ref, AudioNotifier audioNotifier) {
     final scheme = Theme.of(context).colorScheme;
     return SizedBox(
-      height: 24,
+      height: compact ? 14 : 24,
       width: double.infinity,
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -26,19 +33,18 @@ class ProgressBar extends ConsumerWidget {
           final position =
               ref.watch(audioProvider.select((state) => state.position));
           final appearance = ref.watch(uiSettingsProvider).valueOrNull;
-          final thickness =
-              (appearance?.sliderThickness ?? 1).clamp(1.0, 6.0);
-          final progress = (duration == Duration.zero ||
-                  position == Duration.zero)
-              ? 0.0
-              : (position.inMilliseconds / duration.inMilliseconds)
-                  .clamp(0.0, 1.0);
+          final thickness = (appearance?.sliderThickness ?? 1).clamp(1.0, 6.0);
+          final progress =
+              (duration == Duration.zero || position == Duration.zero)
+                  ? 0.0
+                  : (position.inMilliseconds / duration.inMilliseconds)
+                      .clamp(0.0, 1.0);
 
           void seekAt(double dx) {
             if (duration == Duration.zero) return;
             final ratio = (dx / constraints.maxWidth).clamp(0.0, 1.0);
-            audioNotifier.seek(
-                Duration(milliseconds: (duration.inMilliseconds * ratio).round()));
+            audioNotifier.seek(Duration(
+                milliseconds: (duration.inMilliseconds * ratio).round()));
           }
 
           return GestureDetector(
@@ -115,8 +121,7 @@ class ProgressBar extends ConsumerWidget {
             final position =
                 ref.watch(audioProvider.select((state) => state.position));
             // 是否显示滑块圆点 / 轨道粗细 (设置项)
-            final appearance =
-                ref.watch(uiSettingsProvider).valueOrNull;
+            final appearance = ref.watch(uiSettingsProvider).valueOrNull;
             final showThumb = appearance?.showSliderThumb ?? false;
             final thickness = appearance?.sliderThickness ?? 1;
             final thumbSize = appearance?.sliderThumbSize ?? 5;

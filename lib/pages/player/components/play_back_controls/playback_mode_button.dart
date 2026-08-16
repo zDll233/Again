@@ -7,9 +7,11 @@ class PlaybackModeButton extends ConsumerWidget {
   const PlaybackModeButton({
     super.key,
     required this.iconSize,
+    this.buttonSize = 48.0,
   });
 
   final double iconSize;
+  final double buttonSize;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -36,6 +38,11 @@ class PlaybackModeButton extends ConsumerWidget {
       onPressed: audioNotifier.onPlaybackModePressed,
       iconSize: iconSize,
       icon: Icon(icon),
+      padding: buttonSize < 48 ? EdgeInsets.zero : null,
+      constraints: BoxConstraints.tightFor(
+        width: buttonSize,
+        height: buttonSize,
+      ),
     );
   }
 }

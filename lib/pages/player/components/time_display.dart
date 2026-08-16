@@ -10,8 +10,7 @@ class PositionTimeText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final position =
-        ref.watch(audioProvider.select((state) => state.position));
+    final position = ref.watch(audioProvider.select((state) => state.position));
     final ts = ref.watch(textSettingsProvider).valueOrNull;
     final scheme = Theme.of(context).colorScheme;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
@@ -31,8 +30,7 @@ class DurationTimeText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final duration =
-        ref.watch(audioProvider.select((state) => state.duration));
+    final duration = ref.watch(audioProvider.select((state) => state.duration));
     final ts = ref.watch(textSettingsProvider).valueOrNull;
     final scheme = Theme.of(context).colorScheme;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
@@ -40,8 +38,7 @@ class DurationTimeText extends ConsumerWidget {
       getTimeText(duration),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontSize: ts?.progressTextSize,
-            color: ts?.progressTextColor
-                ?.resolve(scheme.onSurface, themeHue),
+            color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
           ),
     );
   }
@@ -49,7 +46,25 @@ class DurationTimeText extends ConsumerWidget {
 
 String getTimeText(Duration duration) {
   if (duration == Duration.zero) return '';
-  return duration.toString().split('.').first;
+  return formatDuration(duration);
+}
+
+/// Formats durations like a media player: `mm:ss` below one hour and
+/// `h:mm:ss` once an hour boundary is reached.
+String formatDuration(Duration duration) {
+  final negative = duration.isNegative;
+  final totalSeconds = duration.inSeconds.abs();
+  final hours = totalSeconds ~/ 3600;
+  final minutes = (totalSeconds % 3600) ~/ 60;
+  final seconds = totalSeconds % 60;
+  final prefix = negative ? '-' : '';
+
+  String twoDigits(int value) => value.toString().padLeft(2, '0');
+
+  if (hours > 0) {
+    return '$prefix$hours:${twoDigits(minutes)}:${twoDigits(seconds)}';
+  }
+  return '$prefix${twoDigits(minutes)}:${twoDigits(seconds)}';
 }
 
 /// 兼容旧调用: "当前 / 总时长" 合并文本 (宽屏布局用)。
@@ -58,10 +73,8 @@ class TimeDisplay extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final duration =
-        ref.watch(audioProvider.select((state) => state.duration));
-    final position =
-        ref.watch(audioProvider.select((state) => state.position));
+    final duration = ref.watch(audioProvider.select((state) => state.duration));
+    final position = ref.watch(audioProvider.select((state) => state.position));
     final ts = ref.watch(textSettingsProvider).valueOrNull;
     final scheme = Theme.of(context).colorScheme;
     final themeHue = resolveThemeHueSource(scheme, kDefaultThemeSeed);
@@ -70,9 +83,9 @@ class TimeDisplay extends ConsumerWidget {
       child: Text(
         getTimeDisplayText(position, duration),
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-          fontSize: ts?.progressTextSize,
-          color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
-        ),
+              fontSize: ts?.progressTextSize,
+              color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
+            ),
       ),
     );
   }
@@ -80,9 +93,9 @@ class TimeDisplay extends ConsumerWidget {
 
 String getTimeDisplayText(Duration position, Duration duration) {
   if (position != Duration.zero) {
-    return '${position.toString().split('.').first} / ${duration.toString().split('.').first}';
+    return '${getTimeText(position)} / ${getTimeText(duration)}';
   } else if (duration != Duration.zero) {
-    return duration.toString().split('.').first;
+    return getTimeText(duration);
   } else {
     return '';
   }

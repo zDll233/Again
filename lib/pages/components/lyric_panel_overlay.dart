@@ -1,7 +1,12 @@
+import 'dart:io';
+import 'dart:ui' show ImageFilter;
+
+import 'package:again/common/const.dart';
 import 'package:again/pages/lyric/lrc_panel.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path/path.dart' as p;
 
 /// 窄屏歌词面板层 (MyApp Stack 最顶层): 面板从底部滑入,
 /// 拖动跟随手势, 松手按速度/位置决定开合。
@@ -105,11 +110,83 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
         offset: Offset(0, screenHeight * (1 - progress)),
         child: Container(
           // 全不透明: 面板必须完全盖住底层列表与播放器;
-          // 全屏覆盖状态栏 (沉浸式), 内容用 SafeArea 避开状态栏/导航条
+          // 全屏覆盖状态栏 (沉浸式), 内容用 SafeArea 避开状态栏/导航条;
+          // 背景 = 封面模糊铺满 + 暗色遮罩 (参考播放器沉浸式背景)
           color: scheme.surface,
-          child: const SafeArea(child: LyricPanel()),
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              const _BlurredCoverBackground(),
+              // 暗色遮罩: 保证前景文字/封面清晰可读
+              ColoredBox(
+                color: Colors.black.withValues(alpha: 0.42),
+              ),
+              SafeArea(
+                child: LyricPanel(
+                  // 传入 SafeArea 外的真实状态栏高度,
+                  // LyricPanel 内 MediaQuery.paddingOf 读不到 (已被 SafeArea 消费)
+                  topInset: MediaQuery.paddingOf(context).top,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+}
+
+/// 沉浸式背景: 当前播放作品的封面模糊铺满全屏 (参考播放器风格)。
+/// 无封面时显示纯面板色 (上层遮罩仍保证文字可读)。
+class _BlurredCoverBackground extends ConsumerWidget {
+  const _BlurredCoverBackground();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final workPath = ref.watch(
+        voiceItemProvider.select((state) => state.cachedPlayingItem?.voiceWorkPath));
+    if (workPath == null || workPath.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return FutureBuilder<String>(
+      future: _findCover(workPath),
+      builder: (context, snapshot) {
+        final cover = snapshot.data ?? '';
+        if (cover.isEmpty || !File(cover).existsSync()) {
+          return const SizedBox.shrink();
+        }
+        return Image(
+          image: FileImage(File(cover)),
+          fit: BoxFit.cover,
+          // 模糊: 低分辨率解码 + 高斯模糊, 大模糊半径下细节不可见
+          filterQuality: FilterQuality.medium,
+          errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+          frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+            if (frame == null) return child;
+            return ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+              child: child,
+            );
+          },
+        );
+      },
+    );
+  }
+
+  /// 作品目录下递归第一张图 (与 LyricBuilder 相同的封面查找规则)。
+  Future<String> _findCover(String workPath) async {
+    final dir = Directory(workPath);
+    if (!dir.existsSync()) return '';
+    try {
+      for (final e in dir.listSync(recursive: true)) {
+        if (e is File &&
+            IMG_EXTENSIONS.contains(p.extension(e.path).toLowerCase())) {
+          return e.path;
+        }
+      }
+    } catch (_) {
+      return '';
+    }
+    return '';
   }
 }

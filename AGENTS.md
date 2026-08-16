@@ -20,12 +20,12 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 
 ## Commands
 
-- `flutter pub get` — `flutter_lyric` is a git dependency, needs network.
+- `flutter pub get` — `flutter_lyric` is a git dependency (`ref: v0.5.5`), needs network.
 - `flutter analyze` — runs flutter_lints + custom_lint (riverpod_lint). Run after edits.
 - `dart run build_runner build` — required after editing `lib/services/database/db/database.dart` (drift); `database.g.dart` is generated and committed.
 - `flutter test` — unit suite in `test/` (parsing logic, model map round-trips, `scanRoot` + full incremental sync with temp dirs). Run after touching those areas.
 - `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/` and injects `APP_VERSION` for the self-updater.
-- `flutter build apk --debug|--release` — Android build (android-port 分支)。`flutter build apk --release` 有 key.properties 时正式签名。Android CI: `.github/workflows/android-release.yml` (tag 触发出 APK, 4 个 secrets)。
+- `flutter build apk --debug|--release` — Android 构建。`flutter build apk --release` 有 key.properties 时正式签名。Android CI: `.github/workflows/android-release.yml` — `workflow_dispatch` 手动触发 (secrets 未配, 需 4 个), 非 tag 自动发布。
 
 ## Architecture
 
@@ -37,7 +37,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 - Settings page: `lib/pages/settings/settings_page.dart`; reads/writes `config/config.json` through `JsonStorage` (`lib/utils/json_storage.dart`).
 - Drift SQLite DB at relative path `data/storage/again_voiceworks.db` — relative to CWD, so run the app from the repo root.
 - DB refresh (`lib/services/database/voice_updater.dart`): `scanRoot` runs via `compute` in a background isolate and always enumerates audio files; the sync compares scanned item paths against existing DB rows per work and only writes differences. No mtime/signature skipping — Windows dir mtimes don't update on child add/remove, so they can't be trusted for change detection. The DB sync runs in one transaction. FK constraints are ON — deletions must respect order tVoiceCV → tVoiceItem → TVoiceWork → category. DB schema is at version 2 (legacy `scanSignature` column, unused; run `dart run build_runner build` after editing `database.dart`).
-- `config/`, `data/`, `history/` are gitignored runtime state. `config/config.json` holds `voiceWorkRoot`, `closeToTray`, `windowEffect` (`transparent`/`acrylic`/`opaque`), `themeSeedColor` (`#RRGGBB`), `textColorMode` (`follow`/`custom`), `textColor` (`#RRGGBB`), `searchEnabled` (搜索总开关), `searchFilter`/`searchWorks`/`searchTracks` (各面板搜索子开关, 总开关子项, 缺失视为开), `recentColors` (最近使用主题色, 最多 10 个); legacy `liquidGlass`/`followCoverTheme`/`themeColorMode`/`accentColorMode`/`accentColor` keys are auto-migrated on read (`resolveWindowEffect`/`resolveTextColorMode`/`resolveTextColorHex` in `lib/services/ui/theme/theme_provider.dart`) and removed on write; `history/last_played.json` is play-position memory.
+- `config/`, `data/`, `history/` are gitignored runtime state. `config/config.json` holds `voiceWorkRoot`, `closeToTray`, `windowEffect` (`transparent`/`acrylic`/`opaque`), `themeSeedColor` (`#RRGGBB`), `searchEnabled` (搜索总开关, 默认关), `searchFilter`/`searchWorks`/`searchTracks` (各面板搜索子开关, 总开关子项, 缺失视为开), `recentColors` (最近使用主题色, 最多 10 个), `rememberWindowPos`/`rememberWindowSize` + `windowBounds` (窗口位置/尺寸记忆), `sortOrder`/`voiceItemSort` (排序持久化), `listDensity`, `coverTilt`, `coverReflection`, 滑块类 (`showSliderThumb`/`sliderThickness`/`sliderThumbSize`), 文字/字号键 (见 `lib/services/ui/theme/text_settings.dart` + `ui_settings.dart`); legacy `liquidGlass` key 读时经 `resolveWindowEffect` 迁移 (见 `lib/services/ui/theme/theme_provider.dart`), `themeColorMode`/`followCoverTheme` 写时移除; `history/last_played.json` is play-position memory.
 - `scripts/delete.ps1` is auto-generated at first run by `lib/utils/generate_script.dart` (only if missing). To change the script, edit the Dart constant, not the file.
 
 ## Platform split (Android port)
@@ -71,7 +71,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 ## Quirks
 
 - App is Windows-first; desktop-only plugins are listed in the Platform split above — before touching them, check whether the change must stay Windows-only or needs an Android fallback. **单一 main 分支开发两端**: 共享 UI/服务改动直接提交 main, 平台差异用守卫隔离 (见顶部「平台守卫约定」); release tag 一律打在 main, CI 会校验 tag 归属 (防止误从平台分支发布)。
-- `--dart-define=OPAQUE_BG=true` builds an opaque window instead of transparent/acrylic — used for screenshots/visual verification (`lib/main.dart`, `lib/pages/my_app.dart`).
+- `--dart-define=OPAQUE_BG=true` builds an opaque window instead of transparent/acrylic — used for screenshots/visual verification (`lib/services/window_setup_windows.dart`, `lib/services/ui/ui_service.dart`, `lib/pages/my_app.dart`).
 - Debug and release builds must NOT run simultaneously — the second instance crashes at startup (exit code 1). Kill the release app before `flutter run -d windows --debug`.
 - Flutter MCP debugging (`flutter-mcp-toolkit`): server binary at `C:\Users\lzd\flutter-mcp-toolkit\fmtk-server.exe`, registered in `opencode.json`, `mcp_toolkit` initialized in `lib/main.dart` under `kDebugMode` — **must stay debug-only: in release builds it makes the window start minimized**. To debug: kill release instance → `flutter run -d windows --debug` → grab the VM service URI from the run log → use the `fmt_*` tools. Note: app view DPR is 1.5 on this machine — screenshots/coordinates must account for it. Screenshot capture needs an in-app permission bridge (not installed). Debug apps may crash on their own (audioplayers posts events from a non-platform thread — pre-existing bug).
 - `custom_lint.log` at repo root is analyzer-plugin noise (gitignored); ignore it.

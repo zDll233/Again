@@ -50,11 +50,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _progressTextSize = _defaults.progressTextSize;
   double _lyricTitleSize = _defaults.lyricTitleSize;
   double _lyricSize = _defaults.lyricSize;
+  double _lyricPreviewSize = _defaults.lyricPreviewSize;
   ColorSetting? _panelTextColor;
   ColorSetting? _panelTitleColor;
   ColorSetting? _progressTextColor;
   ColorSetting? _lyricHighlightColor;
   ColorSetting? _lyricColor;
+  ColorSetting? _lyricPreviewHighlightColor;
+  ColorSetting? _lyricPreviewColor;
   ColorSetting? _lyricTitleColor;
   double _lyricLineGap = _defaults.lyricLineGap;
   String _lyricAlign = _defaults.lyricAlign;
@@ -73,8 +76,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     final scheme = Theme.of(context).colorScheme;
     final primaryHsv = HSVColor.fromColor(scheme.primary);
     if (primaryHsv.saturation > 0.1) return primaryHsv;
-    final seed = ref.read(coverSeedColorProvider).valueOrNull ??
-        kDefaultThemeSeed;
+    final seed =
+        ref.read(coverSeedColorProvider).valueOrNull ?? kDefaultThemeSeed;
     return HSVColor.fromColor(seed);
   }
 
@@ -89,8 +92,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _rememberWindowSize =
           config['rememberWindowSize'] ?? kDefaultRememberWindowSize;
       _windowEffect = resolveWindowEffect(config);
-      _themeSeedColor = parseHexColor(resolveThemeSeedHex(config)) ??
-          kDefaultThemeSeed;
+      _themeSeedColor =
+          parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
       _searchEnabled = config['searchEnabled'] == true;
       _searchFilter = config['searchFilter'] != false;
       _searchWorks = config['searchWorks'] != false;
@@ -100,11 +103,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _progressTextSize = ts.progressTextSize;
       _lyricTitleSize = ts.lyricTitleSize;
       _lyricSize = ts.lyricSize;
+      _lyricPreviewSize = ts.lyricPreviewSize;
       _panelTextColor = ts.panelTextColor;
       _panelTitleColor = ts.panelTitleColor;
       _progressTextColor = ts.progressTextColor;
       _lyricHighlightColor = ts.lyricHighlightColor;
       _lyricColor = ts.lyricColor;
+      _lyricPreviewHighlightColor = ts.lyricPreviewHighlightColor;
+      _lyricPreviewColor = ts.lyricPreviewColor;
       _lyricTitleColor = ts.lyricTitleColor;
       _lyricLineGap = ts.lyricLineGap;
       _lyricAlign = ts.lyricAlign;
@@ -329,10 +335,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     // 保留音声根目录 (重置应用设置, 不重置数据目录)
     final config = await ref.read(configJsonProvider).read();
-    final voiceWorkRoot =
-        config['voiceWorkRoot'] is String && (config['voiceWorkRoot'] as String).isNotEmpty
-            ? config['voiceWorkRoot'] as String
-            : _voiceWorkRoot;
+    final voiceWorkRoot = config['voiceWorkRoot'] is String &&
+            (config['voiceWorkRoot'] as String).isNotEmpty
+        ? config['voiceWorkRoot'] as String
+        : _voiceWorkRoot;
 
     setState(() {
       // 全部恢复默认值 (统一取自 TextSettings()/常量)
@@ -350,11 +356,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _progressTextSize = _defaults.progressTextSize;
       _lyricTitleSize = _defaults.lyricTitleSize;
       _lyricSize = _defaults.lyricSize;
+      _lyricPreviewSize = _defaults.lyricPreviewSize;
       _panelTextColor = null;
       _panelTitleColor = null;
       _progressTextColor = null;
       _lyricHighlightColor = null;
       _lyricColor = null;
+      _lyricPreviewHighlightColor = null;
+      _lyricPreviewColor = null;
       _lyricTitleColor = null;
       _lyricLineGap = _defaults.lyricLineGap;
       _lyricAlign = _defaults.lyricAlign;
@@ -372,9 +381,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     await ref
         .read(sortOrderProvider.notifier)
         .setSortOrder(SortOrder.byTitleAsc);
-    ref
-        .read(voiceItemProvider.notifier)
-        .setSortOrder(VoiceItemSort.titleAsc);
+    ref.read(voiceItemProvider.notifier).setSortOrder(VoiceItemSort.titleAsc);
     // 清空其余配置 (所有键走默认), 刷新 provider 并重新应用窗口效果
     await ref.read(configJsonProvider).write({'voiceWorkRoot': voiceWorkRoot});
     ref.invalidate(coverSeedColorProvider);
@@ -400,8 +407,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       final granted = await requestExternalStorageAccess();
       if (!granted && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('需要"所有文件访问"权限才能选择音声根目录')),
+          const SnackBar(content: Text('需要"所有文件访问"权限才能选择音声根目录')),
         );
         return;
       }
@@ -482,8 +488,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.close_fullscreen),
                                 title: const Text('关闭时最小化到托盘'),
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 16, right: 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -497,8 +503,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     _resetButton(() {
                                       _resetToDefault(
                                         ['closeToTray'],
-                                        () => _closeToTray =
-                                            kDefaultCloseToTray,
+                                        () =>
+                                            _closeToTray = kDefaultCloseToTray,
                                       );
                                     }),
                                   ],
@@ -507,8 +513,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.location_on_outlined),
                                 title: const Text('记住窗口位置'),
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 16, right: 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -533,8 +539,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.aspect_ratio),
                                 title: const Text('记住窗口大小'),
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 16, right: 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -566,8 +572,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               leading: const Icon(Icons.search),
                               title: const Text('列表搜索'),
                               subtitle: const Text('作品/分类/声优/音轨列表的搜索框'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -639,8 +645,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .withValues(alpha: 0.6),
                               ),
                               title: const Text('列表密度'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -660,18 +666,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       selected: {_listDensity},
                                       showSelectedIcon: false,
                                       style: ButtonStyle(
-                                        visualDensity:
-                                            VisualDensity.compact,
+                                        visualDensity: VisualDensity.compact,
                                       ),
                                       // 与"歌词对齐"行同宽, 保证重置按钮对齐
-                                      onSelectionChanged:
-                                          (selection) async {
-                                        setState(() => _listDensity =
-                                            selection.first);
+                                      onSelectionChanged: (selection) async {
+                                        setState(() =>
+                                            _listDensity = selection.first);
                                         await _save(
                                             {'listDensity': _listDensity});
-                                        ref.invalidate(
-                                            uiSettingsProvider);
+                                        ref.invalidate(uiSettingsProvider);
                                       },
                                     ),
                                   ),
@@ -692,8 +695,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: _colorSwatch(_themeSeedColor),
                               title: const Text('主题色'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: _resetButton(() {
                                 _resetToDefault(
                                   ['themeSeedColor'],
@@ -733,67 +736,65 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       .withValues(alpha: 0.6),
                                 ),
                                 title: const Text('窗口背景效果'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: 216,
-                                    child: SegmentedButton<String>(
-                                      segments: const [
-                                        ButtonSegment(
-                                          value: WINDOW_EFFECT_TRANSPARENT,
-                                          label: Text('透明'),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 16, right: 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 216,
+                                      child: SegmentedButton<String>(
+                                        segments: const [
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_TRANSPARENT,
+                                            label: Text('透明'),
+                                          ),
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_ACRYLIC,
+                                            label: Text('亚克力'),
+                                          ),
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_OPAQUE,
+                                            label: Text('不透明'),
+                                          ),
+                                        ],
+                                        selected: {_windowEffect},
+                                        showSelectedIcon: false,
+                                        style: ButtonStyle(
+                                          visualDensity: VisualDensity.compact,
                                         ),
-                                        ButtonSegment(
-                                          value: WINDOW_EFFECT_ACRYLIC,
-                                          label: Text('亚克力'),
-                                        ),
-                                        ButtonSegment(
-                                          value: WINDOW_EFFECT_OPAQUE,
-                                          label: Text('不透明'),
-                                        ),
-                                      ],
-                                      selected: {_windowEffect},
-                                      showSelectedIcon: false,
-                                      style: ButtonStyle(
-                                        visualDensity:
-                                            VisualDensity.compact,
+                                        onSelectionChanged: (selection) async {
+                                          final value = selection.first;
+                                          setState(() => _windowEffect = value);
+                                          // 迁移: 移除旧的 liquidGlass 布尔配置
+                                          final config = await ref
+                                              .read(configJsonProvider)
+                                              .read();
+                                          config.remove('liquidGlass');
+                                          await ref
+                                              .read(configJsonProvider)
+                                              .write({
+                                            ...config,
+                                            'windowEffect': value
+                                          });
+                                          ref.invalidate(windowEffectProvider);
+                                          ref
+                                              .read(uiServiceProvider)
+                                              .applyWindowEffect(value);
+                                        },
                                       ),
-                                      onSelectionChanged:
-                                          (selection) async {
-                                        final value = selection.first;
-                                        setState(() => _windowEffect = value);
-                                        // 迁移: 移除旧的 liquidGlass 布尔配置
-                                        final config = await ref
-                                            .read(configJsonProvider)
-                                            .read();
-                                        config.remove('liquidGlass');
-                                        await ref
-                                            .read(configJsonProvider)
-                                            .write({
-                                          ...config,
-                                          'windowEffect': value
-                                        });
-                                        ref.invalidate(
-                                            windowEffectProvider);
-                                        ref.read(uiServiceProvider)
-                                            .applyWindowEffect(value);
-                                      },
                                     ),
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                      ['windowEffect', 'liquidGlass'],
-                                      () => _windowEffect =
-                                          WINDOW_EFFECT_ACRYLIC,
-                                      reapplyWindowEffect: true,
-                                    );
-                                  }),
-                                ],
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['windowEffect', 'liquidGlass'],
+                                        () => _windowEffect =
+                                            WINDOW_EFFECT_ACRYLIC,
+                                        reapplyWindowEffect: true,
+                                      );
+                                    }),
+                                  ],
+                                ),
                               ),
-                            ),
                             ListTile(
                               dense: true,
                               leading: Icon(
@@ -805,8 +806,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .withValues(alpha: 0.6),
                               ),
                               title: const Text('封面倾斜动画'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -815,13 +816,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     onChanged: (value) async {
                                       setState(() => _coverTilt = value);
                                       await _save({'coverTilt': value});
-                                      ref.invalidate(
-                                          uiSettingsProvider);
+                                      ref.invalidate(uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
-                                    _resetToDefault(['coverTilt'],
-                                        () => _coverTilt = true);
+                                    _resetToDefault(
+                                        ['coverTilt'], () => _coverTilt = true);
                                   }),
                                 ],
                               ),
@@ -837,8 +837,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .withValues(alpha: 0.6),
                               ),
                               title: const Text('封面倒影'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -846,10 +846,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     value: _coverReflection,
                                     onChanged: (value) async {
                                       setState(() => _coverReflection = value);
-                                      await _save(
-                                          {'coverReflection': value});
-                                      ref.invalidate(
-                                          uiSettingsProvider);
+                                      await _save({'coverReflection': value});
+                                      ref.invalidate(uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -870,20 +868,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .withValues(alpha: 0.6),
                               ),
                               title: const Text('进度/音量条滑块圆点'),
-                              contentPadding: const EdgeInsets.only(
-                                  left: 16, right: 16),
+                              contentPadding:
+                                  const EdgeInsets.only(left: 16, right: 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Switch(
                                     value: _showSliderThumb,
                                     onChanged: (value) async {
-                                      setState(
-                                          () => _showSliderThumb = value);
-                                      await _save(
-                                          {'showSliderThumb': value});
-                                      ref.invalidate(
-                                          uiSettingsProvider);
+                                      setState(() => _showSliderThumb = value);
+                                      await _save({'showSliderThumb': value});
+                                      ref.invalidate(uiSettingsProvider);
                                     },
                                   ),
                                   _resetButton(() {
@@ -919,8 +914,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               title: '界面文字',
                               children: [
                                 // 字体大小
-                                _textSizeTile('列表文字', _panelTextSize,
-                                    'panelTextSize', 14, (v) {
+                                _textSizeTile(
+                                    '列表文字', _panelTextSize, 'panelTextSize', 14,
+                                    (v) {
                                   _panelTextSize = v;
                                 }),
                                 _textSizeTile('面板标题', _panelTitleSize,
@@ -970,10 +966,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     'lyricTitleSize', 28, (v) {
                                   _lyricTitleSize = v;
                                 }),
-                                _textSizeTile('歌词', _lyricSize, 'lyricSize',
-                                    18, (v) {
+                                _textSizeTile('歌词', _lyricSize, 'lyricSize', 18,
+                                    (v) {
                                   _lyricSize = v;
                                 }),
+                                if (Platform.isAndroid)
+                                  _textSizeTile('封面歌词字号', _lyricPreviewSize,
+                                      'lyricPreviewSize', 16, (v) {
+                                    _lyricPreviewSize = v;
+                                  }, min: 10, max: 24),
                                 ListTile(
                                   dense: true,
                                   leading: Icon(
@@ -1006,8 +1007,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           value: _lyricCurrentSize,
                                           min: 10,
                                           max: 30,
-                                          onChanged: (v) => setState(() =>
-                                              _lyricCurrentSize = v),
+                                          onChanged: (v) => setState(
+                                              () => _lyricCurrentSize = v),
                                           onChangeEnd: (v) async {
                                             await _save({
                                               'lyricCurrentSize': v.round()
@@ -1018,19 +1019,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         ),
                                       ),
                                       _resetButton(() {
-                                        _resetToDefault(
-                                            ['lyricCurrentSize'], () {
-                                          _lyricCurrentSize = _lyricSize + 2;
+                                        _resetToDefault(['lyricCurrentSize'],
+                                            () {
+                                          _lyricCurrentSize =
+                                              _defaults.lyricCurrentSize;
                                         });
                                       }),
                                     ],
                                   ),
                                 ),
-                                _textSizeTile('歌词行间距', _lyricLineGap,
-                                    'lyricLineGap', 25, (v) {
+                                _textSizeTile(
+                                    '歌词行间距', _lyricLineGap, 'lyricLineGap', 25,
+                                    (v) {
                                   _lyricLineGap = v;
-                                },
-                                    icon: Icons.format_line_spacing),
+                                }, icon: Icons.format_line_spacing),
                                 ListTile(
                                   dense: true,
                                   leading: Icon(
@@ -1068,8 +1070,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           ),
                                           onSelectionChanged:
                                               (selection) async {
-                                            setState(() => _lyricAlign =
-                                                selection.first);
+                                            setState(() =>
+                                                _lyricAlign = selection.first);
                                             await _save(
                                                 {'lyricAlign': _lyricAlign});
                                             ref.invalidate(
@@ -1078,8 +1080,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         ),
                                       ),
                                       _resetButton(() {
-                                        _resetToDefault(
-                                            ['lyricAlign'], () {
+                                        _resetToDefault(['lyricAlign'], () {
                                           _lyricAlign = 'left';
                                         });
                                       }),
@@ -1107,10 +1108,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         onChanged: (value) async {
                                           setState(
                                               () => _showHoverTime = value);
-                                          await _save(
-                                              {'showHoverTime': value});
-                                          ref.invalidate(
-                                              uiSettingsProvider);
+                                          await _save({'showHoverTime': value});
+                                          ref.invalidate(uiSettingsProvider);
                                         },
                                       ),
                                       _resetButton(() {
@@ -1122,9 +1121,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ),
                                 // 歌词起始时间字号: 子设置, 关闭时折叠
                                 if (_showHoverTime)
-                                  _textSizeTile('歌词起始时间字号',
-                                      _hoverTimeSize, 'hoverTimeSize', 14,
-                                      (v) {
+                                  _textSizeTile('歌词起始时间字号', _hoverTimeSize,
+                                      'hoverTimeSize', 14, (v) {
                                     _hoverTimeSize = v;
                                   },
                                       icon: Icons.timer_outlined,
@@ -1149,6 +1147,25 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       .withValues(alpha: 0.55),
                                   (v) => _lyricColor = v,
                                 ),
+                                if (Platform.isAndroid) ...[
+                                  _textColorTile(
+                                    '封面歌词高亮',
+                                    _lyricPreviewHighlightColor,
+                                    'lyricPreviewHighlightColor',
+                                    Theme.of(context).colorScheme.primary,
+                                    (v) => _lyricPreviewHighlightColor = v,
+                                  ),
+                                  _textColorTile(
+                                    '封面歌词其他',
+                                    _lyricPreviewColor,
+                                    'lyricPreviewColor',
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.55),
+                                    (v) => _lyricPreviewColor = v,
+                                  ),
+                                ],
                                 _textColorTile(
                                   '歌词标题',
                                   _lyricTitleColor,
@@ -1169,8 +1186,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ListTile(
                                   leading: Icon(
                                     Icons.system_update_alt,
-                                    color: scheme.onSurface
-                                        .withValues(alpha: 0.7),
+                                    color:
+                                        scheme.onSurface.withValues(alpha: 0.7),
                                   ),
                                   title: const Text('检查更新'),
                                   subtitle: Text('当前版本 $kAppVersion'),
@@ -1195,8 +1212,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   '重置所有设置',
                                   style: TextStyle(color: scheme.error),
                                 ),
-                                contentPadding: const EdgeInsets.only(
-                                    left: 16, right: 16),
+                                contentPadding:
+                                    const EdgeInsets.only(left: 16, right: 16),
                                 onTap: _resetAllSettings,
                               ),
                             ],
@@ -1247,7 +1264,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         // 拖动结束再写盘 + 刷新, 避免拖动过程频繁写配置
         await _save({key: v.round()});
         if (refreshAppearance) {
-    ref.invalidate(uiSettingsProvider);
+          ref.invalidate(uiSettingsProvider);
         } else {
           ref.invalidate(textSettingsProvider);
         }
@@ -1282,8 +1299,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         for (final key in ColorSetting.keys(baseKey)) {
           config.remove(key);
         }
-        await ref.read(configJsonProvider).write(
-            {...config, ...updated.toConfig(baseKey)});
+        await ref
+            .read(configJsonProvider)
+            .write({...config, ...updated.toConfig(baseKey)});
         ref.invalidate(textSettingsProvider);
       },
     );

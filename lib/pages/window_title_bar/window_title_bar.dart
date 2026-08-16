@@ -4,6 +4,7 @@ import 'package:again/common/const.dart';
 import 'package:again/pages/window_title_bar/caption_buttons/window_caption_buttons.dart';
 import 'package:again/pages/window_title_bar/move_window.dart';
 import 'package:again/pages/window_title_bar/tool_buttons/filter_toggle_btn.dart';
+import 'package:again/pages/window_title_bar/tool_buttons/locate_track_btn.dart';
 import 'package:again/pages/window_title_bar/tool_buttons/refresh_btn.dart';
 import 'package:again/pages/window_title_bar/tool_buttons/settings_btn.dart';
 import 'package:flutter/material.dart';
@@ -28,11 +29,11 @@ class WindowTitleBar extends StatelessWidget {
             children: [
               const FilterToggleBtn(buttonHeight: 40),
               Expanded(child: Container()),
+              if (Platform.isAndroid) const LocateTrackBtn(buttonHeight: 40),
               const RefreshBtn(buttonHeight: 40),
               const SettingsBtn(buttonHeight: 40),
               // 最小化/最大化/关闭按钮: Windows 专属
-              if (Platform.isWindows)
-                const CaptionButtons(buttonHeight: 40),
+              if (Platform.isWindows) const CaptionButtons(buttonHeight: 40),
             ],
           ),
         ),
