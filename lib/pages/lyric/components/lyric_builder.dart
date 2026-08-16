@@ -11,6 +11,7 @@ import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
+import 'package:again/pages/lyric/components/lyric_panel_controls.dart';
 import 'package:again/utils/log.dart';
 import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
@@ -195,56 +196,39 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         }
 
         // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
-        // 封面页 = 封面 (无倒影/倾斜, 顶部对齐) + 紧跟封面的 5 行歌词预览
+        // 控制区在每页内部, 与内容紧凑堆叠 (参考播放器布局);
+        // 封面页 = 封面 + 5 行预览 + 控制区, 整体垂直居中
         if (isNarrow) {
-          final narrowCover = math.min(appSize.width * 0.85, height - 260);
+          final narrowCover = math.min(appSize.width * 0.85, height - 300);
           return PanelSwitcher(
             panels: [
-              // 封面页: 封面贴标题栏下方, 预览歌词紧跟封面底部
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 12),
-                      child: coverSection(narrowCover),
-                    ),
-                  ),
-                  // 预览: 紧跟封面底部 (上移 10 轻微衔接), 渐变背景延伸
-                  // 到底部控制区; 文字垂直居中填充剩余空间
-                  Positioned(
-                    left: 0,
-                    right: 0,
-                    top: 12 + narrowCover - 10,
-                    bottom: 0,
-                    child: Container(
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            scheme.surface.withValues(alpha: 0.95),
-                          ],
-                          stops: const [0.0, 0.3],
-                        ),
-                      ),
-                      // 略偏上 (盖住封面下缘的渐变衔接), 上下空白均衡
-                      child: Align(
-                        alignment: const Alignment(0, -0.15),
-                        child: _buildLyricPreview(playingViPath, lineColor,
-                            highlightColor, scheme),
-                      ),
-                    ),
-                  ),
-                ],
+              // 封面页: 封面 → 预览 → 控制区 紧凑堆叠, 略偏上
+              // (标题下空隙贴近参考 4%, 底部留白自然)
+              Align(
+                alignment: const Alignment(0, -0.1),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    coverSection(narrowCover),
+                    const SizedBox(height: 6),
+                    _buildLyricPreview(playingViPath, lineColor,
+                        highlightColor, scheme),
+                    const SizedBox(height: 12),
+                    const LyricPanelControls(),
+                  ],
+                ),
               ),
-              // 纯歌词页: 完整歌词
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: lyricSection(),
+              // 纯歌词页: 完整歌词 + 控制区
+              Column(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: lyricSection(),
+                    ),
+                  ),
+                  const LyricPanelControls(),
+                ],
               ),
             ],
           );
