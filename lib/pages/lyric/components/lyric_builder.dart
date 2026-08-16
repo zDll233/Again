@@ -105,8 +105,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 return Padding(
                   padding: EdgeInsets.only(
                       top: isNarrow ? 0 : (height - coverSize) / 2),
-                  child: _buildCover(snapshot.data!, coverSize,
-                      tilt: false, reflection: false),
+                  child: _buildCover(
+                    snapshot.data!,
+                    coverSize,
+                    // 倾斜/倒影仅宽屏桌面沿用设置 (窄屏移动端移除)
+                    tilt: isNarrow ? false : (appearance?.coverTilt ?? true),
+                    reflection: isNarrow
+                        ? false
+                        : (appearance?.coverReflection ?? true),
+                  ),
                 );
               },
             ),
@@ -216,8 +223,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     ),
                     coverSection(narrowCover),
                     const SizedBox(height: 6),
-                    _buildLyricPreview(playingViPath, lineColor,
-                        highlightColor, scheme),
+                    _buildLyricPreview(
+                        playingViPath, lineColor, highlightColor, scheme),
                     // 预览→控制区: 参考图约 5% 间距
                     const SizedBox(height: 45),
                     const LyricPanelControls(),
@@ -359,8 +366,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           final model = _getLrcModel(content);
           return Consumer(
             builder: (_, WidgetRef ref, __) {
-              final position = ref.watch(
-                  audioProvider.select((state) => state.position));
+              final position =
+                  ref.watch(audioProvider.select((state) => state.position));
               final lines = model.lyrics;
               // 跳过空行 (多时间戳 lrc 在每句后带 [time] 空行占位)
               final lyricLines = <LyricsLineModel>[];
@@ -390,13 +397,14 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 textOf(current + 1),
                 textOf(current + 2),
               ];
-              if (previews.every((t) => t.isEmpty)) return const SizedBox.shrink();
+              if (previews.every((t) => t.isEmpty)) {
+                return const SizedBox.shrink();
+              }
 
               // 字号自适应: 按 5 行内最长文本长度缩放
-              final longest = previews
-                  .map((t) => t.length)
-                  .reduce(math.max);
-              final fontSize = longest > 20 ? 12.0 : (longest > 12 ? 13.5 : 15.0);
+              final longest = previews.map((t) => t.length).reduce(math.max);
+              final fontSize =
+                  longest > 20 ? 12.0 : (longest > 12 ? 13.5 : 15.0);
 
               Widget line(String text, bool highlight) {
                 if (text.isEmpty) return const SizedBox(height: 16);
@@ -406,8 +414,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     fontSize: highlight ? fontSize + 2 : fontSize,
-                    fontWeight:
-                        highlight ? FontWeight.bold : FontWeight.normal,
+                    fontWeight: highlight ? FontWeight.bold : FontWeight.normal,
                     color: highlight
                         ? highlightColor
                         : lineColor.withValues(alpha: 0.75),

@@ -17,6 +17,22 @@ class LyricPanel extends ConsumerWidget {
     if (!hasAudioSource) {
       return const EmptyLyric();
     }
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
+    if (!isNarrow) {
+      // 宽屏 (桌面): 标题居中, 无作品名副标题 (保持桌面原布局)
+      return Column(
+        children: [
+          SizedBox(
+            height: 50.0,
+            child: const VoiceItemTitle(),
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: 10.0),
+            child: const LyricBuilder(),
+          ),
+        ],
+      );
+    }
     return Column(
       children: [
         // 顶部控制栏: 歌名 + 作品名副标题, 左对齐 (1:1 复刻参考布局)

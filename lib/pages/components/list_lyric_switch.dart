@@ -22,28 +22,27 @@ class ListLyricSwitch extends ConsumerWidget {
     }
 
     // 宽屏 (桌面): 淡入淡出切换
-    // 注意: 本组件在 MyApp 的 Column 中, 必须自身返回 Expanded 撑满剩余空间
-    return Expanded(
-      child: Stack(
-        children: [
-          AnimatedOpacity(
-            opacity: showLyricPanel ? 0.0 : 1.0,
-            duration: const Duration(milliseconds: 300),
-            child: Offstage(
-              offstage: showLyricPanel,
-              child: const ListsView(),
-            ),
+    // 注意: 本组件在 MyApp 的 Column 中由外层 Expanded 撑满剩余空间,
+    // 这里不能再包 Expanded (会与外层 ParentData 竞争报错)
+    return Stack(
+      children: [
+        AnimatedOpacity(
+          opacity: showLyricPanel ? 0.0 : 1.0,
+          duration: const Duration(milliseconds: 300),
+          child: Offstage(
+            offstage: showLyricPanel,
+            child: const ListsView(),
           ),
-          AnimatedOpacity(
-            opacity: showLyricPanel ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 300),
-            child: Visibility(
-              visible: showLyricPanel,
-              child: const LyricPanel(),
-            ),
-          )
-        ],
-      ),
+        ),
+        AnimatedOpacity(
+          opacity: showLyricPanel ? 1.0 : 0.0,
+          duration: const Duration(milliseconds: 300),
+          child: Visibility(
+            visible: showLyricPanel,
+            child: const LyricPanel(),
+          ),
+        )
+      ],
     );
   }
 }

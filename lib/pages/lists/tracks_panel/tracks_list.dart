@@ -81,9 +81,9 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
 
   /// 音轨列表; [indices] 为 null 时显示全量, 否则只显示过滤后的索引。
   Widget _buildList(List<VoiceItem> values, List<int>? indices) {
-    // 窄屏底部留出悬浮胶囊空间 (内容可滚到胶囊上方)
-    final bottomPad =
-        MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
+    // 窄屏底部留出悬浮胶囊空间 (内容可滚到胶囊上方);
+    // 宽屏面板视口止于播放器顶部 (MyApp 已留出播放器高度), 无需垫底
+    final bottomPad = MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
     return ScrollablePositionedList.builder(
       itemCount: indices?.length ?? values.length,
       padding: EdgeInsets.only(bottom: bottomPad),
@@ -111,8 +111,8 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
                       ? null
                       : TextStyle(
                           fontSize: ts.panelTextSize,
-                          color: ts.panelTextColor?.resolve(
-                              Colors.transparent, themeHue),
+                          color: ts.panelTextColor
+                              ?.resolve(Colors.transparent, themeHue),
                         ),
                 ),
                 onTap: () => ref

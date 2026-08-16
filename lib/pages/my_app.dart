@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:again/common/const.dart';
 import 'package:again/pages/components/initialization.dart';
 import 'package:again/pages/components/list_lyric_switch.dart';
 import 'package:again/pages/components/lyric_panel_overlay.dart';
@@ -49,20 +50,31 @@ class MyApp extends ConsumerWidget {
                     child: Column(
                       children: [
                         const WindowTitleBar(),
-                        // 列表铺满 (底部不预留空白), 悬浮胶囊盖在列表上方;
-                        // 列表自身底部 padding 保证内容可滚到胶囊上方
-                        const Expanded(child: ListLyricSwitch()),
+                        // 窄屏: 列表铺满, 悬浮胶囊盖在列表上方,
+                        // 列表自身底部 padding 保证内容可滚到胶囊上方;
+                        // 宽屏: 底部留出全宽播放器高度, 面板与播放器分开,
+                        // 面板视口止于播放器顶部 (不延伸到播放器区域内)。
+                        Expanded(
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                bottom: isNarrow ? 0 : PLAYER_WIDGET_HEIGHT),
+                            child: const ListLyricSwitch(),
+                          ),
+                        ),
                       ],
                     ),
                   ),
                   // 悬浮播放器: 窄屏跑道胶囊 (内部自带左右留白),
                   // 桌面版保持贴底全宽; 歌词界面打开时隐藏 (自带控制区);
-                  // bottom 附加 SafeArea 底距避开系统导航条
+                  // 窄屏附加 SafeArea 底距避开系统导航条
+                  // (注意: 此 context 在 MaterialApp 外, MediaQuery 读的是
+                  // View 层默认值, 不能用于 Windows 计算偏移)
                   Positioned(
                     left: 0,
                     right: 0,
-                    bottom: (isNarrow ? 12 : 0) +
-                        MediaQuery.paddingOf(context).bottom,
+                    bottom: isNarrow
+                        ? 12 + MediaQuery.paddingOf(context).bottom
+                        : 0,
                     child: isNarrow && showLyric
                         ? const SizedBox.shrink()
                         : const PlayerWidget(),

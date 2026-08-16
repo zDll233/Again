@@ -48,15 +48,14 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     }
     // 搜索关闭时直接显示全量列表 (与开启时共用条目构建)
     final searchEnabled = searchEnabledFor(ref, searchWorksEnabledProvider);
-    // 窄屏底部留出悬浮胶囊空间 (内容可滚到胶囊上方)
-    final bottomPad =
-        MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
+    // 窄屏底部留出悬浮胶囊空间 (内容可滚到胶囊上方);
+    // 宽屏面板视口止于播放器顶部 (MyApp 已留出播放器高度), 无需垫底
+    final bottomPad = MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
     if (!searchEnabled) {
       return ScrollablePositionedList.builder(
         itemCount: values.length,
         itemBuilder: (context, index) => _buildItem(context, index),
-        itemScrollController:
-            ref.read(uiServiceProvider).worksScrollController,
+        itemScrollController: ref.read(uiServiceProvider).worksScrollController,
         padding: EdgeInsets.only(bottom: bottomPad),
       );
     }
@@ -92,8 +91,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
 
   /// 单个作品条目 (index 为原始列表索引)。
   Widget _buildItem(BuildContext context, int index) {
-    final values =
-        ref.watch(voiceWorkProvider.select((state) => state.values));
+    final values = ref.watch(voiceWorkProvider.select((state) => state.values));
     final voiceWork = values[index];
     return Consumer(
       builder: (_, WidgetRef ref, __) {
@@ -108,8 +106,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
         return Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () =>
-                ref.read(voiceWorkProvider.notifier).onSelected(index),
+            onTap: () => ref.read(voiceWorkProvider.notifier).onSelected(index),
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: EdgeInsets.symmetric(
@@ -145,8 +142,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                             fontSize: ts?.panelTextSize,
                             color: selected
                                 ? scheme.primary
-                                : ts?.panelTextColor?.resolve(
-                                    Colors.transparent, themeHue),
+                                : ts?.panelTextColor
+                                    ?.resolve(Colors.transparent, themeHue),
                           ),
                         ),
                         if (voiceWork.sourceId.isNotEmpty)
@@ -159,8 +156,7 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                                 // 选中项的 RJ 号跟随主题色
                                 color: selected
                                     ? scheme.primary
-                                    : scheme.onSurface
-                                        .withValues(alpha: 0.45),
+                                    : scheme.onSurface.withValues(alpha: 0.45),
                               ),
                             ),
                           ),
