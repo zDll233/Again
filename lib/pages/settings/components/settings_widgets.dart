@@ -73,12 +73,13 @@ class SettingsTextGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
     return ExpansionTile(
       title: Text(title),
       initiallyExpanded: true,
-      tilePadding: const EdgeInsets.symmetric(horizontal: 16),
+      tilePadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
       // 子设置缩进, 层级更明显
-      childrenPadding: const EdgeInsets.only(left: 20),
+      childrenPadding: EdgeInsets.only(left: isNarrow ? 0 : 20),
       // trailing 与重置按钮同构 (40px 容器 + 18px 图标), 右边缘精确对齐
       trailing: const SizedBox(
         width: 40,
@@ -126,8 +127,7 @@ class SettingsColorSwatch extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(
-          color:
-              Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.2),
         ),
       ),
     );
@@ -161,6 +161,7 @@ class SettingsTextSizeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
     return ListTile(
       dense: true,
       // leading 占位与颜色行/主题区一致, 文字起点对齐
@@ -170,7 +171,7 @@ class SettingsTextSizeTile extends StatelessWidget {
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       ),
       title: Text(label),
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
+      contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -186,7 +187,7 @@ class SettingsTextSizeTile extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: 120,
+            width: isNarrow ? 96 : 120,
             child: Slider(
               value: value,
               min: min,
@@ -228,11 +229,12 @@ class SettingsTextColorTile extends StatelessWidget {
     final displayColor =
         setting?.resolve(fallback, HSVColor.fromColor(themeHueColor)) ??
             fallback;
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
     return ListTile(
       dense: true,
       leading: SettingsColorSwatch(color: displayColor),
       title: Text(label),
-      contentPadding: const EdgeInsets.only(left: 16, right: 16),
+      contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
       subtitle: setting == null ? const Text('跟随主题') : null,
       trailing: SettingsResetButton(onPressed: onReset),
       onTap: () async {
@@ -247,8 +249,7 @@ class SettingsTextColorTile extends StatelessWidget {
         );
         if (result == null) return;
         final updated = result.themeHue
-            ? ColorSetting(
-                themeHue: true, sat: result.sat, val: result.val)
+            ? ColorSetting(themeHue: true, sat: result.sat, val: result.val)
             : ColorSetting(color: result.color);
         onChanged(updated);
         await onSave(updated);

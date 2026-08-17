@@ -49,6 +49,12 @@ class ListsView extends ConsumerWidget {
                   // 点击右侧遮罩收起筛选
                   onTap: () =>
                       ref.read(miscUIProvider.notifier).toggleFilterExpanded(),
+                  // 右侧空白区域左划也收起筛选。
+                  onHorizontalDragEnd: (details) {
+                    if ((details.primaryVelocity ?? 0) < -120) {
+                      ref.read(miscUIProvider.notifier).toggleFilterExpanded();
+                    }
+                  },
                   child: ColoredBox(
                     color: Colors.black.withValues(alpha: 0.30),
                   ),
@@ -68,14 +74,24 @@ class ListsView extends ConsumerWidget {
                   duration: const Duration(milliseconds: 260),
                   curve: Curves.easeOutCubic,
                   offset: filterExpanded ? Offset.zero : const Offset(-1, 0),
-                  child: Material(
-                    color: scheme.surface.withValues(alpha: 0.98),
-                    elevation: 18,
-                    shadowColor: Colors.black.withValues(alpha: 0.45),
-                    borderRadius: const BorderRadius.horizontal(
-                        right: Radius.circular(16)),
-                    clipBehavior: Clip.antiAlias,
-                    child: const FilterPanel(),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onHorizontalDragEnd: (details) {
+                      if ((details.primaryVelocity ?? 0) < -120) {
+                        ref
+                            .read(miscUIProvider.notifier)
+                            .toggleFilterExpanded();
+                      }
+                    },
+                    child: Material(
+                      color: scheme.surface.withValues(alpha: 0.98),
+                      elevation: 18,
+                      shadowColor: Colors.black.withValues(alpha: 0.45),
+                      borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(16)),
+                      clipBehavior: Clip.antiAlias,
+                      child: const FilterPanel(),
+                    ),
                   ),
                 ),
               ),

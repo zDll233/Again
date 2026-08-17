@@ -51,7 +51,8 @@ class _InitializationState extends ConsumerState<Initialization>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.detached) {
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
       unawaited(ref.read(historyManagerProvider).saveHistory());
     }
   }
@@ -96,12 +97,12 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   unawaited(ref
       .read(uiServiceProvider)
       .applyWindowEffect(resolveWindowEffect(config)));
-  // 窗口位置恢复 / 数据库初始化 / 历史加载互不依赖, 并行执行
+  // 窗口位置恢复可并行; 历史加载依赖数据库和根目录初始化完成。
   await Future.wait([
     restoreWindowBounds(ref.read(configJsonProvider)),
     ref.read(dbNotifierProvider).initialize(),
-    ref.read(historyManagerProvider).loadHistory(),
   ]);
+  await ref.read(historyManagerProvider).loadHistory();
   // 恢复作品/音轨排序设置 (config.json, 未知值回退默认)
   final sortOrder = config['sortOrder'];
   if (sortOrder is String) {

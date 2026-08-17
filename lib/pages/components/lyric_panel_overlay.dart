@@ -39,8 +39,7 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
     _lyricAnim.addStatusListener((status) {
       if (status == AnimationStatus.completed ||
           status == AnimationStatus.dismissed) {
-        debugPrint(
-            '[LPO] anim ${status.name} value=${_lyricAnim.value}');
+        debugPrint('[LPO] anim ${status.name} value=${_lyricAnim.value}');
         ref.read(lyricPanelAnimateRequestProvider.notifier).state = null;
       }
     });
@@ -94,7 +93,6 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
       _animateTo(next);
     });
 
-    final scheme = Theme.of(context).colorScheme;
     final screenHeight = MediaQuery.sizeOf(context).height;
     return GestureDetector(
       onVerticalDragUpdate: (details) {
@@ -104,33 +102,43 @@ class _LyricPanelOverlayState extends ConsumerState<LyricPanelOverlay>
                 .clamp(0.0, 1.0);
       },
       onVerticalDragEnd: _decide,
-      child: Transform.translate(
-        // 用屏幕高度平移 (面板比屏幕矮, FractionalTranslation 按
-        // 自身高度平移会露出面板顶部)
-        offset: Offset(0, screenHeight * (1 - progress)),
-        child: Container(
-          // 全不透明: 面板必须完全盖住底层列表与播放器;
-          // 全屏覆盖状态栏 (沉浸式), 内容用 SafeArea 避开状态栏/导航条;
-          // 背景 = 封面模糊铺满 + 暗色遮罩 (参考播放器沉浸式背景)
-          color: scheme.surface,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              const _BlurredCoverBackground(),
-              // 暗色遮罩: 保证前景文字/封面清晰可读
-              ColoredBox(
-                color: Colors.black.withValues(alpha: 0.42),
-              ),
-              SafeArea(
-                child: LyricPanel(
-                  // 传入 SafeArea 外的真实状态栏高度,
-                  // LyricPanel 内 MediaQuery.paddingOf 读不到 (已被 SafeArea 消费)
-                  topInset: MediaQuery.paddingOf(context).top,
-                ),
-              ),
-            ],
+      child: ClipRect(
+        child: Transform.translate(
+          // 用屏幕高度平移 (面板比屏幕矮, FractionalTranslation 按
+          // 自身高度平移会露出面板顶部)
+          offset: Offset(0, screenHeight * (1 - progress)),
+          child: ClipRect(
+            child: const _LyricPanelSurface(),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// 面板内容独立于拖动进度构建, 拖动时只合成平移层, 避免整棵歌词树逐帧重建。
+class _LyricPanelSurface extends StatelessWidget {
+  const _LyricPanelSurface();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      color: scheme.surface,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          const RepaintBoundary(
+            child: ClipRect(child: _BlurredCoverBackground()),
+          ),
+          // 暗色遮罩: 保证前景文字/封面清晰可读
+          ColoredBox(color: Colors.black.withValues(alpha: 0.42)),
+          SafeArea(
+            child: LyricPanel(
+              topInset: MediaQuery.paddingOf(context).top,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -143,8 +151,8 @@ class _BlurredCoverBackground extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final workPath = ref.watch(
-        voiceItemProvider.select((state) => state.cachedPlayingItem?.voiceWorkPath));
+    final workPath = ref.watch(voiceItemProvider
+        .select((state) => state.cachedPlayingItem?.voiceWorkPath));
     if (workPath == null || workPath.isEmpty) {
       return const SizedBox.shrink();
     }

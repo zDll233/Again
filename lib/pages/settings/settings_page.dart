@@ -51,6 +51,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _lyricTitleSize = _defaults.lyricTitleSize;
   double _lyricSize = _defaults.lyricSize;
   double _lyricPreviewSize = _defaults.lyricPreviewSize;
+  double _lyricPreviewCurrentSize = _defaults.lyricPreviewCurrentSize;
   ColorSetting? _panelTextColor;
   ColorSetting? _panelTitleColor;
   ColorSetting? _progressTextColor;
@@ -104,6 +105,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricTitleSize = ts.lyricTitleSize;
       _lyricSize = ts.lyricSize;
       _lyricPreviewSize = ts.lyricPreviewSize;
+      _lyricPreviewCurrentSize = ts.lyricPreviewCurrentSize;
       _panelTextColor = ts.panelTextColor;
       _panelTitleColor = ts.panelTitleColor;
       _progressTextColor = ts.progressTextColor;
@@ -161,6 +163,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     VoidCallback setDefault,
   ) {
     final scheme = Theme.of(context).colorScheme;
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
     return ListTile(
       dense: true,
       leading: Icon(
@@ -170,7 +173,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
       title: Text(title),
       subtitle: Text(subtitle),
-      contentPadding: const EdgeInsets.only(left: 40, right: 16),
+      contentPadding:
+          EdgeInsets.only(left: isNarrow ? 28 : 40, right: isNarrow ? 8 : 16),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -357,6 +361,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _lyricTitleSize = _defaults.lyricTitleSize;
       _lyricSize = _defaults.lyricSize;
       _lyricPreviewSize = _defaults.lyricPreviewSize;
+      _lyricPreviewCurrentSize = _defaults.lyricPreviewCurrentSize;
       _panelTextColor = null;
       _panelTitleColor = null;
       _progressTextColor = null;
@@ -425,6 +430,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isNarrow = MediaQuery.sizeOf(context).width < 600;
     return Scaffold(
       backgroundColor: scheme.surface.withValues(alpha: 0.98),
       body: SafeArea(
@@ -462,7 +468,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               child: _loading
                   ? const Center(child: CircularProgressIndicator())
                   : ListView(
-                      padding: const EdgeInsets.all(12),
+                      padding: EdgeInsets.fromLTRB(
+                          isNarrow ? 4 : 12, 12, isNarrow ? 4 : 12, 12),
                       children: [
                         _sectionTitle('音声'),
                         _card(
@@ -971,62 +978,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   _lyricSize = v;
                                 }),
                                 if (Platform.isAndroid)
-                                  _textSizeTile('封面歌词字号', _lyricPreviewSize,
-                                      'lyricPreviewSize', 16, (v) {
+                                  _textSizeTile(
+                                      '封面歌词字号',
+                                      _lyricPreviewSize,
+                                      'lyricPreviewSize',
+                                      _defaults.lyricPreviewSize, (v) {
                                     _lyricPreviewSize = v;
                                   }, min: 10, max: 24),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.text_increase,
-                                    size: 22,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  title: const Text('当前行字号'),
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 16, right: 16),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        _lyricCurrentSize.toStringAsFixed(0),
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurface,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
-                                        child: Slider(
-                                          value: _lyricCurrentSize,
-                                          min: 10,
-                                          max: 30,
-                                          onChanged: (v) => setState(
-                                              () => _lyricCurrentSize = v),
-                                          onChangeEnd: (v) async {
-                                            await _save({
-                                              'lyricCurrentSize': v.round()
-                                            });
-                                            ref.invalidate(
-                                                textSettingsProvider);
-                                          },
-                                        ),
-                                      ),
-                                      _resetButton(() {
-                                        _resetToDefault(['lyricCurrentSize'],
-                                            () {
-                                          _lyricCurrentSize =
-                                              _defaults.lyricCurrentSize;
-                                        });
-                                      }),
-                                    ],
-                                  ),
+                                if (Platform.isAndroid)
+                                  _textSizeTile(
+                                      '封面当前行字号',
+                                      _lyricPreviewCurrentSize,
+                                      'lyricPreviewCurrentSize',
+                                      _defaults.lyricPreviewCurrentSize, (v) {
+                                    _lyricPreviewCurrentSize = v;
+                                  }, min: 10, max: 24),
+                                _textSizeTile(
+                                  '当前行字号',
+                                  _lyricCurrentSize,
+                                  'lyricCurrentSize',
+                                  _defaults.lyricCurrentSize,
+                                  (v) => _lyricCurrentSize = v,
                                 ),
                                 _textSizeTile(
                                     '歌词行间距', _lyricLineGap, 'lyricLineGap', 25,

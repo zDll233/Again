@@ -63,7 +63,10 @@ class LyricPanel extends ConsumerWidget {
                 left: 0,
                 right: 0,
                 bottom: 30,
-                child: LyricPanelControls(),
+                child: SizedBox(
+                  height: lyricPanelControlsHeight,
+                  child: LyricPanelControls(),
+                ),
               ),
             ],
           ),

@@ -10,6 +10,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 歌词界面底部控制区:
 /// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/音轨列表)。
+const double lyricPanelControlsHeight = 100.0;
+
 class LyricPanelControls extends ConsumerWidget {
   const LyricPanelControls({super.key});
 
@@ -57,10 +59,8 @@ class LyricPanelControls extends ConsumerWidget {
                   height: 42,
                 ),
                 onPressed: () {
-                  // 先恢复播放中的作品和音轨, 再切到音轨页。
-                  ref.read(uiServiceProvider).onLocateBtnPressed();
-                  ref.read(listsPanelPageProvider.notifier).state = 1;
-                  ref.read(miscUIProvider.notifier).hideLyricPanel();
+                  // 先恢复播放中的作品和音轨, 再稳定切到音轨页。
+                  ref.read(uiServiceProvider).openTracksPanel();
                 },
                 icon: const Icon(Icons.queue_music),
               ),

@@ -253,6 +253,24 @@ class UIService {
     scrollToSelectedIndex();
   }
 
+  /// 打开正在播放的音轨列表, 只滚动音轨列表, 不改变作品列表位置。
+  void openTracksPanel() {
+    if (!ref.read(isSelectedVoiceWorkPlaying)) {
+      restoreAllPlayingState();
+    }
+    ref.read(listsPanelPageProvider.notifier).state = 1;
+    ref.read(miscUIProvider.notifier).hideLyricPanel();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToIndex(
+          tracksScrollController,
+          ref.read(voiceItemProvider).selectedIndex,
+        );
+      });
+    });
+  }
+
   /// 滚动四个列表到各自选中项。
   /// 双层 addPostFrameCallback 是刻意的, 不要合并成单层:
   /// - 第一层: 等 restoreAllPlayingState 修改的 state 触发列表 rebuild 完成

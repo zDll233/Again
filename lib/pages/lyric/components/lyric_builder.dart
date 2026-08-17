@@ -11,6 +11,7 @@ import 'package:again/services/ui/theme/ui_settings.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/pages/lyric/components/empty_lyric.dart';
+import 'package:again/pages/lyric/components/lyric_panel_controls.dart';
 import 'package:again/utils/log.dart';
 import 'package:charset/charset.dart';
 import 'package:flutter/material.dart';
@@ -180,7 +181,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         // 窄屏: 封面页与纯歌词页左右滑动切换 (封面区域右划看到完整歌词);
         // 布局按参考播放器截图像素比例定位 (694x1503):
         //   标题区 4.2%-10% / 封面约 18%-58% /
-        //   预览约 62%-79% (底部控制区固定在 PageView 外)
+        //   预览约 62%-75% (底部控制区固定在 PageView 外)
         if (isNarrow) {
           final screenH = appSize.height;
           // 标题区底相对屏顶 = 状态栏 + 标题区 (标题区与 LyricPanel 一致),
@@ -190,6 +191,16 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
           // Android 歌词页封面恢复原比例; 作品条目封面预览的放宽在
           // image_thumbnail.dart 的对话框中单独处理。
           final narrowCover = appSize.width * 0.849;
+          final coverTop = screenH * 0.18 - contentTop;
+          final previewTop = screenH * 0.62 - contentTop;
+          final progressTop =
+              constraints.maxHeight - 30.0 - lyricPanelControlsHeight;
+          final coverPreviewGap =
+              math.max(30.0, previewTop - (coverTop + narrowCover));
+          final previewHeight = math.max(
+            0.0,
+            progressTop - previewTop - coverPreviewGap,
+          );
           return PanelSwitcher(
             panels: [
               // 封面页: 封面/预览/控制区按百分比定位
@@ -198,13 +209,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 children: [
                   // 封面: 18% 屏高起, 水平居中, 给三句预览留出空间
                   Positioned(
-                    top: screenH * 0.18 - contentTop,
+                    top: coverTop,
                     left: (appSize.width - narrowCover) / 2,
                     child: coverSection(narrowCover),
                   ),
                   // 歌词预览: 62% 屏高起
                   Positioned(
-                    top: screenH * 0.62 - contentTop,
+                    top: previewTop,
                     left: 0,
                     right: 0,
                     child: _buildLyricPreview(
@@ -216,7 +227,11 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                             highlightColor,
                         ts?.lyricAlign ?? 'left',
                         math.max(14.0, (ts?.lyricLineGap ?? 25.0) * 0.6),
-                        ts?.lyricPreviewSize ?? 16.0),
+                        ts?.lyricPreviewSize ?? 16.0,
+                        ts?.lyricPreviewCurrentSize ??
+                            ts?.lyricPreviewSize ??
+                            16.0,
+                        previewHeight),
                   ),
                 ],
               ),
@@ -225,11 +240,10 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 fit: StackFit.expand,
                 children: [
                   Positioned(
-                    top: screenH * 0.14 - contentTop,
+                    top: 30.0,
                     left: 0,
                     right: 0,
-                    bottom:
-                        constraints.maxHeight - (screenH * 0.80 - contentTop),
+                    bottom: lyricPanelControlsHeight + 60.0,
                     child: lyricSection(),
                   ),
                 ],
@@ -249,7 +263,12 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
               children: [
                 coverSection(coverSize),
                 SizedBox(width: coverGap),
-                Expanded(child: lyricSection()),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 30),
+                    child: lyricSection(),
+                  ),
+                ),
               ],
             ),
           ),
@@ -352,7 +371,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       Color highlightColor,
       String lyricAlign,
       double lineGap,
-      double previewSize) {
+      double previewSize,
+      double previewCurrentSize,
+      double previewHeight) {
     return FutureBuilder<String>(
       future: _getLrcContent(playingViPath),
       builder: (context, snapshot) {
@@ -361,11 +382,11 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
         try {
           final model = _getLrcModel(content);
           return SizedBox(
-            height: MediaQuery.sizeOf(context).height * 0.17,
+            height: previewHeight,
             child: _buildLyricsReader(
               model: model,
-              lyricUi: _getPreviewUi(
-                  lineColor, highlightColor, lineGap, previewSize, lyricAlign),
+              lyricUi: _getPreviewUi(lineColor, highlightColor, lineGap,
+                  previewSize, previewCurrentSize, lyricAlign),
               padding: lyricAlign == 'left'
                   ? const EdgeInsets.only(left: 12, right: 24)
                   : const EdgeInsets.symmetric(horizontal: 24),
@@ -431,13 +452,13 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
 
   /// UI 实例也必须稳定, 否则 flutter_lyric 会把样式变化当成重置请求。
   UINetease _getPreviewUi(Color lineColor, Color highlightColor, double lineGap,
-      double previewSize, String lyricAlign) {
+      double previewSize, double previewCurrentSize, String lyricAlign) {
     final key =
-        '$_previewColorStyleVersion-${lineColor.toARGB32()}-${highlightColor.toARGB32()}-$lineGap-$previewSize-$lyricAlign';
+        '$_previewColorStyleVersion-${lineColor.toARGB32()}-${highlightColor.toARGB32()}-$lineGap-$previewSize-$previewCurrentSize-$lyricAlign';
     if (_previewUi == null || _previewUiKey != key) {
       _previewUiKey = key;
       _previewUi = UINetease(
-        defaultSize: previewSize + 2,
+        defaultSize: previewCurrentSize,
         otherMainSize: previewSize,
         defaultColor: lineColor,
         defaultExtColor: lineColor.withValues(alpha: 0.55),

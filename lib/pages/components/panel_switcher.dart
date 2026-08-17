@@ -23,8 +23,16 @@ class PanelSwitcher extends ConsumerStatefulWidget {
 }
 
 class _PanelSwitcherState extends ConsumerState<PanelSwitcher> {
-  late final PageController _controller =
-      PageController(initialPage: widget.initialPage);
+  late final PageController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = widget.pageProvider;
+    _controller = PageController(
+      initialPage: provider == null ? widget.initialPage : ref.read(provider),
+    );
+  }
 
   @override
   void dispose() {
@@ -48,6 +56,11 @@ class _PanelSwitcherState extends ConsumerState<PanelSwitcher> {
     }
     return PageView(
       controller: _controller,
+      onPageChanged: (index) {
+        if (provider != null && ref.read(provider) != index) {
+          ref.read(provider.notifier).state = index;
+        }
+      },
       // KeepAlive: 切页后页面 State 不销毁, 列表滚动位置不丢,
       // 也不会在切回时重建导致列表跳动/自动滚动
       children: [for (final panel in widget.panels) _KeepAlive(child: panel)],

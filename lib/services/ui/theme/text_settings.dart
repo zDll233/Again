@@ -66,6 +66,7 @@ class TextSettings {
   final double lyricTitleSize;
   final double lyricSize;
   final double lyricPreviewSize;
+  final double lyricPreviewCurrentSize;
   final ColorSetting? panelTextColor;
   final ColorSetting? panelTitleColor;
   final ColorSetting? progressTextColor;
@@ -85,6 +86,7 @@ class TextSettings {
     this.lyricTitleSize = 28,
     this.lyricSize = 18,
     this.lyricPreviewSize = 16,
+    this.lyricPreviewCurrentSize = 16,
     this.lyricCurrentSize = 18,
     this.panelTextColor,
     this.panelTitleColor,
@@ -129,6 +131,8 @@ class TextSettings {
       lyricTitleSize: size('lyricTitleSize', 28),
       lyricSize: size('lyricSize', 18),
       lyricPreviewSize: size('lyricPreviewSize', 16),
+      lyricPreviewCurrentSize:
+          size('lyricPreviewCurrentSize', size('lyricPreviewSize', 16)),
       lyricCurrentSize: size('lyricCurrentSize', 18),
       panelTextColor: color('panelTextColor'),
       panelTitleColor: color('panelTitleColor'),
@@ -151,6 +155,7 @@ class TextSettings {
     'lyricTitleSize',
     'lyricSize',
     'lyricPreviewSize',
+    'lyricPreviewCurrentSize',
     'lyricCurrentSize',
     'lyricLineGap',
     'lyricAlign',

@@ -21,7 +21,10 @@ class Log {
                 methodCount: 5,
                 colors: false,
                 dateTimeFormat: DateTimeFormat.dateAndTime),
-            output: FileOutput(file: _getLogFile()),
+            // Android 的工作目录可能是只读路径; 移动端日志直接进 logcat。
+            output: Platform.isWindows
+                ? FileOutput(file: _getLogFile())
+                : ConsoleOutput(),
             level: Level.info,
           );
   }

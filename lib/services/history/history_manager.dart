@@ -1,8 +1,6 @@
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/audio/audio_state.dart';
 import 'package:again/common/const.dart';
-import 'package:again/models/voice_item.dart';
-import 'package:again/models/voice_work.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/services/ui/ui_service.dart';
@@ -87,9 +85,18 @@ class HistoryManager {
       await dbNotifier.updateVwList();
       Map<String, dynamic>? voiceWorkMap = uiHistory['voiceWork'];
       if (voiceWorkMap != null) {
-        ref
-            .read(voiceWorkProvider.notifier)
-            .cacheSelectedIndexAndItemByValue(VoiceWork.fromMap(voiceWorkMap));
+        final directoryPath = voiceWorkMap['directoryPath'];
+        final workIndex = directoryPath is String
+            ? ref
+                .read(voiceWorkProvider)
+                .values
+                .indexWhere((work) => work.directoryPath == directoryPath)
+            : -1;
+        if (workIndex >= 0) {
+          ref
+              .read(voiceWorkProvider.notifier)
+              .cacheSelectedIndexAndItem(workIndex);
+        }
       }
       if (!ref.read(voiceWorkProvider).isSelectedIndexValid) {
         sortOrderNotifier.cacheSelectedIndexAndItem(0);
@@ -102,9 +109,18 @@ class HistoryManager {
       await dbNotifier.updateViList();
       Map<String, dynamic>? voiceItemMap = uiHistory['voiceItem'];
       if (voiceItemMap != null) {
-        ref
-            .read(voiceItemProvider.notifier)
-            .cacheSelectedIndexAndItemByValue(VoiceItem.fromMap(voiceItemMap));
+        final filePath = voiceItemMap['filePath'];
+        final itemIndex = filePath is String
+            ? ref
+                .read(voiceItemProvider)
+                .values
+                .indexWhere((item) => item.filePath == filePath)
+            : -1;
+        if (itemIndex >= 0) {
+          ref
+              .read(voiceItemProvider.notifier)
+              .cacheSelectedIndexAndItem(itemIndex);
+        }
       }
 
       ref.read(sortOrderProvider.notifier).cachePlayingState();

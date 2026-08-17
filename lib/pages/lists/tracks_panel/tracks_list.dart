@@ -41,7 +41,11 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(uiServiceProvider).scrollToSelectedIndex();
+      final uiService = ref.read(uiServiceProvider);
+      uiService.scrollToIndex(
+        uiService.tracksScrollController,
+        ref.read(voiceItemProvider).selectedIndex,
+      );
     });
   }
 

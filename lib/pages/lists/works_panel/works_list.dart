@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:again/models/voice_work.dart';
 import 'package:again/pages/components/empty_state.dart';
 import 'package:again/pages/components/searchable_header.dart';
@@ -40,6 +42,21 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     return indices;
   }
 
+  Widget _withPanelSwipe(Widget child) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onHorizontalDragEnd: (details) {
+        final velocity = details.primaryVelocity ?? 0;
+        if (velocity > 120) {
+          ref.read(miscUIProvider.notifier).toggleFilterExpanded();
+        } else if (velocity < -120) {
+          ref.read(listsPanelPageProvider.notifier).state = 1;
+        }
+      },
+      child: child,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final values = ref.watch(voiceWorkProvider.select((state) => state.values));
@@ -52,40 +69,45 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     // 宽屏面板视口止于播放器顶部 (MyApp 已留出播放器高度), 无需垫底
     final bottomPad = MediaQuery.sizeOf(context).width < 600 ? 120.0 : 0.0;
     if (!searchEnabled) {
-      return ScrollablePositionedList.builder(
-        itemCount: values.length,
-        itemBuilder: (context, index) => _buildItem(context, index),
-        itemScrollController: ref.read(uiServiceProvider).worksScrollController,
-        padding: EdgeInsets.only(bottom: bottomPad),
+      return _withPanelSwipe(
+        ScrollablePositionedList.builder(
+          itemCount: values.length,
+          itemBuilder: (context, index) => _buildItem(context, index),
+          itemScrollController:
+              ref.read(uiServiceProvider).worksScrollController,
+          padding: EdgeInsets.only(bottom: bottomPad),
+        ),
       );
     }
     final filtered = _filteredIndices(values);
 
-    return Column(
-      children: [
-        SearchableHeader(
-          title: '作品',
-          query: _query,
-          onQueryChanged: (value) => setState(() => _query = value),
-          onClear: () => setState(() => _query = ''),
-          compact: true,
-        ),
-        Expanded(
-          child: filtered.isEmpty
-              ? const EmptyState(
-                  icon: Icons.search_off_outlined,
-                  message: '没有匹配的作品',
-                )
-              : ScrollablePositionedList.builder(
-                  itemCount: filtered.length,
-                  itemBuilder: (context, index) =>
-                      _buildItem(context, filtered[index]),
-                  itemScrollController:
-                      ref.read(uiServiceProvider).worksScrollController,
-                  padding: EdgeInsets.only(bottom: bottomPad),
-                ),
-        ),
-      ],
+    return _withPanelSwipe(
+      Column(
+        children: [
+          SearchableHeader(
+            title: '作品',
+            query: _query,
+            onQueryChanged: (value) => setState(() => _query = value),
+            onClear: () => setState(() => _query = ''),
+            compact: true,
+          ),
+          Expanded(
+            child: filtered.isEmpty
+                ? const EmptyState(
+                    icon: Icons.search_off_outlined,
+                    message: '没有匹配的作品',
+                  )
+                : ScrollablePositionedList.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) =>
+                        _buildItem(context, filtered[index]),
+                    itemScrollController:
+                        ref.read(uiServiceProvider).worksScrollController,
+                    padding: EdgeInsets.only(bottom: bottomPad),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -106,7 +128,18 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
         return Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () => ref.read(voiceWorkProvider.notifier).onSelected(index),
+            onTapDown: (_) {
+              // 不等待双击识别, 单击按下即开始切换作品/加载音轨。
+              if (ref.read(voiceWorkProvider).selectedIndex != index) {
+                unawaited(
+                    ref.read(voiceWorkProvider.notifier).onSelected(index));
+              }
+            },
+            onDoubleTap: () {
+              if (mounted) {
+                ref.read(listsPanelPageProvider.notifier).state = 1;
+              }
+            },
             borderRadius: BorderRadius.circular(10),
             child: Container(
               padding: EdgeInsets.symmetric(
