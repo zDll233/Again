@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- 更新 APK 下载到应用 cache (Dart Directory.systemTemp) -->
+    <cache-path name="cache" path="." />
+</paths>

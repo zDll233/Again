@@ -216,7 +216,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
   }
 
-  /// 检查更新: 查询 GitHub 最新 Release, 有新版本时下载并重启更新。
+  /// 检查更新: 查询 GitHub 最新 Release, 有新版本时下载并更新。
+  /// Windows: 下载 zip 覆盖式更新; Android: 下载 APK 唤起系统安装器。
   Future<void> _checkUpdate() async {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -230,7 +231,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       );
       return;
     }
-    if (!result.hasUpdate || result.zipUrl == null) {
+    if (!result.hasUpdate || result.assetUrl == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('已是最新版本 ($kAppVersion)')),
       );
@@ -277,8 +278,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         ),
       ),
     );
-    final zipPath = await downloadUpdateZip(
-      result.zipUrl!,
+    final assetPath = await downloadUpdateAsset(
+      result.assetUrl!,
       onProgress: (received, total) {
         progress.value = total > 0 ? received / total : 0;
       },
@@ -286,7 +287,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     if (mounted) {
       Navigator.of(context, rootNavigator: true).pop();
     }
-    if (zipPath == null) {
+    if (assetPath == null) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('下载失败, 请稍后重试')),
@@ -295,6 +296,39 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     }
 
     if (!mounted) return;
+    if (Platform.isAndroid) {
+      // Android: 唤起系统安装器, 用户确认后完成安装
+      final install = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('更新已下载'),
+          content: const Text('将打开系统安装器完成安装, 安装后覆盖当前版本。\n'
+              '若无法安装, 请在系统设置中允许本应用"安装未知应用"。'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('稍后'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('立即安装'),
+            ),
+          ],
+        ),
+      );
+      if (install == true) {
+        try {
+          await applyUpdateAndroid(assetPath);
+        } catch (_) {
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('打开安装器失败, 请到设置开启"安装未知应用"')),
+          );
+        }
+      }
+      return;
+    }
+
     final apply = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -313,7 +347,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       ),
     );
     if (apply == true) {
-      await applyUpdate(zipPath);
+      await applyUpdate(assetPath);
     }
   }
 
@@ -1188,8 +1222,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ),
                           ],
                         ),
-                        // 检查更新: Windows 专属 (zip 覆盖式更新)
-                        if (Platform.isWindows)
+                        // 检查更新: Windows zip 覆盖更新, Android 下载 APK 安装
+                        if (Platform.isWindows || Platform.isAndroid)
                           Padding(
                             padding: const EdgeInsets.only(top: 20),
                             child: _card(

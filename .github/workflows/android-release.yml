@@ -1,9 +1,17 @@
 name: Again Android Release Build
 
 on:
-  # Android 暂不自动发布 (secrets 未配 / 真机验证未全部完成),
-  # 需要时在 Actions 页面手动触发 (workflow_dispatch)。
+  # 手动触发: 需要时在 Actions 页面输入版本号 (如 v0.5.0)
   workflow_dispatch:
+    inputs:
+      version:
+        description: '发布版本号 (如 v0.5.0), 会同时作为 GitHub Release tag'
+        required: true
+        type: string
+  # 推送 v* tag 时自动发布 (需配置 4 个签名 secrets)
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
@@ -12,13 +20,27 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      APP_NAME: "${{ github.event.repository.name }}"
-      VERSION: "${{ github.ref_name }}"
-
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Compute version
+        id: ver
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [ -z "$VERSION" ]; then
+            VERSION="${{ github.ref_name }}"
+          fi
+          if [ "${VERSION#v}" = "$VERSION" ]; then
+            echo "error: version must start with 'v' (got '$VERSION')" >&2
+            exit 1
+          fi
+          NAME="${VERSION#v}"
+          # 版本号 → versionCode: v1.2.3 → 10203 (每位两位, 单调递增)
+          CODE=$(echo "$NAME" | awk -F. '{printf "%d%02d%02d", $1, $2, $3}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -38,12 +60,16 @@ jobs:
           EOF
 
       - name: Build APK Release
-        run: flutter build apk --release
+        run: flutter build apk --release \
+          --dart-define=APP_VERSION=${{ steps.ver.outputs.version }} \
+          --build-name=${{ steps.ver.outputs.name }} \
+          --build-number=${{ steps.ver.outputs.code }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          name: "${{ env.APP_NAME }} ${{ env.VERSION }}"
+          name: "Again ${{ steps.ver.outputs.name }}"
+          tag_name: ${{ steps.ver.outputs.version }}
           files: build/app/outputs/flutter-apk/*.apk
           generate_release_notes: false
           draft: false

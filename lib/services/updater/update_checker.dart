@@ -5,6 +5,7 @@ import 'dart:io';
 
 import 'package:again/utils/log.dart';
 import 'package:ffi/ffi.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 DynamicLibrary? _shell32;
@@ -17,9 +18,8 @@ typedef _ShellExecuteWNative = Pointer<Void> Function(Pointer<Void>,
     Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Int32);
 typedef _ShellExecuteWDart = Pointer<Void> Function(Pointer<Void>,
     Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, Pointer<Utf16>, int);
-final _ShellExecuteWDart _shellExecuteW =
-    _shell32Lib.lookupFunction<_ShellExecuteWNative, _ShellExecuteWDart>(
-        'ShellExecuteW');
+final _ShellExecuteWDart _shellExecuteW = _shell32Lib
+    .lookupFunction<_ShellExecuteWNative, _ShellExecuteWDart>('ShellExecuteW');
 
 /// 隐藏窗口启动程序 (SW_HIDE), 无 PowerShell/cmd 中间层, 参数直传。
 void _launchHidden(String file, String arguments) {
@@ -42,12 +42,12 @@ const String kAppVersion =
 /// 检查更新结果。
 class UpdateCheckResult {
   final String latestTag; // 如 v0.4.4
-  final String? zipUrl; // Release 压缩包资产 URL
+  final String? assetUrl; // 平台对应资产: Windows zip / Android apk
   final String? releaseUrl; // Release 页面
 
   const UpdateCheckResult({
     required this.latestTag,
-    this.zipUrl,
+    this.assetUrl,
     this.releaseUrl,
   });
 
@@ -83,8 +83,7 @@ Future<void> cleanStaleUpdateDirs() async {
     final tempRoot = tempDir.parent;
     await tempDir.delete(recursive: true);
     await for (final entity in tempRoot.list()) {
-      if (entity is Directory &&
-          entity.path.contains('again_update_')) {
+      if (entity is Directory && entity.path.contains('again_update_')) {
         await entity.delete(recursive: true);
       }
     }
@@ -109,17 +108,20 @@ Future<UpdateCheckResult?> checkForUpdate() async {
     final json = jsonDecode(resp.body) as Map<String, dynamic>;
     final tag = (json['tag_name'] as String?) ?? '';
     final assets = (json['assets'] as List<dynamic>?) ?? [];
-    String? zipUrl;
+    // 平台对应资产: Windows 覆盖包 .zip, Android 安装包 .apk
+    final wantApk = Platform.isAndroid;
+    String? assetUrl;
     for (final asset in assets) {
       final name = (asset as Map<String, dynamic>)['name'] as String? ?? '';
-      if (name.endsWith('.zip')) {
-        zipUrl = asset['browser_download_url'] as String?;
+      final matches = wantApk ? name.endsWith('.apk') : name.endsWith('.zip');
+      if (matches) {
+        assetUrl = asset['browser_download_url'] as String?;
         break;
       }
     }
     return UpdateCheckResult(
       latestTag: tag,
-      zipUrl: zipUrl,
+      assetUrl: assetUrl,
       releaseUrl: json['html_url'] as String?,
     );
   } catch (e) {
@@ -128,8 +130,10 @@ Future<UpdateCheckResult?> checkForUpdate() async {
   }
 }
 
-/// 流式下载 zip 到临时目录, 返回本地路径; [onProgress] 回调已下载/总字节。
-Future<String?> downloadUpdateZip(
+/// 流式下载更新资产到临时目录 (文件名取自 URL 末段), 返回本地路径;
+/// [onProgress] 回调已下载/总字节。Android 临时目录为应用 cache,
+/// 可由 FileProvider 共享给系统安装器。
+Future<String?> downloadUpdateAsset(
   String url, {
   void Function(int received, int total)? onProgress,
 }) async {
@@ -144,9 +148,10 @@ Future<String?> downloadUpdateZip(
     }
     final total = resp.contentLength ?? 0;
     final tempDir = await Directory.systemTemp.createTemp('again_update_');
-    final zipPath =
-        '${tempDir.path}${Platform.pathSeparator}update.zip';
-    final sink = File(zipPath).openWrite();
+    final fileName = url.split('/').last.split('?').first;
+    final filePath =
+        '${tempDir.path}${Platform.pathSeparator}${fileName.isEmpty ? 'update' : fileName}';
+    final sink = File(filePath).openWrite();
     var received = 0;
     try {
       await for (final chunk in resp.stream) {
@@ -160,12 +165,27 @@ Future<String?> downloadUpdateZip(
       Log.error('Download update error: $e');
       return null;
     }
-    return zipPath;
+    return filePath;
   } catch (e) {
     Log.error('Download update error: $e');
     return null;
   } finally {
     client.close();
+  }
+}
+
+/// Android 安装渠道: 唤起系统安装器 (FileProvider 共享 APK)。
+const _installerChannel = MethodChannel('again/installer');
+
+/// 通过系统安装器安装 APK (需要用户允许"安装未知应用")。
+/// 仅 Android 支持。
+Future<void> applyUpdateAndroid(String apkPath) async {
+  if (!Platform.isAndroid) return;
+  try {
+    await _installerChannel.invokeMethod<void>('installApk', apkPath);
+  } catch (e) {
+    Log.error('applyUpdateAndroid failed: $e');
+    rethrow;
   }
 }
 
