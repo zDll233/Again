@@ -3,7 +3,6 @@ import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/audio/audio_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
@@ -57,7 +56,7 @@ String? _lastMediaItemId;
 Duration? _lastMediaItemDuration;
 
 void _syncPlaybackState(AudioState state) {
-  final playing = state.playerState == PlayerState.playing;
+  final playing = state.playerState == AudioPlaybackState.playing;
   againAudioHandler.playbackState.add(PlaybackState(
     controls: [
       MediaControl.skipToPrevious,

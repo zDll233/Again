@@ -10,10 +10,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart' as ja;
 
 class AudioNotifier extends Notifier<AudioState> {
+  static const _sourceLoadTimeout = Duration(seconds: 10);
+  static const _audioOperationTimeout = Duration(seconds: 5);
+
   ap.AudioPlayer? _windowsPlayer;
   ja.AudioPlayer? _androidPlayer;
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   Future<void>? _androidAudioSessionFuture;
+  int _sourceRequestId = 0;
   bool _completionHandled = false;
   bool _isDisposed = false;
 
@@ -25,7 +29,10 @@ class AudioNotifier extends Notifier<AudioState> {
     });
 
     if (Platform.isAndroid) {
-      _androidPlayer = ja.AudioPlayer();
+      _androidPlayer = ja.AudioPlayer(
+        handleInterruptions: false,
+        handleAudioSessionActivation: false,
+      );
       _initAndroidPlayer(_androidPlayer!);
     } else if (Platform.isWindows) {
       _windowsPlayer = ap.AudioPlayer();
@@ -41,7 +48,7 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void _initWindowsPlayer(ap.AudioPlayer player) {
-    Log.info('Windows AudioPlayer initialized.');
+    Log.info('Windows audioplayers AudioPlayer initialized.');
 
     _runDetached(
       'Error configuring Windows audio release mode.',
@@ -73,29 +80,31 @@ class AudioNotifier extends Notifier<AudioState> {
     _subscriptions.add(
       player.onPlayerStateChanged.listen(
         (newPlayerState) => _scheduleStateUpdate(
-          'Error updating audio player state.',
-          () => updatePlayState(newPlayerState),
+          'Error updating Windows audio player state.',
+          () => updatePlayState(_mapAudioplayersState(newPlayerState)),
         ),
         onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio player state.', error, stackTrace);
+          _logError(
+              'Error receiving Windows audio player state.', error, stackTrace);
         },
       ),
     );
     _subscriptions.add(
       player.onPlayerComplete.listen(
         (_) => _scheduleStateUpdate(
-          'Error handling audio completion.',
+          'Error handling Windows audio completion.',
           _handlePlaybackComplete,
         ),
         onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio completion.', error, stackTrace);
+          _logError(
+              'Error receiving Windows audio completion.', error, stackTrace);
         },
       ),
     );
   }
 
   void _initAndroidPlayer(ja.AudioPlayer player) {
-    Log.info('Android AudioPlayer initialized.');
+    Log.info('Android just_audio AudioPlayer initialized.');
 
     _subscriptions.add(
       player.durationStream.listen(
@@ -139,20 +148,54 @@ class AudioNotifier extends Notifier<AudioState> {
         },
       ),
     );
+    _subscriptions.add(
+      player.errorStream.listen(
+        (error) {
+          _logError(
+            'Android just_audio playback error: ${error.code} ${error.message}',
+            error,
+            StackTrace.current,
+          );
+          _scheduleStateUpdate(
+            'Error resetting audio state after playback failure.',
+            _resetAfterSourceFailure,
+          );
+        },
+        onError: (Object error, StackTrace stackTrace) {
+          _logError(
+              'Error receiving Android playback error.', error, stackTrace);
+        },
+      ),
+    );
   }
 
-  ap.PlayerState _mapJustAudioState(ja.PlayerState newPlayerState) {
+  AudioPlaybackState _mapAudioplayersState(ap.PlayerState playerState) {
+    switch (playerState) {
+      case ap.PlayerState.stopped:
+        return AudioPlaybackState.stopped;
+      case ap.PlayerState.paused:
+        return AudioPlaybackState.paused;
+      case ap.PlayerState.playing:
+        return AudioPlaybackState.playing;
+      case ap.PlayerState.completed:
+        return AudioPlaybackState.completed;
+      case ap.PlayerState.disposed:
+        return AudioPlaybackState.stopped;
+    }
+  }
+
+  AudioPlaybackState _mapJustAudioState(ja.PlayerState newPlayerState) {
     switch (newPlayerState.processingState) {
       case ja.ProcessingState.idle:
-        return ap.PlayerState.stopped;
+        return AudioPlaybackState.stopped;
       case ja.ProcessingState.loading:
       case ja.ProcessingState.buffering:
       case ja.ProcessingState.ready:
         return newPlayerState.playing
-            ? ap.PlayerState.playing
-            : ap.PlayerState.paused;
+            ? AudioPlaybackState.playing
+            : AudioPlaybackState.paused;
       case ja.ProcessingState.completed:
-        return ap.PlayerState.completed;
+        return AudioPlaybackState.completed;
     }
   }
 
@@ -187,7 +230,7 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  void updatePlayState(ap.PlayerState newPlayerState) {
+  void updatePlayState(AudioPlaybackState newPlayerState) {
     state = state.copyWith(playerState: newPlayerState);
   }
 
@@ -199,7 +242,7 @@ class AudioNotifier extends Notifier<AudioState> {
     state = state.copyWith(position: newPosition);
   }
 
-  /// change audioState only, will *not* change audioplayer volume.
+  /// Changes AudioState only; does not change the just_audio player volume.
   void _updateVolume(double newVolume) {
     state = state.copyWith(volume: newVolume);
   }
@@ -216,75 +259,56 @@ class AudioNotifier extends Notifier<AudioState> {
     state = newState;
   }
 
-  Future<void> setSource(String playablePath) async {
+  Future<bool> setSource(String playablePath) async {
     try {
       await _setSourcePath(playablePath);
+      return true;
     } catch (error, stackTrace) {
       _logError('Error setting audio source.', error, stackTrace);
+      return false;
     }
   }
 
   Future<void> _setSourcePath(String playablePath) async {
     _completionHandled = false;
+    final requestId = ++_sourceRequestId;
 
-    if (Platform.isAndroid) {
-      final player = _androidPlayer;
-      if (player == null) {
-        throw StateError('Android audio player is not initialized.');
+    try {
+      if (Platform.isAndroid) {
+        await _configureAndroidAudioSession().timeout(_audioOperationTimeout);
+        await _requireAndroidPlayer.setFilePath(playablePath).timeout(
+              _sourceLoadTimeout,
+              onTimeout: () => throw TimeoutException(
+                'Timed out loading audio source: $playablePath',
+                _sourceLoadTimeout,
+              ),
+            );
+      } else if (Platform.isWindows) {
+        await _requireWindowsPlayer
+            .setSource(ap.DeviceFileSource(playablePath))
+            .timeout(
+              _sourceLoadTimeout,
+              onTimeout: () => throw TimeoutException(
+                'Timed out loading audio source: $playablePath',
+                _sourceLoadTimeout,
+              ),
+            );
+      } else {
+        throw UnsupportedError(
+          'Setting an audio source is unsupported on ${Platform.operatingSystem}.',
+        );
       }
-      await _configureAndroidAudioSession();
-      await player.setFilePath(playablePath);
-      return;
-    }
-
-    if (Platform.isWindows) {
-      final player = _windowsPlayer;
-      if (player == null) {
-        throw StateError('Windows audio player is not initialized.');
+    } on TimeoutException catch (error, stackTrace) {
+      if (Platform.isAndroid) {
+        _androidAudioSessionFuture = null;
       }
-      await player.setSource(ap.DeviceFileSource(playablePath));
-      return;
-    }
-
-    throw UnsupportedError(
-      'Setting an audio source is unsupported on ${Platform.operatingSystem}.',
-    );
-  }
-
-  Future<void> _setSource(ap.Source source) async {
-    _completionHandled = false;
-
-    if (Platform.isWindows) {
-      final player = _windowsPlayer;
-      if (player == null) {
-        throw StateError('Windows audio player is not initialized.');
-      }
-      await player.setSource(source);
-      return;
-    }
-
-    if (!Platform.isAndroid) {
-      throw UnsupportedError(
-        'Playing an audio source is unsupported on ${Platform.operatingSystem}.',
-      );
-    }
-
-    final player = _androidPlayer;
-    if (player == null) {
-      throw StateError('Android audio player is not initialized.');
-    }
-    await _configureAndroidAudioSession();
-
-    if (source is ap.DeviceFileSource) {
-      await player.setFilePath(source.path);
-    } else if (source is ap.UrlSource) {
-      await player.setUrl(source.url);
-    } else if (source is ap.AssetSource) {
-      await player.setAsset(source.path);
-    } else {
-      throw UnsupportedError(
-        'Android playback does not support ${source.runtimeType}.',
-      );
+      _resetAfterSourceFailure(requestId);
+      _logError(
+          'Timed out loading audio source: $playablePath', error, stackTrace);
+      rethrow;
+    } catch (_) {
+      _resetAfterSourceFailure(requestId);
+      rethrow;
     }
   }
 
@@ -315,17 +339,13 @@ class AudioNotifier extends Notifier<AudioState> {
   Future<void> seek(Duration newPosition) async {
     try {
       if (Platform.isAndroid) {
-        final player = _androidPlayer;
-        if (player == null) {
-          throw StateError('Android audio player is not initialized.');
-        }
-        await player.seek(newPosition);
+        await _requireAndroidPlayer.seek(newPosition).timeout(
+              _audioOperationTimeout,
+            );
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        await player.seek(newPosition);
+        await _requireWindowsPlayer.seek(newPosition).timeout(
+              _audioOperationTimeout,
+            );
       } else {
         throw UnsupportedError(
           'Seeking audio is unsupported on ${Platform.operatingSystem}.',
@@ -336,33 +356,31 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  Future<void> play(ap.Source source) async {
+  Future<bool> play(String playablePath) async {
     try {
-      await _setSource(source);
+      await _setSourcePath(playablePath);
+      _startPlayback();
+      return true;
+    } catch (error, stackTrace) {
+      _logError('Error playing audio.', error, stackTrace);
+      return false;
+    }
+  }
+
+  void _startPlayback() {
+    try {
       if (Platform.isAndroid) {
-        _startAndroidPlayback();
+        _runDetached('Error playing audio.', _requireAndroidPlayer.play);
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        await player.resume();
+        _runDetached('Error playing audio.', _requireWindowsPlayer.resume);
+      } else {
+        throw UnsupportedError(
+          'Playing audio is unsupported on ${Platform.operatingSystem}.',
+        );
       }
     } catch (error, stackTrace) {
       _logError('Error playing audio.', error, stackTrace);
     }
-  }
-
-  void _startAndroidPlayback() {
-    final player = _androidPlayer;
-    if (player == null) {
-      _logError(
-          'Error playing audio.',
-          StateError('Android audio player is not initialized.'),
-          StackTrace.current);
-      return;
-    }
-    _runDetached('Error playing audio.', player.play);
   }
 
   void playNext() {
@@ -394,7 +412,7 @@ class AudioNotifier extends Notifier<AudioState> {
       if (path == null) {
         throw StateError('No audio path exists for track index $tempIdx.');
       }
-      await play(ap.DeviceFileSource(path));
+      await play(path);
     } catch (error, stackTrace) {
       _logError('Error changing audio track.', error, stackTrace);
     }
@@ -403,17 +421,9 @@ class AudioNotifier extends Notifier<AudioState> {
   void pause() {
     try {
       if (Platform.isAndroid) {
-        final player = _androidPlayer;
-        if (player == null) {
-          throw StateError('Android audio player is not initialized.');
-        }
-        _runDetached('Error pausing audio.', player.pause);
+        _runDetached('Error pausing audio.', _requireAndroidPlayer.pause);
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        _runDetached('Error pausing audio.', player.pause);
+        _runDetached('Error pausing audio.', _requireWindowsPlayer.pause);
       } else {
         throw UnsupportedError(
           'Pausing audio is unsupported on ${Platform.operatingSystem}.',
@@ -427,17 +437,9 @@ class AudioNotifier extends Notifier<AudioState> {
   void resume() {
     try {
       if (Platform.isAndroid) {
-        final player = _androidPlayer;
-        if (player == null) {
-          throw StateError('Android audio player is not initialized.');
-        }
-        _runDetached('Error resuming audio.', player.play);
+        _runDetached('Error resuming audio.', _requireAndroidPlayer.play);
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        _runDetached('Error resuming audio.', player.resume);
+        _runDetached('Error resuming audio.', _requireWindowsPlayer.resume);
       } else {
         throw UnsupportedError(
           'Resuming audio is unsupported on ${Platform.operatingSystem}.',
@@ -450,22 +452,15 @@ class AudioNotifier extends Notifier<AudioState> {
 
   Future<void> stop() async {
     try {
+      _sourceRequestId++;
       ref.read(voiceItemProvider.notifier).changeTrack(0);
       final firstItemPath =
           ref.read(voiceItemProvider).cachedPlayingVoiceItemPath;
       if (firstItemPath != null) {
         if (Platform.isAndroid) {
-          final player = _androidPlayer;
-          if (player == null) {
-            throw StateError('Android audio player is not initialized.');
-          }
-          await player.stop();
+          await _requireAndroidPlayer.stop().timeout(_audioOperationTimeout);
         } else if (Platform.isWindows) {
-          final player = _windowsPlayer;
-          if (player == null) {
-            throw StateError('Windows audio player is not initialized.');
-          }
-          await player.stop();
+          await _requireWindowsPlayer.stop().timeout(_audioOperationTimeout);
         } else {
           throw UnsupportedError(
             'Stopping audio is unsupported on ${Platform.operatingSystem}.',
@@ -480,20 +475,13 @@ class AudioNotifier extends Notifier<AudioState> {
 
   Future<void> release() async {
     try {
+      _sourceRequestId++;
       if (Platform.isAndroid) {
-        final player = _androidPlayer;
-        if (player == null) {
-          throw StateError('Android audio player is not initialized.');
-        }
         // just_audio.stop() releases native playback resources while keeping
         // the player reusable for the next selected work.
-        await player.stop();
+        await _requireAndroidPlayer.stop().timeout(_audioOperationTimeout);
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        await player.release();
+        await _requireWindowsPlayer.release().timeout(_audioOperationTimeout);
       } else {
         throw UnsupportedError(
           'Releasing audio is unsupported on ${Platform.operatingSystem}.',
@@ -520,19 +508,11 @@ class AudioNotifier extends Notifier<AudioState> {
   void setVolume(double newVolume) {
     try {
       if (Platform.isAndroid) {
-        final player = _androidPlayer;
-        if (player == null) {
-          throw StateError('Android audio player is not initialized.');
-        }
-        _runDetached(
-            'Error setting volume.', () => player.setVolume(newVolume));
+        _runDetached('Error setting volume.',
+            () => _requireAndroidPlayer.setVolume(newVolume));
       } else if (Platform.isWindows) {
-        final player = _windowsPlayer;
-        if (player == null) {
-          throw StateError('Windows audio player is not initialized.');
-        }
-        _runDetached(
-            'Error setting volume.', () => player.setVolume(newVolume));
+        _runDetached('Error setting volume.',
+            () => _requireWindowsPlayer.setVolume(newVolume));
       } else {
         throw UnsupportedError(
           'Setting audio volume is unsupported on ${Platform.operatingSystem}.',
@@ -545,7 +525,7 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void switchPauseResume() {
-    if (state.playerState == ap.PlayerState.playing) {
+    if (state.playerState == AudioPlaybackState.playing) {
       pause();
     } else {
       resume();
@@ -638,6 +618,34 @@ class AudioNotifier extends Notifier<AudioState> {
       }
       _windowsPlayer = null;
     }
+  }
+
+  ja.AudioPlayer get _requireAndroidPlayer {
+    final player = _androidPlayer;
+    if (player == null) {
+      throw StateError('Android audio player is not initialized.');
+    }
+    return player;
+  }
+
+  ap.AudioPlayer get _requireWindowsPlayer {
+    final player = _windowsPlayer;
+    if (player == null) {
+      throw StateError('Windows audio player is not initialized.');
+    }
+    return player;
+  }
+
+  void _resetAfterSourceFailure([int? requestId]) {
+    if (_isDisposed) return;
+    if (requestId != null && requestId != _sourceRequestId) return;
+    state = state.copyWith(
+      playerState: AudioPlaybackState.stopped,
+      duration: Duration.zero,
+      position: Duration.zero,
+    );
+    ref.read(voiceWorkProvider.notifier).clearPlayingState();
+    ref.read(voiceItemProvider.notifier).clearPlayingState();
   }
 
   void _logError(String message, Object error, StackTrace stackTrace) {

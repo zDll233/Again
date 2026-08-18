@@ -1,10 +1,16 @@
 import 'package:again/services/ui/presentation/state_interface/base_state.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 enum PlaybackMode {
   sequentialPlay,
   singleRepeat,
   shufflePlay,
+}
+
+enum AudioPlaybackState {
+  stopped,
+  paused,
+  playing,
+  completed,
 }
 
 extension PlaybackModeExtension on PlaybackMode {
@@ -16,7 +22,7 @@ extension PlaybackModeExtension on PlaybackMode {
 }
 
 class AudioState extends BaseState {
-  final PlayerState playerState;
+  final AudioPlaybackState playerState;
   final Duration duration;
   final Duration position;
   final double volume;
@@ -24,7 +30,7 @@ class AudioState extends BaseState {
   final PlaybackMode playbackMode;
 
   AudioState({
-    this.playerState = PlayerState.stopped,
+    this.playerState = AudioPlaybackState.stopped,
     this.duration = Duration.zero,
     this.position = Duration.zero,
     this.volume = 1.0,
@@ -34,7 +40,7 @@ class AudioState extends BaseState {
 
   @override
   AudioState copyWith({
-    PlayerState? playerState,
+    AudioPlaybackState? playerState,
     Duration? duration,
     Duration? position,
     double? volume,
@@ -51,6 +57,6 @@ class AudioState extends BaseState {
     );
   }
 
-  bool get isPlaying => playerState == PlayerState.playing;
+  bool get isPlaying => playerState == AudioPlaybackState.playing;
   bool get isShufflePlay => playbackMode == PlaybackMode.shufflePlay;
 }

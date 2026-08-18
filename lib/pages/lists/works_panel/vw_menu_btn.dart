@@ -63,7 +63,10 @@ class VwMenuBtn extends ConsumerWidget {
               .map((cvName) =>
                   PopupMenuItem<String>(value: cvName, child: Text(cvName)))
               .toList(),
-          (value) => ref.read(cvProvider.notifier).onSelectedByName(value),        );
+          (value) => ref
+              .read(cvProvider.notifier)
+              .selectFromVoiceWork(value, voiceWork.category),
+        );
       },
     );
   }

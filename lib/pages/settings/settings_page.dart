@@ -44,6 +44,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _sliderThumbSize = 5;
   bool _showHoverTime = true;
   double _hoverTimeSize = 14;
+  bool _showCoverLyric = true;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -129,6 +130,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _showHoverTime = config['showHoverTime'] != false;
       final hoverTimeSize = config['hoverTimeSize'];
       _hoverTimeSize = hoverTimeSize is num ? hoverTimeSize.toDouble() : 14;
+      _showCoverLyric = config['showCoverLyric'] != false;
       _lyricCurrentSize = ts.lyricCurrentSize;
       _loading = false;
     });
@@ -380,6 +382,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _sliderThumbSize = 5;
       _showHoverTime = true;
       _hoverTimeSize = 14;
+      _showCoverLyric = true;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
     });
     // 排序先恢复默认 (此时 config 尚未清空, 键会被写掉), 随后清空 config
@@ -495,8 +498,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.close_fullscreen),
                                 title: const Text('关闭时最小化到托盘'),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 16, right: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -520,8 +523,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.location_on_outlined),
                                 title: const Text('记住窗口位置'),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 16, right: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -546,8 +549,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               ListTile(
                                 leading: const Icon(Icons.aspect_ratio),
                                 title: const Text('记住窗口大小'),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 16, right: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -569,6 +572,77 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ],
                                 ),
                               ),
+                              // 窗口背景效果: 系统级 acrylic, 影响整体观感
+                              ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  Icons.blur_on,
+                                  size: 22,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                title: const Text('窗口背景效果'),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: isNarrow ? 168 : 216,
+                                      child: SegmentedButton<String>(
+                                        segments: const [
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_TRANSPARENT,
+                                            label: Text('透明'),
+                                          ),
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_ACRYLIC,
+                                            label: Text('亚克力'),
+                                          ),
+                                          ButtonSegment(
+                                            value: WINDOW_EFFECT_OPAQUE,
+                                            label: Text('不透明'),
+                                          ),
+                                        ],
+                                        selected: {_windowEffect},
+                                        showSelectedIcon: false,
+                                        style: ButtonStyle(
+                                          visualDensity: VisualDensity.compact,
+                                        ),
+                                        onSelectionChanged: (selection) async {
+                                          final value = selection.first;
+                                          setState(() => _windowEffect = value);
+                                          // 迁移: 移除旧的 liquidGlass 布尔配置
+                                          final config = await ref
+                                              .read(configJsonProvider)
+                                              .read();
+                                          config.remove('liquidGlass');
+                                          await ref
+                                              .read(configJsonProvider)
+                                              .write({
+                                            ...config,
+                                            'windowEffect': value
+                                          });
+                                          ref.invalidate(windowEffectProvider);
+                                          ref
+                                              .read(uiServiceProvider)
+                                              .applyWindowEffect(value);
+                                        },
+                                      ),
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(
+                                        ['windowEffect', 'liquidGlass'],
+                                        () => _windowEffect =
+                                            WINDOW_EFFECT_ACRYLIC,
+                                        reapplyWindowEffect: true,
+                                      );
+                                    }),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ],
@@ -579,8 +653,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                               leading: const Icon(Icons.search),
                               title: const Text('列表搜索'),
                               subtitle: const Text('作品/分类/声优/音轨列表的搜索框'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: isNarrow ? 8 : 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -641,59 +715,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 () => _searchTracks = true,
                               ),
                             ],
-                            ListTile(
-                              dense: true,
-                              leading: Icon(
-                                Icons.view_list,
-                                size: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.6),
-                              ),
-                              title: const Text('列表密度'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  SizedBox(
-                                    width: 144,
-                                    child: SegmentedButton<String>(
-                                      segments: const [
-                                        ButtonSegment(
-                                          value: 'compact',
-                                          label: Text('紧凑'),
-                                        ),
-                                        ButtonSegment(
-                                          value: 'comfortable',
-                                          label: Text('宽松'),
-                                        ),
-                                      ],
-                                      selected: {_listDensity},
-                                      showSelectedIcon: false,
-                                      style: ButtonStyle(
-                                        visualDensity: VisualDensity.compact,
-                                      ),
-                                      // 与"歌词对齐"行同宽, 保证重置按钮对齐
-                                      onSelectionChanged: (selection) async {
-                                        setState(() =>
-                                            _listDensity = selection.first);
-                                        await _save(
-                                            {'listDensity': _listDensity});
-                                        ref.invalidate(uiSettingsProvider);
-                                      },
-                                    ),
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(['listDensity'], () {
-                                      _listDensity =
-                                          const UiSettings().listDensity;
-                                    });
-                                  }),
-                                ],
-                              ),
-                            ),
                           ],
                         ),
                         _sectionTitle('外观'),
@@ -702,8 +723,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             ListTile(
                               leading: _colorSwatch(_themeSeedColor),
                               title: const Text('主题色'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: isNarrow ? 8 : 16),
                               trailing: _resetButton(() {
                                 _resetToDefault(
                                   ['themeSeedColor'],
@@ -730,140 +751,124 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 ref.invalidate(coverSeedColorProvider);
                               },
                             ),
-                            // 窗口背景效果: Windows 专属 (系统级 acrylic)
-                            if (Platform.isWindows)
+                            ListTile(
+                              dense: true,
+                              leading: Icon(
+                                Icons.view_list,
+                                size: 22,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
+                              ),
+                              title: const Text('列表密度'),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: isNarrow ? 8 : 16),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  SizedBox(
+                                    width: isNarrow ? 120 : 144,
+                                    child: SegmentedButton<String>(
+                                      segments: const [
+                                        ButtonSegment(
+                                          value: 'compact',
+                                          label: Text('紧凑'),
+                                        ),
+                                        ButtonSegment(
+                                          value: 'comfortable',
+                                          label: Text('宽松'),
+                                        ),
+                                      ],
+                                      selected: {_listDensity},
+                                      showSelectedIcon: false,
+                                      style: ButtonStyle(
+                                        visualDensity: VisualDensity.compact,
+                                      ),
+                                      onSelectionChanged: (selection) async {
+                                        setState(() =>
+                                            _listDensity = selection.first);
+                                        await _save(
+                                            {'listDensity': _listDensity});
+                                        ref.invalidate(uiSettingsProvider);
+                                      },
+                                    ),
+                                  ),
+                                  _resetButton(() {
+                                    _resetToDefault(['listDensity'], () {
+                                      _listDensity =
+                                          const UiSettings().listDensity;
+                                    });
+                                  }),
+                                ],
+                              ),
+                            ),
+                            // 封面倾斜/倒影: Windows 宽屏歌词页生效 (Android 已移除)
+                            if (!Platform.isAndroid) ...[
                               ListTile(
                                 dense: true,
                                 leading: Icon(
-                                  Icons.blur_on,
+                                  Icons.threed_rotation,
                                   size: 22,
                                   color: Theme.of(context)
                                       .colorScheme
                                       .onSurface
                                       .withValues(alpha: 0.6),
                                 ),
-                                title: const Text('窗口背景效果'),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 16, right: 16),
+                                title: const Text('封面倾斜动画'),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    SizedBox(
-                                      width: 216,
-                                      child: SegmentedButton<String>(
-                                        segments: const [
-                                          ButtonSegment(
-                                            value: WINDOW_EFFECT_TRANSPARENT,
-                                            label: Text('透明'),
-                                          ),
-                                          ButtonSegment(
-                                            value: WINDOW_EFFECT_ACRYLIC,
-                                            label: Text('亚克力'),
-                                          ),
-                                          ButtonSegment(
-                                            value: WINDOW_EFFECT_OPAQUE,
-                                            label: Text('不透明'),
-                                          ),
-                                        ],
-                                        selected: {_windowEffect},
-                                        showSelectedIcon: false,
-                                        style: ButtonStyle(
-                                          visualDensity: VisualDensity.compact,
-                                        ),
-                                        onSelectionChanged: (selection) async {
-                                          final value = selection.first;
-                                          setState(() => _windowEffect = value);
-                                          // 迁移: 移除旧的 liquidGlass 布尔配置
-                                          final config = await ref
-                                              .read(configJsonProvider)
-                                              .read();
-                                          config.remove('liquidGlass');
-                                          await ref
-                                              .read(configJsonProvider)
-                                              .write({
-                                            ...config,
-                                            'windowEffect': value
-                                          });
-                                          ref.invalidate(windowEffectProvider);
-                                          ref
-                                              .read(uiServiceProvider)
-                                              .applyWindowEffect(value);
-                                        },
-                                      ),
+                                    Switch(
+                                      value: _coverTilt,
+                                      onChanged: (value) async {
+                                        setState(() => _coverTilt = value);
+                                        await _save({'coverTilt': value});
+                                        ref.invalidate(uiSettingsProvider);
+                                      },
                                     ),
                                     _resetButton(() {
-                                      _resetToDefault(
-                                        ['windowEffect', 'liquidGlass'],
-                                        () => _windowEffect =
-                                            WINDOW_EFFECT_ACRYLIC,
-                                        reapplyWindowEffect: true,
-                                      );
+                                      _resetToDefault(['coverTilt'],
+                                          () => _coverTilt = true);
                                     }),
                                   ],
                                 ),
                               ),
-                            ListTile(
-                              dense: true,
-                              leading: Icon(
-                                Icons.threed_rotation,
-                                size: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.6),
+                              ListTile(
+                                dense: true,
+                                leading: Icon(
+                                  Icons.filter_hdr,
+                                  size: 22,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6),
+                                ),
+                                title: const Text('封面倒影'),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Switch(
+                                      value: _coverReflection,
+                                      onChanged: (value) async {
+                                        setState(
+                                            () => _coverReflection = value);
+                                        await _save({'coverReflection': value});
+                                        ref.invalidate(uiSettingsProvider);
+                                      },
+                                    ),
+                                    _resetButton(() {
+                                      _resetToDefault(['coverReflection'],
+                                          () => _coverReflection = true);
+                                    }),
+                                  ],
+                                ),
                               ),
-                              title: const Text('封面倾斜动画'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _coverTilt,
-                                    onChanged: (value) async {
-                                      setState(() => _coverTilt = value);
-                                      await _save({'coverTilt': value});
-                                      ref.invalidate(uiSettingsProvider);
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(
-                                        ['coverTilt'], () => _coverTilt = true);
-                                  }),
-                                ],
-                              ),
-                            ),
-                            ListTile(
-                              dense: true,
-                              leading: Icon(
-                                Icons.filter_hdr,
-                                size: 22,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurface
-                                    .withValues(alpha: 0.6),
-                              ),
-                              title: const Text('封面倒影'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              trailing: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Switch(
-                                    value: _coverReflection,
-                                    onChanged: (value) async {
-                                      setState(() => _coverReflection = value);
-                                      await _save({'coverReflection': value});
-                                      ref.invalidate(uiSettingsProvider);
-                                    },
-                                  ),
-                                  _resetButton(() {
-                                    _resetToDefault(['coverReflection'],
-                                        () => _coverReflection = true);
-                                  }),
-                                ],
-                              ),
-                            ),
+                            ],
                             ListTile(
                               dense: true,
                               leading: Icon(
@@ -875,8 +880,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .withValues(alpha: 0.6),
                               ),
                               title: const Text('进度/音量条滑块圆点'),
-                              contentPadding:
-                                  const EdgeInsets.only(left: 16, right: 16),
+                              contentPadding: EdgeInsets.symmetric(
+                                  horizontal: isNarrow ? 8 : 16),
                               trailing: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
@@ -977,6 +982,47 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     (v) {
                                   _lyricSize = v;
                                 }),
+                                _textSizeTile(
+                                  '当前行字号',
+                                  _lyricCurrentSize,
+                                  'lyricCurrentSize',
+                                  _defaults.lyricCurrentSize,
+                                  (v) => _lyricCurrentSize = v,
+                                ),
+                                if (Platform.isAndroid)
+                                  ListTile(
+                                    dense: true,
+                                    leading: Icon(
+                                      Icons.lyrics_outlined,
+                                      size: 22,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                    title: const Text('封面歌词'),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: isNarrow ? 8 : 16),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Switch(
+                                          value: _showCoverLyric,
+                                          onChanged: (value) async {
+                                            setState(
+                                                () => _showCoverLyric = value);
+                                            await _save(
+                                                {'showCoverLyric': value});
+                                            ref.invalidate(uiSettingsProvider);
+                                          },
+                                        ),
+                                        _resetButton(() {
+                                          _resetToDefault(['showCoverLyric'],
+                                              () => _showCoverLyric = true);
+                                        }),
+                                      ],
+                                    ),
+                                  ),
                                 if (Platform.isAndroid)
                                   _textSizeTile(
                                       '封面歌词字号',
@@ -994,13 +1040,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     _lyricPreviewCurrentSize = v;
                                   }, min: 10, max: 24),
                                 _textSizeTile(
-                                  '当前行字号',
-                                  _lyricCurrentSize,
-                                  'lyricCurrentSize',
-                                  _defaults.lyricCurrentSize,
-                                  (v) => _lyricCurrentSize = v,
-                                ),
-                                _textSizeTile(
                                     '歌词行间距', _lyricLineGap, 'lyricLineGap', 25,
                                     (v) {
                                   _lyricLineGap = v;
@@ -1016,13 +1055,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         .withValues(alpha: 0.6),
                                   ),
                                   title: const Text('歌词对齐'),
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 16, right: 16),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: isNarrow ? 8 : 16),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       SizedBox(
-                                        width: 144,
+                                        width: isNarrow ? 120 : 144,
                                         child: SegmentedButton<String>(
                                           segments: const [
                                             ButtonSegment(
@@ -1070,8 +1109,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         .withValues(alpha: 0.6),
                                   ),
                                   title: const Text('歌词起始时间'),
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 16, right: 16),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: isNarrow ? 8 : 16),
                                   trailing: Row(
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
@@ -1163,8 +1202,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ),
                                   title: const Text('检查更新'),
                                   subtitle: Text('当前版本 $kAppVersion'),
-                                  contentPadding: const EdgeInsets.only(
-                                      left: 16, right: 16),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: isNarrow ? 8 : 16),
                                   onTap: _checkUpdate,
                                 ),
                               ],
@@ -1184,8 +1223,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   '重置所有设置',
                                   style: TextStyle(color: scheme.error),
                                 ),
-                                contentPadding:
-                                    const EdgeInsets.only(left: 16, right: 16),
+                                contentPadding: EdgeInsets.symmetric(
+                                    horizontal: isNarrow ? 8 : 16),
                                 onTap: _resetAllSettings,
                               ),
                             ],

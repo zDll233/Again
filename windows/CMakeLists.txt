@@ -39,12 +39,13 @@ add_definitions(-DUNICODE -D_UNICODE)
 # of modifying this function.
 function(APPLY_STANDARD_SETTINGS TARGET)
   target_compile_features(${TARGET} PUBLIC cxx_std_17)
-  target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100")
+  # Windows 原生插件可能包含 UTF-8 源文件; 避免中文系统代码页触发 C4819。
+  target_compile_options(${TARGET} PRIVATE /W4 /WX /wd"4100" /utf-8)
   target_compile_options(${TARGET} PRIVATE /EHsc)
   target_compile_definitions(${TARGET} PRIVATE "_HAS_EXCEPTIONS=0")
   target_compile_definitions(${TARGET} PRIVATE "$<$<CONFIG:Debug>:_DEBUG>")
-  # audioplayers_windows 使用 <experimental/coroutine>，新版 MSVC (19.51+) 将其
-  # 列为 deprecated 并变成硬错误，此宏压制该错误。
+  # just_audio_windows 和 permission_handler_windows 仍使用
+  # <experimental/coroutine>，新版 MSVC 将其弃用并视为硬错误。
   target_compile_definitions(${TARGET} PRIVATE "_SILENCE_EXPERIMENTAL_COROUTINE_DEPRECATION_WARNINGS")
 endfunction()
 

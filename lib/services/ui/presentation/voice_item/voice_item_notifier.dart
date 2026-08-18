@@ -6,7 +6,6 @@ import 'package:again/services/ui/presentation/state_interface/variable_list_sta
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:collection/collection.dart';
 
 class VoiceItemNotifier
@@ -49,8 +48,7 @@ class VoiceItemNotifier
 
   /// 菜单选择排序方式, 保持选中与播放指向同一个音轨。
   void setSortOrder(VoiceItemSort newSort) {
-    final sorted = _applySort(
-        List.of(_originalOrder ?? state.values), newSort);
+    final sorted = _applySort(List.of(_originalOrder ?? state.values), newSort);
     final selected = state.cachedSelectedItem;
     final playing = state.cachedPlayingItem;
     // 用 super.setValues 避免覆盖 _originalOrder
@@ -76,15 +74,18 @@ class VoiceItemNotifier
     final audioNotifier = ref.read(audioProvider.notifier);
     final voiceWorkPlaying = ref.read(isSelectedVoiceWorkPlaying);
 
-    /// 选中的VoiceItem正在播放则暂停播放并返回
-    if (state.playingIndex == selectedIndex && voiceWorkPlaying) {
+    // 只有点击的确实是当前播放音轨才暂停; 排序变化后索引相同不代表同一音轨。
+    final tappedItem = state.values[selectedIndex];
+    if (voiceWorkPlaying &&
+        state.cachedPlayingItem != null &&
+        state.cachedPlayingItem == tappedItem) {
       audioNotifier.switchPauseResume();
       return;
     }
 
     cacheSelectedIndexAndItem(selectedIndex);
     uiService.cacheAllPlayingState();
-    audioNotifier.play(DeviceFileSource(state.cachedPlayingVoiceItemPath!));
+    audioNotifier.play(state.cachedPlayingVoiceItemPath!);
   }
 
   void changeTrack(int playingIndex) {

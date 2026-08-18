@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/audio/audio_state.dart';
 import 'package:again/common/const.dart';
@@ -9,6 +11,8 @@ import 'package:again/utils/log.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class HistoryManager {
+  static const _audioHistoryTimeout = Duration(seconds: 12);
+
   final Ref ref;
   late final UIService _uiService;
 
@@ -54,7 +58,18 @@ class HistoryManager {
     }
 
     await _loadUIHistory(data['ui']);
-    await _loadAudioHistory(data['audio']);
+    await _loadAudioHistory(data['audio']).timeout(
+      _audioHistoryTimeout,
+      onTimeout: () {
+        Log.error(
+          'Timed out restoring audio history; continuing startup.',
+          error: TimeoutException(
+            'Audio history restoration exceeded $_audioHistoryTimeout.',
+            _audioHistoryTimeout,
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _loadUIHistory(Map<String, dynamic> uiHistory) async {
@@ -148,7 +163,20 @@ class HistoryManager {
 
       final voiceItemSate = ref.read(voiceItemProvider);
       if (!voiceItemSate.isPlaying) return;
-      await audioNotifier.setSource(voiceItemSate.cachedPlayingVoiceItemPath!);
+      final path = voiceItemSate.cachedPlayingVoiceItemPath;
+      if (path == null || path.isEmpty) {
+        Log.warning('Audio history has no valid track path; skipping restore.');
+        return;
+      }
+      final loaded = await audioNotifier.setSource(path);
+      if (!loaded) {
+        Log.warning('Audio history source failed to load; skipping seek.');
+        return;
+      }
+      if (ref.read(voiceItemProvider).cachedPlayingVoiceItemPath != path) {
+        Log.warning('Audio history source was superseded; skipping seek.');
+        return;
+      }
       await audioNotifier
           .seek(Duration(milliseconds: audioHistory['position'] ?? 0));
 

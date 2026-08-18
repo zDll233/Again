@@ -1,7 +1,7 @@
 import 'package:again/services/audio/audio_providers.dart';
+import 'package:again/services/audio/audio_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/log.dart';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tray_manager/tray_manager.dart';
 import 'package:window_manager/window_manager.dart';
@@ -35,7 +35,7 @@ class SystemTrayListener with WindowListener, TrayListener {
 
   static Future<void> _updateMenu(Ref ref) async {
     final isPlaying =
-        ref.read(audioProvider).playerState == PlayerState.playing;
+        ref.read(audioProvider).playerState == AudioPlaybackState.playing;
     await trayManager.setContextMenu(Menu(
       items: [
         MenuItem(key: _showWindowKey, label: '显示主窗口'),

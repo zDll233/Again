@@ -223,26 +223,27 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                       );
                     },
                   ),
-                  // 歌词预览: 62% 屏高起
-                  Positioned(
-                    top: previewTop,
-                    left: 0,
-                    right: 0,
-                    child: _buildLyricPreview(
-                        playingViPath,
-                        ts?.lyricPreviewColor?.resolve(lineColor, themeHue) ??
-                            lineColor,
-                        ts?.lyricPreviewHighlightColor
-                                ?.resolve(highlightColor, themeHue) ??
-                            highlightColor,
-                        ts?.lyricAlign ?? 'left',
-                        math.max(14.0, (ts?.lyricLineGap ?? 25.0) * 0.6),
-                        ts?.lyricPreviewSize ?? 16.0,
-                        ts?.lyricPreviewCurrentSize ??
-                            ts?.lyricPreviewSize ??
-                            16.0,
-                        previewHeight),
-                  ),
+                  // 歌词预览: 62% 屏高起 (可在设置中关闭)
+                  if (appearance?.showCoverLyric ?? true)
+                    Positioned(
+                      top: previewTop,
+                      left: 0,
+                      right: 0,
+                      child: _buildLyricPreview(
+                          playingViPath,
+                          ts?.lyricPreviewColor?.resolve(lineColor, themeHue) ??
+                              lineColor,
+                          ts?.lyricPreviewHighlightColor
+                                  ?.resolve(highlightColor, themeHue) ??
+                              highlightColor,
+                          ts?.lyricAlign ?? 'left',
+                          math.max(14.0, (ts?.lyricLineGap ?? 25.0) * 0.6),
+                          ts?.lyricPreviewSize ?? 16.0,
+                          ts?.lyricPreviewCurrentSize ??
+                              ts?.lyricPreviewSize ??
+                              16.0,
+                          previewHeight),
+                    ),
                 ],
               ),
               // 纯歌词页: 歌词 14%-80%; 底部控制区由 LyricPanel 固定覆盖。
@@ -374,7 +375,7 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   }
 
   /// 使用右侧相同的 LyricsReader, 仅缩小字号/行距并限制显示区域。
-  /// 封面预览不可滑动/点击; 对齐方式跟随设置。
+  /// 封面预览不可滑动/点击; 对齐方式跟随设置; 上下边缘与右侧歌词一致渐隐。
   Widget _buildLyricPreview(
       String playingViPath,
       Color lineColor,
@@ -384,29 +385,43 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       double previewSize,
       double previewCurrentSize,
       double previewHeight) {
-    return FutureBuilder<String>(
-      future: _getLrcContent(playingViPath),
-      builder: (context, snapshot) {
-        final content = snapshot.data ?? '';
-        if (content.isEmpty) return const SizedBox.shrink();
-        try {
-          final model = _getLrcModel(content);
-          return SizedBox(
-            height: previewHeight,
-            child: _buildLyricsReader(
-              model: model,
-              lyricUi: _getPreviewUi(lineColor, highlightColor, lineGap,
-                  previewSize, previewCurrentSize, lyricAlign),
-              padding: lyricAlign == 'left'
-                  ? const EdgeInsets.only(left: 12, right: 24)
-                  : const EdgeInsets.symmetric(horizontal: 24),
-              interactive: false,
-            ),
-          );
-        } catch (e) {
-          return const SizedBox.shrink();
-        }
-      },
+    return ShaderMask(
+      shaderCallback: (rect) => const LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          Colors.transparent,
+          Colors.white,
+          Colors.white,
+          Colors.transparent
+        ],
+        stops: [0.0, 0.14, 0.86, 1.0],
+      ).createShader(rect),
+      blendMode: BlendMode.dstIn,
+      child: FutureBuilder<String>(
+        future: _getLrcContent(playingViPath),
+        builder: (context, snapshot) {
+          final content = snapshot.data ?? '';
+          if (content.isEmpty) return const SizedBox.shrink();
+          try {
+            final model = _getLrcModel(content);
+            return SizedBox(
+              height: previewHeight,
+              child: _buildLyricsReader(
+                model: model,
+                lyricUi: _getPreviewUi(lineColor, highlightColor, lineGap,
+                    previewSize, previewCurrentSize, lyricAlign),
+                padding: lyricAlign == 'left'
+                    ? const EdgeInsets.only(left: 12, right: 24)
+                    : const EdgeInsets.symmetric(horizontal: 24),
+                interactive: false,
+              ),
+            );
+          } catch (e) {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
