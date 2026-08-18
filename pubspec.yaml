@@ -38,6 +38,7 @@ dependencies:
   permission_handler: 12.0.1
   audio_service: ^0.18.19
   audio_session: ^0.2.4
+  just_audio: ^0.10.6
 
 dev_dependencies:
   flutter_test:

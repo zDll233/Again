@@ -30,6 +30,29 @@ void initAudioServiceBridge(Ref ref) {
   });
 }
 
+/// AudioService 只在进入播放状态时才 startForeground。ColorOS 的
+/// AudioHardening 会在播放器注册时检查前台服务, 若此时 FGS 尚未前台
+/// (level: partial) 会把播放静音 (输出静音数据), 导致播放配置非活跃、
+/// OPPO 应用音量面板不显示。因此在初始化完成后立即发布一次瞬时
+/// playing 状态触发 startForeground, 再恢复为暂停 (androidStopForegroundOnPause
+/// 默认 false, 前台服务会保持), 保证任何播放器创建时 FGS 已在前台。
+void ensureAudioServiceForeground() {
+  const controls = [
+    MediaControl.skipToPrevious,
+    MediaControl.play,
+    MediaControl.skipToNext,
+  ];
+  PlaybackState state(bool playing) => PlaybackState(
+        controls: controls,
+        systemActions: const {MediaAction.seek},
+        androidCompactActionIndices: const [0, 1, 2],
+        processingState: AudioProcessingState.ready,
+        playing: playing,
+      );
+  againAudioHandler.playbackState.add(state(true));
+  againAudioHandler.playbackState.add(state(false));
+}
+
 String? _lastMediaItemId;
 Duration? _lastMediaItemDuration;
 
@@ -70,8 +93,7 @@ void _syncMediaItemIfChanged(AudioState state, Ref ref) {
     title: p.basenameWithoutExtension(path),
     artist: (vw?.sourceId.isEmpty ?? true) ? null : vw!.sourceId,
     duration: state.duration,
-    artUri: (coverPath == null || coverPath.isEmpty)
-        ? null
-        : Uri.file(coverPath),
+    artUri:
+        (coverPath == null || coverPath.isEmpty) ? null : Uri.file(coverPath),
   ));
 }

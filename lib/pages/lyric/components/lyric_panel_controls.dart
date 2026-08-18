@@ -10,7 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 歌词界面底部控制区:
 /// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/音轨列表)。
-const double lyricPanelControlsHeight = 100.0;
+const double lyricPanelControlsHeight = 120.0;
 
 class LyricPanelControls extends ConsumerWidget {
   const LyricPanelControls({super.key});
@@ -39,6 +39,7 @@ class LyricPanelControls extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 20),
         // 五个按钮放在同一排, 中间播放按钮用主题色强调。
         SizedBox(
           height: 64,

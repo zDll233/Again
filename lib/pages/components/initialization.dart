@@ -136,8 +136,15 @@ Future<void> initAudioServiceAndroid(Ref ref) async {
     config: const AudioServiceConfig(
       androidNotificationChannelId: 'com.zdl.again.audio',
       androidNotificationChannelName: 'Again 播放',
-      androidNotificationOngoing: true,
+      // 暂停时也保持前台服务: ColorOS AudioHardening 在播放器注册时检查
+      // 前台服务, 暂停即撤下会让之后的播放再次被判定为后台播放而静音。
+      // (androidNotificationOngoing 与 stopForegroundOnPause=false 互斥)
+      androidNotificationOngoing: false,
+      androidStopForegroundOnPause: false,
     ),
   );
+  // 先让前台服务进入前台, 再桥接 (播放器创建时 FGS 必须已在前台,
+  // 否则 ColorOS AudioHardening 会把播放静音)。
+  ensureAudioServiceForeground();
   initAudioServiceBridge(ref);
 }

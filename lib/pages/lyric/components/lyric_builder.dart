@@ -208,10 +208,20 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 fit: StackFit.expand,
                 children: [
                   // 封面: 18% 屏高起, 水平居中, 给三句预览留出空间
-                  Positioned(
-                    top: coverTop,
-                    left: (appSize.width - narrowCover) / 2,
-                    child: coverSection(narrowCover),
+                  FutureBuilder<String>(
+                    future: _getLrcContent(playingViPath),
+                    builder: (context, snapshot) {
+                      final noLyric =
+                          snapshot.connectionState == ConnectionState.done &&
+                              (snapshot.data ?? '').trim().isEmpty;
+                      final centeredCoverTop =
+                          math.max(0.0, (progressTop - narrowCover) / 2);
+                      return Positioned(
+                        top: noLyric ? centeredCoverTop : coverTop,
+                        left: (appSize.width - narrowCover) / 2,
+                        child: coverSection(narrowCover),
+                      );
+                    },
                   ),
                   // 歌词预览: 62% 屏高起
                   Positioned(
