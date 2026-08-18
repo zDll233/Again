@@ -60,10 +60,7 @@ jobs:
           EOF
 
       - name: Build APK Release
-        run: flutter build apk --release \
-          --dart-define=APP_VERSION=${{ steps.ver.outputs.version }} \
-          --build-name=${{ steps.ver.outputs.name }} \
-          --build-number=${{ steps.ver.outputs.code }}
+        run: flutter build apk --release --dart-define=APP_VERSION=${{ steps.ver.outputs.version }} --build-name=${{ steps.ver.outputs.name }} --build-number=${{ steps.ver.outputs.code }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
