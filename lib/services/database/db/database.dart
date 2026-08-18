@@ -10,6 +10,7 @@ import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
 
+@TableIndex(name: 'tVoiceItemVoiceWorkPathIndex', columns: {#voiceWorkPath})
 class TVoiceItem extends Table {
   TextColumn get title => text()();
   TextColumn get filePath => text()();
@@ -20,6 +21,7 @@ class TVoiceItem extends Table {
   Set<Column> get primaryKey => {filePath};
 }
 
+@TableIndex(name: 'tVoiceWorkCategoryIndex', columns: {#category})
 class TVoiceWork extends Table {
   TextColumn get title => text()();
   TextColumn get sourceId => text()();
@@ -50,6 +52,8 @@ class TCV extends Table {
   Set<Column> get primaryKey => {cvName};
 }
 
+@TableIndex(name: 'tVoiceCVVoiceWorkPathIndex', columns: {#voiceWorkPath})
+@TableIndex(name: 'tVoiceCVCvNameIndex', columns: {#cvName})
 class TVoiceCV extends Table {
   TextColumn get voiceWorkPath =>
       text().references(TVoiceWork, #directoryPath)();
@@ -66,7 +70,7 @@ class AppDatabase extends _$AppDatabase {
       : super(connection ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {
@@ -74,10 +78,18 @@ class AppDatabase extends _$AppDatabase {
       beforeOpen: (details) async {
         // Make sure that foreign keys are enabled
         await customStatement('PRAGMA foreign_keys = ON');
+        // WAL: 启动时后台写 + UI 读并发友好 (drift 默认已是 WAL, 显式声明防回退)
+        await customStatement('PRAGMA journal_mode = WAL');
       },
       onUpgrade: (m, from, to) async {
         if (from < 2) {
           await m.addColumn(tVoiceWork, tVoiceWork.scanSignature);
+        }
+        if (from < 3) {
+          await m.createIndex(tVoiceItemVoiceWorkPathIndex);
+          await m.createIndex(tVoiceWorkCategoryIndex);
+          await m.createIndex(tVoiceCVVoiceWorkPathIndex);
+          await m.createIndex(tVoiceCVCvNameIndex);
         }
       },
     );
@@ -140,15 +152,24 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
-  Future<void> deleteAllCvs() async {
-    await delete(tVoiceCV).go();
-    await delete(tcv).go();
-  }
-
   Future<void> insertVoiceCvBatch(List<TVoiceCVCompanion> vcc) async {
     await batch((batch) {
       batch.insertAll(tVoiceCV, vcc, mode: InsertMode.insertOrIgnore);
     });
+  }
+
+  /// 清理不再被任何作品引用的孤立 CV (先删关系再删 CV, 满足外键顺序)。
+  Future<void> deleteOrphanCvs() async {
+    final allRows = await select(tVoiceCV).get();
+    final referencedNames = {for (final r in allRows) r.cvName};
+    final all = await select(tcv).get();
+    final orphans = [
+      for (final c in all)
+        if (!referencedNames.contains(c.cvName)) c.cvName,
+    ];
+    if (orphans.isNotEmpty) {
+      await (delete(tcv)..where((t) => t.cvName.isIn(orphans))).go();
+    }
   }
 
   // select
@@ -163,41 +184,53 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TVoiceItemData>> get selectAllVoiceItems =>
       select(tVoiceItem).get();
 
+  /// 仅取音轨路径两列, 供增量同步对比用, 避免拉全表。
+  Future<List<({String filePath, String voiceWorkPath})>>
+      get selectAllVoiceItemPaths async {
+    final rows = await (selectOnly(tVoiceItem)
+          ..addColumns([tVoiceItem.filePath, tVoiceItem.voiceWorkPath]))
+        .get();
+    return [
+      for (final r in rows)
+        (
+          filePath: r.read(tVoiceItem.filePath)!,
+          voiceWorkPath: r.read(tVoiceItem.voiceWorkPath)!,
+        ),
+    ];
+  }
+
   Future<List<TCVData>> selectAllCv() async => select(tcv).get();
 
   /// 按作品数倒序返回 CV 名列表; category 非空时限定该分类下的作品。
+  /// SQL 内 GROUP BY 聚合, 避免全行拉回内存计数。
   Future<List<String>> selectCvsOrderedByCount(String? category) async {
-    final query = select(tVoiceCV).join([
-      innerJoin(
-        tVoiceWork,
-        tVoiceWork.directoryPath.equalsExp(tVoiceCV.voiceWorkPath),
-      ),
-    ]);
+    final count = tVoiceCV.cvName.count();
+    final query = (selectOnly(tVoiceCV)
+          ..addColumns([tVoiceCV.cvName, count])
+          ..groupBy([tVoiceCV.cvName])
+          ..orderBy([
+            OrderingTerm.desc(count),
+            // tie-break: 同作品数按名称升序, 保证结果确定性
+            OrderingTerm.asc(tVoiceCV.cvName),
+          ]));
     if (category != null) {
+      query.join([
+        innerJoin(
+          tVoiceWork,
+          tVoiceWork.directoryPath.equalsExp(tVoiceCV.voiceWorkPath),
+        ),
+      ]);
       query.where(tVoiceWork.category.equals(category));
     }
     final rows = await query.get();
-
-    final counts = <String, int>{};
-    for (final row in rows) {
-      final cv = row.readTable(tVoiceCV).cvName;
-      counts[cv] = (counts[cv] ?? 0) + 1;
-    }
-    final sorted = counts.keys.toList()
-      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
-    return sorted;
+    return [
+      for (final r in rows)
+        r.read(tVoiceCV.cvName)!,
+    ];
   }
 
   Future<List<TVoiceWorkCategoryData>> selectAllCategory() async =>
       select(tVoiceWorkCategory).get();
-
-  Future<List<TVoiceItemData>> selectSingleWorkVoiceItems(
-      TVoiceWorkData voiceWorkData) {
-    return (select(tVoiceItem)
-          ..where((voiceItem) =>
-              voiceItem.voiceWorkPath.equals(voiceWorkData.title)))
-        .get();
-  }
 
   Future<List<TVoiceItemData>> selectSingleWorkVoiceItemsWithPath(
       String vwPath) {

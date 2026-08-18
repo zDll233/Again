@@ -156,4 +156,71 @@ void main() {
     final items = await itemsOfWork();
     expect(items.map((i) => i.title).toSet(), {'track2', 'track3'});
   });
+
+  test('CV 差量: 作品改名后旧 CV 清理、新 CV 建立, 共享 CV 不受影响', () async {
+    await VoiceUpdater(db, libDir.path).update();
+    expect((await db.selectAllCv()).map((e) => e.cvName).toSet(),
+        {'cv1', 'cv2', 'cv3'});
+
+    // 改名 cv1&cv2-测试作品1 -> cv2&cv4-测试作品1 (路径变化, 整作品重写)
+    final oldDir =
+        Directory(p.join(libDir.path, '分类A', 'cv1&cv2-测试作品1'));
+    final newDir =
+        Directory(p.join(libDir.path, '分类A', 'cv2&cv4-测试作品1'));
+    await oldDir.rename(newDir.path);
+
+    await VoiceUpdater(db, libDir.path).update();
+
+    // cv1 仍被作品2 引用 → 保留; cv2 仍在改名后作品; cv3 空作品; cv4 新增
+    final cvs = (await db.selectAllCv()).map((e) => e.cvName).toSet();
+    expect(cvs, {'cv1', 'cv2', 'cv3', 'cv4'});
+
+    final vcc = await db.select(db.tVoiceCV).get();
+    // 旧路径关系删除, 新路径重建: cv2/cv4; 作品2(cv1)、空作品(cv3) 保留
+    expect(vcc, hasLength(4));
+    final newWorkCvs = vcc
+        .where((v) => v.voiceWorkPath == newDir.path)
+        .map((v) => v.cvName)
+        .toSet();
+    expect(newWorkCvs, {'cv2', 'cv4'});
+    // 其他作品关系不动
+    expect(
+        vcc.where((v) => v.voiceWorkPath != newDir.path).map((v) => v.cvName),
+        containsAll(['cv1', 'cv3']));
+  });
+
+  test('CV 差量: 删除唯一持有某 CV 的作品后孤立 CV 被清理', () async {
+    await VoiceUpdater(db, libDir.path).update();
+
+    // cv2 只属于作品1, cv3 只属于空作品 → 删除后应被清理
+    Directory(p.join(libDir.path, '分类A', 'cv1&cv2-测试作品1'))
+        .deleteSync(recursive: true);
+    Directory(p.join(libDir.path, '分类A', 'cv3-空作品'))
+        .deleteSync(recursive: true);
+
+    await VoiceUpdater(db, libDir.path).update();
+
+    final cvs = (await db.selectAllCv()).map((e) => e.cvName).toSet();
+    expect(cvs, {'cv1'}); // cv1 仍被作品2 引用
+    final vcc = await db.select(db.tVoiceCV).get();
+    expect(vcc, hasLength(1));
+    expect(vcc.single.cvName, 'cv1');
+  });
+
+  test('schema v3: 全部查询索引已创建', () async {
+    final rows = await db
+        .customSelect(
+            "SELECT name FROM sqlite_master WHERE type='index' AND name LIKE '%Index'")
+        .get();
+    final names = rows.map((r) => r.read<String>('name')).toSet();
+    expect(
+      names,
+      containsAll([
+        'tVoiceItemVoiceWorkPathIndex',
+        'tVoiceWorkCategoryIndex',
+        'tVoiceCVVoiceWorkPathIndex',
+        'tVoiceCVCvNameIndex',
+      ]),
+    );
+  });
 }

@@ -1181,12 +1181,31 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TVoiceItemTable tVoiceItem = $TVoiceItemTable(this);
   late final $TCVTable tcv = $TCVTable(this);
   late final $TVoiceCVTable tVoiceCV = $TVoiceCVTable(this);
+  late final Index tVoiceItemVoiceWorkPathIndex = Index(
+      'tVoiceItemVoiceWorkPathIndex',
+      'CREATE INDEX tVoiceItemVoiceWorkPathIndex ON t_voice_item (voice_work_path)');
+  late final Index tVoiceWorkCategoryIndex = Index('tVoiceWorkCategoryIndex',
+      'CREATE INDEX tVoiceWorkCategoryIndex ON t_voice_work (category)');
+  late final Index tVoiceCVVoiceWorkPathIndex = Index(
+      'tVoiceCVVoiceWorkPathIndex',
+      'CREATE INDEX tVoiceCVVoiceWorkPathIndex ON t_voice_c_v (voice_work_path)');
+  late final Index tVoiceCVCvNameIndex = Index('tVoiceCVCvNameIndex',
+      'CREATE INDEX tVoiceCVCvNameIndex ON t_voice_c_v (cv_name)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities =>
-      [tVoiceWorkCategory, tVoiceWork, tVoiceItem, tcv, tVoiceCV];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+        tVoiceWorkCategory,
+        tVoiceWork,
+        tVoiceItem,
+        tcv,
+        tVoiceCV,
+        tVoiceItemVoiceWorkPathIndex,
+        tVoiceWorkCategoryIndex,
+        tVoiceCVVoiceWorkPathIndex,
+        tVoiceCVCvNameIndex
+      ];
 }
 
 typedef $$TVoiceWorkCategoryTableCreateCompanionBuilder

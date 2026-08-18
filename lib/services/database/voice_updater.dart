@@ -134,6 +134,7 @@ class VoiceUpdater {
   }
 
   /// 增量同步。注意外键约束的删除顺序：tVoiceCV -> tVoiceItem -> TVoiceWork -> category。
+  /// 写路径全部批量合并; CV 关系按变更作品差量维护, 最后清理孤立 CV。
   Future<void> _sync(ScanResult scan) async {
     final scannedCategoryNames = scan.categoryNames.toSet();
     final existingCategories =
@@ -156,13 +157,15 @@ class VoiceUpdater {
     final existingWorks = await _database.selectAllVoiceWorks;
     final existingByPath = {for (final w in existingWorks) w.directoryPath: w};
     final existingItemsByWork =
-        (await _database.selectAllVoiceItems).groupListsBy(
+        (await _database.selectAllVoiceItemPaths).groupListsBy(
       (i) => i.voiceWorkPath,
     );
     final scannedPaths = <String>{};
-    var changed = false;
+    final changedWorks = <WorkScanInfo>[];
+    final workCompanions = <TVoiceWorkCompanion>[];
+    final itemCompanions = <TVoiceItemCompanion>[];
 
-    // 更新或新增作品
+    // 识别变更作品（无变化作品零写入）
     for (final work in scan.works) {
       scannedPaths.add(work.directoryPath);
       final existing = existingByPath[work.directoryPath];
@@ -185,9 +188,8 @@ class VoiceUpdater {
         continue;
       }
 
-      changed = true;
-      await _database.deleteVoiceItemsOfWork(work.directoryPath);
-      await _database.upsertVoiceWork(TVoiceWorkCompanion(
+      changedWorks.add(work);
+      workCompanions.add(TVoiceWorkCompanion(
         title: Value(work.title),
         sourceId: Value(work.sourceId),
         directoryPath: Value(work.directoryPath),
@@ -196,28 +198,48 @@ class VoiceUpdater {
         createdAt: Value(work.createdAt),
         rowid: const Value.absent(),
       ));
-      if (work.items.isNotEmpty) {
-        await _database.insertVoiceItemBatch([
-          for (final item in work.items)
-            TVoiceItemCompanion(
-              title: Value(item.title),
-              filePath: Value(item.filePath),
-              voiceWorkPath: Value(work.directoryPath),
-              rowid: const Value.absent(),
-            ),
-        ]);
-      }
+      itemCompanions.addAll([
+        for (final item in work.items)
+          TVoiceItemCompanion(
+            title: Value(item.title),
+            filePath: Value(item.filePath),
+            voiceWorkPath: Value(work.directoryPath),
+            rowid: const Value.absent(),
+          ),
+      ]);
     }
 
-    // 删除磁盘上已消失的作品
-    for (final w in existingWorks) {
-      if (scannedPaths.contains(w.directoryPath)) {
-        continue;
-      }
-      changed = true;
-      await _database.deleteVoiceWorkCvsWithPath(w.directoryPath);
-      await _database.deleteVoiceItemsOfWork(w.directoryPath);
-      await _database.deleteVoiceWorkWithPath(w.directoryPath);
+    // 磁盘上已消失的作品
+    final removedPaths = [
+      for (final w in existingWorks)
+        if (!scannedPaths.contains(w.directoryPath)) w.directoryPath,
+    ];
+
+    // 一次 batch 完成所有写入（删除顺序满足外键: 先子表后父表）
+    final changedPaths = [for (final w in changedWorks) w.directoryPath];
+    if (removedPaths.isNotEmpty || changedPaths.isNotEmpty) {
+      await _database.batch((batch) {
+        if (removedPaths.isNotEmpty) {
+          batch.deleteWhere(_database.tVoiceCV,
+              (t) => t.voiceWorkPath.isIn(removedPaths));
+          batch.deleteWhere(_database.tVoiceItem,
+              (t) => t.voiceWorkPath.isIn(removedPaths));
+          batch.deleteWhere(_database.tVoiceWork,
+              (t) => t.directoryPath.isIn(removedPaths));
+        }
+        if (changedPaths.isNotEmpty) {
+          // changed 作品整作品重写 (含其 CV 关系), 差量粒度=作品
+          batch.deleteWhere(_database.tVoiceCV,
+              (t) => t.voiceWorkPath.isIn(changedPaths));
+          batch.deleteWhere(_database.tVoiceItem,
+              (t) => t.voiceWorkPath.isIn(changedPaths));
+          batch.deleteWhere(_database.tVoiceWork,
+              (t) => t.directoryPath.isIn(changedPaths));
+          batch.insertAll(_database.tVoiceWork, workCompanions);
+          batch.insertAll(_database.tVoiceItem, itemCompanions,
+              mode: InsertMode.insertOrIgnore);
+        }
+      });
     }
 
     // 删除已消失的类别（此时已无作品引用）
@@ -227,15 +249,14 @@ class VoiceUpdater {
       await _database.deleteCategories(removedCategories);
     }
 
-    // CV 及 CV-作品关系重建（仅在有变化时）
-    if (changed) {
-      await _database.deleteAllCvs();
-      final cvNames = <String>{};
+    // CV 关系同步（仅变更作品重建; 不变式: 结果恒等于从全部标题全量推导）
+    if (changedPaths.isNotEmpty || removedPaths.isNotEmpty) {
+      final newCvNames = <String>{};
       final vcc = <TVoiceCVCompanion>[];
       for (final work in scan.works) {
-        final cvs = getCvList(work.title);
-        cvNames.addAll(cvs);
-        for (final cv in cvs) {
+        if (!changedPaths.contains(work.directoryPath)) continue;
+        for (final cv in getCvList(work.title)) {
+          newCvNames.add(cv);
           vcc.add(TVoiceCVCompanion(
             voiceWorkPath: Value(work.directoryPath),
             cvName: Value(cv),
@@ -243,13 +264,16 @@ class VoiceUpdater {
           ));
         }
       }
-      if (cvNames.isNotEmpty) {
+      if (newCvNames.isNotEmpty) {
         await _database.insertCvBatch([
-          for (final c in cvNames)
+          for (final c in newCvNames)
             TCVCompanion(cvName: Value(c), rowid: const Value.absent()),
         ]);
         await _database.insertVoiceCvBatch(vcc);
       }
+
+      // 清理不再被引用的孤立 CV (覆盖删除作品/改名后消失的 CV)
+      await _database.deleteOrphanCvs();
     }
   }
 }
