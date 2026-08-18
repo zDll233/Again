@@ -62,10 +62,13 @@ jobs:
       - name: Build APK Release
         run: flutter build apk --release --dart-define=APP_VERSION=${{ steps.ver.outputs.version }} --build-name=${{ steps.ver.outputs.name }} --build-number=${{ steps.ver.outputs.code }}
 
+      - name: Rename APK to match release naming
+        run: mv build/app/outputs/flutter-apk/app-release.apk "build/app/outputs/flutter-apk/Again-${{ steps.ver.outputs.version }}-Android.apk"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
-          name: "Again ${{ steps.ver.outputs.name }}"
+          name: "Again ${{ steps.ver.outputs.version }}"
           tag_name: ${{ steps.ver.outputs.version }}
           files: build/app/outputs/flutter-apk/*.apk
           generate_release_notes: false
