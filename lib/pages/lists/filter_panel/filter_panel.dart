@@ -31,9 +31,9 @@ class FilterListView extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Row(
       children: [
-        Expanded(flex: 10, child: CategoryList()),
+        Expanded(flex: 1, child: CategoryList()),
         SizedBox(width: 4),
-        Expanded(flex: 17, child: CvList())
+        Expanded(flex: 1, child: CvList())
       ],
     );
   }
