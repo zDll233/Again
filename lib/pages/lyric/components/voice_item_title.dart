@@ -29,6 +29,7 @@ class VoiceItemTitle extends StatelessWidget {
             p.basenameWithoutExtension(playingViPath),
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontSize: ts?.lyricTitleSize,
+                  fontWeight: fontWeightFor(ts?.lyricTitleWeight ?? 400),
                   color:
                       ts?.lyricTitleColor?.resolve(scheme.onSurface, themeHue),
                 ),

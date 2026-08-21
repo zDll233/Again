@@ -32,7 +32,7 @@ class LyricBuilder extends ConsumerStatefulWidget {
 }
 
 class _LrcBuilderState extends ConsumerState<LyricBuilder> {
-  static const _previewColorStyleVersion = 2;
+  static const _previewColorStyleVersion = 3;
 
   bool _hasLyric = false;
   bool _readLyric = false;
@@ -63,9 +63,11 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             HSVColor.fromAHSV(1, themeHue.hue, 0.7, 0.9).toColor();
     // 默认值统一取自 TextSettings() 构造 (单一来源)
     const lyricDefaults = TextSettings();
-    final lyricUi = UINetease(
+    final lyricUi = _WeightedNeteaseUi(
       defaultSize: ts?.lyricCurrentSize ?? lyricDefaults.lyricCurrentSize,
       otherMainSize: ts?.lyricSize ?? lyricDefaults.lyricSize,
+      currentWeight: fontWeightFor(ts?.lyricCurrentWeight ?? 400),
+      otherWeight: fontWeightFor(ts?.lyricWeight ?? 400),
       defaultColor: lineColor,
       defaultExtColor: lineColor.withValues(alpha: 0.55),
       otherMainColor: lineColor,
@@ -242,6 +244,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                           ts?.lyricPreviewCurrentSize ??
                               ts?.lyricPreviewSize ??
                               16.0,
+                          fontWeightFor(ts?.lyricPreviewWeight ?? 400),
+                          fontWeightFor(ts?.lyricPreviewCurrentWeight ?? 400),
                           previewHeight),
                     ),
                 ],
@@ -384,6 +388,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
       double lineGap,
       double previewSize,
       double previewCurrentSize,
+      FontWeight previewWeight,
+      FontWeight previewCurrentWeight,
       double previewHeight) {
     return ShaderMask(
       shaderCallback: (rect) => const LinearGradient(
@@ -409,8 +415,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
               height: previewHeight,
               child: _buildLyricsReader(
                 model: model,
-                lyricUi: _getPreviewUi(lineColor, highlightColor, lineGap,
-                    previewSize, previewCurrentSize, lyricAlign),
+                lyricUi: _getPreviewUi(
+                    lineColor,
+                    highlightColor,
+                    lineGap,
+                    previewSize,
+                    previewCurrentSize,
+                    previewWeight,
+                    previewCurrentWeight,
+                    lyricAlign),
                 padding: lyricAlign == 'left'
                     ? const EdgeInsets.only(left: 12, right: 24)
                     : const EdgeInsets.symmetric(horizontal: 24),
@@ -455,10 +468,20 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 }
               : null,
           hoverColor: interactive ? Colors.white : null,
+          // 起始时间颜色: 用户设置优先, 否则默认白色 45% 透明
           hoverTimeColor: interactive
               ? (ref.watch(uiSettingsProvider).valueOrNull?.showHoverTime ??
                       true)
-                  ? Colors.white.withValues(alpha: 0.45)
+                  ? ref
+                          .watch(textSettingsProvider)
+                          .valueOrNull
+                          ?.hoverTimeColor
+                          ?.resolve(
+                              Colors.white.withValues(alpha: 0.45),
+                              resolveThemeHueSource(
+                                  Theme.of(context).colorScheme,
+                                  kDefaultThemeSeed)) ??
+                      Colors.white.withValues(alpha: 0.45)
                   : null
               : null,
           hoverTimeSize:
@@ -477,15 +500,24 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   }
 
   /// UI 实例也必须稳定, 否则 flutter_lyric 会把样式变化当成重置请求。
-  UINetease _getPreviewUi(Color lineColor, Color highlightColor, double lineGap,
-      double previewSize, double previewCurrentSize, String lyricAlign) {
+  UINetease _getPreviewUi(
+      Color lineColor,
+      Color highlightColor,
+      double lineGap,
+      double previewSize,
+      double previewCurrentSize,
+      FontWeight previewWeight,
+      FontWeight previewCurrentWeight,
+      String lyricAlign) {
     final key =
-        '$_previewColorStyleVersion-${lineColor.toARGB32()}-${highlightColor.toARGB32()}-$lineGap-$previewSize-$previewCurrentSize-$lyricAlign';
+        '$_previewColorStyleVersion-${lineColor.toARGB32()}-${highlightColor.toARGB32()}-$lineGap-$previewSize-$previewCurrentSize-$previewWeight-$previewCurrentWeight-$lyricAlign';
     if (_previewUi == null || _previewUiKey != key) {
       _previewUiKey = key;
-      _previewUi = UINetease(
+      _previewUi = _WeightedNeteaseUi(
         defaultSize: previewCurrentSize,
         otherMainSize: previewSize,
+        currentWeight: previewCurrentWeight,
+        otherWeight: previewWeight,
         defaultColor: lineColor,
         defaultExtColor: lineColor.withValues(alpha: 0.55),
         otherMainColor: lineColor,
@@ -685,4 +717,32 @@ class _TiltCoverState extends State<_TiltCover> {
       ],
     );
   }
+}
+
+/// flutter_lyric 的 UINetease 不支持字重; 在本仓库内覆写当前行/其他行的主行
+/// 文本样式注入字重, 不改动 git 依赖。颜色/字号/行距等仍走 UINetease 原字段。
+class _WeightedNeteaseUi extends UINetease {
+  final FontWeight currentWeight;
+  final FontWeight otherWeight;
+
+  _WeightedNeteaseUi({
+    super.defaultSize,
+    super.otherMainSize,
+    super.defaultColor,
+    super.defaultExtColor,
+    super.otherMainColor,
+    super.highLightTextColor,
+    super.lineGap,
+    super.lyricAlign,
+    required this.currentWeight,
+    required this.otherWeight,
+  });
+
+  @override
+  TextStyle getPlayingMainTextStyle() =>
+      super.getPlayingMainTextStyle().copyWith(fontWeight: currentWeight);
+
+  @override
+  TextStyle getOtherMainTextStyle() =>
+      super.getOtherMainTextStyle().copyWith(fontWeight: otherWeight);
 }

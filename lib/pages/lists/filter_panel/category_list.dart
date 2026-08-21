@@ -102,12 +102,12 @@ class _CategoryListState extends ConsumerState<CategoryList> {
                   ? null
                   : TextStyle(
                       fontSize: ts.panelTextSize,
-                      color: ts.panelTextColor?.resolve(
-                          Colors.transparent, themeHue),
+                      fontWeight: fontWeightFor(ts.panelTextWeight),
+                      color: ts.panelTextColor
+                          ?.resolve(Colors.transparent, themeHue),
                     ),
             ),
-            onTap: () =>
-                ref.read(categoryProvider.notifier).onSelected(index),
+            onTap: () => ref.read(categoryProvider.notifier).onSelected(index),
             selected: selected,
             contentPadding: EdgeInsets.symmetric(
               vertical: ui?.listDensity == 'comfortable' ? 8.0 : 1.0,

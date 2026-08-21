@@ -61,10 +61,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   ColorSetting? _lyricPreviewHighlightColor;
   ColorSetting? _lyricPreviewColor;
   ColorSetting? _lyricTitleColor;
+  ColorSetting? _hoverTimeColor; // 歌词起始时间 (悬停行时间) 颜色
   double _lyricLineGap = _defaults.lyricLineGap;
   String _lyricAlign = _defaults.lyricAlign;
   String _listDensity = const UiSettings().listDensity;
   double _lyricCurrentSize = _defaults.lyricCurrentSize;
+  // 字重 (400/700, 默认=当前渲染效果)
+  int _panelTextWeight = _defaults.panelTextWeight;
+  int _panelTitleWeight = _defaults.panelTitleWeight;
+  int _progressTextWeight = _defaults.progressTextWeight;
+  int _lyricTitleWeight = _defaults.lyricTitleWeight;
+  int _lyricWeight = _defaults.lyricWeight;
+  int _lyricCurrentWeight = _defaults.lyricCurrentWeight;
+  int _lyricPreviewWeight = _defaults.lyricPreviewWeight;
+  int _lyricPreviewCurrentWeight = _defaults.lyricPreviewCurrentWeight;
   bool _loading = true;
 
   @override
@@ -132,6 +142,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _hoverTimeSize = hoverTimeSize is num ? hoverTimeSize.toDouble() : 14;
       _showCoverLyric = config['showCoverLyric'] != false;
       _lyricCurrentSize = ts.lyricCurrentSize;
+      _hoverTimeColor = ts.hoverTimeColor;
+      _panelTextWeight = ts.panelTextWeight;
+      _panelTitleWeight = ts.panelTitleWeight;
+      _progressTextWeight = ts.progressTextWeight;
+      _lyricTitleWeight = ts.lyricTitleWeight;
+      _lyricWeight = ts.lyricWeight;
+      _lyricCurrentWeight = ts.lyricCurrentWeight;
+      _lyricPreviewWeight = ts.lyricPreviewWeight;
+      _lyricPreviewCurrentWeight = ts.lyricPreviewCurrentWeight;
       _loading = false;
     });
   }
@@ -418,6 +437,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _hoverTimeSize = 14;
       _showCoverLyric = true;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
+      _hoverTimeColor = null;
+      _panelTextWeight = _defaults.panelTextWeight;
+      _panelTitleWeight = _defaults.panelTitleWeight;
+      _progressTextWeight = _defaults.progressTextWeight;
+      _lyricTitleWeight = _defaults.lyricTitleWeight;
+      _lyricWeight = _defaults.lyricWeight;
+      _lyricCurrentWeight = _defaults.lyricCurrentWeight;
+      _lyricPreviewWeight = _defaults.lyricPreviewWeight;
+      _lyricPreviewCurrentWeight = _defaults.lyricPreviewCurrentWeight;
     });
     // 排序先恢复默认 (此时 config 尚未清空, 键会被写掉), 随后清空 config
     await ref
@@ -959,45 +987,71 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             _textGroup(
                               title: '界面文字',
                               children: [
-                                // 字体大小
-                                _textSizeTile(
-                                    '列表文字', _panelTextSize, 'panelTextSize', 14,
-                                    (v) {
-                                  _panelTextSize = v;
-                                }),
-                                _textSizeTile('面板标题', _panelTitleSize,
-                                    'panelTitleSize', 14, (v) {
-                                  _panelTitleSize = v;
-                                }),
-                                _textSizeTile('进度时间', _progressTextSize,
-                                    'progressTextSize', 16, (v) {
-                                  _progressTextSize = v;
-                                }),
-                                // 字体颜色
-                                _textColorTile(
-                                  '列表文字',
-                                  _panelTextColor,
-                                  'panelTextColor',
-                                  Theme.of(context).colorScheme.onSurface,
-                                  (v) => _panelTextColor = v,
-                                ),
-                                _textColorTile(
-                                  '面板标题',
-                                  _panelTitleColor,
-                                  'panelTitleColor',
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.75),
-                                  (v) => _panelTitleColor = v,
-                                ),
-                                _textColorTile(
-                                  '进度时间',
-                                  _progressTextColor,
-                                  'progressTextColor',
-                                  Theme.of(context).colorScheme.onSurface,
-                                  (v) => _progressTextColor = v,
-                                ),
+                                // 每个文字位置一个可折叠分组: 颜色 / 字号 / 字重
+                                SettingsTextPosition(title: '列表文字', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _panelTextColor,
+                                    'panelTextColor',
+                                    Theme.of(context).colorScheme.onSurface,
+                                    (v) => _panelTextColor = v,
+                                  ),
+                                  _textSizeTile(
+                                      '字号', _panelTextSize, 'panelTextSize', 14,
+                                      (v) {
+                                    _panelTextSize = v;
+                                  }),
+                                  _textWeightTile(
+                                      '字重',
+                                      _panelTextWeight,
+                                      'panelTextWeight',
+                                      _defaults.panelTextWeight, (v) {
+                                    _panelTextWeight = v;
+                                  }),
+                                ]),
+                                SettingsTextPosition(title: '面板标题', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _panelTitleColor,
+                                    'panelTitleColor',
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.75),
+                                    (v) => _panelTitleColor = v,
+                                  ),
+                                  _textSizeTile('字号', _panelTitleSize,
+                                      'panelTitleSize', 14, (v) {
+                                    _panelTitleSize = v;
+                                  }),
+                                  _textWeightTile(
+                                      '字重',
+                                      _panelTitleWeight,
+                                      'panelTitleWeight',
+                                      _defaults.panelTitleWeight, (v) {
+                                    _panelTitleWeight = v;
+                                  }),
+                                ]),
+                                SettingsTextPosition(title: '进度时间', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _progressTextColor,
+                                    'progressTextColor',
+                                    Theme.of(context).colorScheme.onSurface,
+                                    (v) => _progressTextColor = v,
+                                  ),
+                                  _textSizeTile('字号', _progressTextSize,
+                                      'progressTextSize', 16, (v) {
+                                    _progressTextSize = v;
+                                  }),
+                                  _textWeightTile(
+                                      '字重',
+                                      _progressTextWeight,
+                                      'progressTextWeight',
+                                      _defaults.progressTextWeight, (v) {
+                                    _progressTextWeight = v;
+                                  }),
+                                ]),
                               ],
                             ),
                           ],
@@ -1007,23 +1061,74 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             _textGroup(
                               title: '歌词文字',
                               children: [
-                                // 字体大小
-                                _textSizeTile('歌词标题', _lyricTitleSize,
-                                    'lyricTitleSize', 28, (v) {
-                                  _lyricTitleSize = v;
-                                }),
-                                _textSizeTile('歌词', _lyricSize, 'lyricSize', 18,
-                                    (v) {
-                                  _lyricSize = v;
-                                }),
-                                _textSizeTile(
-                                  '当前行字号',
-                                  _lyricCurrentSize,
-                                  'lyricCurrentSize',
-                                  _defaults.lyricCurrentSize,
-                                  (v) => _lyricCurrentSize = v,
-                                ),
-                                if (Platform.isAndroid)
+                                // 每个文字位置一个可折叠分组: 颜色 / 字号 / 字重
+                                SettingsTextPosition(title: '歌词标题', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _lyricTitleColor,
+                                    'lyricTitleColor',
+                                    Theme.of(context).colorScheme.onSurface,
+                                    (v) => _lyricTitleColor = v,
+                                  ),
+                                  _textSizeTile('字号', _lyricTitleSize,
+                                      'lyricTitleSize', 28, (v) {
+                                    _lyricTitleSize = v;
+                                  }),
+                                  _textWeightTile(
+                                      '字重',
+                                      _lyricTitleWeight,
+                                      'lyricTitleWeight',
+                                      _defaults.lyricTitleWeight, (v) {
+                                    _lyricTitleWeight = v;
+                                  }),
+                                ]),
+                                SettingsTextPosition(title: '当前行', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _lyricHighlightColor,
+                                    'lyricHighlightColor',
+                                    Theme.of(context).colorScheme.primary,
+                                    (v) => _lyricHighlightColor = v,
+                                  ),
+                                  _textSizeTile(
+                                    '字号',
+                                    _lyricCurrentSize,
+                                    'lyricCurrentSize',
+                                    _defaults.lyricCurrentSize,
+                                    (v) => _lyricCurrentSize = v,
+                                  ),
+                                  _textWeightTile(
+                                      '字重',
+                                      _lyricCurrentWeight,
+                                      'lyricCurrentWeight',
+                                      _defaults.lyricCurrentWeight, (v) {
+                                    _lyricCurrentWeight = v;
+                                  }),
+                                ]),
+                                SettingsTextPosition(title: '其他行', children: [
+                                  _textColorTile(
+                                    '颜色',
+                                    _lyricColor,
+                                    'lyricColor',
+                                    Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withValues(alpha: 0.55),
+                                    (v) => _lyricColor = v,
+                                  ),
+                                  _textSizeTile(
+                                      '字号', _lyricSize, 'lyricSize', 18, (v) {
+                                    _lyricSize = v;
+                                  }),
+                                  _textWeightTile(
+                                      '字重',
+                                      _lyricWeight,
+                                      'lyricWeight',
+                                      _defaults.lyricWeight, (v) {
+                                    _lyricWeight = v;
+                                  }),
+                                ]),
+                                if (Platform.isAndroid) ...[
                                   ListTile(
                                     dense: true,
                                     leading: Icon(
@@ -1057,167 +1162,175 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       ],
                                     ),
                                   ),
-                                if (Platform.isAndroid)
-                                  _textSizeTile(
-                                      '封面歌词字号',
-                                      _lyricPreviewSize,
-                                      'lyricPreviewSize',
-                                      _defaults.lyricPreviewSize, (v) {
-                                    _lyricPreviewSize = v;
-                                  }, min: 10, max: 24),
-                                if (Platform.isAndroid)
-                                  _textSizeTile(
-                                      '封面当前行字号',
-                                      _lyricPreviewCurrentSize,
-                                      'lyricPreviewCurrentSize',
-                                      _defaults.lyricPreviewCurrentSize, (v) {
-                                    _lyricPreviewCurrentSize = v;
-                                  }, min: 10, max: 24),
-                                _textSizeTile(
-                                    '歌词行间距', _lyricLineGap, 'lyricLineGap', 25,
-                                    (v) {
-                                  _lyricLineGap = v;
-                                }, icon: Icons.format_line_spacing),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.format_align_center,
-                                    size: 22,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  title: const Text('歌词对齐'),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: isNarrow ? 8 : 16),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        width: isNarrow ? 120 : 144,
-                                        child: SegmentedButton<String>(
-                                          segments: const [
-                                            ButtonSegment(
-                                              value: 'left',
-                                              label: Text('靠左'),
+                                  SettingsTextPosition(
+                                      title: '封面歌词当前行',
+                                      children: [
+                                        _textColorTile(
+                                          '颜色',
+                                          _lyricPreviewHighlightColor,
+                                          'lyricPreviewHighlightColor',
+                                          Theme.of(context).colorScheme.primary,
+                                          (v) =>
+                                              _lyricPreviewHighlightColor = v,
+                                        ),
+                                        _textSizeTile(
+                                            '字号',
+                                            _lyricPreviewCurrentSize,
+                                            'lyricPreviewCurrentSize',
+                                            _defaults.lyricPreviewCurrentSize,
+                                            (v) {
+                                          _lyricPreviewCurrentSize = v;
+                                        }, min: 10, max: 24),
+                                        _textWeightTile(
+                                            '字重',
+                                            _lyricPreviewCurrentWeight,
+                                            'lyricPreviewCurrentWeight',
+                                            _defaults.lyricPreviewCurrentWeight,
+                                            (v) {
+                                          _lyricPreviewCurrentWeight = v;
+                                        }),
+                                      ]),
+                                  SettingsTextPosition(
+                                      title: '封面歌词其他行',
+                                      children: [
+                                        _textColorTile(
+                                          '颜色',
+                                          _lyricPreviewColor,
+                                          'lyricPreviewColor',
+                                          Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.55),
+                                          (v) => _lyricPreviewColor = v,
+                                        ),
+                                        _textSizeTile(
+                                            '字号',
+                                            _lyricPreviewSize,
+                                            'lyricPreviewSize',
+                                            _defaults.lyricPreviewSize, (v) {
+                                          _lyricPreviewSize = v;
+                                        }, min: 10, max: 24),
+                                        _textWeightTile(
+                                            '字重',
+                                            _lyricPreviewWeight,
+                                            'lyricPreviewWeight',
+                                            _defaults.lyricPreviewWeight, (v) {
+                                          _lyricPreviewWeight = v;
+                                        }),
+                                      ]),
+                                ],
+                                // 非字体三件套的歌词布局选项
+                                SettingsTextPosition(title: '歌词布局', children: [
+                                  _textSizeTile('歌词行间距', _lyricLineGap,
+                                      'lyricLineGap', 25, (v) {
+                                    _lyricLineGap = v;
+                                  }, icon: Icons.format_line_spacing),
+                                  ListTile(
+                                    dense: true,
+                                    leading: Icon(
+                                      Icons.format_align_center,
+                                      size: 22,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                    title: const Text('歌词对齐'),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: isNarrow ? 8 : 16),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        SizedBox(
+                                          width: isNarrow ? 120 : 144,
+                                          child: SegmentedButton<String>(
+                                            segments: const [
+                                              ButtonSegment(
+                                                value: 'left',
+                                                label: Text('靠左'),
+                                              ),
+                                              ButtonSegment(
+                                                value: 'center',
+                                                label: Text('居中'),
+                                              ),
+                                            ],
+                                            selected: {_lyricAlign},
+                                            showSelectedIcon: false,
+                                            style: ButtonStyle(
+                                              visualDensity:
+                                                  VisualDensity.compact,
                                             ),
-                                            ButtonSegment(
-                                              value: 'center',
-                                              label: Text('居中'),
-                                            ),
-                                          ],
-                                          selected: {_lyricAlign},
-                                          showSelectedIcon: false,
-                                          style: ButtonStyle(
-                                            visualDensity:
-                                                VisualDensity.compact,
+                                            onSelectionChanged:
+                                                (selection) async {
+                                              setState(() => _lyricAlign =
+                                                  selection.first);
+                                              await _save(
+                                                  {'lyricAlign': _lyricAlign});
+                                              ref.invalidate(
+                                                  textSettingsProvider);
+                                            },
                                           ),
-                                          onSelectionChanged:
-                                              (selection) async {
-                                            setState(() =>
-                                                _lyricAlign = selection.first);
+                                        ),
+                                        _resetButton(() {
+                                          _resetToDefault(['lyricAlign'], () {
+                                            _lyricAlign = 'left';
+                                          });
+                                        }),
+                                      ],
+                                    ),
+                                  ),
+                                  ListTile(
+                                    dense: true,
+                                    leading: Icon(
+                                      Icons.timer_outlined,
+                                      size: 22,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
+                                    ),
+                                    title: const Text('歌词起始时间'),
+                                    contentPadding: EdgeInsets.symmetric(
+                                        horizontal: isNarrow ? 8 : 16),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Switch(
+                                          value: _showHoverTime,
+                                          onChanged: (value) async {
+                                            setState(
+                                                () => _showHoverTime = value);
                                             await _save(
-                                                {'lyricAlign': _lyricAlign});
-                                            ref.invalidate(
-                                                textSettingsProvider);
+                                                {'showHoverTime': value});
+                                            ref.invalidate(uiSettingsProvider);
                                           },
                                         ),
-                                      ),
-                                      _resetButton(() {
-                                        _resetToDefault(['lyricAlign'], () {
-                                          _lyricAlign = 'left';
-                                        });
-                                      }),
-                                    ],
+                                        _resetButton(() {
+                                          _resetToDefault(['showHoverTime'],
+                                              () => _showHoverTime = true);
+                                        }),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                                ListTile(
-                                  dense: true,
-                                  leading: Icon(
-                                    Icons.timer_outlined,
-                                    size: 22,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6),
-                                  ),
-                                  title: const Text('歌词起始时间'),
-                                  contentPadding: EdgeInsets.symmetric(
-                                      horizontal: isNarrow ? 8 : 16),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Switch(
-                                        value: _showHoverTime,
-                                        onChanged: (value) async {
-                                          setState(
-                                              () => _showHoverTime = value);
-                                          await _save({'showHoverTime': value});
-                                          ref.invalidate(uiSettingsProvider);
-                                        },
-                                      ),
-                                      _resetButton(() {
-                                        _resetToDefault(['showHoverTime'],
-                                            () => _showHoverTime = true);
-                                      }),
-                                    ],
-                                  ),
-                                ),
-                                // 歌词起始时间字号: 子设置, 关闭时折叠
-                                if (_showHoverTime)
-                                  _textSizeTile('歌词起始时间字号', _hoverTimeSize,
-                                      'hoverTimeSize', 14, (v) {
-                                    _hoverTimeSize = v;
-                                  },
-                                      icon: Icons.timer_outlined,
-                                      min: 10,
-                                      max: 24,
-                                      refreshAppearance: true),
-                                // 字体颜色
-                                _textColorTile(
-                                  '歌词高亮',
-                                  _lyricHighlightColor,
-                                  'lyricHighlightColor',
-                                  Theme.of(context).colorScheme.primary,
-                                  (v) => _lyricHighlightColor = v,
-                                ),
-                                _textColorTile(
-                                  '歌词其他',
-                                  _lyricColor,
-                                  'lyricColor',
-                                  Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.55),
-                                  (v) => _lyricColor = v,
-                                ),
-                                if (Platform.isAndroid) ...[
-                                  _textColorTile(
-                                    '封面歌词高亮',
-                                    _lyricPreviewHighlightColor,
-                                    'lyricPreviewHighlightColor',
-                                    Theme.of(context).colorScheme.primary,
-                                    (v) => _lyricPreviewHighlightColor = v,
-                                  ),
-                                  _textColorTile(
-                                    '封面歌词其他',
-                                    _lyricPreviewColor,
-                                    'lyricPreviewColor',
-                                    Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.55),
-                                    (v) => _lyricPreviewColor = v,
-                                  ),
-                                ],
-                                _textColorTile(
-                                  '歌词标题',
-                                  _lyricTitleColor,
-                                  'lyricTitleColor',
-                                  Theme.of(context).colorScheme.onSurface,
-                                  (v) => _lyricTitleColor = v,
-                                ),
+                                  // 歌词起始时间颜色/字号: 子设置, 关闭时折叠
+                                  if (_showHoverTime)
+                                    _textColorTile(
+                                      '颜色',
+                                      _hoverTimeColor,
+                                      'hoverTimeColor',
+                                      Colors.white.withValues(alpha: 0.45),
+                                      (v) => _hoverTimeColor = v,
+                                    ),
+                                  if (_showHoverTime)
+                                    _textSizeTile('歌词起始时间字号', _hoverTimeSize,
+                                        'hoverTimeSize', 14, (v) {
+                                      _hoverTimeSize = v;
+                                    },
+                                        icon: Icons.timer_outlined,
+                                        min: 10,
+                                        max: 24,
+                                        refreshAppearance: true),
+                                ]),
                               ],
                             ),
                           ],
@@ -1313,6 +1426,29 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         } else {
           ref.invalidate(textSettingsProvider);
         }
+      },
+      onReset: () {
+        _resetToDefault([key], () => onChanged(defaultValue));
+      },
+    );
+  }
+
+  /// 字体字重设置行: 常规/粗体 (400/700) + 恢复默认。
+  Widget _textWeightTile(
+    String label,
+    int value,
+    String key,
+    int defaultValue,
+    ValueChanged<int> onChanged,
+  ) {
+    return SettingsTextWeightTile(
+      label: label,
+      value: value,
+      defaultValue: defaultValue,
+      onChanged: (v) => setState(() => onChanged(v)),
+      onChangedEnd: (v) async {
+        await _save({key: v});
+        ref.invalidate(textSettingsProvider);
       },
       onReset: () {
         _resetToDefault([key], () => onChanged(defaultValue));

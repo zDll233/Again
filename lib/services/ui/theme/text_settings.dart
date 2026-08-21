@@ -58,6 +58,11 @@ class ColorSetting {
       '#${c.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 }
 
+/// 字重数值 (仅 400/700) → FontWeight; 微软雅黑只有 400/700 真实字重,
+/// 其余档会被系统合成加粗导致粗细不均, 故统一映射到就近真实档。
+FontWeight fontWeightFor(int weight) =>
+    weight >= 700 ? FontWeight.w700 : FontWeight.w400;
+
 /// 文字/字体设置 (config.json 键均可选, 缺省用界面默认值)。
 class TextSettings {
   final double panelTextSize;
@@ -75,9 +80,19 @@ class TextSettings {
   final ColorSetting? lyricPreviewHighlightColor;
   final ColorSetting? lyricPreviewColor;
   final ColorSetting? lyricTitleColor;
+  final ColorSetting? hoverTimeColor; // 歌词起始时间 (悬停行时间) 颜色
   final double lyricLineGap;
   final String lyricAlign; // 'center' | 'left'
   final double lyricCurrentSize; // 当前播放歌词行字号
+  // 字重: 仅 400/700 真实字重 (微软雅黑其他档会被系统合成加粗导致粗细不均)
+  final int panelTextWeight;
+  final int panelTitleWeight;
+  final int progressTextWeight;
+  final int lyricTitleWeight;
+  final int lyricWeight;
+  final int lyricCurrentWeight;
+  final int lyricPreviewWeight;
+  final int lyricPreviewCurrentWeight;
 
   const TextSettings({
     this.panelTextSize = 14,
@@ -96,8 +111,18 @@ class TextSettings {
     this.lyricPreviewHighlightColor,
     this.lyricPreviewColor,
     this.lyricTitleColor,
+    this.hoverTimeColor,
     this.lyricLineGap = 25,
     this.lyricAlign = 'left',
+    // 默认值 = 当前真实渲染效果 (面板标题经 titleSmall 扁平化为 w700, 其余 400)
+    this.panelTextWeight = 400,
+    this.panelTitleWeight = 700,
+    this.progressTextWeight = 400,
+    this.lyricTitleWeight = 400,
+    this.lyricWeight = 400,
+    this.lyricCurrentWeight = 400,
+    this.lyricPreviewWeight = 400,
+    this.lyricPreviewCurrentWeight = 400,
   });
 
   factory TextSettings.fromConfig(Map<String, dynamic> config) {
@@ -105,6 +130,9 @@ class TextSettings {
       final v = config[key];
       return v is num ? v.toDouble() : fallback;
     }
+
+    // 字重: 只认显式 700, 缺失/非法值回退该位置默认 (与字号同语义)
+    int weight(String key, int fallback) => config[key] == 700 ? 700 : fallback;
 
     ColorSetting? color(String baseKey) {
       if (config['${baseKey}Theme'] == true) {
@@ -134,6 +162,14 @@ class TextSettings {
       lyricPreviewCurrentSize:
           size('lyricPreviewCurrentSize', size('lyricPreviewSize', 16)),
       lyricCurrentSize: size('lyricCurrentSize', 18),
+      panelTextWeight: weight('panelTextWeight', 400),
+      panelTitleWeight: weight('panelTitleWeight', 700),
+      progressTextWeight: weight('progressTextWeight', 400),
+      lyricTitleWeight: weight('lyricTitleWeight', 400),
+      lyricWeight: weight('lyricWeight', 400),
+      lyricCurrentWeight: weight('lyricCurrentWeight', 400),
+      lyricPreviewWeight: weight('lyricPreviewWeight', 400),
+      lyricPreviewCurrentWeight: weight('lyricPreviewCurrentWeight', 400),
       panelTextColor: color('panelTextColor'),
       panelTitleColor: color('panelTitleColor'),
       progressTextColor: color('progressTextColor'),
@@ -142,6 +178,7 @@ class TextSettings {
       lyricPreviewHighlightColor: color('lyricPreviewHighlightColor'),
       lyricPreviewColor: color('lyricPreviewColor'),
       lyricTitleColor: color('lyricTitleColor'),
+      hoverTimeColor: color('hoverTimeColor'),
       lyricLineGap: size('lyricLineGap', 25),
       lyricAlign: config['lyricAlign'] == 'center' ? 'center' : 'left',
     );
@@ -159,6 +196,14 @@ class TextSettings {
     'lyricCurrentSize',
     'lyricLineGap',
     'lyricAlign',
+    'panelTextWeight',
+    'panelTitleWeight',
+    'progressTextWeight',
+    'lyricTitleWeight',
+    'lyricWeight',
+    'lyricCurrentWeight',
+    'lyricPreviewWeight',
+    'lyricPreviewCurrentWeight',
   ];
 
   static const List<String> colorBaseKeys = [
@@ -170,6 +215,7 @@ class TextSettings {
     'lyricPreviewHighlightColor',
     'lyricPreviewColor',
     'lyricTitleColor',
+    'hoverTimeColor',
   ];
 
   static List<String> get allKeys => [

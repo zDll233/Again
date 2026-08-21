@@ -87,18 +87,20 @@ class DatabaseNotifier {
         .read(categoryProvider.notifier)
         .setValues(['All'] + cateLs.map((e) => e.description).toList());
 
-    // CV 跟随当前分类, 按作品数倒序
+    // CV 跟随当前分类, 按标题自然排序
     await updateCvList(
       ref.read(categoryProvider).cachedSelectedItem ?? 'All',
     );
   }
 
-  /// 刷新 CV 列表: 跟随分类 + 按作品数倒序。
+  /// 刷新 CV 列表: 跟随分类 + 按标题自然排序 (与分类/作品列表一致)。
   /// 保留当前选中的 CV (若仍在新列表中), 否则回退 All, 避免刷新丢失筛选。
   Future<void> updateCvList(String category) async {
     final cvs = await _database.selectCvsOrderedByCount(
       category == 'All' ? null : category,
     );
+    // SQL 层按作品数聚合取数, 展示顺序在 Dart 层统一按标题自然排序
+    cvs.sort(compareNatural);
     final cvList = ['All', ...cvs];
     final cvNotifier = ref.read(cvProvider.notifier);
     final prevSelected = ref.read(cvProvider).cachedSelectedItem;

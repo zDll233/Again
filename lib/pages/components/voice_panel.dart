@@ -54,10 +54,11 @@ class VoicePanel<T> extends ConsumerWidget {
                         title,
                         style: textTheme.titleSmall?.copyWith(
                           fontSize: ts?.panelTitleSize,
-                          color: ts?.panelTitleColor
-                                  ?.resolve(
-                                      scheme.onSurface.withValues(alpha: 0.75),
-                                      themeHue) ??
+                          fontWeight:
+                              fontWeightFor(ts?.panelTitleWeight ?? 700),
+                          color: ts?.panelTitleColor?.resolve(
+                                  scheme.onSurface.withValues(alpha: 0.75),
+                                  themeHue) ??
                               scheme.onSurface.withValues(alpha: 0.75),
                         ),
                       ),

@@ -244,6 +244,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               fontSize: ts?.panelTextSize,
+                              fontWeight:
+                                  fontWeightFor(ts?.panelTextWeight ?? 400),
                               color: selected
                                   ? scheme.primary
                                   : ts?.panelTextColor

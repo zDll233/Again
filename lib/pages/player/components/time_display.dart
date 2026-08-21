@@ -18,6 +18,7 @@ class PositionTimeText extends ConsumerWidget {
       getTimeText(position),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontSize: ts?.progressTextSize,
+            fontWeight: fontWeightFor(ts?.progressTextWeight ?? 400),
             color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
           ),
     );
@@ -38,6 +39,7 @@ class DurationTimeText extends ConsumerWidget {
       getTimeText(duration),
       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontSize: ts?.progressTextSize,
+            fontWeight: fontWeightFor(ts?.progressTextWeight ?? 400),
             color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
           ),
     );

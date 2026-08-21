@@ -103,8 +103,9 @@ class _CvListState extends ConsumerState<CvList> {
                   ? null
                   : TextStyle(
                       fontSize: ts.panelTextSize,
-                      color: ts.panelTextColor?.resolve(
-                          Colors.transparent, themeHue),
+                      fontWeight: fontWeightFor(ts.panelTextWeight),
+                      color: ts.panelTextColor
+                          ?.resolve(Colors.transparent, themeHue),
                     ),
             ),
             onTap: () => ref.read(cvProvider.notifier).onSelected(index),

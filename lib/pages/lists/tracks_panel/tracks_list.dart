@@ -115,6 +115,7 @@ class _TracksListViewState extends ConsumerState<TracksListView> {
                       ? null
                       : TextStyle(
                           fontSize: ts.panelTextSize,
+                          fontWeight: fontWeightFor(ts.panelTextWeight),
                           color: ts.panelTextColor
                               ?.resolve(Colors.transparent, themeHue),
                         ),
