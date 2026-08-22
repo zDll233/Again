@@ -39,6 +39,9 @@ void _launchHidden(String file, String arguments) {
 const String kAppVersion =
     String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
 
+/// GitHub Release 页面地址 (检查更新失败时兜底入口)。
+const String kReleasesUrl = 'https://github.com/zDll233/Again/releases';
+
 /// 检查更新结果。
 class UpdateCheckResult {
   final String latestTag; // 如 v0.4.4
@@ -176,6 +179,30 @@ Future<String?> downloadUpdateAsset(
 
 /// Android 安装渠道: 唤起系统安装器 (FileProvider 共享 APK)。
 const _installerChannel = MethodChannel('again/installer');
+
+/// 在系统浏览器中打开 [url]。
+/// Windows: ShellExecuteW 直接唤起默认浏览器;
+/// Android: 通过 again/installer 通道唤起系统 Intent (无浏览器时抛错)。
+Future<void> openUrl(String url) async {
+  if (Platform.isWindows) {
+    final urlPtr = url.toNativeUtf16();
+    final verbPtr = 'open'.toNativeUtf16();
+    try {
+      // SW_SHOWNORMAL: 浏览器窗口需正常显示 (区别于 _launchHidden 的 SW_HIDE)
+      _shellExecuteW(nullptr, verbPtr, urlPtr, nullptr, nullptr, 1);
+    } finally {
+      calloc.free(urlPtr);
+      calloc.free(verbPtr);
+    }
+  } else if (Platform.isAndroid) {
+    try {
+      await _installerChannel.invokeMethod<void>('openUrl', url);
+    } catch (e) {
+      Log.error('openUrl failed: $e');
+      rethrow;
+    }
+  }
+}
 
 /// 通过系统安装器安装 APK (需要用户允许"安装未知应用")。
 /// 仅 Android 支持。

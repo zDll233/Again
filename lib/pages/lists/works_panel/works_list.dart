@@ -110,6 +110,9 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
   }
 
   Widget _withPanelSwipe(Widget child) {
+    // 左右划屏切页/筛选仅窄屏移动端手势; 桌面宽屏 (Windows 等) 禁用,
+    // 避免鼠标左右拖拽误触筛选面板/音轨面板。
+    if (MediaQuery.sizeOf(context).width >= 600) return child;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onHorizontalDragStart: (_) {

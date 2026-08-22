@@ -11,6 +11,7 @@ class UiSettings {
   final String listDensity; // 列表密度 'compact' | 'comfortable'
   final bool showHoverTime; // 歌词 hover 行起始时间
   final double hoverTimeSize; // hover 行起始时间字号
+  final int hoverTimeWeight; // hover 行起始时间字重 (400 常规 / 700 粗体)
   final bool showCoverLyric; // 封面歌词预览
 
   const UiSettings({
@@ -22,6 +23,7 @@ class UiSettings {
     this.listDensity = 'comfortable',
     this.showHoverTime = true,
     this.hoverTimeSize = 14,
+    this.hoverTimeWeight = 400,
     this.showCoverLyric = true,
   });
 
@@ -39,6 +41,7 @@ class UiSettings {
           config['listDensity'] == 'compact' ? 'compact' : 'comfortable',
       showHoverTime: config['showHoverTime'] != false,
       hoverTimeSize: hoverTimeSize is num ? hoverTimeSize.toDouble() : 14,
+      hoverTimeWeight: config['hoverTimeWeight'] == 700 ? 700 : 400,
       showCoverLyric: config['showCoverLyric'] != false,
     );
   }
@@ -53,6 +56,7 @@ class UiSettings {
     'listDensity',
     'showHoverTime',
     'hoverTimeSize',
+    'hoverTimeWeight',
     'showCoverLyric',
   ];
 }

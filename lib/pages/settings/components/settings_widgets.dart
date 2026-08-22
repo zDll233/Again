@@ -1,7 +1,6 @@
 import 'package:again/pages/settings/components/color_picker_dialog.dart';
 import 'package:again/services/ui/theme/text_settings.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 设置页分区标题。
 class SettingsSectionTitle extends StatelessWidget {
@@ -61,15 +60,16 @@ class SettingsCard extends StatelessWidget {
   }
 }
 
-/// 分组/位置标题样式: 与「列表文字」同字号字重 (跟随设置), 颜色用中性 onSurface。
-TextStyle textHeadingStyle(BuildContext context, TextSettings? ts) => TextStyle(
-      fontSize: ts?.panelTextSize ?? 14,
-      fontWeight: fontWeightFor(ts?.panelTextWeight ?? 400),
+/// 文字组标题样式: 固定字号字重, 不跟随「列表文字」设置
+/// (设置页自身文案外观保持稳定, 不被列表文字设置连带修改)。
+TextStyle textHeadingStyle(BuildContext context) => TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.w400,
       color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.85),
     );
 
-/// 可折叠的文字设置分组 (默认展开); 标题跟随「列表文字」的字号/字重设置。
-class SettingsTextGroup extends ConsumerWidget {
+/// 文字组标题 (不可折叠): 组内每个文字位置为一行, 点击弹出编辑面板。
+class SettingsTextGroup extends StatelessWidget {
   final String title;
   final List<Widget> children;
 
@@ -80,63 +80,69 @@ class SettingsTextGroup extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isNarrow = MediaQuery.sizeOf(context).width < 600;
-    final ts = ref.watch(textSettingsProvider).valueOrNull;
-    return ExpansionTile(
-      title: Text(title, style: textHeadingStyle(context, ts)),
-      initiallyExpanded: true,
-      tilePadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
-      childrenPadding: EdgeInsets.only(left: isNarrow ? 0 : 20),
-      // trailing 与重置按钮同构 (40px 容器 + 18px 图标), 右边缘精确对齐
-      trailing: const SizedBox(
-        width: 40,
-        child: Icon(Icons.expand_more, size: 18),
-      ),
-      // 去掉 ExpansionTile 自带的分隔线/边框, 由外层卡片统一
-      shape: const Border(),
-      collapsedShape: const Border(),
-      iconColor: Theme.of(context).colorScheme.onSurface,
-      collapsedIconColor: Theme.of(context).colorScheme.onSurface,
-      children: children,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(isNarrow ? 8 : 16, 10, 16, 2),
+          child: Text(title, style: textHeadingStyle(context)),
+        ),
+        ...children,
+      ],
     );
   }
 }
 
-/// 可折叠的文字位置分组 (嵌套在文字组内, 默认展开);
-/// 标题与组标题同字体, 子选项行再缩进约两个字。
-class SettingsTextPosition extends ConsumerWidget {
+/// 文字位置入口行: 图标 + 名称 + 按当前设置渲染的示例文本 + 箭头;
+/// 点击弹出编辑面板 (效果预览 + 颜色/字号/字重), 替代可折叠分组。
+class SettingsTextPositionTile extends StatelessWidget {
+  final IconData icon;
   final String title;
-  final List<Widget> children;
+  final String sample;
+  final TextStyle sampleStyle;
+  final VoidCallback onTap;
 
-  const SettingsTextPosition({
+  const SettingsTextPositionTile({
     super.key,
+    required this.icon,
     required this.title,
-    required this.children,
+    required this.sample,
+    required this.sampleStyle,
+    required this.onTap,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final isNarrow = MediaQuery.sizeOf(context).width < 600;
-    final ts = ref.watch(textSettingsProvider).valueOrNull;
-    return ExpansionTile(
-      title: Text(title, style: textHeadingStyle(context, ts)),
-      initiallyExpanded: true,
-      tilePadding: EdgeInsets.only(
-        left: isNarrow ? 20 : 28,
-        right: isNarrow ? 8 : 16,
+    final scheme = Theme.of(context).colorScheme;
+    return ListTile(
+      dense: true,
+      leading: Icon(
+        icon,
+        size: 22,
+        color: scheme.onSurface.withValues(alpha: 0.6),
       ),
-      // 子选项行缩进约两个字 (12px), 层级靠嵌套折叠呈现
-      childrenPadding: const EdgeInsets.only(left: 12),
-      trailing: const SizedBox(
-        width: 40,
-        child: Icon(Icons.expand_more, size: 18),
+      title: Text(title),
+      // 副标题预览: 保持 字号/字重/颜色 但缩放至行内大小, 便于区分位置
+      subtitle: Text(
+        sample,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: sampleStyle.copyWith(
+          fontSize: 13,
+          color: (sampleStyle.color ?? scheme.onSurface)
+              .withValues(alpha: 0.7),
+        ),
       ),
-      shape: const Border(),
-      collapsedShape: const Border(),
-      iconColor: Theme.of(context).colorScheme.onSurface,
-      collapsedIconColor: Theme.of(context).colorScheme.onSurface,
-      children: children,
+      trailing: Icon(
+        Icons.chevron_right,
+        size: 18,
+        color: scheme.onSurface.withValues(alpha: 0.45),
+      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
+      onTap: onTap,
     );
   }
 }
@@ -250,7 +256,7 @@ class SettingsTextSizeTile extends StatelessWidget {
 }
 
 /// 字体字重设置行: 常规/粗体 (400/700) 分段选择 + 恢复默认;
-/// 微软雅黑只有 400/700 真实字重, 故不提供中间档。
+/// 微软雅黑只有 400/700 真实字重, 故不提供中间档 (标签标注数值直接说明)。
 class SettingsTextWeightTile extends StatelessWidget {
   final String label;
   final int value;
@@ -287,11 +293,17 @@ class SettingsTextWeightTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: isNarrow ? 120 : 144,
+            width: isNarrow ? 148 : 156,
             child: SegmentedButton<int>(
               segments: const [
-                ButtonSegment(value: 400, label: Text('常规')),
-                ButtonSegment(value: 700, label: Text('粗体')),
+                ButtonSegment(
+                  value: 400,
+                  label: Text('常规 400', style: TextStyle(fontSize: 12)),
+                ),
+                ButtonSegment(
+                  value: 700,
+                  label: Text('粗体 700', style: TextStyle(fontSize: 12)),
+                ),
               ],
               selected: {value},
               showSelectedIcon: false,

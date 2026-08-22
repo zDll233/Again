@@ -6,7 +6,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 
 跨平台改动的核心约定 — **每个改动必须想清楚它在另一端的表现**:
 
-- 按**能力差异**守卫, 不按平台名字: 布局/断点用 `MediaQuery.sizeOf(context).width < 600` (窄屏), 只有桌面专属能力 (托盘/窗口效果/资源管理器定位/回收站/更新) 才用 `Platform.isWindows`。
+- 按**能力差异**守卫, 不按平台名字: 布局/断点用 `MediaQuery.sizeOf(context).width < 600` (窄屏), 只有桌面专属能力 (托盘/窗口效果/资源管理器定位/回收站/替换式应用更新) 才用 `Platform.isWindows` (检查更新两端都有, Android 走 APK 安装器)。
 - 新增共享 UI 改动时必须写好守卫, 否则一个平台的改动会悄悄影响另一端 (历史教训: 歌词界面重构/悬浮胶囊曾无守卫泄漏到 Windows, 导致面板延伸进播放器、标题左对齐、封面倒影丢失; 修复见 `33c8014`)。
 - 服务层用「入口 + 平台实现文件」隔离插件 (例: `lib/services/window_setup.dart` 判断平台, 真正初始化在 `window_setup_windows.dart`)。
 - 修改 `lib/` 下 UI/服务文件前, 先检查该改动是否需要 `isNarrow` 或 `Platform.isWindows` 守卫。
@@ -16,7 +16,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 - `JAVA_HOME=C:\Users\lzd\AndroidDev\jdk17\jdk-17.0.20+8`, `ANDROID_HOME=C:\Users\lzd\AndroidDev\sdk` (已写入用户环境变量; 新终端可用)。Android SDK 组件: platform-tools / platforms;android-36 / build-tools;36.0.0 / cmake;3.22.1。
 - `android/local.properties` 的 `sdk.dir` 必须指向 `C:\Users\lzd\AndroidDev\sdk` — flutter create 曾误写成 `AppData\Local\Programs` (从 PATH 猜的), 会导致 "CMake not found" 诡异报错。
 - 签名: `android/app/upload-keystore.jks` + `android/key.properties` (均 gitignored, 密码在 key.properties 里)。`build.gradle.kts` 无 key.properties 时回退 debug 签名。
-- Android 打包用 CI 需要 4 个 secrets: `ANDROID_KEYSTORE_B64` (jks 的 base64) / `ANDROID_KEYSTORE_PASSWORD` / `ANDROID_KEY_PASSWORD` / `ANDROID_KEY_ALIAS` (again)。
+- Android CI 签名只用 3 个 secrets: `ANDROID_KEYSTORE_B64` (jks 的 base64) / `ANDROID_KEYSTORE_PASSWORD` / `ANDROID_KEY_PASSWORD` (keyAlias 在 workflow 硬编码 `again`, 无 `ANDROID_KEY_ALIAS`)。
 
 ## Commands
 
@@ -25,19 +25,19 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 - `dart run build_runner build` — required after editing `lib/services/database/db/database.dart` (drift); `database.g.dart` is generated and committed.
 - `flutter test` — unit suite in `test/` (parsing logic, model map round-trips, `scanRoot` + full incremental sync with temp dirs). Run after touching those areas.
 - `flutter build windows --release` — release build. CI (tag `v*`, `.github/workflows/windows-release.yml`, Flutter 3.41.3) zips `build/windows/x64/runner/Release/` and injects `APP_VERSION` for the self-updater.
-- `flutter build apk --debug|--release` — Android 构建。`flutter build apk --release` 有 key.properties 时正式签名。Android CI: `.github/workflows/android-release.yml` — `workflow_dispatch` 手动触发 (secrets 未配, 需 4 个), 非 tag 自动发布。
+- `flutter build apk --debug|--release` — Android 构建。`flutter build apk --release` 有 key.properties 时正式签名。Android CI: `.github/workflows/android-release.yml` — **`push: tags: 'v*'` 自动触发** (ubuntu-latest, Flutter 3.41.3, APK 发布到 GitHub Release) + `workflow_dispatch` 手动入口 (输入版本号如 v0.5.0); 签名 secrets 已配置, 自 v0.5.1 起已实际跑通。
 
 ## Architecture
 
 - Entry: `lib/main.dart` → `setupWindow()` (acrylic/transparent window, hidden title bar, Windows-only) → `MyApp` (`lib/pages/my_app.dart`).
 - State: Riverpod (flutter_riverpod). Logic lives in `lib/services/`: `audio/`, `database/`, `ui/presentation/` (notifier/state pairs), `history/`, `key_event/`. UI in `lib/pages/`.
-- Startup (`lib/pages/components/initialization.dart`): init DB, load history, then init system tray — deliberately after the first-run root-dir dialog, which must not race with the file picker — then a fire-and-forget `silentRefresh` (incremental DB sync so new works appear without a manual refresh).
+- Startup (`lib/pages/components/initialization.dart`): 立即应用窗口效果; DB 初始化与窗口位置恢复 (`restoreWindowBounds`) 并行, 然后 load history + 恢复 `sortOrder`/`voiceItemSort`, 再初始化托盘 (Windows, 故意放在首次根目录对话框之后, 避免与文件选择器竞争) / `initAudioServiceAndroid` (Android), 最后 fire-and-forget `silentRefresh` (incremental DB sync so new works appear without a manual refresh).
 - Global shortcuts (space, arrows, ctrl+arrows) are handled in `lib/services/key_event/key_event_handler.dart` via `HardwareKeyboard.instance.addHandler` (not the `Shortcuts` widget), registered in `initialization.dart`; they're skipped while a text field has focus (`_isTextInputFocused`) — keep that when adding shortcuts.
 - System tray (`lib/services/system_tray.dart`, tray_manager): menu has show / play-pause / prev / next / exit. `setIcon` path is relative to `flutter_assets`, icon lives in `assets/images/app_icon.ico`. Close button / `onWindowClose` hides to tray (`UIService.hideToTray`); real exit is via tray menu → `onExit`.
 - Settings page: `lib/pages/settings/settings_page.dart`; reads/writes `config/config.json` through `JsonStorage` (`lib/utils/json_storage.dart`).
-- Drift SQLite DB at relative path `data/storage/again_voiceworks.db` — relative to CWD, so run the app from the repo root.
-- DB refresh (`lib/services/database/voice_updater.dart`): `scanRoot` runs via `compute` in a background isolate and always enumerates audio files; the sync compares scanned item paths against existing DB rows per work and only writes differences. No mtime/signature skipping — Windows dir mtimes don't update on child add/remove, so they can't be trusted for change detection. The DB sync runs in one transaction. FK constraints are ON — deletions must respect order tVoiceCV → tVoiceItem → TVoiceWork → category. DB schema is at version 2 (legacy `scanSignature` column, unused; run `dart run build_runner build` after editing `database.dart`).
-- `config/`, `data/`, `history/` are gitignored runtime state. `config/config.json` holds `voiceWorkRoot`, `closeToTray`, `windowEffect` (`transparent`/`acrylic`/`opaque`), `themeSeedColor` (`#RRGGBB`), `searchEnabled` (搜索总开关, 默认关), `searchFilter`/`searchWorks`/`searchTracks` (各面板搜索子开关, 总开关子项, 缺失视为开), `recentColors` (最近使用主题色, 最多 10 个), `rememberWindowPos`/`rememberWindowSize` + `windowBounds` (窗口位置/尺寸记忆), `sortOrder`/`voiceItemSort` (排序持久化), `listDensity`, `coverTilt`, `coverReflection`, 滑块类 (`showSliderThumb`/`sliderThickness`/`sliderThumbSize`), 文字/字号键 (见 `lib/services/ui/theme/text_settings.dart` + `ui_settings.dart`); legacy `liquidGlass` key 读时经 `resolveWindowEffect` 迁移 (见 `lib/services/ui/theme/theme_provider.dart`), `themeColorMode`/`followCoverTheme` 写时移除; `history/last_played.json` is play-position memory.
+- Drift SQLite DB at `data/storage/again_voiceworks.db` — Windows 相对 CWD (从仓库根目录运行), Android 在应用文档目录 (见 `lib/common/paths.dart`)。
+- DB refresh (`lib/services/database/voice_updater.dart`): `scanRoot` runs via `compute` in a background isolate and always enumerates audio files; the sync compares scanned item paths against existing DB rows per work and only writes differences. No mtime/signature skipping — Windows dir mtimes don't update on child add/remove, so they can't be trusted for change detection. The DB sync runs in one transaction. FK constraints are ON — deletions must respect order tVoiceCV → tVoiceItem → TVoiceWork → category (TCV 行须在 tVoiceCV 清理后再删). DB schema is at version 3 (v2 加的 `scanSignature` 列已弃用保留; v3 加 4 个索引: `tVoiceItemVoiceWorkPathIndex`/`tVoiceWorkCategoryIndex`/`tVoiceCVVoiceWorkPathIndex`/`tVoiceCVCvNameIndex`; `beforeOpen` 开 FK + WAL)。改 `database.dart` 后跑 `dart run build_runner build`。
+- `config/`, `data/`, `history/` are gitignored runtime state. `config/config.json` holds `voiceWorkRoot`, `closeToTray`, `windowEffect` (`transparent`/`acrylic`/`opaque`), `themeSeedColor` (`#RRGGBB`), `searchEnabled` (搜索总开关, 默认关), `searchFilter`/`searchWorks`/`searchTracks` (各面板搜索子开关, 总开关子项, 缺失视为开), `recentColors` (最近使用主题色, 最多 10 个), `rememberWindowPos`/`rememberWindowSize` + `windowBounds` (窗口位置/尺寸记忆), `sortOrder`/`voiceItemSort` (排序持久化; 筛选面板 CV 列表默认标题自然排序, 见 `database_notifier.updateCvList`), `listDensity`, `coverTilt`, `coverReflection`, 滑块类 (`showSliderThumb`/`sliderThickness`/`sliderThumbSize`), 文字(颜色/字号/字重)键 + `hoverTimeColor` (见 `lib/services/ui/theme/text_settings.dart`), `showHoverTime`/`hoverTimeSize`/`showCoverLyric` 等歌词外观键 (见 `lib/services/ui/theme/ui_settings.dart`); legacy `liquidGlass` key 读时经 `resolveWindowEffect` 迁移 (见 `lib/services/ui/theme/theme_provider.dart`), `themeColorMode`/`followCoverTheme` 写时移除; `history/last_played.json` is play-position memory.
 - `scripts/delete.ps1` is auto-generated at first run by `lib/utils/generate_script.dart` (only if missing). To change the script, edit the Dart constant, not the file.
 
 ## Platform split (Android port)
@@ -47,14 +47,14 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 - 桌面插件隔离: `lib/services/window_setup.dart` (入口, `Platform.isWindows` 守卫) + `window_setup_windows.dart` (真实实现, 唯一持有 flutter_acrylic/window_manager 初始化的文件)。`MoveWindow`/`WindowTitleBar`/设置页在 Android 自动降级 (无标题栏/无窗口设置/无更新入口/无资源管理器按钮)。
 - 平台守卫 (运行时, 非条件编译): 托盘 (`initialization.dart` 仅 Windows init)、`UIService.onExit/hideToTray/applyWindowEffect`、`restoreWindowBounds`、`window_size_guard`、`deleteVoiceWork` (Android 直删, 无回收站)、explorer 定位、`file_time.dart` 创建时间 (Android 返回 null, 回退 mtime)、`update_checker.dart` (懒加载 shell32 FFI, `applyUpdate` 仅 Windows)。
 - 存储权限: `lib/services/storage_permission.dart` — MANAGE_EXTERNAL_STORAGE (file_picker 11 在 Android 11+ 返回真实路径, 配合全文件权限 dart:io 可直接读写)。
-- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `initialization.dart` 的 `initAudioServiceAndroid` (AudioService.init 必须在首帧渲染后调用, runApp 前会黑屏)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK; `MainActivity` 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)` (audio_service 共享 engine 的硬性要求)。
+- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `initialization.dart` 的 `initAudioServiceAndroid` (AudioService.init 必须在首帧渲染后调用, runApp 前会黑屏)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK; `MainActivity` 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)` (audio_service 共享 engine 的硬性要求), 并注册 `again/installer` MethodChannel (APK 安装, FileProvider)。
 - 生命周期: `initialization.dart` 监听 detached 保存播放历史 (系统杀进程不丢进度)。
 
-未验证 (需要真机):
-- 权限申请 → 选根目录 → 全量扫描流程 — **已在真机验证通过** (小米 HyperOS/Android 16; 注意: 权限未授予时 FUSE 对 `.nomedia` 目录隐藏全部文件, 扫描只有目录骨架, 因此选目录前必须先完成「所有文件访问」授权)。
-- 后台播放/锁屏控制/音频焦点 — **媒体通知/MediaSession/前台服务已在真机验证通过**; 音频焦点 (来电) 行为未验证。
-- 竖屏布局可用性 (filter 默认收起, 不精调)。
-- CI (`android-release.yml`) 未实际跑过 (需要配 4 个 secrets)。
+真机验证状况:
+- 权限申请 → 选根目录 → 全量扫描流程: **已通过** (小米 HyperOS/Android 16; 注意: 权限未授予时 FUSE 对 `.nomedia` 目录隐藏全部文件, 扫描只有目录骨架, 因此选目录前必须先完成「所有文件访问」授权)。
+- 后台播放/锁屏控制: 媒体通知/MediaSession/前台服务**已通过**; **音频焦点 (来电) 行为未验证**。
+- Android CI (`android-release.yml`): 已实际跑通 (v0.5.1 起, tag 自动触发)。
+- 竖屏布局可用性 (filter 默认收起) 未精调。
 
 真机踩坑记录 (小米 HyperOS / Android 16 / Mali GPU):
 - **黑屏两连坑**: ① `AudioService.init` 必须在首帧渲染后调用 — runApp 前初始化会让 FlutterView 尺寸停在 0x0 (Dart 正常、日志正常、0 帧渲染); ② MainActivity 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)`, 否则 audio_service 报 "Activity class wrong or has not provided the correct FlutterEngine"。

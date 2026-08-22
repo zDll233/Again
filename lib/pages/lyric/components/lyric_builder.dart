@@ -486,6 +486,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
               : null,
           hoverTimeSize:
               ref.watch(uiSettingsProvider).valueOrNull?.hoverTimeSize ?? 14,
+          hoverTimeWeight:
+              ref.watch(uiSettingsProvider).valueOrNull?.hoverTimeWeight ?? 400,
           // 点击波纹用主题默认 splashColor (中性灰), 与作品/音轨列表的
           // 普通 InkWell 反馈一致, 不随主题主色。
           rippleColor: interactive ? Theme.of(context).splashColor : null,

@@ -1,4 +1,4 @@
-﻿package com.zdl.again
+package com.zdl.again
 
 import android.content.Context
 import android.content.Intent
@@ -39,6 +39,21 @@ class MainActivity : FlutterActivity() {
                         result.success(null)
                     } catch (e: Exception) {
                         result.error("install_failed", e.message, null)
+                    }
+                } else if (call.method == "openUrl") {
+                    val url = call.arguments as? String
+                    if (url == null) {
+                        result.error("bad_args", "url missing", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        }
+                        startActivity(intent)
+                        result.success(null)
+                    } catch (e: Exception) {
+                        result.error("open_failed", e.message, null)
                     }
                 } else {
                     result.notImplemented()

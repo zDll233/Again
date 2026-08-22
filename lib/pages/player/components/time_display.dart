@@ -86,6 +86,7 @@ class TimeDisplay extends ConsumerWidget {
         getTimeDisplayText(position, duration),
         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               fontSize: ts?.progressTextSize,
+              fontWeight: fontWeightFor(ts?.progressTextWeight ?? 400),
               color: ts?.progressTextColor?.resolve(scheme.onSurface, themeHue),
             ),
       ),
