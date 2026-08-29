@@ -222,7 +222,7 @@ class SettingsTextSizeTile extends StatelessWidget {
         size: 22,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       ),
-      title: Text(label),
+      title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
@@ -239,7 +239,8 @@ class SettingsTextSizeTile extends StatelessWidget {
             ),
           ),
           SizedBox(
-            width: isNarrow ? 96 : 120,
+            // 窄屏收紧宽度, 给左侧标签留空间避免换行
+            width: isNarrow ? 76 : 120,
             child: Slider(
               value: value,
               min: min,
@@ -255,8 +256,8 @@ class SettingsTextSizeTile extends StatelessWidget {
   }
 }
 
-/// 字体字重设置行: 常规/粗体 (400/700) 分段选择 + 恢复默认;
-/// 微软雅黑只有 400/700 真实字重, 故不提供中间档 (标签标注数值直接说明)。
+/// 字体字重设置行: 常规/粗体 (实际字重 400/700) 分段选择 + 恢复默认;
+/// 微软雅黑只有 400/700 真实字重, 故不提供中间档。
 class SettingsTextWeightTile extends StatelessWidget {
   final String label;
   final int value;
@@ -287,22 +288,23 @@ class SettingsTextWeightTile extends StatelessWidget {
         size: 22,
         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
       ),
-      title: Text(label),
+      title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: isNarrow ? 148 : 156,
+            // 窄屏收紧宽度, 给左侧标签留空间避免换行
+            width: isNarrow ? 136 : 156,
             child: SegmentedButton<int>(
               segments: const [
                 ButtonSegment(
                   value: 400,
-                  label: Text('常规 400', style: TextStyle(fontSize: 12)),
+                  label: Text('常规', style: TextStyle(fontSize: 12)),
                 ),
                 ButtonSegment(
                   value: 700,
-                  label: Text('粗体 700', style: TextStyle(fontSize: 12)),
+                  label: Text('粗体', style: TextStyle(fontSize: 12)),
                 ),
               ],
               selected: {value},
@@ -354,9 +356,12 @@ class SettingsTextColorTile extends StatelessWidget {
     return ListTile(
       dense: true,
       leading: SettingsColorSwatch(color: displayColor),
-      title: Text(label),
+      title: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis),
       contentPadding: EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
-      subtitle: setting == null ? const Text('跟随主题') : null,
+      subtitle: setting == null
+          ? const Text('跟随主题',
+              maxLines: 1, overflow: TextOverflow.ellipsis)
+          : null,
       trailing: SettingsResetButton(onPressed: onReset),
       onTap: () async {
         final result = await showDialog<ColorPickerResult>(

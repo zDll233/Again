@@ -1280,11 +1280,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       ],
                                     ),
                                   ),
-                                  SettingsTextPositionTile(
-                                    icon: Icons.album,
-                                    title: '封面歌词当前行',
-                                    sample: '正在播放的歌词行示例',
-                                    sampleStyle: _coverCurrentStyle(),
+                                  // 关闭封面歌词时隐藏其设置项 (与滑块圆点/起始时间等子设置折叠行为一致)
+                                  if (_showCoverLyric) ...[
+                                    SettingsTextPositionTile(
+                                      icon: Icons.album,
+                                      title: '封面歌词当前行',
+                                      sample: '正在播放的歌词行示例',
+                                      sampleStyle: _coverCurrentStyle(),
                                     onTap: () => _editTextPosition(
                                       icon: Icons.album,
                                       title: '封面歌词当前行',
@@ -1344,6 +1346,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           _defaults.lyricPreviewWeight,
                                     ),
                                   ),
+                                  ],
                                 ],
                               ],
                             ),
@@ -1525,6 +1528,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     required int weightDefault,
   }) async {
     final isNarrow = MediaQuery.sizeOf(context).width < 600;
+    // 面板固定内容宽: 窄屏 (Android) 按屏宽减去 AlertDialog 双侧内边距
+    // (insetPadding 16×2 + contentPadding 24×2) 计算, 防内容自适应挤压标签换行。
+    final panelWidth = isNarrow
+        ? (MediaQuery.sizeOf(context).width - 80).clamp(240.0, 420.0)
+        : 420.0;
     final dialogScheme = Theme.of(context).colorScheme;
     await showDialog<void>(
       context: context,
@@ -1533,6 +1541,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // 面板内任意修改后刷新, 让效果预览实时跟随
           void refresh() => setInner(() {});
           return AlertDialog(
+            // 窄屏放宽对话框占屏宽度 (默认 insetPadding 40 会把内容压到屏宽-128)
+            insetPadding: isNarrow
+                ? const EdgeInsets.symmetric(horizontal: 16, vertical: 24)
+                : null,
             title: Row(
               children: [
                 Icon(
@@ -1541,11 +1553,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   color: dialogScheme.onSurface.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 8),
-                Text(title),
+                Flexible(
+                  child: Text(title,
+                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
               ],
             ),
             content: SizedBox(
-              width: isNarrow ? null : 420,
+              width: panelWidth,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1594,6 +1609,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   /// 打开「歌词起始时间」面板: 开关 / 颜色 / 字号 / 字重。
   Future<void> _editHoverTime() async {
     final isNarrow = MediaQuery.sizeOf(context).width < 600;
+    // 面板固定内容宽: 窄屏 (Android) 按屏宽减去 AlertDialog 双侧内边距
+    // (insetPadding 16×2 + contentPadding 24×2) 计算, 防内容自适应挤压标签换行。
+    final panelWidth = isNarrow
+        ? (MediaQuery.sizeOf(context).width - 80).clamp(240.0, 420.0)
+        : 420.0;
     final dialogScheme = Theme.of(context).colorScheme;
     await showDialog<void>(
       context: context,
@@ -1601,9 +1621,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         builder: (context, setInner) {
           void refresh() => setInner(() {});
           return AlertDialog(
+            // 窄屏放宽对话框占屏宽度 (默认 insetPadding 40 会把内容压到屏宽-128)
+            insetPadding: isNarrow
+                ? const EdgeInsets.symmetric(horizontal: 16, vertical: 24)
+                : null,
             title: const Text('歌词起始时间'),
             content: SizedBox(
-              width: isNarrow ? null : 420,
+              width: panelWidth,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
