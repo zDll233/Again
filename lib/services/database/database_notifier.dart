@@ -8,6 +8,7 @@ import 'package:again/services/database/voice_updater.dart';
 import 'package:again/services/database/db/database.dart';
 import 'package:again/models/voice_item.dart';
 import 'package:again/models/voice_work.dart';
+import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
@@ -227,13 +228,19 @@ class DatabaseNotifier {
       final playingVwLs = await getVwDataList(cate, cv);
       final sortedVwLs = sortVoiceWorkList(
         VoiceWork.vwDataList2VwList(playingVwLs),
-        sort: ref.read(sortOrderProvider).cachedPlayingItem!,
+        // 队列跟随当前选择的排序 (而非播放时刻的快照), 保证恢复播放状态时
+        // 队列与显示顺序一致, 否则排序在播放过程中变化后定位会错位。
+        sort: ref.read(sortOrderProvider).cachedSelectedItem!,
       );
       ref.read(voiceWorkProvider.notifier).setPlayingValues(sortedVwLs);
 
       // voiceItemState.playingValues
       final viLs = await getViList(voiceWork?.directoryPath ?? '');
-      ref.read(voiceItemProvider.notifier).setPlayingValues(viLs);
+      final sortedViLs = applyVoiceItemSort(
+        viLs,
+        ref.read(voiceItemProvider).sort,
+      );
+      ref.read(voiceItemProvider.notifier).setPlayingValues(sortedViLs);
     }
   }
 }
