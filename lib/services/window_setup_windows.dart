@@ -23,6 +23,10 @@ Future<void> setupWindowWindows() async {
   }
 
   const initialSize = Size(1040, 690);
+  // 最小窗口尺寸: 放宽到能模拟手机窄屏的尺寸。
+  // 布局自适应 (MediaQuery.sizeOf 断点 <600) 会随窗口调整自动切换,
+  // 不再需要靠最小尺寸兜底, 保留 320 下限防止窄到无法使用。
+  const minimumSize = Size(320, 480);
   await windowManager.ensureInitialized();
   WindowOptions windowOptions = const WindowOptions(
     size: initialSize,
@@ -32,7 +36,7 @@ Future<void> setupWindowWindows() async {
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
     windowManager
-      ..setMinimumSize(initialSize)
+      ..setMinimumSize(minimumSize)
       ..setTitle('Again')
       ..setPreventClose(true);
     // 窗口显示前应用配置的窗口背景效果
