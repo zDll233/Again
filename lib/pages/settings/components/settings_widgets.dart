@@ -95,8 +95,9 @@ class SettingsTextGroup extends StatelessWidget {
   }
 }
 
-/// 文字位置入口行: 图标 + 名称 + 按当前设置渲染的示例文本 + 箭头;
+/// 文字位置入口行: 图标 + 名称 + 按当前设置渲染的示例文字 + 箭头;
 /// 点击弹出编辑面板 (效果预览 + 颜色/字号/字重), 替代可折叠分组。
+/// 各行示例文字共用统一文案, 渲染仍跟随位置的 字号/字重/颜色。
 class SettingsTextPositionTile extends StatelessWidget {
   final IconData icon;
   final String title;

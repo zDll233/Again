@@ -17,6 +17,10 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+/// 字体设置示例文字: 各文字位置共用同一文案, 设置页观感统一;
+/// 时间类位置 (播放器时间/歌词起始时间) 保留时间格式以贴合实际显示。
+const String kFontSampleText = '示例文字';
+
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
 
@@ -1020,12 +1024,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SettingsTextPositionTile(
                                   icon: Icons.format_list_bulleted,
                                   title: '列表文字',
-                                  sample: '列表文字示例 音声作品 01',
+                                  sample: kFontSampleText,
                                   sampleStyle: _panelTextStyle(),
                                   onTap: () => _editTextPosition(
                                     icon: Icons.format_list_bulleted,
                                     title: '列表文字',
-                                    sample: '列表文字示例 音声作品 01',
+                                    sample: kFontSampleText,
                                     fallback: scheme.onSurface,
                                     previewStyle: _panelTextStyle,
                                     sizeValue: () => _panelTextSize,
@@ -1044,12 +1048,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SettingsTextPositionTile(
                                   icon: Icons.title,
                                   title: '面板标题',
-                                  sample: '面板标题',
+                                  sample: kFontSampleText,
                                   sampleStyle: _panelTitleStyle(),
                                   onTap: () => _editTextPosition(
                                     icon: Icons.title,
                                     title: '面板标题',
-                                    sample: '面板标题',
+                                    sample: kFontSampleText,
                                     fallback:
                                         scheme.onSurface.withValues(alpha: 0.75),
                                     previewStyle: _panelTitleStyle,
@@ -1102,12 +1106,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SettingsTextPositionTile(
                                   icon: Icons.music_note,
                                   title: '音声标题',
-                                  sample: '音声标题示例',
+                                  sample: kFontSampleText,
                                   sampleStyle: _lyricTitleStyle(),
                                   onTap: () => _editTextPosition(
                                     icon: Icons.music_note,
                                     title: '音声标题',
-                                    sample: '音声标题示例',
+                                    sample: kFontSampleText,
                                     fallback: scheme.onSurface,
                                     previewStyle: _lyricTitleStyle,
                                     sizeValue: () => _lyricTitleSize,
@@ -1126,12 +1130,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SettingsTextPositionTile(
                                   icon: Icons.graphic_eq,
                                   title: '歌词当前行',
-                                  sample: '正在播放的歌词行示例',
+                                  sample: kFontSampleText,
                                   sampleStyle: _lyricCurrentStyle(),
                                   onTap: () => _editTextPosition(
                                     icon: Icons.graphic_eq,
                                     title: '歌词当前行',
-                                    sample: '正在播放的歌词行示例',
+                                    sample: kFontSampleText,
                                     fallback: scheme.primary,
                                     previewStyle: _lyricCurrentStyle,
                                     sizeValue: () => _lyricCurrentSize,
@@ -1150,12 +1154,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 SettingsTextPositionTile(
                                   icon: Icons.notes,
                                   title: '歌词其他行',
-                                  sample: '其他歌词行示例',
+                                  sample: kFontSampleText,
                                   sampleStyle: _lyricOtherStyle(),
                                   onTap: () => _editTextPosition(
                                     icon: Icons.notes,
                                     title: '歌词其他行',
-                                    sample: '其他歌词行示例',
+                                    sample: kFontSampleText,
                                     fallback:
                                         scheme.onSurface.withValues(alpha: 0.55),
                                     previewStyle: _lyricOtherStyle,
@@ -1285,12 +1289,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     SettingsTextPositionTile(
                                       icon: Icons.album,
                                       title: '封面歌词当前行',
-                                      sample: '正在播放的歌词行示例',
+                                      sample: kFontSampleText,
                                       sampleStyle: _coverCurrentStyle(),
                                     onTap: () => _editTextPosition(
                                       icon: Icons.album,
                                       title: '封面歌词当前行',
-                                      sample: '正在播放的歌词行示例',
+                                      sample: kFontSampleText,
                                       fallback: scheme.primary,
                                       previewStyle: _coverCurrentStyle,
                                       sizeValue: () => _lyricPreviewCurrentSize,
@@ -1318,12 +1322,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   SettingsTextPositionTile(
                                     icon: Icons.album_outlined,
                                     title: '封面歌词其他行',
-                                    sample: '其他歌词行示例',
+                                    sample: kFontSampleText,
                                     sampleStyle: _coverOtherStyle(),
                                     onTap: () => _editTextPosition(
                                       icon: Icons.album_outlined,
                                       title: '封面歌词其他行',
-                                      sample: '其他歌词行示例',
+                                      sample: kFontSampleText,
                                       fallback: scheme.onSurface
                                           .withValues(alpha: 0.55),
                                       previewStyle: _coverOtherStyle,
