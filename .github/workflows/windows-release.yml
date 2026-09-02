@@ -49,6 +49,18 @@ jobs:
     #       flutter config --enable-windows-desktop
     #       flutter pub get
 
+      - name: Set pubspec version from tag
+        shell: pwsh
+        run: |
+          # exe 右键属性里的产品版本取自 pubspec.yaml 的 version (经 Runner.rc 的
+          # FLUTTER_VERSION 注入), 与应用内 kAppVersion (--dart-define) 无关,
+          # 构建前同步到 tag, 保证 exe 属性版本跟随发布版本
+          $v = "${{ env.VERSION }}" -replace '^v', ''
+          (Get-Content pubspec.yaml) | ForEach-Object {
+            if ($_ -match '^version:') { "version: $v" } else { $_ }
+          } | Set-Content pubspec.yaml -Encoding utf8
+          Get-Content pubspec.yaml | Select-Object -First 6
+
       - name: Build Windows Release
         shell: pwsh
         run: |
