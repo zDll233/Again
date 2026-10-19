@@ -40,6 +40,15 @@ Future<void> setupWindowWindows() async {
     titleBarStyle: TitleBarStyle.hidden,
   );
   windowManager.waitUntilReadyToShow(windowOptions, () async {
+    // 去掉原生系统菜单/标题栏按钮 (最小化/最大化/关闭) — 本应用标题栏是
+    // Flutter 自绘的 CaptionButtons, 原生按钮在最大化时会被 DWM 画进客户区
+    // 右上角, 与自绘按钮重叠成两套图标。
+    // 顺序不能反: hideWindowControls 只改 GWL_STYLE 位不重画, 必须紧接着由
+    // setTitleBarStyle 内部的 SetWindowPos(SWP_FRAMECHANGED) 让 DWM 重算
+    // 非客户区; 反过来写则要等下一次窗口尺寸变化才生效。
+    await Window.hideWindowControls();
+    await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+
     windowManager
       // 正式版保持初始尺寸下限; 调试场景见上方 _minWindowUnlock 说明
       ..setMinimumSize(_minWindowUnlock ? const Size(320, 480) : initialSize)

@@ -94,13 +94,18 @@ class _MaximizeButtonState extends ConsumerState<MaximizeButton>
   }
 
   @override
-  void onWindowMaximize() {
-    setState(() {});
-  }
+  void onWindowMaximize() => _refresh();
 
   @override
-  void onWindowUnmaximize() {
-    setState(() {});
+  void onWindowUnmaximize() => _refresh();
+
+  // 从最小化恢复时窗口状态可能已变 (例如还原到最大化前的尺寸),
+  // 需要重新查询 isMaximized 才能画对图标。
+  @override
+  void onWindowRestore() => _refresh();
+
+  void _refresh() {
+    if (mounted) setState(() {});
   }
 
   @override
