@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:again/common/const.dart';
 import 'package:again/services/audio/again_audio_handler.dart';
+import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/audio/audio_service_sync.dart';
 import 'package:again/services/database/database_providers.dart';
 import 'package:again/services/history/history_manager.dart';
@@ -116,6 +117,11 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
         .read(voiceItemProvider.notifier)
         .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
   }
+  // 恢复左右声道对调开关 (config.json, 缺失视为关): 引擎会记住该状态,
+  // 之后每次换音源都会沿用。
+  ref
+      .read(audioProvider.notifier)
+      .setChannelSwap(config['channelSwap'] == true, persist: false);
   // 托盘初始化放在弹框(首次选择根目录)之后, 避免与文件选择对话框冲突; 仅 Windows
   if (Platform.isWindows) {
     await SystemTrayListener.init(ref);

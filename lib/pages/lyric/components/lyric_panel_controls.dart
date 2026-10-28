@@ -1,15 +1,16 @@
+import 'package:again/pages/player/components/play_back_controls/channel_swap_button.dart';
 import 'package:again/pages/player/components/play_back_controls/next_button.dart';
 import 'package:again/pages/player/components/play_back_controls/play_pause_button.dart';
 import 'package:again/pages/player/components/play_back_controls/playback_mode_button.dart';
 import 'package:again/pages/player/components/play_back_controls/prev_button.dart';
 import 'package:again/pages/player/components/progress_bar.dart';
 import 'package:again/pages/player/components/time_display.dart';
-import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 歌词界面底部控制区:
-/// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/音轨列表)。
+/// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/声道对调)。
+/// 「打开音轨列表」按钮已上移到歌词标题行右侧 (见 lrc_panel.dart)。
 const double lyricPanelControlsHeight = 120.0;
 
 class LyricPanelControls extends ConsumerWidget {
@@ -50,21 +51,8 @@ class LyricPanelControls extends ConsumerWidget {
               const PrevButton(iconSize: 30, buttonSize: 42),
               _buildPlayButton(context),
               const NextButton(iconSize: 30, buttonSize: 42),
-              IconButton(
-                key: const Key('queue_button'),
-                tooltip: '打开正在播放的音轨列表',
-                iconSize: 22,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 42,
-                  height: 42,
-                ),
-                onPressed: () {
-                  // 先恢复播放中的作品和音轨, 再稳定切到音轨页。
-                  ref.read(uiServiceProvider).openTracksPanel();
-                },
-                icon: const Icon(Icons.queue_music),
-              ),
+              // 左右声道对调 (原「打开列表」按钮位置; 列表按钮已上移到标题行)
+              const ChannelSwapButton(iconSize: 22, buttonSize: 42),
             ],
           ),
         ),

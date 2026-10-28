@@ -44,7 +44,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   bool _coverTilt = true;
   bool _coverReflection = true;
   bool _showSliderThumb = false;
-  double _sliderThickness = 1;
+  double _sliderThickness = UiSettings.defaultSliderThickness;
   double _sliderThumbSize = 5;
   bool _showHoverTime = true;
   double _hoverTimeSize = 14;
@@ -139,7 +139,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverReflection = config['coverReflection'] != false;
       _showSliderThumb = config['showSliderThumb'] == true;
       final thickness = config['sliderThickness'];
-      _sliderThickness = thickness is num ? thickness.toDouble() : 1;
+      _sliderThickness = thickness is num
+          ? thickness.toDouble()
+          : UiSettings.defaultSliderThickness;
       final thumbSize = config['sliderThumbSize'];
       _sliderThumbSize = thumbSize is num ? thumbSize.toDouble() : 5;
       _showHoverTime = config['showHoverTime'] != false;
@@ -463,7 +465,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _coverTilt = true;
       _coverReflection = true;
       _showSliderThumb = false;
-      _sliderThickness = 1;
+      _sliderThickness = UiSettings.defaultSliderThickness;
       _sliderThumbSize = 5;
       _showHoverTime = true;
       _hoverTimeSize = 14;
@@ -974,7 +976,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     .onSurface
                                     .withValues(alpha: 0.6),
                               ),
-                              title: const Text('进度/音量条滑块圆点'),
+                              // Android 没有应用内音量条, 文案去掉「音量」
+                              title: Text(Platform.isWindows
+                                  ? '进度/音量条滑块圆点'
+                                  : '进度条滑块圆点'),
                               contentPadding: EdgeInsets.symmetric(
                                   horizontal: isNarrow ? 8 : 16),
                               trailing: Row(
@@ -1005,8 +1010,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   min: 4,
                                   max: 16,
                                   refreshAppearance: true),
-                            _textSizeTile('进度/音量条粗细', _sliderThickness,
-                                'sliderThickness', 1, (v) {
+                            // Android 没有应用内音量条, 文案与默认值都按桌面/手机区分
+                            _textSizeTile(
+                                Platform.isWindows ? '进度/音量条粗细' : '进度条粗细',
+                                _sliderThickness, 'sliderThickness',
+                                UiSettings.defaultSliderThickness, (v) {
                               _sliderThickness = v;
                             },
                                 icon: Icons.line_weight,

@@ -45,7 +45,9 @@ class PlaybackControls extends StatelessWidget {
           PrevButton(iconSize: _iconSize),
           PlayPauseButton(iconSize: _iconSize),
           NextButton(iconSize: _iconSize),
-          PlaybackModeButton(iconSize: _iconSize * 0.5),
+          // 循环模式按钮用 40 的按钮盒: 悬停圆形高亮与「打开歌词」按钮
+          // 一致 (Material 3 IconButton 默认 40), 比播放控制按钮 (48) 小
+          PlaybackModeButton(iconSize: _iconSize * 0.5, buttonSize: 40),
         ],
       ),
     );

@@ -1,201 +1,158 @@
 import 'dart:async';
-import 'dart:io';
 
+import 'package:again/common/const.dart';
+import 'package:again/services/audio/audio_engine.dart';
 import 'package:again/services/audio/audio_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
 import 'package:again/utils/log.dart';
-import 'package:audio_session/audio_session.dart' as session;
-import 'package:audioplayers/audioplayers.dart' as ap;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:just_audio/just_audio.dart' as ja;
 
+/// 播放控制: 把 UI/托盘/媒体通知的操作转发给原生播放引擎, 并轮询引擎状态
+/// 回填 [AudioState]。
+///
+/// 引擎实现见 [AudioEngine] (Windows: MF + WASAPI, Android: MediaCodec +
+/// AudioTrack) — 自己写引擎的原因是要拿到 PCM 才能实时对调左右声道。
 class AudioNotifier extends Notifier<AudioState> {
-  static const _sourceLoadTimeout = Duration(seconds: 10);
-  static const _audioOperationTimeout = Duration(seconds: 5);
+  static const _sourceLoadTimeout = Duration(seconds: 15);
 
-  ap.AudioPlayer? _windowsPlayer;
-  ja.AudioPlayer? _androidPlayer;
-  final List<StreamSubscription<dynamic>> _subscriptions = [];
-  Future<void>? _androidAudioSessionFuture;
+  /// 状态轮询间隔 (位置/时长/播放状态), 与原先播放器的位置推送频率相当。
+  static const _statusPollInterval = Duration(milliseconds: 200);
+
+  final AudioEngine _engine = AudioEngine();
+  Timer? _statusTimer;
   int _sourceRequestId = 0;
   bool _completionHandled = false;
   bool _isDisposed = false;
+  bool _statusInFlight = false;
 
   @override
   AudioState build() {
     ref.onDispose(() {
       _isDisposed = true;
-      unawaited(_disposePlayers());
+      _stopStatusPolling();
+      unawaited(_engine.dispose());
     });
-
-    if (Platform.isAndroid) {
-      _androidPlayer = ja.AudioPlayer(
-        handleInterruptions: false,
-        handleAudioSessionActivation: false,
-      );
-      _initAndroidPlayer(_androidPlayer!);
-    } else if (Platform.isWindows) {
-      _windowsPlayer = ap.AudioPlayer();
-      _initWindowsPlayer(_windowsPlayer!);
-    } else {
-      Log.error(
-        'AudioNotifier is only supported on Android and Windows. '
-        'Current platform: ${Platform.operatingSystem}.',
-      );
-    }
 
     return AudioState();
   }
 
-  void _initWindowsPlayer(ap.AudioPlayer player) {
-    Log.info('Windows audioplayers AudioPlayer initialized.');
+  // ---------------------------------------------------------------------------
+  // 状态更新
+  // ---------------------------------------------------------------------------
 
+  void updatePlayState(AudioPlaybackState newPlayerState) {
+    if (state.playerState == newPlayerState) return;
+    state = state.copyWith(playerState: newPlayerState);
+  }
+
+  void updateDuration(Duration newDuration) {
+    state = state.copyWith(duration: newDuration);
+  }
+
+  void updatePosition(Duration newPosition) {
+    state = state.copyWith(position: newPosition);
+  }
+
+  /// 只改 AudioState, 不动引擎音量。
+  void _updateVolume(double newVolume) {
+    state = state.copyWith(volume: newVolume);
+  }
+
+  void updateLastVolume(double newLastVolume) {
+    state = state.copyWith(lastVolume: newLastVolume);
+  }
+
+  void updatePlaybackMode(PlaybackMode newPlaybackMode) {
+    state = state.copyWith(playbackMode: newPlaybackMode);
+  }
+
+  void updateState(AudioState newState) {
+    state = newState;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 左右声道对调
+  // ---------------------------------------------------------------------------
+
+  void toggleChannelSwap() => setChannelSwap(!state.channelSwap);
+
+  /// 实时对调左右声道。播放中调用立即生效, 不打断播放、不改变进度。
+  ///
+  /// [persist] 为 false 时只应用不写 config.json (启动恢复时用)。
+  void setChannelSwap(bool value, {bool persist = true}) {
+    if (state.channelSwap != value) {
+      state = state.copyWith(channelSwap: value);
+    }
     _runDetached(
-      'Error configuring Windows audio release mode.',
-      () => player.setReleaseMode(ap.ReleaseMode.release),
+      'Error setting channel swap.',
+      () => _engine.setChannelSwap(value),
     );
-
-    _subscriptions.add(
-      player.onDurationChanged.listen(
-        (duration) => _scheduleStateUpdate(
-          'Error updating audio duration.',
-          () => updateDuration(duration),
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio duration.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.onPositionChanged.listen(
-        (position) => _scheduleStateUpdate(
-          'Error updating audio position.',
-          () => updatePosition(position),
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio position.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.onPlayerStateChanged.listen(
-        (newPlayerState) => _scheduleStateUpdate(
-          'Error updating Windows audio player state.',
-          () => updatePlayState(_mapAudioplayersState(newPlayerState)),
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError(
-              'Error receiving Windows audio player state.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.onPlayerComplete.listen(
-        (_) => _scheduleStateUpdate(
-          'Error handling Windows audio completion.',
-          _handlePlaybackComplete,
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError(
-              'Error receiving Windows audio completion.', error, stackTrace);
-        },
-      ),
-    );
-  }
-
-  void _initAndroidPlayer(ja.AudioPlayer player) {
-    Log.info('Android just_audio AudioPlayer initialized.');
-
-    _subscriptions.add(
-      player.durationStream.listen(
-        (duration) => _scheduleStateUpdate(
-          'Error updating audio duration.',
-          () => updateDuration(duration ?? Duration.zero),
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio duration.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.positionStream.listen(
-        (position) => _scheduleStateUpdate(
-          'Error updating audio position.',
-          () => updatePosition(position),
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError('Error receiving audio position.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.playerStateStream.listen(
-        (newPlayerState) => _scheduleStateUpdate(
-          'Error updating Android audio player state.',
-          () {
-            updatePlayState(_mapJustAudioState(newPlayerState));
-            if (newPlayerState.processingState ==
-                ja.ProcessingState.completed) {
-              _handlePlaybackComplete();
-            } else {
-              _completionHandled = false;
-            }
-          },
-        ),
-        onError: (Object error, StackTrace stackTrace) {
-          _logError(
-              'Error receiving Android audio player state.', error, stackTrace);
-        },
-      ),
-    );
-    _subscriptions.add(
-      player.errorStream.listen(
-        (error) {
-          _logError(
-            'Android just_audio playback error: ${error.code} ${error.message}',
-            error,
-            StackTrace.current,
-          );
-          _scheduleStateUpdate(
-            'Error resetting audio state after playback failure.',
-            _resetAfterSourceFailure,
-          );
-        },
-        onError: (Object error, StackTrace stackTrace) {
-          _logError(
-              'Error receiving Android playback error.', error, stackTrace);
-        },
-      ),
-    );
-  }
-
-  AudioPlaybackState _mapAudioplayersState(ap.PlayerState playerState) {
-    switch (playerState) {
-      case ap.PlayerState.stopped:
-        return AudioPlaybackState.stopped;
-      case ap.PlayerState.paused:
-        return AudioPlaybackState.paused;
-      case ap.PlayerState.playing:
-        return AudioPlaybackState.playing;
-      case ap.PlayerState.completed:
-        return AudioPlaybackState.completed;
-      case ap.PlayerState.disposed:
-        return AudioPlaybackState.stopped;
+    if (persist) {
+      unawaited(_persistChannelSwap(value));
     }
   }
 
-  AudioPlaybackState _mapJustAudioState(ja.PlayerState newPlayerState) {
-    switch (newPlayerState.processingState) {
-      case ja.ProcessingState.idle:
-        return AudioPlaybackState.stopped;
-      case ja.ProcessingState.loading:
-      case ja.ProcessingState.buffering:
-      case ja.ProcessingState.ready:
-        return newPlayerState.playing
-            ? AudioPlaybackState.playing
-            : AudioPlaybackState.paused;
-      case ja.ProcessingState.completed:
-        return AudioPlaybackState.completed;
+  Future<void> _persistChannelSwap(bool value) async {
+    try {
+      await ref
+          .read(configJsonProvider)
+          .mutate((config) => {...config, 'channelSwap': value});
+    } catch (error, stackTrace) {
+      _logError('Error persisting channel swap.', error, stackTrace);
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 引擎状态轮询
+  // ---------------------------------------------------------------------------
+
+  void _startStatusPolling() {
+    _statusTimer ??= Timer.periodic(
+      _statusPollInterval,
+      (_) => unawaited(_pollStatus()),
+    );
+  }
+
+  void _stopStatusPolling() {
+    _statusTimer?.cancel();
+    _statusTimer = null;
+  }
+
+  Future<void> _pollStatus() async {
+    if (_isDisposed || _statusInFlight) return;
+    _statusInFlight = true;
+    try {
+      final status = await _engine.status();
+      if (_isDisposed || status == null) return;
+      _applyStatus(status);
+    } catch (error, stackTrace) {
+      _logError('Error polling native audio status.', error, stackTrace);
+    } finally {
+      _statusInFlight = false;
+    }
+  }
+
+  void _applyStatus(AudioEngineStatus status) {
+    var next = state;
+    if (next.position != status.position) {
+      next = next.copyWith(position: status.position);
+    }
+    if (next.duration != status.duration) {
+      next = next.copyWith(duration: status.duration);
+    }
+    if (next.playerState != status.state) {
+      next = next.copyWith(playerState: status.state);
+    }
+    if (!identical(next, state)) {
+      state = next;
+    }
+
+    if (status.state == AudioPlaybackState.completed) {
+      if (!_completionHandled) {
+        _handlePlaybackComplete();
+      }
+    } else {
+      _completionHandled = false;
     }
   }
 
@@ -230,35 +187,11 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  void updatePlayState(AudioPlaybackState newPlayerState) {
-    state = state.copyWith(playerState: newPlayerState);
-  }
+  // ---------------------------------------------------------------------------
+  // 音源加载 / 播放控制
+  // ---------------------------------------------------------------------------
 
-  void updateDuration(Duration newDuration) {
-    state = state.copyWith(duration: newDuration);
-  }
-
-  void updatePosition(Duration newPosition) {
-    state = state.copyWith(position: newPosition);
-  }
-
-  /// Changes AudioState only; does not change the just_audio player volume.
-  void _updateVolume(double newVolume) {
-    state = state.copyWith(volume: newVolume);
-  }
-
-  void updateLastVolume(double newLastVolume) {
-    state = state.copyWith(lastVolume: newLastVolume);
-  }
-
-  void updatePlaybackMode(PlaybackMode newPlaybackMode) {
-    state = state.copyWith(playbackMode: newPlaybackMode);
-  }
-
-  void updateState(AudioState newState) {
-    state = newState;
-  }
-
+  /// 加载音源 (不自动播放)。
   Future<bool> setSource(String playablePath) async {
     try {
       await _setSourcePath(playablePath);
@@ -270,38 +203,28 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   Future<void> _setSourcePath(String playablePath) async {
-    _completionHandled = false;
     final requestId = ++_sourceRequestId;
 
     try {
-      if (Platform.isAndroid) {
-        await _configureAndroidAudioSession().timeout(_audioOperationTimeout);
-        await _requireAndroidPlayer.setFilePath(playablePath).timeout(
-              _sourceLoadTimeout,
-              onTimeout: () => throw TimeoutException(
-                'Timed out loading audio source: $playablePath',
-                _sourceLoadTimeout,
-              ),
-            );
-      } else if (Platform.isWindows) {
-        await _requireWindowsPlayer
-            .setSource(ap.DeviceFileSource(playablePath))
-            .timeout(
-              _sourceLoadTimeout,
-              onTimeout: () => throw TimeoutException(
-                'Timed out loading audio source: $playablePath',
-                _sourceLoadTimeout,
-              ),
-            );
-      } else {
-        throw UnsupportedError(
-          'Setting an audio source is unsupported on ${Platform.operatingSystem}.',
-        );
+      final accepted = await _engine.setSource(playablePath);
+      if (requestId != _sourceRequestId) {
+        // 已被更新的加载请求取代
+        return;
       }
+      if (!accepted) {
+        throw StateError('Failed to load audio source: $playablePath');
+      }
+      await _awaitSourceReady(requestId, playablePath);
+      if (requestId != _sourceRequestId) {
+        return;
+      }
+      _completionHandled = false;
+      _startStatusPolling();
+      // 引擎会记住音量/声道设置, 但重开音源 (Android 会重建 AudioTrack)
+      // 后补齐一次, 避免状态与引擎不一致。
+      await _engine.setVolume(state.volume);
+      await _engine.setChannelSwap(state.channelSwap);
     } on TimeoutException catch (error, stackTrace) {
-      if (Platform.isAndroid) {
-        _androidAudioSessionFuture = null;
-      }
       _resetAfterSourceFailure(requestId);
       _logError(
           'Timed out loading audio source: $playablePath', error, stackTrace);
@@ -312,45 +235,35 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  Future<void> _configureAndroidAudioSession() async {
-    final pendingConfiguration = _androidAudioSessionFuture;
-    if (pendingConfiguration != null) {
-      await pendingConfiguration;
-      return;
-    }
-
-    final configuration = _configureAndroidAudioSessionOnce();
-    _androidAudioSessionFuture = configuration;
-    try {
-      await configuration;
-    } catch (_) {
-      if (identical(_androidAudioSessionFuture, configuration)) {
-        _androidAudioSessionFuture = null;
+  /// 等待原生端完成解码器/输出设备准备 (通常几十~几百毫秒)。
+  /// setSource 本身立即返回, 避免堵住平台线程。
+  Future<void> _awaitSourceReady(int requestId, String playablePath) async {
+    final deadline = DateTime.now().add(_sourceLoadTimeout);
+    while (true) {
+      final status = await _engine.status();
+      if (requestId != _sourceRequestId) return;
+      if (status == null) {
+        throw StateError('Audio engine unavailable: $playablePath');
       }
-      rethrow;
+      if (!status.isLoading) {
+        final error = status.error;
+        if (error != null) {
+          throw StateError('Failed to load audio source: $error');
+        }
+        return;
+      }
+      if (DateTime.now().isAfter(deadline)) {
+        throw TimeoutException(
+            'Timed out loading audio source: $playablePath', _sourceLoadTimeout);
+      }
+      await Future<void>.delayed(const Duration(milliseconds: 25));
     }
-  }
-
-  Future<void> _configureAndroidAudioSessionOnce() async {
-    final audioSession = await session.AudioSession.instance;
-    await audioSession.configure(session.AudioSessionConfiguration.music());
   }
 
   Future<void> seek(Duration newPosition) async {
     try {
-      if (Platform.isAndroid) {
-        await _requireAndroidPlayer.seek(newPosition).timeout(
-              _audioOperationTimeout,
-            );
-      } else if (Platform.isWindows) {
-        await _requireWindowsPlayer.seek(newPosition).timeout(
-              _audioOperationTimeout,
-            );
-      } else {
-        throw UnsupportedError(
-          'Seeking audio is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
+      updatePosition(newPosition);
+      await _engine.seek(newPosition);
     } catch (error, stackTrace) {
       _logError('Error seeking audio.', error, stackTrace);
     }
@@ -368,19 +281,9 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void _startPlayback() {
-    try {
-      if (Platform.isAndroid) {
-        _runDetached('Error playing audio.', _requireAndroidPlayer.play);
-      } else if (Platform.isWindows) {
-        _runDetached('Error playing audio.', _requireWindowsPlayer.resume);
-      } else {
-        throw UnsupportedError(
-          'Playing audio is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
-    } catch (error, stackTrace) {
-      _logError('Error playing audio.', error, stackTrace);
-    }
+    // 乐观更新: 引擎状态轮询有 200ms 间隔, 先让 UI (播放按钮/托盘) 立刻响应
+    updatePlayState(AudioPlaybackState.playing);
+    _runDetached('Error playing audio.', _engine.play);
   }
 
   void playNext() {
@@ -419,35 +322,13 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void pause() {
-    try {
-      if (Platform.isAndroid) {
-        _runDetached('Error pausing audio.', _requireAndroidPlayer.pause);
-      } else if (Platform.isWindows) {
-        _runDetached('Error pausing audio.', _requireWindowsPlayer.pause);
-      } else {
-        throw UnsupportedError(
-          'Pausing audio is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
-    } catch (error, stackTrace) {
-      _logError('Error pausing audio.', error, stackTrace);
-    }
+    updatePlayState(AudioPlaybackState.paused);
+    _runDetached('Error pausing audio.', _engine.pause);
   }
 
   void resume() {
-    try {
-      if (Platform.isAndroid) {
-        _runDetached('Error resuming audio.', _requireAndroidPlayer.play);
-      } else if (Platform.isWindows) {
-        _runDetached('Error resuming audio.', _requireWindowsPlayer.resume);
-      } else {
-        throw UnsupportedError(
-          'Resuming audio is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
-    } catch (error, stackTrace) {
-      _logError('Error resuming audio.', error, stackTrace);
-    }
+    updatePlayState(AudioPlaybackState.playing);
+    _runDetached('Error resuming audio.', _engine.play);
   }
 
   Future<void> stop() async {
@@ -457,15 +338,9 @@ class AudioNotifier extends Notifier<AudioState> {
       final firstItemPath =
           ref.read(voiceItemProvider).cachedPlayingVoiceItemPath;
       if (firstItemPath != null) {
-        if (Platform.isAndroid) {
-          await _requireAndroidPlayer.stop().timeout(_audioOperationTimeout);
-        } else if (Platform.isWindows) {
-          await _requireWindowsPlayer.stop().timeout(_audioOperationTimeout);
-        } else {
-          throw UnsupportedError(
-            'Stopping audio is unsupported on ${Platform.operatingSystem}.',
-          );
-        }
+        await _engine.stop();
+        updatePosition(Duration.zero);
+        updatePlayState(AudioPlaybackState.stopped);
         await _setSourcePath(firstItemPath);
       }
     } catch (error, stackTrace) {
@@ -476,19 +351,12 @@ class AudioNotifier extends Notifier<AudioState> {
   Future<void> release() async {
     try {
       _sourceRequestId++;
-      if (Platform.isAndroid) {
-        // just_audio.stop() releases native playback resources while keeping
-        // the player reusable for the next selected work.
-        await _requireAndroidPlayer.stop().timeout(_audioOperationTimeout);
-      } else if (Platform.isWindows) {
-        await _requireWindowsPlayer.release().timeout(_audioOperationTimeout);
-      } else {
-        throw UnsupportedError(
-          'Releasing audio is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
+      _stopStatusPolling();
+      _completionHandled = false;
+      await _engine.release();
       updatePosition(Duration.zero);
       updateDuration(Duration.zero);
+      updatePlayState(AudioPlaybackState.stopped);
       ref.read(voiceWorkProvider.notifier).clearPlayingState();
       ref.read(voiceItemProvider.notifier).clearPlayingState();
     } catch (error, stackTrace) {
@@ -506,22 +374,8 @@ class AudioNotifier extends Notifier<AudioState> {
   }
 
   void setVolume(double newVolume) {
-    try {
-      if (Platform.isAndroid) {
-        _runDetached('Error setting volume.',
-            () => _requireAndroidPlayer.setVolume(newVolume));
-      } else if (Platform.isWindows) {
-        _runDetached('Error setting volume.',
-            () => _requireWindowsPlayer.setVolume(newVolume));
-      } else {
-        throw UnsupportedError(
-          'Setting audio volume is unsupported on ${Platform.operatingSystem}.',
-        );
-      }
-      _updateVolume(newVolume);
-    } catch (error, stackTrace) {
-      _logError('Error setting audio volume.', error, stackTrace);
-    }
+    _runDetached('Error setting volume.', () => _engine.setVolume(newVolume));
+    _updateVolume(newVolume);
   }
 
   void switchPauseResume() {
@@ -559,18 +413,9 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  void _scheduleStateUpdate(String operation, void Function() callback) {
-    scheduleMicrotask(() {
-      if (_isDisposed) {
-        return;
-      }
-      try {
-        callback();
-      } catch (error, stackTrace) {
-        _logError(operation, error, stackTrace);
-      }
-    });
-  }
+  // ---------------------------------------------------------------------------
+  // 内部工具
+  // ---------------------------------------------------------------------------
 
   void _runDetached(String operation, Future<void> Function() action) {
     try {
@@ -588,57 +433,10 @@ class AudioNotifier extends Notifier<AudioState> {
     }
   }
 
-  Future<void> _disposePlayers() async {
-    for (final subscription in _subscriptions) {
-      try {
-        await subscription.cancel();
-      } catch (error, stackTrace) {
-        _logError(
-            'Error cancelling audio event subscription.', error, stackTrace);
-      }
-    }
-    _subscriptions.clear();
-
-    final androidPlayer = _androidPlayer;
-    if (androidPlayer != null) {
-      try {
-        await androidPlayer.dispose();
-      } catch (error, stackTrace) {
-        _logError('Error disposing Android audio player.', error, stackTrace);
-      }
-      _androidPlayer = null;
-    }
-
-    final windowsPlayer = _windowsPlayer;
-    if (windowsPlayer != null) {
-      try {
-        await windowsPlayer.dispose();
-      } catch (error, stackTrace) {
-        _logError('Error disposing Windows audio player.', error, stackTrace);
-      }
-      _windowsPlayer = null;
-    }
-  }
-
-  ja.AudioPlayer get _requireAndroidPlayer {
-    final player = _androidPlayer;
-    if (player == null) {
-      throw StateError('Android audio player is not initialized.');
-    }
-    return player;
-  }
-
-  ap.AudioPlayer get _requireWindowsPlayer {
-    final player = _windowsPlayer;
-    if (player == null) {
-      throw StateError('Windows audio player is not initialized.');
-    }
-    return player;
-  }
-
   void _resetAfterSourceFailure([int? requestId]) {
     if (_isDisposed) return;
     if (requestId != null && requestId != _sourceRequestId) return;
+    _stopStatusPolling();
     state = state.copyWith(
       playerState: AudioPlaybackState.stopped,
       duration: Duration.zero,

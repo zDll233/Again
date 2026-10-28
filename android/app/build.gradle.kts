@@ -50,6 +50,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            // debug 包用 debug 密钥, 无法覆盖安装上传密钥签名的正式版,
+            // 因此加 .dev 后缀作为独立应用共存 (正式版数据不受影响)。
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
         release {
             // 有 key.properties 用正式签名, 否则 debug 签名 (便于本地直接 run)
             signingConfig = if (keystorePropertiesFile.exists()) {

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:again/common/const.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,6 +15,9 @@ class UiSettings {
   final double hoverTimeSize; // hover 行起始时间字号
   final int hoverTimeWeight; // hover 行起始时间字重 (400 常规 / 700 粗体)
   final bool showCoverLyric; // 封面歌词预览
+
+  /// 轨道粗细默认值: 手机上 1px 几乎看不见, Android 默认 5; 桌面保持细线 1。
+  static double get defaultSliderThickness => Platform.isWindows ? 1 : 5;
 
   const UiSettings({
     this.coverTilt = true,
@@ -35,7 +40,9 @@ class UiSettings {
       coverTilt: config['coverTilt'] != false,
       coverReflection: config['coverReflection'] != false,
       showSliderThumb: config['showSliderThumb'] == true,
-      sliderThickness: thickness is num ? thickness.toDouble() : 1,
+      sliderThickness: thickness is num
+          ? thickness.toDouble()
+          : UiSettings.defaultSliderThickness,
       sliderThumbSize: thumbSize is num ? thumbSize.toDouble() : 5,
       listDensity:
           config['listDensity'] == 'compact' ? 'compact' : 'comfortable',

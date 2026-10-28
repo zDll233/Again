@@ -33,7 +33,9 @@ class ProgressBar extends ConsumerWidget {
           final position =
               ref.watch(audioProvider.select((state) => state.position));
           final appearance = ref.watch(uiSettingsProvider).valueOrNull;
-          final thickness = (appearance?.sliderThickness ?? 1).clamp(1.0, 6.0);
+          final thickness =
+              (appearance?.sliderThickness ?? UiSettings.defaultSliderThickness)
+                  .clamp(1.0, 6.0);
           final progress =
               (duration == Duration.zero || position == Duration.zero)
                   ? 0.0
@@ -123,7 +125,8 @@ class ProgressBar extends ConsumerWidget {
             // 是否显示滑块圆点 / 轨道粗细 (设置项)
             final appearance = ref.watch(uiSettingsProvider).valueOrNull;
             final showThumb = appearance?.showSliderThumb ?? false;
-            final thickness = appearance?.sliderThickness ?? 1;
+            final thickness = appearance?.sliderThickness ??
+                UiSettings.defaultSliderThickness;
             final thumbSize = appearance?.sliderThumbSize ?? 5;
 
             return SliderTheme(

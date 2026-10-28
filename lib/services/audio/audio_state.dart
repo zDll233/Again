@@ -29,6 +29,9 @@ class AudioState extends BaseState {
   final double lastVolume;
   final PlaybackMode playbackMode;
 
+  /// 左右声道是否对调 (实时生效, 状态持久化在 config.json 的 channelSwap)。
+  final bool channelSwap;
+
   AudioState({
     this.playerState = AudioPlaybackState.stopped,
     this.duration = Duration.zero,
@@ -36,6 +39,7 @@ class AudioState extends BaseState {
     this.volume = 1.0,
     this.lastVolume = 1.0,
     this.playbackMode = PlaybackMode.sequentialPlay,
+    this.channelSwap = false,
   });
 
   @override
@@ -46,6 +50,7 @@ class AudioState extends BaseState {
     double? volume,
     double? lastVolume,
     PlaybackMode? playbackMode,
+    bool? channelSwap,
   }) {
     return AudioState(
       playerState: playerState ?? this.playerState,
@@ -54,6 +59,7 @@ class AudioState extends BaseState {
       volume: volume ?? this.volume,
       lastVolume: lastVolume ?? this.lastVolume,
       playbackMode: playbackMode ?? this.playbackMode,
+      channelSwap: channelSwap ?? this.channelSwap,
     );
   }
 

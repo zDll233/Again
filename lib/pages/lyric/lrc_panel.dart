@@ -43,15 +43,34 @@ class LyricPanel extends ConsumerWidget {
         math.max(MediaQuery.sizeOf(context).height * 0.058, 56.0);
     return Column(
       children: [
-        // 顶部标题区: 只保留当前音轨标题, 给歌词内容留出空间。
+        // 顶部标题行: 当前音轨标题 + 右侧「打开音轨列表」按钮
+        // (原在底部控制行, 让位给声道对调按钮)。
         SizedBox(
           height: titleHeight,
-          child: const Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.only(left: 20),
-              child: VoiceItemTitle(),
-            ),
+          child: Row(
+            children: [
+              const SizedBox(width: 20),
+              const Expanded(
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: VoiceItemTitle(),
+                ),
+              ),
+              IconButton(
+                key: const Key('queue_button'),
+                tooltip: '打开正在播放的音轨列表',
+                iconSize: 22,
+                padding: EdgeInsets.zero,
+                constraints:
+                    const BoxConstraints.tightFor(width: 44, height: 44),
+                onPressed: () {
+                  // 先恢复播放中的作品和音轨, 再稳定切到音轨页。
+                  ref.read(uiServiceProvider).openTracksPanel();
+                },
+                icon: const Icon(Icons.queue_music),
+              ),
+              const SizedBox(width: 8),
+            ],
           ),
         ),
         // 标题和底部控制区固定在 PageView 外, 横向切换时只有封面/歌词移动。
