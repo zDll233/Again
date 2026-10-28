@@ -14,7 +14,7 @@ import java.io.File
 class MainActivity : FlutterActivity() {
     companion object {
         /**
-         * 自研播放引擎做成单例: Activity 重建 (旋转/深浅色切换) 时
+         * 播放引擎做成单例: Activity 重建 (旋转/深浅色切换) 时
          * configureFlutterEngine 会再跑一遍, 复用同一实例才不会丢掉正在播放的音频。
          */
         private var audioEngine: AgainAudioEngine? = null
@@ -72,7 +72,7 @@ class MainActivity : FlutterActivity() {
                 }
             }
 
-        // 自研播放引擎 (Dart 侧 lib/services/audio/audio_engine.dart, 同名频道的
+        // 播放引擎 (Dart 侧 lib/services/audio/audio_engine.dart, 同名频道的
         // Windows 实现在 windows/runner/again_audio_channel.cpp)。
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "again/audio")
             .setMethodCallHandler { call, result -> handleAudioCall(call, result) }

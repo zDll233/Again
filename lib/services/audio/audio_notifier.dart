@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// 回填 [AudioState]。
 ///
 /// 引擎实现见 [AudioEngine] (Windows: MF + WASAPI, Android: MediaCodec +
-/// AudioTrack) — 自己写引擎的原因是要拿到 PCM 才能实时对调左右声道。
+/// AudioTrack) — 引擎需要直接拿到 PCM 才能实时对调左右声道。
 class AudioNotifier extends Notifier<AudioState> {
   static const _sourceLoadTimeout = Duration(seconds: 15);
 

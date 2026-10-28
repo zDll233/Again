@@ -34,7 +34,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 
 - Entry: `lib/main.dart` → `setupWindow()` (acrylic/transparent window, hidden title bar, Windows-only) → `MyApp` (`lib/pages/my_app.dart`).
 - State: Riverpod (flutter_riverpod). Logic lives in `lib/services/`: `audio/`, `database/`, `ui/presentation/` (notifier/state pairs), `history/`, `key_event/`. UI in `lib/pages/`.
-- **播放引擎是自研的** (`lib/services/audio/audio_engine.dart` + 两端原生实现), 不用 audioplayers/just_audio: 「播放中实时对调左右声道」必须拿到解码后的 PCM, 这两个插件都是黑盒解码 + 直接输出, 只暴露整体音量, 没有左右声道路由能力。Dart 侧统一走 `again/audio` MethodChannel (方法: `setSource`/`play`/`pause`/`stop`/`release`/`seek`/`setVolume`/`setChannelSwap`/`status`):
+- **播放引擎在项目内实现** (`lib/services/audio/audio_engine.dart` + 两端原生实现), 不用 audioplayers/just_audio: 「播放中实时对调左右声道」必须拿到解码后的 PCM, 这两个插件都是黑盒解码 + 直接输出, 只暴露整体音量, 没有左右声道路由能力。Dart 侧统一走 `again/audio` MethodChannel (方法: `setSource`/`play`/`pause`/`stop`/`release`/`seek`/`setVolume`/`setChannelSwap`/`status`):
   - Windows: `windows/runner/again_audio_engine.cpp` (Media Foundation Source Reader 解码成设备混音格式 + WASAPI 共享模式输出) + `windows/runner/again_audio_channel.cpp` (频道注册, 在 `flutter_window.cpp` 里创建)。
   - Android: `android/app/src/main/kotlin/com/zdl/again/AgainAudioEngine.kt` (MediaExtractor + MediaCodec 解码 + AudioTrack 输出), 频道在 `MainActivity.configureFlutterEngine` 注册, 引擎是 companion 单例 (Activity 重建不丢播放)。
   - **线程约定**: 所有 COM/MF/WASAPI 调用都在原生音频线程; Flutter 平台线程只读写原子量, `setSource` 立即返回 (loading 通过 `status` 反映), `AudioNotifier` 用 200ms 定时器轮询 `status` 回填 `AudioState` (位置/时长/播放状态/completed)。改引擎时不要改成在平台线程上阻塞等解码器/设备初始化。
@@ -55,7 +55,7 @@ Flutter 桌面 (Windows) + Android 本地音声播放器 (ASMR voice works)。**
 - 桌面插件隔离: `lib/services/window_setup.dart` (入口, `Platform.isWindows` 守卫) + `window_setup_windows.dart` (真实实现, 唯一持有 flutter_acrylic/window_manager 初始化的文件)。`MoveWindow`/`WindowTitleBar`/设置页在 Android 自动降级 (无标题栏/无窗口设置/无更新入口/无资源管理器按钮)。
 - 平台守卫 (运行时, 非条件编译): 托盘 (`initialization.dart` 仅 Windows init)、`UIService.onExit/hideToTray/applyWindowEffect`、`restoreWindowBounds`、`window_size_guard`、`deleteVoiceWork` (Android 直删, 无回收站)、explorer 定位、`file_time.dart` 创建时间 (Android 返回 null, 回退 mtime)、`update_checker.dart` (懒加载 shell32 FFI, `applyUpdate` 仅 Windows)。
 - 存储权限: `lib/services/storage_permission.dart` — MANAGE_EXTERNAL_STORAGE (file_picker 11 在 Android 11+ 返回真实路径, 配合全文件权限 dart:io 可直接读写)。
-- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `initialization.dart` 的 `initAudioServiceAndroid` (AudioService.init 必须在首帧渲染后调用, runApp 前会黑屏)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK; `MainActivity` 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)` (audio_service 共享 engine 的硬性要求), 并注册 `again/installer` MethodChannel (APK 安装, FileProvider) 和自研播放引擎的 `again/audio` 频道 (见 Architecture; 引擎实例是 companion 单例)。
+- 后台播放: `lib/services/audio/again_audio_handler.dart` (BaseAudioHandler 桥接, 控制回调转发 AudioNotifier) + `audio_service_sync.dart` (状态镜像到媒体通知) + `initialization.dart` 的 `initAudioServiceAndroid` (AudioService.init 必须在首帧渲染后调用, runApp 前会黑屏)。Manifest 有前台 service/媒体按钮 receiver/FOREGROUND_SERVICE_MEDIA_PLAYBACK; `MainActivity` 必须 `override provideFlutterEngine` 返回 `AudioServicePlugin.getFlutterEngine(context)` (audio_service 共享 engine 的硬性要求), 并注册 `again/installer` MethodChannel (APK 安装, FileProvider) 和播放引擎的 `again/audio` 频道 (见 Architecture; 引擎实例是 companion 单例)。
 - 生命周期: `initialization.dart` 监听 detached 保存播放历史 (系统杀进程不丢进度)。
 
 真机验证状况:

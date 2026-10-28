@@ -30,7 +30,7 @@ class FlutterWindow : public Win32Window {
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;
 
-  // 自研音频引擎的 MethodChannel (again/audio), 播放/声道对调都走这里。
+  // 音频引擎的 MethodChannel (again/audio), 播放/声道对调都走这里。
   std::unique_ptr<again::AudioChannel> audio_channel_;
 };
 

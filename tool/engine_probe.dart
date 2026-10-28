@@ -1,6 +1,6 @@
 // 临时真机验证入口 (不属于应用功能, 验证完删除):
 //   flutter run -d <device> -t tool/engine_probe.dart
-// 用生成的 WAV 走一遍自研播放引擎: 加载/播放/进度/播放中切声道/seek/暂停/释放。
+// 用生成的 WAV 走一遍播放引擎: 加载/播放/进度/播放中切声道/seek/暂停/释放。
 // 全程音量 0 (静音), 不会发出声音。
 import 'dart:io';
 import 'dart:math' as math;

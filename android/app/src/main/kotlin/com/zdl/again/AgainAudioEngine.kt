@@ -9,11 +9,11 @@ import android.media.MediaFormat
 import android.os.Process
 
 /**
- * 自研播放引擎: MediaExtractor 解封装 + MediaCodec 解码成 PCM + AudioTrack 输出。
+ * 播放引擎: MediaExtractor 解封装 + MediaCodec 解码成 PCM + AudioTrack 输出。
  *
- * 为什么要自己写播放器: 播放中实时对调左右声道必须拿到解码后的 PCM 采样
- * 再自己写进输出, just_audio (ExoPlayer) 是黑盒解码 + 直接输出, 既拿不到
- * 采样也没有左右声道重定向的 API (只能改整体音量)。
+ * 为什么不用 just_audio (ExoPlayer): 播放中实时对调左右声道必须拿到解码后的
+ * PCM 采样再写进输出, 而 ExoPlayer 是黑盒解码 + 直接输出, 既拿不到采样也没有
+ * 左右声道重定向的 API (只能改整体音量)。
  *
  * 线程模型: 解码/写入都在内部解码线程; 平台线程只读写 volatile 字段。
  * [setSource] 立即返回, 准备结果通过 [status] 的 loading/error 反映,

@@ -23,7 +23,7 @@ class AudioEngineStatus {
   final String? error;
 }
 
-/// 自研播放引擎的 Dart 侧封装。
+/// 播放引擎的 Dart 侧封装。
 ///
 /// 为什么不用 audioplayers / just_audio: 播放中实时对调左右声道需要拿到
 /// 解码后的 PCM 采样, 而这两个插件都是「交文件 → 黑盒解码 → 直接输出」,

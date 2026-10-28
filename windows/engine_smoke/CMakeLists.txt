@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 project(engine_smoke LANGUAGES CXX)
 
-# 自研播放引擎的独立冒烟测试 (不参与 Flutter 构建):
+# 播放引擎的独立冒烟测试 (不参与 Flutter 构建):
 #   cmake -S windows/engine_smoke -B build/engine_smoke -G "Visual Studio 17 2022" -A x64
 #   cmake --build build/engine_smoke --config Release
 #   build/engine_smoke/Release/engine_smoke.exe <音频文件>
