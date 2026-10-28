@@ -24,7 +24,7 @@ class ChannelSwapButton extends ConsumerWidget {
 
     return IconButton(
       key: const Key('channel_swap_button'),
-      tooltip: swapped ? '取消左右声道对调' : '对调左右声道',
+      tooltip: swapped ? '取消对调左右声道' : '对调左右声道',
       onPressed: ref.read(audioProvider.notifier).toggleChannelSwap,
       iconSize: iconSize,
       padding: buttonSize < 48 ? EdgeInsets.zero : null,
