@@ -73,7 +73,7 @@ jobs:
             New-Item -ItemType Directory -Path "dist"
           }
 
-          $ZipFileName = "${{ env.APP_NAME }}-${{ env.VERSION }}-Windows.zip"
+          $ZipFileName = "${{ env.APP_NAME }}-${{ env.VERSION }}-Windows-x64.zip"
 
           Compress-Archive `
             -Path build/windows/x64/runner/Release/* `

@@ -57,6 +57,13 @@ android {
             versionNameSuffix = "-dev"
         }
         release {
+            // 只保留 arm64-v8a: Flutter 自身在 CI 用 --target-platform android-arm64
+            // 只出 arm64, 但插件 (sqlite3_flutter_libs) 的预编译 .so 会把所有 ABI
+            // 各带一份 (约 3MB 死重), 这里一并裁掉。
+            ndk {
+                abiFilters.clear()
+                abiFilters.add("arm64-v8a")
+            }
             // 有 key.properties 用正式签名, 否则 debug 签名 (便于本地直接 run)
             signingConfig = if (keystorePropertiesFile.exists()) {
                 signingConfigs.getByName("release")
