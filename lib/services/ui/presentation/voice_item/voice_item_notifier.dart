@@ -9,7 +9,8 @@ import 'package:again/services/ui/presentation/voice_item/voice_item_state.dart'
 
 class VoiceItemNotifier
     extends VariableListStateNotifier<VoiceItemState, VoiceItem> {
-  /// 最近一次数据刷新 (updateViList) 的原始顺序, 作为"时间顺序"基准。
+  /// 最近一次数据刷新 (updateViList) 的原始顺序。四种排序都是全序,
+  /// 换排序时直接对这份基准重排, 不受上一次排序结果影响。
   List<VoiceItem>? _originalOrder;
 
   @override
@@ -31,9 +32,8 @@ class VoiceItemNotifier
   }
 
   /// 恢复播放状态时直接采用播放列表顺序, 不再套用当前排序:
-  /// `playingValues` 是播放时刻的已排序快照, 重复应用排序会破坏顺序
-  /// (`fileDesc` 是纯反转, 对已反转列表再反转会倒回正序), 并导致
-  /// `playingIndex` (队列坐标) 与显示列表坐标错位, 定位选中错项。
+  /// `playingValues` 是播放时刻的已排序快照, 重新排序会改变队列顺序,
+  /// 并导致 `playingIndex` (队列坐标) 与显示列表坐标错位, 定位选中错项。
   @override
   void restoreValues({List<VoiceItem>? values}) {
     final restored = values ?? state.playingValues;

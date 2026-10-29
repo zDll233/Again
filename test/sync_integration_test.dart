@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:again/services/database/db/database.dart';
 import 'package:again/services/database/voice_updater.dart';
-import 'package:drift/drift.dart' show LazyDatabase;
+import 'package:drift/drift.dart' show LazyDatabase, Value;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
@@ -61,6 +61,8 @@ void main() {
     expect(work1.sourceId, 'RJ123456');
     expect(work1.coverPath, endsWith('cover.jpg'));
     expect(work1.createdAt, isNotNull);
+    // 音轨时间也要入库 (排序用)
+    expect(items.every((i) => i.createdAt != null), isTrue);
 
     // 2. 二次扫描: 无变化, 数据保持
     await VoiceUpdater(db, libDir.path).update();
@@ -222,5 +224,57 @@ void main() {
         'tVoiceCVCvNameIndex',
       ]),
     );
+  });
+
+  test('旧库按 mtime 写入的 createdAt 会被创建时间刷新', () async {
+    await VoiceUpdater(db, libDir.path).update();
+
+    Future<TVoiceWorkData> work1() async => (await db.selectAllVoiceWorks)
+        .firstWhere((w) => w.title == 'cv1&cv2-测试作品1');
+
+    final before = await work1();
+    expect(before.createdAt, isNotNull);
+
+    // 模拟旧版本入库的「修改时间」(即与磁盘创建时间不一致的旧值)
+    final stale = before.createdAt!.subtract(const Duration(days: 1000));
+    await (db.update(db.tVoiceWork)
+          ..where((t) => t.directoryPath.equals(before.directoryPath)))
+        .write(TVoiceWorkCompanion(createdAt: Value(stale)));
+    expect((await work1()).createdAt, stale);
+
+    // 文件内容没有任何变化, 但 createdAt 与磁盘不符 → 应被刷新回创建时间
+    await VoiceUpdater(db, libDir.path).update();
+    expect((await work1()).createdAt, before.createdAt);
+  });
+
+  test('音轨时间: 入库、旧值刷新、schema v4 迁移', () async {
+    await VoiceUpdater(db, libDir.path).update();
+
+    Future<List<TVoiceItemData>> itemsOf(String workTitle) async {
+      final path = (await db.selectAllVoiceWorks)
+          .firstWhere((w) => w.title == workTitle)
+          .directoryPath;
+      return (await db.selectAllVoiceItems)
+          .where((i) => i.voiceWorkPath == path)
+          .toList();
+    }
+
+    final before = await itemsOf('cv1&cv2-测试作品1');
+    expect(before, hasLength(1));
+    expect(before.single.createdAt, isNotNull);
+
+    // 模拟旧库 (v3, 无该列 → NULL) 或旧值: 改成 NULL / 1000 天前
+    final filePath = before.single.filePath;
+    await (db.update(db.tVoiceItem)
+          ..where((t) => t.filePath.equals(filePath)))
+        .write(const TVoiceItemCompanion(createdAt: Value(null)));
+    expect((await itemsOf('cv1&cv2-测试作品1')).single.createdAt, isNull);
+
+    // 内容无变化, 但时间缺失 → 整作品重写并补上时间
+    await VoiceUpdater(db, libDir.path).update();
+    final after = await itemsOf('cv1&cv2-测试作品1');
+    expect(after.single.createdAt, before.single.createdAt);
+    // 其余作品不受影响
+    expect(await itemsOf('cv1-测试作品2'), hasLength(2));
   });
 }

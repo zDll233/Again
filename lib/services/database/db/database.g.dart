@@ -600,8 +600,15 @@ class $TVoiceItemTable extends TVoiceItem
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'REFERENCES t_voice_work (directory_path)'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
   @override
-  List<GeneratedColumn> get $columns => [title, filePath, voiceWorkPath];
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [title, filePath, voiceWorkPath, createdAt];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -632,6 +639,10 @@ class $TVoiceItemTable extends TVoiceItem
     } else if (isInserting) {
       context.missing(_voiceWorkPathMeta);
     }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
     return context;
   }
 
@@ -647,6 +658,8 @@ class $TVoiceItemTable extends TVoiceItem
           .read(DriftSqlType.string, data['${effectivePrefix}file_path'])!,
       voiceWorkPath: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}voice_work_path'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at']),
     );
   }
 
@@ -660,16 +673,21 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
   final String title;
   final String filePath;
   final String voiceWorkPath;
+  final DateTime? createdAt;
   const TVoiceItemData(
       {required this.title,
       required this.filePath,
-      required this.voiceWorkPath});
+      required this.voiceWorkPath,
+      this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['title'] = Variable<String>(title);
     map['file_path'] = Variable<String>(filePath);
     map['voice_work_path'] = Variable<String>(voiceWorkPath);
+    if (!nullToAbsent || createdAt != null) {
+      map['created_at'] = Variable<DateTime>(createdAt);
+    }
     return map;
   }
 
@@ -678,6 +696,9 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
       title: Value(title),
       filePath: Value(filePath),
       voiceWorkPath: Value(voiceWorkPath),
+      createdAt: createdAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(createdAt),
     );
   }
 
@@ -688,6 +709,7 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
       title: serializer.fromJson<String>(json['title']),
       filePath: serializer.fromJson<String>(json['filePath']),
       voiceWorkPath: serializer.fromJson<String>(json['voiceWorkPath']),
+      createdAt: serializer.fromJson<DateTime?>(json['createdAt']),
     );
   }
   @override
@@ -697,15 +719,20 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
       'title': serializer.toJson<String>(title),
       'filePath': serializer.toJson<String>(filePath),
       'voiceWorkPath': serializer.toJson<String>(voiceWorkPath),
+      'createdAt': serializer.toJson<DateTime?>(createdAt),
     };
   }
 
   TVoiceItemData copyWith(
-          {String? title, String? filePath, String? voiceWorkPath}) =>
+          {String? title,
+          String? filePath,
+          String? voiceWorkPath,
+          Value<DateTime?> createdAt = const Value.absent()}) =>
       TVoiceItemData(
         title: title ?? this.title,
         filePath: filePath ?? this.filePath,
         voiceWorkPath: voiceWorkPath ?? this.voiceWorkPath,
+        createdAt: createdAt.present ? createdAt.value : this.createdAt,
       );
   TVoiceItemData copyWithCompanion(TVoiceItemCompanion data) {
     return TVoiceItemData(
@@ -714,6 +741,7 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
       voiceWorkPath: data.voiceWorkPath.present
           ? data.voiceWorkPath.value
           : this.voiceWorkPath,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
 
@@ -722,37 +750,42 @@ class TVoiceItemData extends DataClass implements Insertable<TVoiceItemData> {
     return (StringBuffer('TVoiceItemData(')
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
-          ..write('voiceWorkPath: $voiceWorkPath')
+          ..write('voiceWorkPath: $voiceWorkPath, ')
+          ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(title, filePath, voiceWorkPath);
+  int get hashCode => Object.hash(title, filePath, voiceWorkPath, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is TVoiceItemData &&
           other.title == this.title &&
           other.filePath == this.filePath &&
-          other.voiceWorkPath == this.voiceWorkPath);
+          other.voiceWorkPath == this.voiceWorkPath &&
+          other.createdAt == this.createdAt);
 }
 
 class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
   final Value<String> title;
   final Value<String> filePath;
   final Value<String> voiceWorkPath;
+  final Value<DateTime?> createdAt;
   final Value<int> rowid;
   const TVoiceItemCompanion({
     this.title = const Value.absent(),
     this.filePath = const Value.absent(),
     this.voiceWorkPath = const Value.absent(),
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TVoiceItemCompanion.insert({
     required String title,
     required String filePath,
     required String voiceWorkPath,
+    this.createdAt = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : title = Value(title),
         filePath = Value(filePath),
@@ -761,12 +794,14 @@ class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
     Expression<String>? title,
     Expression<String>? filePath,
     Expression<String>? voiceWorkPath,
+    Expression<DateTime>? createdAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (title != null) 'title': title,
       if (filePath != null) 'file_path': filePath,
       if (voiceWorkPath != null) 'voice_work_path': voiceWorkPath,
+      if (createdAt != null) 'created_at': createdAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -775,11 +810,13 @@ class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
       {Value<String>? title,
       Value<String>? filePath,
       Value<String>? voiceWorkPath,
+      Value<DateTime?>? createdAt,
       Value<int>? rowid}) {
     return TVoiceItemCompanion(
       title: title ?? this.title,
       filePath: filePath ?? this.filePath,
       voiceWorkPath: voiceWorkPath ?? this.voiceWorkPath,
+      createdAt: createdAt ?? this.createdAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -796,6 +833,9 @@ class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
     if (voiceWorkPath.present) {
       map['voice_work_path'] = Variable<String>(voiceWorkPath.value);
     }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -808,6 +848,7 @@ class TVoiceItemCompanion extends UpdateCompanion<TVoiceItemData> {
           ..write('title: $title, ')
           ..write('filePath: $filePath, ')
           ..write('voiceWorkPath: $voiceWorkPath, ')
+          ..write('createdAt: $createdAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1870,12 +1911,14 @@ typedef $$TVoiceItemTableCreateCompanionBuilder = TVoiceItemCompanion Function({
   required String title,
   required String filePath,
   required String voiceWorkPath,
+  Value<DateTime?> createdAt,
   Value<int> rowid,
 });
 typedef $$TVoiceItemTableUpdateCompanionBuilder = TVoiceItemCompanion Function({
   Value<String> title,
   Value<String> filePath,
   Value<String> voiceWorkPath,
+  Value<DateTime?> createdAt,
   Value<int> rowid,
 });
 
@@ -1914,6 +1957,9 @@ class $$TVoiceItemTableFilterComposer
   ColumnFilters<String> get filePath => $composableBuilder(
       column: $table.filePath, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
   $$TVoiceWorkTableFilterComposer get voiceWorkPath {
     final $$TVoiceWorkTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -1950,6 +1996,9 @@ class $$TVoiceItemTableOrderingComposer
   ColumnOrderings<String> get filePath => $composableBuilder(
       column: $table.filePath, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
   $$TVoiceWorkTableOrderingComposer get voiceWorkPath {
     final $$TVoiceWorkTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -1985,6 +2034,9 @@ class $$TVoiceItemTableAnnotationComposer
 
   GeneratedColumn<String> get filePath =>
       $composableBuilder(column: $table.filePath, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
   $$TVoiceWorkTableAnnotationComposer get voiceWorkPath {
     final $$TVoiceWorkTableAnnotationComposer composer = $composerBuilder(
@@ -2033,24 +2085,28 @@ class $$TVoiceItemTableTableManager extends RootTableManager<
             Value<String> title = const Value.absent(),
             Value<String> filePath = const Value.absent(),
             Value<String> voiceWorkPath = const Value.absent(),
+            Value<DateTime?> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TVoiceItemCompanion(
             title: title,
             filePath: filePath,
             voiceWorkPath: voiceWorkPath,
+            createdAt: createdAt,
             rowid: rowid,
           ),
           createCompanionCallback: ({
             required String title,
             required String filePath,
             required String voiceWorkPath,
+            Value<DateTime?> createdAt = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TVoiceItemCompanion.insert(
             title: title,
             filePath: filePath,
             voiceWorkPath: voiceWorkPath,
+            createdAt: createdAt,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

@@ -16,6 +16,9 @@ class TVoiceItem extends Table {
   TextColumn get filePath => text()();
   TextColumn get voiceWorkPath =>
       text().references(TVoiceWork, #directoryPath)();
+  // 音轨时间 (创建时间; 非 Windows 回退 mtime), 供「时间顺序/倒序」排序。
+  // 与 TVoiceWork.createdAt 同语义, 同样按整秒精度入库。
+  DateTimeColumn get createdAt => dateTime().nullable()();
 
   @override
   Set<Column> get primaryKey => {filePath};
@@ -70,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
       : super(connection ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration {
@@ -90,6 +93,10 @@ class AppDatabase extends _$AppDatabase {
           await m.createIndex(tVoiceWorkCategoryIndex);
           await m.createIndex(tVoiceCVVoiceWorkPathIndex);
           await m.createIndex(tVoiceCVCvNameIndex);
+        }
+        if (from < 4) {
+          // 音轨时间列; 旧行全为 NULL, 下次扫描会按 (路径 → 时间) 差异整作品重写
+          await m.addColumn(tVoiceItem, tVoiceItem.createdAt);
         }
       },
     );
@@ -184,17 +191,22 @@ class AppDatabase extends _$AppDatabase {
   Future<List<TVoiceItemData>> get selectAllVoiceItems =>
       select(tVoiceItem).get();
 
-  /// 仅取音轨路径两列, 供增量同步对比用, 避免拉全表。
-  Future<List<({String filePath, String voiceWorkPath})>>
+  /// 仅取音轨路径与时间两列, 供增量同步对比用, 避免拉全表。
+  Future<List<({String filePath, String voiceWorkPath, DateTime? createdAt})>>
       get selectAllVoiceItemPaths async {
     final rows = await (selectOnly(tVoiceItem)
-          ..addColumns([tVoiceItem.filePath, tVoiceItem.voiceWorkPath]))
+          ..addColumns([
+            tVoiceItem.filePath,
+            tVoiceItem.voiceWorkPath,
+            tVoiceItem.createdAt,
+          ]))
         .get();
     return [
       for (final r in rows)
         (
           filePath: r.read(tVoiceItem.filePath)!,
           voiceWorkPath: r.read(tVoiceItem.voiceWorkPath)!,
+          createdAt: r.read(tVoiceItem.createdAt),
         ),
     ];
   }

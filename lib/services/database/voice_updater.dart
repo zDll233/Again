@@ -39,8 +39,13 @@ class WorkScanInfo {
 class ItemScanInfo {
   final String title;
   final String filePath;
+  final DateTime createdAt;
 
-  const ItemScanInfo({required this.title, required this.filePath});
+  const ItemScanInfo({
+    required this.title,
+    required this.filePath,
+    required this.createdAt,
+  });
 }
 
 /// 扫描音声作品根目录。运行在后台 isolate 中。
@@ -81,6 +86,7 @@ ScanResult scanRoot(String rootDirPath) {
             items.add(ItemScanInfo(
               title: p.basenameWithoutExtension(e.path),
               filePath: e.path,
+              createdAt: _scanTime(e.statSync()),
             ));
           }
         }
@@ -92,11 +98,9 @@ ScanResult scanRoot(String rootDirPath) {
         directoryPath: directoryPath,
         coverPath: coverPath,
         category: category,
-        // 排序用的"时间"= 目录创建时间 (添加时间), 非修改时间:
-        // 批量添加时入库时间都一样, mtime 会随内容变动而变化;
-        // dart:io 无创建时间 API, 用 Win32 CreateFileW + GetFileTime 读取
-        createdAt: directoryCreationTime(directoryPath) ??
-            workEntity.statSync().modified,
+        // 排序用的"时间"= 创建时间 (加入库时间), 非修改时间:
+        // mtime 会随内容变动/批量操作而变化
+        createdAt: _scanTime(workEntity.statSync()),
         items: items,
       ));
     }
@@ -112,6 +116,20 @@ List<String> getCvList(String vwTitle) {
 
 bool isSourceIdValid(String sourceId) =>
     RegExp(r'^(RJ|VJ|BJ)?\d+$', caseSensitive: false).hasMatch(sourceId);
+
+/// 作品/音轨的排序时间: 创建时间 (Windows), 拿不到时回退 mtime。
+///
+/// 截断到整秒的原因: drift 的 dateTime 列按 unix 秒存储, 截断后 DB 读回值与
+/// 扫描值可以精确比较 —— 增量同步靠它发现「时间值变了」。
+DateTime _scanTime(FileStat stat) =>
+    _truncateToWholeSeconds(creationOrModifiedTime(stat));
+
+DateTime _truncateToWholeSeconds(DateTime t) =>
+    DateTime.fromMillisecondsSinceEpoch(t.millisecondsSinceEpoch ~/ 1000 * 1000);
+
+/// 与 drift dateTime 列的存储精度 (unix 秒) 对齐, 便于用 == 比较。
+int? _epochSeconds(DateTime? t) =>
+    t == null ? null : t.millisecondsSinceEpoch ~/ 1000;
 
 /// compute 的 isolate 入口（必须是顶层函数，参数/返回值可发送）。
 ScanResult _scanRootInIsolate(String rootDirPath) {
@@ -169,21 +187,29 @@ class VoiceUpdater {
     for (final work in scan.works) {
       scannedPaths.add(work.directoryPath);
       final existing = existingByPath[work.directoryPath];
-      final existingItemPaths = {
+      // 条目按「路径 → 时间」比对: 路径集合一致但时间变了 (例如从 mtime 语义
+      // 切到创建时间、或文件被替换) 也要重写, 否则排序永远停在旧值。
+      final existingItemTimes = {
         for (final i in existingItemsByWork[work.directoryPath] ?? const [])
-          i.filePath,
+          i.filePath: _epochSeconds(i.createdAt),
       };
-      final scannedItemPaths = {for (final i in work.items) i.filePath};
-      final itemsUnchanged =
-          scannedItemPaths.length == existingItemPaths.length &&
-          scannedItemPaths.containsAll(existingItemPaths);
+      final scannedItemTimes = {
+        for (final i in work.items) i.filePath: _epochSeconds(i.createdAt),
+      };
+      final itemsUnchanged = mapEquals(existingItemTimes, scannedItemTimes);
+      // 作品自身的 createdAt 同理 (按整秒比较, 与 drift 的存储精度一致)。
+      final existingCreatedAt = existing?.createdAt;
+      final createdAtUnchanged = existingCreatedAt != null &&
+          existingCreatedAt.millisecondsSinceEpoch ~/ 1000 ==
+              work.createdAt.millisecondsSinceEpoch ~/ 1000;
       final unchanged =
           existing != null &&
           itemsUnchanged &&
           existing.title == work.title &&
           existing.category == work.category &&
           existing.sourceId == work.sourceId &&
-          existing.coverPath == work.coverPath;
+          existing.coverPath == work.coverPath &&
+          createdAtUnchanged;
       if (unchanged) {
         continue;
       }
@@ -204,6 +230,7 @@ class VoiceUpdater {
             title: Value(item.title),
             filePath: Value(item.filePath),
             voiceWorkPath: Value(work.directoryPath),
+            createdAt: Value(item.createdAt),
             rowid: const Value.absent(),
           ),
       ]);

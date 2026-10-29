@@ -11,7 +11,7 @@ import 'package:again/utils/json_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// 复现: 音轨列表倒序 (文件倒序) 时, 点击"定位到当前播放位置"后,
+/// 复现: 音轨列表倒序 (时间倒序) 时, 点击"定位到当前播放位置"后,
 /// 列表顺序被反转、选中项错位。
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +25,7 @@ void main() {
         voiceWorkPath: '/w',
       );
 
-  // 数据库"原始顺序" (时间顺序), 标题恰好与文件顺序一致以简化断言
+  // 音轨没有 createdAt → 时间排序按标题自然序兜底, 标题顺序即 a..e
   final dbOrder = ['a', 'b', 'c', 'd', 'e'].map(vi).toList();
 
   setUp(() {
@@ -74,7 +74,7 @@ void main() {
 
   test('倒序播放 → 浏览他作 → 定位: 选中应仍在播放音轨', () {
     // 1. 列表按"时间倒序"展示, 播放倒序下第二个 (d)
-    setupAsIfDbLoaded(sort: VoiceItemSort.fileDesc);
+    setupAsIfDbLoaded(sort: VoiceItemSort.timeDesc);
     var st = container.read(voiceItemProvider);
     expect(st.values.map((e) => e.title).toList(), ['e', 'd', 'c', 'b', 'a']);
 
@@ -105,7 +105,7 @@ void main() {
 
   test('正序播放 → 播放中切换倒序 → 浏览他作 → 定位: 列表不被反转', () {
     // 播放时是正序 (时间顺序), 播放 d (第 4 个)
-    setupAsIfDbLoaded(sort: VoiceItemSort.fileAsc);
+    setupAsIfDbLoaded(sort: VoiceItemSort.timeAsc);
     clickTrack(3);
     var st = container.read(voiceItemProvider);
     expect(st.playingIndex, 3);
@@ -113,7 +113,7 @@ void main() {
     // 播放过程中切到"时间倒序": 显示列表与播放队列都应变为倒序
     container
         .read(voiceItemProvider.notifier)
-        .setSortOrder(VoiceItemSort.fileDesc);
+        .setSortOrder(VoiceItemSort.timeDesc);
     st = container.read(voiceItemProvider);
     expect(st.values.map((e) => e.title).toList(), ['e', 'd', 'c', 'b', 'a']);
     expect(st.playingValues.map((e) => e.title).toList(),
