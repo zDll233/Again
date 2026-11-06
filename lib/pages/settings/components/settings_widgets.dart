@@ -187,7 +187,7 @@ class SettingsColorSwatch extends StatelessWidget {
   }
 }
 
-/// 字体大小设置行: 名称 + 滑杆 + 当前值 + 恢复默认。
+/// 数值设置行: 名称 + 滑杆 + 当前值 + 恢复默认。
 class SettingsTextSizeTile extends StatelessWidget {
   final String label;
   final double value;
@@ -198,6 +198,12 @@ class SettingsTextSizeTile extends StatelessWidget {
   final ValueChanged<double> onChanged;
   final ValueChanged<double> onChangedEnd;
   final VoidCallback onReset;
+
+  /// 数值后缀 (如 ` 秒`); 为 null 时只显示数字 (字号等无单位设置)。
+  final String? unit;
+
+  /// 滑杆分段数; 为 null 时连续滑动 (字号等允许小数的设置)。
+  final int? divisions;
 
   const SettingsTextSizeTile({
     super.key,
@@ -210,6 +216,8 @@ class SettingsTextSizeTile extends StatelessWidget {
     this.min = 10,
     this.max = 30,
     this.icon = Icons.format_size,
+    this.unit,
+    this.divisions,
   });
 
   @override
@@ -229,9 +237,10 @@ class SettingsTextSizeTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SizedBox(
-            width: 24,
+            // 带单位时加宽, 容纳 "20 秒" 之类的数值
+            width: unit == null ? 24.0 : 44.0,
             child: Text(
-              value.toStringAsFixed(0),
+              '${value.toStringAsFixed(0)}${unit ?? ''}',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 13,
@@ -243,9 +252,10 @@ class SettingsTextSizeTile extends StatelessWidget {
             // 窄屏收紧宽度, 给左侧标签留空间避免换行
             width: isNarrow ? 76 : 120,
             child: Slider(
-              value: value,
+              value: value.clamp(min, max).toDouble(),
               min: min,
               max: max,
+              divisions: divisions,
               onChanged: onChanged,
               onChangeEnd: onChangedEnd,
             ),

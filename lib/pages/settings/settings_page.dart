@@ -50,6 +50,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   double _hoverTimeSize = 14;
   int _hoverTimeWeight = const UiSettings().hoverTimeWeight;
   bool _showCoverLyric = true;
+  // 歌词滚动回正延迟 (秒): 手动滚动歌词后等待多久自动回到当前播放行
+  int _lyricScrollBackSeconds = UiSettings.defaultLyricScrollBackSeconds;
   // 文字设置 (大小/颜色, 颜色 null=跟随默认)
   double _panelTextSize = _defaults.panelTextSize;
   double _panelTitleSize = _defaults.panelTitleSize;
@@ -149,6 +151,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _hoverTimeSize = hoverTimeSize is num ? hoverTimeSize.toDouble() : 14;
       _hoverTimeWeight = config['hoverTimeWeight'] == 700 ? 700 : 400;
       _showCoverLyric = config['showCoverLyric'] != false;
+      _lyricScrollBackSeconds = UiSettings.scrollBackSecondsFromConfig(config);
       _lyricCurrentSize = ts.lyricCurrentSize;
       _hoverTimeColor = ts.hoverTimeColor;
       _panelTextWeight = ts.panelTextWeight;
@@ -471,6 +474,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       _hoverTimeSize = 14;
       _hoverTimeWeight = 400;
       _showCoverLyric = true;
+      _lyricScrollBackSeconds = UiSettings.defaultLyricScrollBackSeconds;
       _lyricCurrentSize = _defaults.lyricCurrentSize;
       _hoverTimeColor = null;
       _panelTextWeight = _defaults.panelTextWeight;
@@ -492,6 +496,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
+    ref.invalidate(uiSettingsProvider);
     ref.invalidate(searchEnabledProvider);
     ref.invalidate(searchFilterEnabledProvider);
     ref.invalidate(searchWorksEnabledProvider);
@@ -1200,7 +1205,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   ),
                                   onTap: () => _editHoverTime(),
                                 ),
-                                // 二级设置项: 歌词行间距 / 歌词对齐 (放歌词文字块最后)
+                                // 二级设置项: 歌词行间距 / 歌词对齐 / 回正延迟
+                                // (放歌词文字块最后)
                                 _textSizeTile('歌词行间距', _lyricLineGap,
                                     'lyricLineGap', 25, (v) {
                                   _lyricLineGap = v;
@@ -1256,6 +1262,26 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       }),
                                     ],
                                   ),
+                                ),
+                                // 歌词滚动回正延迟: 手动滚动歌词后, 等待多久自动
+                                // 滚回当前播放行 (秒); 越大越能停留在手动浏览的位置。
+                                _textSizeTile(
+                                  '歌词滚动回正延迟',
+                                  _lyricScrollBackSeconds.toDouble(),
+                                  'lyricScrollBackSeconds',
+                                  UiSettings.defaultLyricScrollBackSeconds
+                                      .toDouble(),
+                                  (v) => _lyricScrollBackSeconds = v.round(),
+                                  icon: Icons.hourglass_bottom,
+                                  min: UiSettings.minLyricScrollBackSeconds
+                                      .toDouble(),
+                                  max: UiSettings.maxLyricScrollBackSeconds
+                                      .toDouble(),
+                                  divisions:
+                                      UiSettings.maxLyricScrollBackSeconds -
+                                          UiSettings.minLyricScrollBackSeconds,
+                                  unit: ' 秒',
+                                  refreshAppearance: true,
                                 ),
                                 // 封面歌词 (仅 Android): 开关 + 两个位置行, 示例文字与主歌词一致
                                 if (Platform.isAndroid) ...[
@@ -1733,8 +1759,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  /// 字体大小设置行: 名称 + 滑杆 + 当前值 + 恢复默认;
+  /// 数值设置行: 名称 + 滑杆 + 当前值 + 恢复默认;
   /// [onRefresh] 用于编辑面板内修改后刷新效果预览。
+  /// [unit] 为数值后缀 (如 ` 秒`), [divisions] 用于按整数档位滑动。
   Widget _textSizeTile(
     String label,
     double value,
@@ -1746,6 +1773,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     double max = 30,
     bool refreshAppearance = false,
     VoidCallback? onRefresh,
+    String? unit,
+    int? divisions,
   }) {
     return SettingsTextSizeTile(
       label: label,
@@ -1754,6 +1783,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       icon: icon,
       min: min,
       max: max,
+      unit: unit,
+      divisions: divisions,
       onChanged: (v) {
         setState(() => onChanged(v));
         onRefresh?.call();

@@ -453,6 +453,20 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
             ref.watch(audioProvider.select((state) => state.position));
         final isPlaying =
             ref.watch(audioProvider.select((state) => state.isPlaying));
+        final appearance = ref.watch(uiSettingsProvider).valueOrNull;
+        final showHoverTime = appearance?.showHoverTime ?? true;
+        // 起始时间颜色: 用户设置优先, 否则默认白色 45% 透明
+        final hoverTimeColor = interactive && showHoverTime
+            ? ref
+                    .watch(textSettingsProvider)
+                    .valueOrNull
+                    ?.hoverTimeColor
+                    ?.resolve(
+                        Colors.white.withValues(alpha: 0.45),
+                        resolveThemeHueSource(
+                            Theme.of(context).colorScheme, kDefaultThemeSeed)) ??
+                Colors.white.withValues(alpha: 0.45)
+            : null;
         final reader = LyricsReader(
           model: model,
           position: position.inMilliseconds,
@@ -468,31 +482,17 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                 }
               : null,
           hoverColor: interactive ? Colors.white : null,
-          // 起始时间颜色: 用户设置优先, 否则默认白色 45% 透明
-          hoverTimeColor: interactive
-              ? (ref.watch(uiSettingsProvider).valueOrNull?.showHoverTime ??
-                      true)
-                  ? ref
-                          .watch(textSettingsProvider)
-                          .valueOrNull
-                          ?.hoverTimeColor
-                          ?.resolve(
-                              Colors.white.withValues(alpha: 0.45),
-                              resolveThemeHueSource(
-                                  Theme.of(context).colorScheme,
-                                  kDefaultThemeSeed)) ??
-                      Colors.white.withValues(alpha: 0.45)
-                  : null
-              : null,
-          hoverTimeSize:
-              ref.watch(uiSettingsProvider).valueOrNull?.hoverTimeSize ?? 14,
-          hoverTimeWeight:
-              ref.watch(uiSettingsProvider).valueOrNull?.hoverTimeWeight ?? 400,
+          hoverTimeColor: hoverTimeColor,
+          hoverTimeSize: appearance?.hoverTimeSize ?? 14,
+          hoverTimeWeight: appearance?.hoverTimeWeight ?? 400,
           // 点击波纹用主题默认 splashColor (中性灰), 与作品/音轨列表的
           // 普通 InkWell 反馈一致, 不随主题主色。
           rippleColor: interactive ? Theme.of(context).splashColor : null,
           lyricUi: lyricUi,
-          waitMilliseconds: 5000,
+          // 手动滚动歌词后, 等待该时长再自动滚回当前播放行 (设置可调)
+          waitMilliseconds: (appearance?.lyricScrollBackSeconds ??
+                  UiSettings.defaultLyricScrollBackSeconds) *
+              1000,
           canScrollBack: interactive && isPlaying,
           canFlashBack: interactive,
         );

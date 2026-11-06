@@ -16,6 +16,15 @@ class UiSettings {
   final int hoverTimeWeight; // hover 行起始时间字重 (400 常规 / 700 粗体)
   final bool showCoverLyric; // 封面歌词预览
 
+  /// 歌词滚动回正延迟 (秒): 手动滚动歌词后, 等待多久自动滚回当前播放行。
+  final int lyricScrollBackSeconds;
+
+  /// 歌词滚动回正延迟的默认值 / 可调范围 (秒)。
+  /// 默认 5 秒与原硬编码的 `waitMilliseconds: 5000` 一致。
+  static const int defaultLyricScrollBackSeconds = 5;
+  static const int minLyricScrollBackSeconds = 1;
+  static const int maxLyricScrollBackSeconds = 20;
+
   /// 轨道粗细默认值: 手机上 1px 几乎看不见, Android 默认 5; 桌面保持细线 1。
   static double get defaultSliderThickness => Platform.isWindows ? 1 : 5;
 
@@ -30,7 +39,20 @@ class UiSettings {
     this.hoverTimeSize = 14,
     this.hoverTimeWeight = 400,
     this.showCoverLyric = true,
+    this.lyricScrollBackSeconds = defaultLyricScrollBackSeconds,
   });
+
+  /// 读取 config 中的歌词滚动回正延迟 (秒):
+  /// 缺失/非数字时回退默认值, 越界时收敛到可调范围
+  /// (配置被手工改成范围外的值时, 设置页滑杆不会越界)。
+  static int scrollBackSecondsFromConfig(Map<String, dynamic> config) {
+    final raw = config['lyricScrollBackSeconds'];
+    if (raw is! num) return defaultLyricScrollBackSeconds;
+    return raw
+        .toInt()
+        .clamp(minLyricScrollBackSeconds, maxLyricScrollBackSeconds)
+        .toInt();
+  }
 
   factory UiSettings.fromConfig(Map<String, dynamic> config) {
     final thickness = config['sliderThickness'];
@@ -50,6 +72,7 @@ class UiSettings {
       hoverTimeSize: hoverTimeSize is num ? hoverTimeSize.toDouble() : 14,
       hoverTimeWeight: config['hoverTimeWeight'] == 700 ? 700 : 400,
       showCoverLyric: config['showCoverLyric'] != false,
+      lyricScrollBackSeconds: scrollBackSecondsFromConfig(config),
     );
   }
 
@@ -65,6 +88,7 @@ class UiSettings {
     'hoverTimeSize',
     'hoverTimeWeight',
     'showCoverLyric',
+    'lyricScrollBackSeconds',
   ];
 }
 

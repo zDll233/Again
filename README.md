@@ -36,6 +36,7 @@
 2. **歌词界面**（[zDll233/flutter_lyric](https://github.com/zDll233/flutter_lyric)，fork 自 [ozyl/flutter_lyric](https://github.com/ozyl/flutter_lyric)）：
    - 支持音频文件同目录下的同名 lrc 或 webvtt 歌词文件（以类似 `.mp3.lrc`、`.wav.vtt` 结尾形式）。
    - 点击下方小三角按钮来打开或关闭歌词界面。
+   - 手动滚动歌词后会等待一段时间自动滚回当前播放行，等待时长可在设置中调整（默认 5 秒）。
    - 封面的倾斜动画参考了椒盐音乐。
 
    ![歌词界面](screenshots/PixPin_2026-08-15_20-57-40.png)
