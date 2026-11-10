@@ -29,7 +29,7 @@ class AudioState extends BaseState {
   final double lastVolume;
   final PlaybackMode playbackMode;
 
-  /// 左右声道是否对调 (实时生效, 状态持久化在 config.json 的 channelSwap)。
+  /// 左右声道是否互换 (实时生效, 状态持久化在 config.json 的 channelSwap)。
   final bool channelSwap;
 
   AudioState({

@@ -2,7 +2,7 @@ import 'package:again/services/audio/audio_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 左右声道对调按钮 (ASMR 里作品录反时用)。
+/// 左右声道互换按钮 (ASMR 里作品录反时用)。
 ///
 /// 点击后立即生效: 播放不中断、进度不变, 由原生播放引擎在 PCM 层交换
 /// 左右声道; 开关状态写入 config.json, 切歌/重启后保持。
@@ -24,7 +24,7 @@ class ChannelSwapButton extends ConsumerWidget {
 
     return IconButton(
       key: const Key('channel_swap_button'),
-      tooltip: swapped ? '取消对调左右声道' : '对调左右声道',
+      tooltip: swapped ? '取消互换左右声道' : '互换左右声道',
       onPressed: ref.read(audioProvider.notifier).toggleChannelSwap,
       iconSize: iconSize,
       padding: buttonSize < 48 ? EdgeInsets.zero : null,

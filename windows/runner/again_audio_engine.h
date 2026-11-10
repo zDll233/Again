@@ -35,7 +35,7 @@ struct AudioStatus {
   std::string error;
 };
 
-// 就地交换一帧 PCM 里前两个声道 (左/右) 的采样 — 左右声道对调的核心。
+// 就地交换一帧 PCM 里前两个声道 (左/右) 的采样 — 左右声道互换的核心。
 // 样本宽度按 block_align / channels 推算, 因此 16/24/32bit 整型与 32bit
 // 浮点都适用; 多于两个声道时只交换前两个, 其余保持原样。
 void SwapStereoChannels(uint8_t* data, int64_t frames, uint16_t block_align,
@@ -44,7 +44,7 @@ void SwapStereoChannels(uint8_t* data, int64_t frames, uint16_t block_align,
 // 最小播放引擎: Media Foundation Source Reader 解码成 PCM,
 // WASAPI 共享模式输出; 输出前按需交换前两个声道 (左/右) 的采样。
 //
-// 之所以不用 audioplayers: 播放中实时对调左右声道必须拿到 PCM 采样,
+// 之所以不用 audioplayers: 播放中实时互换左右声道必须拿到 PCM 采样,
 // 插件只能控制整体音量, 没有声道路由能力。
 //
 // 线程模型:

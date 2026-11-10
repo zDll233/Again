@@ -5,7 +5,7 @@ project(engine_smoke LANGUAGES CXX)
 #   cmake -S windows/engine_smoke -B build/engine_smoke -G "Visual Studio 17 2022" -A x64
 #   cmake --build build/engine_smoke --config Release
 #   build/engine_smoke/Release/engine_smoke.exe <音频文件>
-# 验证解码/输出/进度/seek/暂停/声道对调等基本链路, 无法验证听感。
+# 验证解码/输出/进度/seek/暂停/声道互换等基本链路, 无法验证听感。
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -44,7 +44,7 @@ class LyricPanel extends ConsumerWidget {
     return Column(
       children: [
         // 顶部标题行: 当前音轨标题 + 右侧「打开音轨列表」按钮
-        // (原在底部控制行, 让位给声道对调按钮)。
+        // (原在底部控制行, 让位给声道互换按钮)。
         SizedBox(
           height: titleHeight,
           child: Row(

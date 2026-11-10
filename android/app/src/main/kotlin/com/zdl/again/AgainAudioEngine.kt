@@ -11,7 +11,7 @@ import android.os.Process
 /**
  * 播放引擎: MediaExtractor 解封装 + MediaCodec 解码成 PCM + AudioTrack 输出。
  *
- * 为什么不用 just_audio (ExoPlayer): 播放中实时对调左右声道必须拿到解码后的
+ * 为什么不用 just_audio (ExoPlayer): 播放中实时互换左右声道必须拿到解码后的
  * PCM 采样再写进输出, 而 ExoPlayer 是黑盒解码 + 直接输出, 既拿不到采样也没有
  * 左右声道重定向的 API (只能改整体音量)。
  *
@@ -134,7 +134,7 @@ class AgainAudioEngine {
         safeTrackCall { it.setVolume(volume) }
     }
 
-    /** 实时对调左右声道: 只影响之后的写入, 不打断播放和进度。 */
+    /** 实时互换左右声道: 只影响之后的写入, 不打断播放和进度。 */
     fun setChannelSwap(swap: Boolean) {
         channelSwap = swap
     }

@@ -25,7 +25,7 @@ class AudioEngineStatus {
 
 /// 播放引擎的 Dart 侧封装。
 ///
-/// 为什么不用 audioplayers / just_audio: 播放中实时对调左右声道需要拿到
+/// 为什么不用 audioplayers / just_audio: 播放中实时互换左右声道需要拿到
 /// 解码后的 PCM 采样, 而这两个插件都是「交文件 → 黑盒解码 → 直接输出」,
 /// 既不暴露采样数据, 也没有左右声道重定向的 API。因此两端各自用系统
 /// 解码器 + 系统输出写了一个最小播放器, 统一通过 `again/audio` 这个
@@ -77,7 +77,7 @@ class AudioEngine {
         <String, Object>{'volume': volume},
       );
 
-  /// 实时对调左右声道; 播放过程中调用立即生效, 不影响播放进度。
+  /// 实时互换左右声道; 播放过程中调用立即生效, 不影响播放进度。
   Future<void> setChannelSwap(bool swap) => _invoke(
         'setChannelSwap',
         <String, Object>{'swap': swap},

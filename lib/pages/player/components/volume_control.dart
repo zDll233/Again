@@ -6,7 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 音量控制 (左右声道对调 + 静音图标 + 横向滑杆, 支持滚轮)。
+/// 音量控制 (左右声道互换 + 静音图标 + 横向滑杆, 支持滚轮)。
 /// 仅宽屏 (桌面) 使用 — 移动端移除应用内音量 (系统音量键更方便)。
 class VolumeControl extends ConsumerWidget {
   const VolumeControl({super.key});
@@ -27,7 +27,7 @@ class VolumeControl extends ConsumerWidget {
         }
       },
       child: SizedBox(
-        // 比原先宽 50: 多出来的宽度给左右声道对调按钮, 滑杆长度不变
+        // 比原先宽 50: 多出来的宽度给左右声道互换按钮, 滑杆长度不变
         width: 200,
         child: Row(
           children: [

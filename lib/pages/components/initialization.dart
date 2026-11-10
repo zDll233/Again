@@ -117,7 +117,7 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
         .read(voiceItemProvider.notifier)
         .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
   }
-  // 恢复左右声道对调开关 (config.json, 缺失视为关): 引擎会记住该状态,
+  // 恢复左右声道互换开关 (config.json, 缺失视为关): 引擎会记住该状态,
   // 之后每次换音源都会沿用。
   ref
       .read(audioProvider.notifier)

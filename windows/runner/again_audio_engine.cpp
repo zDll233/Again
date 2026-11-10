@@ -14,7 +14,7 @@ const GUID kIeeeFloatSubFormat = {0x00000003,
                                   {0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71}};
 
 // WASAPI 每次需要数据时最多补这么多 (200ms, 100ns 为单位)。
-// 缓冲越小, 「左右声道对调」/seek/暂停的生效延迟越低; 200ms 下解码线程
+// 缓冲越小, 「左右声道互换」/seek/暂停的生效延迟越低; 200ms 下解码线程
 // 每轮只需解出 200ms 音频 (本地文件远快于实时), 不会欠载。
 constexpr REFERENCE_TIME kBufferDuration = 2000000;
 

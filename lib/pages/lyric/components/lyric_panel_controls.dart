@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// 歌词界面底部控制区:
-/// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/声道对调)。
+/// 进度条 + 时间 + 五个核心按钮 (播放顺序/上一曲/播放/下一曲/声道互换)。
 /// 「打开音轨列表」按钮已上移到歌词标题行右侧 (见 lrc_panel.dart)。
 const double lyricPanelControlsHeight = 120.0;
 
@@ -51,7 +51,7 @@ class LyricPanelControls extends ConsumerWidget {
               const PrevButton(iconSize: 30, buttonSize: 42),
               _buildPlayButton(context),
               const NextButton(iconSize: 30, buttonSize: 42),
-              // 左右声道对调 (原「打开列表」按钮位置; 列表按钮已上移到标题行)
+              // 左右声道互换 (原「打开列表」按钮位置; 列表按钮已上移到标题行)
               const ChannelSwapButton(iconSize: 22, buttonSize: 42),
             ],
           ),
