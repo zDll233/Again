@@ -49,6 +49,15 @@ jobs:
           channel: stable
           cache: true
 
+      # ubuntu-latest 已迁到 Ubuntu 26.04, 默认 Java 25。项目的 Gradle 8.14 +
+      # Kotlin DSL 在 Java 25 下配置阶段就失败 (只报 "What went wrong: 25.0.5"),
+      # 与代码无关。显式固定 JDK 21 (与本机一致), 避免 runner 默认 JDK 漂移。
+      - name: Setup Java 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+
       - name: Decode signing keystore
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE_B64 }}" | base64 -d > android/app/upload-keystore.jks
