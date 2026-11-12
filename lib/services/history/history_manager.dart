@@ -163,6 +163,13 @@ class HistoryManager {
 
       final voiceItemSate = ref.read(voiceItemProvider);
       if (!voiceItemSate.isPlaying) return;
+
+      // 随机播放: 队列在引擎加载前就打乱。放在 setSource 之后的话,
+      // 音源加载失败/超时 (12 秒上限) 会让随机队列停在顺序状态。
+      if (ref.read(audioProvider).isShufflePlay) {
+        ref.read(uiServiceProvider).shufflePlayingState();
+      }
+
       final path = voiceItemSate.cachedPlayingVoiceItemPath;
       if (path == null || path.isEmpty) {
         Log.warning('Audio history has no valid track path; skipping restore.');
@@ -179,10 +186,6 @@ class HistoryManager {
       }
       await audioNotifier
           .seek(Duration(milliseconds: audioHistory['position'] ?? 0));
-
-      if (ref.read(audioProvider).isShufflePlay) {
-        ref.read(uiServiceProvider).shufflePlayingState();
-      }
     } catch (e) {
       Log.error('Error loading audio history.\n' 'error: $e');
     }

@@ -240,7 +240,11 @@ class DatabaseNotifier {
         viLs,
         ref.read(voiceItemProvider).sort,
       );
-      ref.read(voiceItemProvider.notifier).setPlayingValues(sortedViLs);
+      // 随机播放的队列是打乱后的快照, 刷新时不能被重排成顺序
+      // (见 VoiceItemNotifier.setRefreshedPlayingValues)
+      ref
+          .read(voiceItemProvider.notifier)
+          .setRefreshedPlayingValues(sortedViLs);
     }
   }
 }

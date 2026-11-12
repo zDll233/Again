@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:again/common/const.dart';
 import 'package:again/services/audio/audio_providers.dart';
@@ -12,6 +13,9 @@ class VoiceItemNotifier
   /// 最近一次数据刷新 (updateViList) 的原始顺序。四种排序都是全序,
   /// 换排序时直接对这份基准重排, 不受上一次排序结果影响。
   List<VoiceItem>? _originalOrder;
+
+  /// 随机播放队列合并时, 给新增音轨随机插入位置用。
+  final Random _random = Random();
 
   @override
   VoiceItemState build() {
@@ -71,6 +75,51 @@ class VoiceItemNotifier
     await ref
         .read(configJsonProvider)
         .mutate((config) => {...config, 'voiceItemSort': sort.toString()});
+  }
+
+  /// 数据刷新 (重启后的静默刷新 / 手动刷新) 后同步播放队列。
+  ///
+  /// 顺序播放: 队列跟随当前排序, 与显示列表一致。
+  /// 随机播放: [playingValues] 是开启随机时特意打乱的快照, 刷新时若按排序
+  /// 重新生成, 随机播放就会退化成顺序播放 (重启后历史恢复的随机队列先被
+  /// 打乱, 随后静默刷新又把它重排回顺序, 表现为"随机模式实际按顺序播")。
+  /// 因此这里只做增删合并: 保留原有随机顺序, 剔除已消失的音轨, 新增音轨
+  /// 随机插回队列。
+  void setRefreshedPlayingValues(List<VoiceItem> freshValues) {
+    if (!ref.read(audioProvider).isShufflePlay) {
+      setPlayingValues(freshValues);
+      return;
+    }
+
+    final previous = state.playingValues;
+    if (previous.isEmpty) {
+      setPlayingValues(List.of(freshValues)..shuffle(_random));
+      return;
+    }
+
+    final freshByPath = <String, VoiceItem>{
+      for (final item in freshValues) item.filePath: item,
+    };
+    // 保留随机队列中仍存在的音轨 (用刷新后的对象换掉旧对象)
+    final merged = <VoiceItem>[];
+    final mergedPaths = <String>{};
+    for (final old in previous) {
+      final fresh = freshByPath[old.filePath];
+      if (fresh != null && mergedPaths.add(fresh.filePath)) {
+        merged.add(fresh);
+      }
+    }
+
+    // 新增音轨随机插回队列, 而不是集中追加到末尾
+    final added = [
+      for (final fresh in freshValues)
+        if (!mergedPaths.contains(fresh.filePath)) fresh,
+    ]..shuffle(_random);
+    for (final item in added) {
+      merged.insert(_random.nextInt(merged.length + 1), item);
+    }
+
+    setPlayingValues(merged);
   }
 
   @override
