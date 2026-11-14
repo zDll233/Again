@@ -4,19 +4,12 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   test('resolveWindowEffect: 缺省为 acrylic', () {
     expect(resolveWindowEffect({}), 'acrylic');
+    expect(resolveWindowEffect({'windowEffect': 'unknown'}), 'acrylic');
   });
 
-  test('resolveWindowEffect: 兼容旧 liquidGlass 配置', () {
-    expect(resolveWindowEffect({'liquidGlass': false}), 'transparent');
-    expect(resolveWindowEffect({'liquidGlass': true}), 'acrylic');
-  });
-
-  test('resolveWindowEffect: 新配置优先于旧配置', () {
-    expect(
-      resolveWindowEffect({'windowEffect': 'opaque', 'liquidGlass': false}),
-      'opaque',
-    );
+  test('resolveWindowEffect: 读取合法配置值', () {
     expect(resolveWindowEffect({'windowEffect': 'transparent'}), 'transparent');
     expect(resolveWindowEffect({'windowEffect': 'acrylic'}), 'acrylic');
+    expect(resolveWindowEffect({'windowEffect': 'opaque'}), 'opaque');
   });
 }

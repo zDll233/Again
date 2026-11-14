@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqlite3/sqlite3.dart';
-import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
 part 'database.g.dart';
 
@@ -33,9 +32,6 @@ class TVoiceWork extends Table {
   TextColumn get category =>
       text().references(TVoiceWorkCategory, #description)();
   DateTimeColumn get createdAt => dateTime().nullable()();
-  // 历史遗留列: 曾用于增量扫描签名, Windows 目录 mtime 不可靠已弃用,
-  // 变化检测改为扫描结果与 DB 条目集合对比。保留以兼容 schema v2。
-  TextColumn get scanSignature => text().nullable()();
 
   @override
   Set<Column> get primaryKey => {directoryPath};
@@ -73,7 +69,7 @@ class AppDatabase extends _$AppDatabase {
       : super(connection ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration {
@@ -85,9 +81,6 @@ class AppDatabase extends _$AppDatabase {
         await customStatement('PRAGMA journal_mode = WAL');
       },
       onUpgrade: (m, from, to) async {
-        if (from < 2) {
-          await m.addColumn(tVoiceWork, tVoiceWork.scanSignature);
-        }
         if (from < 3) {
           await m.createIndex(tVoiceItemVoiceWorkPathIndex);
           await m.createIndex(tVoiceWorkCategoryIndex);
@@ -97,6 +90,19 @@ class AppDatabase extends _$AppDatabase {
         if (from < 4) {
           // 音轨时间列; 旧行全为 NULL, 下次扫描会按 (路径 → 时间) 差异整作品重写
           await m.addColumn(tVoiceItem, tVoiceItem.createdAt);
+        }
+        if (from < 5) {
+          // v5: 删除已弃用的 scan_signature 列 (v2 引入, 仅用于已移除的目录
+          // mtime 变化检测)。SQLite 3.35+ 支持 DROP COLUMN; 对 v1 老库该列
+          // 不存在, 先查 table_info 再删。
+          final columns =
+              await customSelect('PRAGMA table_info(t_voice_work)').get();
+          final hasLegacyColumn = columns
+              .any((row) => row.read<String>('name') == 'scan_signature');
+          if (hasLegacyColumn) {
+            await customStatement(
+                'ALTER TABLE t_voice_work DROP COLUMN scan_signature');
+          }
         }
       },
     );
@@ -136,20 +142,16 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> deleteVoiceItemsOfWork(String vwPath) async {
-    await (delete(tVoiceItem)
-          ..where((t) => t.voiceWorkPath.equals(vwPath)))
+    await (delete(tVoiceItem)..where((t) => t.voiceWorkPath.equals(vwPath)))
         .go();
   }
 
   Future<void> deleteVoiceWorkCvsWithPath(String vwPath) async {
-    await (delete(tVoiceCV)
-          ..where((t) => t.voiceWorkPath.equals(vwPath)))
-        .go();
+    await (delete(tVoiceCV)..where((t) => t.voiceWorkPath.equals(vwPath))).go();
   }
 
   Future<void> deleteVoiceWorkWithPath(String vwPath) async {
-    await (delete(tVoiceWork)
-          ..where((t) => t.directoryPath.equals(vwPath)))
+    await (delete(tVoiceWork)..where((t) => t.directoryPath.equals(vwPath)))
         .go();
   }
 
@@ -218,13 +220,13 @@ class AppDatabase extends _$AppDatabase {
   Future<List<String>> selectCvsOrderedByCount(String? category) async {
     final count = tVoiceCV.cvName.count();
     final query = (selectOnly(tVoiceCV)
-          ..addColumns([tVoiceCV.cvName, count])
-          ..groupBy([tVoiceCV.cvName])
-          ..orderBy([
-            OrderingTerm.desc(count),
-            // tie-break: 同作品数按名称升序, 保证结果确定性
-            OrderingTerm.asc(tVoiceCV.cvName),
-          ]));
+      ..addColumns([tVoiceCV.cvName, count])
+      ..groupBy([tVoiceCV.cvName])
+      ..orderBy([
+        OrderingTerm.desc(count),
+        // tie-break: 同作品数按名称升序, 保证结果确定性
+        OrderingTerm.asc(tVoiceCV.cvName),
+      ]));
     if (category != null) {
       query.join([
         innerJoin(
@@ -236,8 +238,7 @@ class AppDatabase extends _$AppDatabase {
     }
     final rows = await query.get();
     return [
-      for (final r in rows)
-        r.read(tVoiceCV.cvName)!,
+      for (final r in rows) r.read(tVoiceCV.cvName)!,
     ];
   }
 
@@ -308,16 +309,10 @@ LazyDatabase _openConnection() {
 
     final file = File(await sqliteDbPath());
 
-    // Also work around limitations on old Android versions
-    if (Platform.isAndroid) {
-      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
-    }
-
-    // Make sqlite3 pick a more suitable location for temporary files - the
+    // sqlite3 pick a more suitable location for temporary files - the
     // one from the system may be inaccessible due to sandboxing.
     final cachebase = (await getTemporaryDirectory()).path;
-    // We can't access /tmp on Android, which sqlite3 would try by default.
-    // Explicitly tell it about the correct temporary directory.
+    // Android: /tmp is not accessible, explicitly point sqlite3 at the cache dir.
     sqlite3.tempDirectory = cachebase;
 
     return NativeDatabase.createInBackground(file);

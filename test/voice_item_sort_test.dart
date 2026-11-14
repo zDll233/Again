@@ -60,17 +60,15 @@ void main() {
     });
   });
 
-  group('voiceItemSort 配置兼容', () {
-    test('旧值 fileAsc/fileDesc 映射到时间升/降序', () {
-      expect(VoiceItemSortExtension.fromString('VoiceItemSort.fileAsc'),
-          VoiceItemSort.timeAsc);
-      expect(VoiceItemSortExtension.fromString('VoiceItemSort.fileDesc'),
-          VoiceItemSort.timeDesc);
-    });
-
-    test('新值与未知值', () {
+  group('voiceItemSort 配置解析', () {
+    test('读取合法值', () {
       expect(VoiceItemSortExtension.fromString('VoiceItemSort.timeDesc'),
           VoiceItemSort.timeDesc);
+      expect(VoiceItemSortExtension.fromString('VoiceItemSort.titleAsc'),
+          VoiceItemSort.titleAsc);
+    });
+
+    test('未知值回退标题升序', () {
       expect(VoiceItemSortExtension.fromString('VoiceItemSort.nope'),
           VoiceItemSort.titleAsc);
     });

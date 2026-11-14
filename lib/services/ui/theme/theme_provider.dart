@@ -26,13 +26,13 @@ final coverSeedColorProvider = FutureProvider.autoDispose<Color>((ref) async {
   return parseHexColor(resolveThemeSeedHex(config)) ?? kDefaultThemeSeed;
 });
 
-/// 窗口背景效果解析: 优先 `windowEffect`, 兼容旧配置 `liquidGlass`
-/// (true=acrylic, false=transparent), 缺省 acrylic。
+/// 窗口背景效果解析: 读取 `windowEffect`, 缺失/非法值回退 acrylic。
 String resolveWindowEffect(Map<String, dynamic> config) {
   final v = config['windowEffect'];
-  if (v is String && v.isNotEmpty) return v;
-  return config['liquidGlass'] == false
-      ? WINDOW_EFFECT_TRANSPARENT
+  return v == WINDOW_EFFECT_TRANSPARENT ||
+          v == WINDOW_EFFECT_ACRYLIC ||
+          v == WINDOW_EFFECT_OPAQUE
+      ? v as String
       : WINDOW_EFFECT_ACRYLIC;
 }
 
@@ -80,8 +80,8 @@ bool searchEnabledFor(
 
 /// 应用主题: 由自定义主题色生成。
 final appThemeProvider = Provider<ThemeData>((ref) {
-  final seed = ref.watch(coverSeedColorProvider).valueOrNull ??
-      kDefaultThemeSeed;
+  final seed =
+      ref.watch(coverSeedColorProvider).valueOrNull ?? kDefaultThemeSeed;
   return _buildTheme(seed);
 });
 
@@ -101,7 +101,8 @@ ThemeData _buildTheme(Color seed) {
   // 字重扁平化: 微软雅黑只有 400/700 真实字重,
   // w500/w600 会被系统合成加粗导致粗细不均, 统一映射到真实字重
   final textTheme = base.textTheme.copyWith(
-    titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    titleLarge:
+        base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
     titleMedium:
         base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
     titleSmall:

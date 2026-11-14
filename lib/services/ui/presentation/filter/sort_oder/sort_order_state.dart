@@ -9,14 +9,8 @@ enum SortOrder {
 
 extension SortOrderExtension on SortOrder {
   static SortOrder fromString(String value) {
-    // 兼容旧值 (SortOrder.byTitle / byCreatedAt): 回退到对应的升序
-    final v = switch (value) {
-      'SortOrder.byTitle' => SortOrder.byTitleAsc,
-      'SortOrder.byCreatedAt' => SortOrder.byCreatedAtDesc,
-      _ => value,
-    };
     return SortOrder.values.firstWhere(
-      (e) => e.toString() == v,
+      (e) => e.toString() == value,
       orElse: () => SortOrder.byTitleAsc,
     );
   }

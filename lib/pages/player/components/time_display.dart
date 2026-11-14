@@ -69,7 +69,7 @@ String formatDuration(Duration duration) {
   return '$prefix${twoDigits(minutes)}:${twoDigits(seconds)}';
 }
 
-/// 兼容旧调用: "当前 / 总时长" 合并文本 (宽屏布局用)。
+/// "当前 / 总时长" 合并文本 (宽屏布局用)。
 class TimeDisplay extends ConsumerWidget {
   const TimeDisplay({super.key});
 

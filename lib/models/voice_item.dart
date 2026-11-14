@@ -8,7 +8,8 @@ class VoiceItem {
   String voiceWorkPath;
 
   /// 音轨时间 (创建时间; 非 Windows 回退 mtime), 供「时间顺序/倒序」排序。
-  /// 为兼容旧调用方允许为空 (为空时按 1970 参与排序)。
+  /// schema v4 之前的旧行该列为 NULL (下次扫描整作品重写补齐), 为空时按
+  /// 1970 参与排序。
   DateTime? createdAt;
 
   VoiceItem({

@@ -20,15 +20,9 @@ extension VoiceItemSortExtension on VoiceItemSort {
       };
 
   /// 从 config 字符串恢复, 未知值回退标题升序。
-  /// 兼容旧值: v4 之前叫 `fileAsc`/`fileDesc`。
   static VoiceItemSort fromString(String value) {
-    final v = switch (value) {
-      'VoiceItemSort.fileAsc' => 'VoiceItemSort.timeAsc',
-      'VoiceItemSort.fileDesc' => 'VoiceItemSort.timeDesc',
-      _ => value,
-    };
     return VoiceItemSort.values.firstWhere(
-      (e) => e.toString() == v,
+      (e) => e.toString() == value,
       orElse: () => VoiceItemSort.titleAsc,
     );
   }
@@ -37,8 +31,8 @@ extension VoiceItemSortExtension on VoiceItemSort {
 /// 时间排序: 按 [VoiceItem.createdAt] 升/降序。
 /// drift 只存整秒, 同一秒内的音轨用标题自然序兜底, 保证顺序确定。
 int _compareByTime(VoiceItem a, VoiceItem b) {
-  final byTime = (a.createdAt ?? DateTime(1970))
-      .compareTo(b.createdAt ?? DateTime(1970));
+  final byTime =
+      (a.createdAt ?? DateTime(1970)).compareTo(b.createdAt ?? DateTime(1970));
   if (byTime != 0) return byTime;
   return compareNatural(a.title, b.title);
 }
