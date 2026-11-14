@@ -6,6 +6,7 @@ import 'package:again/services/audio/audio_providers.dart';
 import 'package:again/services/history/history_manager.dart';
 import 'package:again/services/ui/presentation/filter/sort_oder/sort_order_state.dart';
 import 'package:again/services/ui/ui_providers.dart';
+import 'package:again/services/window_setup.dart';
 import 'package:again/utils/log.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
@@ -349,11 +350,14 @@ Future<void> applyWindowEffectStandalone(String effect) async {
           effect: WindowEffect.transparent,
           color: const Color(0xCC222222),
         );
+        // 切走亚克力时 DWM frame 扩展会留下顶部 1px 亮边, 归零后与冷启动一致
+        await resetWindowBackdropResidue();
       case WINDOW_EFFECT_OPAQUE:
         await Window.setEffect(
           effect: WindowEffect.solid,
           color: const Color(0xFF202024),
         );
+        await resetWindowBackdropResidue();
       default: // WINDOW_EFFECT_ACRYLIC
         await Window.setEffect(
           effect: WindowEffect.acrylic,
