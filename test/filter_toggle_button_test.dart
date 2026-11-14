@@ -6,8 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-/// 标题栏「筛选面板」按钮: 选中态 = 面板展开, 与是否已有筛选条件无关;
-/// 歌词界面隐藏。
+/// 标题栏「筛选面板」按钮: 展开或已有生效筛选条件时高亮; 歌词界面隐藏。
 void main() {
   Icon iconOf(WidgetTester tester) =>
       tester.widget<Icon>(find.byType(Icon));
@@ -18,7 +17,6 @@ void main() {
   }) async {
     final container = ProviderContainer(
       overrides: [
-        // 已有筛选条件 (category != All) 不应再影响按钮选中态
         categoryProvider.overrideWith(
           () => _StubCategoryNotifier(category),
         ),
@@ -40,7 +38,7 @@ void main() {
   ColorScheme schemeOf(WidgetTester tester) =>
       Theme.of(tester.element(find.byType(FilterToggleBtn))).colorScheme;
 
-  testWidgets('收起时未选中: 描边图标 + 非主题色', (tester) async {
+  testWidgets('无筛选且收起时未选中: 描边图标 + 非主题色', (tester) async {
     await pumpButton(tester);
     final icon = iconOf(tester);
     expect(icon.icon, Icons.filter_alt_outlined);
@@ -58,17 +56,21 @@ void main() {
     expect(icon.color, schemeOf(tester).primary);
   });
 
-  testWidgets('有筛选条件但收起时仍是未选中 (旧逻辑的问题)', (tester) async {
+  testWidgets('已有生效筛选条件时, 收起也保持高亮 (原逻辑)', (tester) async {
     final container = await pumpButton(tester, category: 'Loved');
-    expect(iconOf(tester).icon, Icons.filter_alt_outlined,
-        reason: '收起状态下不应因为已应用筛选而显示成选中');
-    expect(iconOf(tester).color, isNot(schemeOf(tester).primary));
+    expect(iconOf(tester).icon, Icons.filter_alt,
+        reason: '有筛选条件时收起状态也高亮, 提示列表被筛选过');
+    expect(iconOf(tester).color, schemeOf(tester).primary);
 
-    // 展开后才变选中
+    // 展开 → 收起, 高亮保持 (筛选条件仍在)
     container.read(miscUIProvider.notifier).setFilterExpanded(true,
         persist: false);
     await tester.pump();
+    container.read(miscUIProvider.notifier).setFilterExpanded(false,
+        persist: false);
+    await tester.pump();
     expect(iconOf(tester).icon, Icons.filter_alt);
+    expect(iconOf(tester).color, schemeOf(tester).primary);
   });
 
   testWidgets('歌词界面不显示按钮', (tester) async {

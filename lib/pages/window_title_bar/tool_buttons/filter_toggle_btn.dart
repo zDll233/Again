@@ -2,11 +2,8 @@ import 'package:again/services/ui/ui_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// 折叠/展开 Filter 面板的按钮。
-///
-/// 选中态只看面板是否展开 (展开=实心+主题色, 收起=描边灰), 不再受
-/// 「已有筛选条件」影响 —— 否则收起面板但保留筛选时会一直显示成选中。
-/// 歌词界面没有筛选面板, 该按钮隐藏。
+/// 折叠/展开 Filter 面板的按钮; 面板展开或已有生效筛选条件时高亮。
+/// 歌词界面没有筛选面板, 隐藏该按钮。
 class FilterToggleBtn extends ConsumerWidget {
   const FilterToggleBtn({
     super.key,
@@ -28,6 +25,15 @@ class FilterToggleBtn extends ConsumerWidget {
     );
     if (showLyricPanel) return const SizedBox.shrink();
 
+    final hasActiveFilter = ref.watch(
+      categoryProvider.select((state) =>
+          state.cachedSelectedItem != null &&
+          state.cachedSelectedItem != 'All'),
+    ) ||
+        ref.watch(cvProvider.select((state) =>
+            state.cachedSelectedItem != null &&
+            state.cachedSelectedItem != 'All'));
+
     return IconButton(
       onPressed: () =>
           ref.read(miscUIProvider.notifier).toggleFilterExpanded(),
@@ -44,8 +50,12 @@ class FilterToggleBtn extends ConsumerWidget {
       ),
       tooltip: expanded ? '收起筛选' : '展开筛选',
       icon: Icon(
-        expanded ? Icons.filter_alt : Icons.filter_alt_outlined,
-        color: expanded
+        expanded
+            ? Icons.filter_alt
+            : hasActiveFilter
+                ? Icons.filter_alt
+                : Icons.filter_alt_outlined,
+        color: expanded || hasActiveFilter
             ? Theme.of(context).colorScheme.primary
             : const Color.fromRGBO(255, 255, 255, 0.5),
       ),
