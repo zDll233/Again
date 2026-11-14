@@ -107,15 +107,17 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   // 恢复作品/音轨排序设置 (config.json, 未知值回退默认)
   final sortOrder = config['sortOrder'];
   if (sortOrder is String) {
+    // 启动恢复不写回 config.json: 避免与其它恢复/读取并发读写配置文件。
     await ref
         .read(sortOrderProvider.notifier)
-        .setSortOrder(SortOrderExtension.fromString(sortOrder));
+        .setSortOrder(SortOrderExtension.fromString(sortOrder), persist: false);
   }
   final voiceItemSort = config['voiceItemSort'];
   if (voiceItemSort is String) {
-    ref
-        .read(voiceItemProvider.notifier)
-        .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
+    ref.read(voiceItemProvider.notifier).setSortOrder(
+          VoiceItemSortExtension.fromString(voiceItemSort),
+          persist: false,
+        );
   }
   // 恢复筛选面板展开状态 (config.json, 缺失视为收起)。只在宽屏恢复:
   // 宽屏时筛选是左侧一列, 窄屏时是抽屉 (启动就展开会直接盖住列表)。

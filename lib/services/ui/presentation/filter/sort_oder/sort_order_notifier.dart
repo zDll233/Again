@@ -28,9 +28,12 @@ class SortOrderNotifier extends ListStateNotifier<SortOrderState, SortOrder> {
   }
 
   /// 菜单选择排序方式, 按新排序刷新作品列表。
-  Future<void> setSortOrder(SortOrder order) async {
+  /// [persist] 为 false 时只应用不写 config.json (启动恢复时用)。
+  Future<void> setSortOrder(SortOrder order, {bool persist = true}) async {
     cacheSelectedIndexAndItemByValue(order);
-    await _persist(order);
+    if (persist) {
+      await _persist(order);
+    }
     await ref.read(dbNotifierProvider).updateVwList();
     await ref.read(uiServiceProvider).filterSelected();
   }

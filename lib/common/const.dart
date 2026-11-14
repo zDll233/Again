@@ -37,10 +37,12 @@ const bool kDefaultRememberWindowPos = false;
 const bool kDefaultRememberWindowSize = true;
 const bool kDefaultSearchEnabled = false;
 
-final configJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
+// 非 autoDispose: 全局共享同一实例, 复用其按路径串行化的写入队列,
+// 避免启动时多个调用点各自 new 一个 JsonStorage 并发读改写配置。
+final configJsonProvider = Provider<JsonStorage>((ref) {
   return JsonStorage(pathResolver: configFilePath);
 });
 
-final historyJsonProvider = Provider.autoDispose<JsonStorage>((ref) {
+final historyJsonProvider = Provider<JsonStorage>((ref) {
   return JsonStorage(pathResolver: historyFilePath);
 });

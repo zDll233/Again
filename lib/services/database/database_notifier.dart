@@ -25,16 +25,36 @@ class DatabaseNotifier {
 
   Future<void> initialize() async {
     final data = await ref.read(configJsonProvider).read();
-    final vwRootDirPath = data['voiceWorkRoot'] ?? '';
+    final rawRoot = data['voiceWorkRoot'];
+    final vwRootDirPath = rawRoot is String ? rawRoot : '';
 
     // 注意: 路径必须非空 — Android 上 Directory('') 指向根目录 / 且 exists() 为 true,
     // 会把整个文件系统当音声根目录扫描
-    if (vwRootDirPath.isNotEmpty && await Directory(vwRootDirPath).exists()) {
+    if (await _rootDirectoryAvailable(vwRootDirPath)) {
       _voiceUpdater = VoiceUpdater(_database, vwRootDirPath);
       _rootReady = true;
     } else {
       await selectAndSaveRootDirectory();
     }
+  }
+
+  /// 根目录是否可用。
+  ///
+  /// Android 冷启动早期 (刚开机/刚授权后) FUSE 与存储挂载可能还没就绪,
+  /// `exists()` 会偶发返回 false。直接当成「没有配置」会误弹目录选择框;
+  /// 选中同一目录后旧实现还会用单键配置覆盖整个 config.json, 导致所有
+  /// 设置回退默认值。这里短暂重试几次再判定。
+  Future<bool> _rootDirectoryAvailable(String path) async {
+    if (path.isEmpty) return false;
+    final attempts = Platform.isAndroid ? 6 : 1;
+    for (var attempt = 0; attempt < attempts; attempt++) {
+      if (await Directory(path).exists()) return true;
+      if (attempt + 1 < attempts) {
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
+    }
+    Log.info('Voice work root not available: $path');
+    return false;
   }
 
   Future<void> selectAndSaveRootDirectory() async {
@@ -64,9 +84,10 @@ class DatabaseNotifier {
   Future<void> setRootDirectory(String selectedDirPath) async {
     _voiceUpdater = VoiceUpdater(_database, selectedDirPath);
     _rootReady = true;
-    await ref
-        .read(configJsonProvider)
-        .write({'voiceWorkRoot': selectedDirPath});
+    // 合并写入: 只替换 voiceWorkRoot, 不能覆盖主题/排序/窗口等其它配置。
+    await ref.read(configJsonProvider).mutate(
+          (config) => {...config, 'voiceWorkRoot': selectedDirPath},
+        );
     await onUpdatePressed();
   }
 

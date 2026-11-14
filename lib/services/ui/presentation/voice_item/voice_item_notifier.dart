@@ -47,7 +47,8 @@ class VoiceItemNotifier
   }
 
   /// 菜单选择排序方式, 保持选中与播放指向同一个音轨。
-  void setSortOrder(VoiceItemSort newSort) {
+  /// [persist] 为 false 时只应用不写 config.json (启动恢复时用)。
+  void setSortOrder(VoiceItemSort newSort, {bool persist = true}) {
     final sorted =
         applyVoiceItemSort(List.of(_originalOrder ?? state.values), newSort);
     final selected = state.cachedSelectedItem;
@@ -68,7 +69,9 @@ class VoiceItemNotifier
     setCachedPlayingItem(playing);
     state = state.copyWith(sort: newSort);
     // 持久化排序到 config.json
-    unawaited(_persistSort(newSort));
+    if (persist) {
+      unawaited(_persistSort(newSort));
+    }
   }
 
   Future<void> _persistSort(VoiceItemSort sort) async {

@@ -35,16 +35,15 @@ class WindowBoundsMemory extends WindowListener {
   Future<void> _save() async {
     try {
       final bounds = await windowManager.getBounds();
-      final config = await _storage.read();
-      await _storage.write({
-        ...config,
-        'windowBounds': {
-          'x': bounds.left,
-          'y': bounds.top,
-          'w': bounds.width,
-          'h': bounds.height,
-        },
-      });
+      await _storage.mutate((config) => {
+            ...config,
+            'windowBounds': {
+              'x': bounds.left,
+              'y': bounds.top,
+              'w': bounds.width,
+              'h': bounds.height,
+            },
+          });
     } catch (e) {
       Log.error('WindowBoundsMemory save error: $e');
     }
@@ -59,11 +58,14 @@ Future<void> restoreWindowBounds(JsonStorage storage) async {
     final config = await storage.read();
     final b = config['windowBounds'];
     if (b is! Map) return;
-    final rememberPos = config['rememberWindowPos'] ?? kDefaultRememberWindowPos;
-    final rememberSize = config['rememberWindowSize'] ?? kDefaultRememberWindowSize;
-    final sizeValid =
-        b['w'] is num && b['h'] is num && (b['w'] as num) >= 400 &&
-            (b['h'] as num) >= 300;
+    final rememberPos =
+        config['rememberWindowPos'] ?? kDefaultRememberWindowPos;
+    final rememberSize =
+        config['rememberWindowSize'] ?? kDefaultRememberWindowSize;
+    final sizeValid = b['w'] is num &&
+        b['h'] is num &&
+        (b['w'] as num) >= 400 &&
+        (b['h'] as num) >= 300;
     final posValid = b['x'] is num && b['y'] is num;
     if (rememberSize && sizeValid) {
       await windowManager.setSize(Size(

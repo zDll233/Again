@@ -167,18 +167,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }
 
   Future<void> _save(Map<String, dynamic> updates) async {
-    final config = await ref.read(configJsonProvider).read();
-    await ref.read(configJsonProvider).write({...config, ...updates});
+    await ref
+        .read(configJsonProvider)
+        .mutate((config) => {...config, ...updates});
   }
 
-  /// 写入时移除旧键 (liquidGlass / followCoverTheme 迁移)。
-  Future<void> _saveMigrated(
+  /// 写入配置并移除指定键 (恢复默认值用)。
+  Future<void> _saveRemovingKeys(
       Map<String, dynamic> updates, List<String> removedKeys) async {
-    final config = await ref.read(configJsonProvider).read();
-    for (final key in removedKeys) {
-      config.remove(key);
-    }
-    await ref.read(configJsonProvider).write({...config, ...updates});
+    await ref.read(configJsonProvider).mutate((config) {
+      for (final key in removedKeys) {
+        config.remove(key);
+      }
+      return {...config, ...updates};
+    });
   }
 
   /// 小号"恢复默认"按钮。
@@ -232,7 +234,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   }) async {
     setState(setDefault);
     // 先写完配置再刷新, 避免 provider 读到旧值
-    await _saveMigrated({}, keys);
+    await _saveRemovingKeys({}, keys);
     ref.invalidate(coverSeedColorProvider);
     ref.invalidate(textSettingsProvider);
     ref.invalidate(windowEffectProvider);
@@ -716,17 +718,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                         onSelectionChanged: (selection) async {
                                           final value = selection.first;
                                           setState(() => _windowEffect = value);
-                                          // 迁移: 移除旧的 liquidGlass 布尔配置
-                                          final config = await ref
-                                              .read(configJsonProvider)
-                                              .read();
-                                          config.remove('liquidGlass');
-                                          await ref
-                                              .read(configJsonProvider)
-                                              .write({
-                                            ...config,
-                                            'windowEffect': value
-                                          });
+                                          await _save({'windowEffect': value});
                                           ref.invalidate(windowEffectProvider);
                                           ref
                                               .read(uiServiceProvider)
@@ -736,7 +728,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     ),
                                     _resetButton(() {
                                       _resetToDefault(
-                                        ['windowEffect', 'liquidGlass'],
+                                        ['windowEffect'],
                                         () => _windowEffect =
                                             WINDOW_EFFECT_ACRYLIC,
                                         reapplyWindowEffect: true,
@@ -846,10 +838,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                 final picked = result.color;
                                 setState(() => _themeSeedColor = picked);
                                 // 先写完配置再刷新主题, 避免 provider 读到旧值
-                                await _saveMigrated(
-                                  {'themeSeedColor': _toHex(picked)},
-                                  ['themeColorMode', 'followCoverTheme'],
-                                );
+                                await _save({'themeSeedColor': _toHex(picked)});
                                 ref.invalidate(coverSeedColorProvider);
                               },
                             ),
@@ -1018,7 +1007,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                             // Android 没有应用内音量条, 文案与默认值都按桌面/手机区分
                             _textSizeTile(
                                 Platform.isWindows ? '进度/音量条粗细' : '进度条粗细',
-                                _sliderThickness, 'sliderThickness',
+                                _sliderThickness,
+                                'sliderThickness',
                                 UiSettings.defaultSliderThickness, (v) {
                               _sliderThickness = v;
                             },
@@ -1053,7 +1043,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     onColorChanged: (v) => _panelTextColor = v,
                                     colorKey: 'panelTextColor',
                                     weightValue: () => _panelTextWeight,
-                                    onWeightChanged: (v) => _panelTextWeight = v,
+                                    onWeightChanged: (v) =>
+                                        _panelTextWeight = v,
                                     weightKey: 'panelTextWeight',
                                     weightDefault: _defaults.panelTextWeight,
                                   ),
@@ -1067,8 +1058,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     icon: Icons.title,
                                     title: '面板标题',
                                     sample: kFontSampleText,
-                                    fallback:
-                                        scheme.onSurface.withValues(alpha: 0.75),
+                                    fallback: scheme.onSurface
+                                        .withValues(alpha: 0.75),
                                     previewStyle: _panelTitleStyle,
                                     sizeValue: () => _panelTitleSize,
                                     onSizeChanged: (v) => _panelTitleSize = v,
@@ -1078,7 +1069,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     onColorChanged: (v) => _panelTitleColor = v,
                                     colorKey: 'panelTitleColor',
                                     weightValue: () => _panelTitleWeight,
-                                    onWeightChanged: (v) => _panelTitleWeight = v,
+                                    onWeightChanged: (v) =>
+                                        _panelTitleWeight = v,
                                     weightKey: 'panelTitleWeight',
                                     weightDefault: _defaults.panelTitleWeight,
                                   ),
@@ -1099,10 +1091,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     sizeKey: 'progressTextSize',
                                     sizeDefault: 16,
                                     colorValue: () => _progressTextColor,
-                                    onColorChanged: (v) => _progressTextColor = v,
+                                    onColorChanged: (v) =>
+                                        _progressTextColor = v,
                                     colorKey: 'progressTextColor',
                                     weightValue: () => _progressTextWeight,
-                                    onWeightChanged: (v) => _progressTextWeight = v,
+                                    onWeightChanged: (v) =>
+                                        _progressTextWeight = v,
                                     weightKey: 'progressTextWeight',
                                     weightDefault: _defaults.progressTextWeight,
                                   ),
@@ -1135,7 +1129,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     onColorChanged: (v) => _lyricTitleColor = v,
                                     colorKey: 'lyricTitleColor',
                                     weightValue: () => _lyricTitleWeight,
-                                    onWeightChanged: (v) => _lyricTitleWeight = v,
+                                    onWeightChanged: (v) =>
+                                        _lyricTitleWeight = v,
                                     weightKey: 'lyricTitleWeight',
                                     weightDefault: _defaults.lyricTitleWeight,
                                   ),
@@ -1156,10 +1151,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     sizeKey: 'lyricCurrentSize',
                                     sizeDefault: _defaults.lyricCurrentSize,
                                     colorValue: () => _lyricHighlightColor,
-                                    onColorChanged: (v) => _lyricHighlightColor = v,
+                                    onColorChanged: (v) =>
+                                        _lyricHighlightColor = v,
                                     colorKey: 'lyricHighlightColor',
                                     weightValue: () => _lyricCurrentWeight,
-                                    onWeightChanged: (v) => _lyricCurrentWeight = v,
+                                    onWeightChanged: (v) =>
+                                        _lyricCurrentWeight = v,
                                     weightKey: 'lyricCurrentWeight',
                                     weightDefault: _defaults.lyricCurrentWeight,
                                   ),
@@ -1173,8 +1170,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                     icon: Icons.notes,
                                     title: '歌词其他行',
                                     sample: kFontSampleText,
-                                    fallback:
-                                        scheme.onSurface.withValues(alpha: 0.55),
+                                    fallback: scheme.onSurface
+                                        .withValues(alpha: 0.55),
                                     previewStyle: _lyricOtherStyle,
                                     sizeValue: () => _lyricSize,
                                     onSizeChanged: (v) => _lyricSize = v,
@@ -1196,22 +1193,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                   sample: '00:35',
                                   sampleStyle: TextStyle(
                                     fontSize: _hoverTimeSize,
-                                    fontWeight:
-                                        fontWeightFor(_hoverTimeWeight),
+                                    fontWeight: fontWeightFor(_hoverTimeWeight),
                                     color: _hoverTimeColor?.resolve(
-                                          Colors.white.withValues(alpha: 0.45),
-                                          _themeHueSource()) ??
+                                            Colors.white
+                                                .withValues(alpha: 0.45),
+                                            _themeHueSource()) ??
                                         Colors.white.withValues(alpha: 0.45),
                                   ),
                                   onTap: () => _editHoverTime(),
                                 ),
                                 // 二级设置项: 歌词行间距 / 歌词对齐 / 回正延迟
                                 // (放歌词文字块最后)
-                                _textSizeTile('歌词行间距', _lyricLineGap,
-                                    'lyricLineGap', 25, (v) {
+                                _textSizeTile(
+                                    '歌词行间距', _lyricLineGap, 'lyricLineGap', 25,
+                                    (v) {
                                   _lyricLineGap = v;
-                                },
-                                    icon: Icons.format_line_spacing),
+                                }, icon: Icons.format_line_spacing),
                                 ListTile(
                                   dense: true,
                                   leading: Icon(
@@ -1247,8 +1244,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                           ),
                                           onSelectionChanged:
                                               (selection) async {
-                                            setState(() => _lyricAlign =
-                                                selection.first);
+                                            setState(() =>
+                                                _lyricAlign = selection.first);
                                             await _save(
                                                 {'lyricAlign': _lyricAlign});
                                             ref.invalidate(
@@ -1325,65 +1322,66 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                                       title: '封面歌词当前行',
                                       sample: kFontSampleText,
                                       sampleStyle: _coverCurrentStyle(),
-                                    onTap: () => _editTextPosition(
-                                      icon: Icons.album,
-                                      title: '封面歌词当前行',
-                                      sample: kFontSampleText,
-                                      fallback: scheme.primary,
-                                      previewStyle: _coverCurrentStyle,
-                                      sizeValue: () => _lyricPreviewCurrentSize,
-                                      onSizeChanged: (v) =>
-                                          _lyricPreviewCurrentSize = v,
-                                      sizeKey: 'lyricPreviewCurrentSize',
-                                      sizeDefault:
-                                          _defaults.lyricPreviewCurrentSize,
-                                      sizeMin: 10,
-                                      sizeMax: 24,
-                                      colorValue: () =>
-                                          _lyricPreviewHighlightColor,
-                                      onColorChanged: (v) =>
-                                          _lyricPreviewHighlightColor = v,
-                                      colorKey: 'lyricPreviewHighlightColor',
-                                      weightValue: () =>
-                                          _lyricPreviewCurrentWeight,
-                                      onWeightChanged: (v) =>
-                                          _lyricPreviewCurrentWeight = v,
-                                      weightKey: 'lyricPreviewCurrentWeight',
-                                      weightDefault:
-                                          _defaults.lyricPreviewCurrentWeight,
+                                      onTap: () => _editTextPosition(
+                                        icon: Icons.album,
+                                        title: '封面歌词当前行',
+                                        sample: kFontSampleText,
+                                        fallback: scheme.primary,
+                                        previewStyle: _coverCurrentStyle,
+                                        sizeValue: () =>
+                                            _lyricPreviewCurrentSize,
+                                        onSizeChanged: (v) =>
+                                            _lyricPreviewCurrentSize = v,
+                                        sizeKey: 'lyricPreviewCurrentSize',
+                                        sizeDefault:
+                                            _defaults.lyricPreviewCurrentSize,
+                                        sizeMin: 10,
+                                        sizeMax: 24,
+                                        colorValue: () =>
+                                            _lyricPreviewHighlightColor,
+                                        onColorChanged: (v) =>
+                                            _lyricPreviewHighlightColor = v,
+                                        colorKey: 'lyricPreviewHighlightColor',
+                                        weightValue: () =>
+                                            _lyricPreviewCurrentWeight,
+                                        onWeightChanged: (v) =>
+                                            _lyricPreviewCurrentWeight = v,
+                                        weightKey: 'lyricPreviewCurrentWeight',
+                                        weightDefault:
+                                            _defaults.lyricPreviewCurrentWeight,
+                                      ),
                                     ),
-                                  ),
-                                  SettingsTextPositionTile(
-                                    icon: Icons.album_outlined,
-                                    title: '封面歌词其他行',
-                                    sample: kFontSampleText,
-                                    sampleStyle: _coverOtherStyle(),
-                                    onTap: () => _editTextPosition(
+                                    SettingsTextPositionTile(
                                       icon: Icons.album_outlined,
                                       title: '封面歌词其他行',
                                       sample: kFontSampleText,
-                                      fallback: scheme.onSurface
-                                          .withValues(alpha: 0.55),
-                                      previewStyle: _coverOtherStyle,
-                                      sizeValue: () => _lyricPreviewSize,
-                                      onSizeChanged: (v) =>
-                                          _lyricPreviewSize = v,
-                                      sizeKey: 'lyricPreviewSize',
-                                      sizeDefault: _defaults.lyricPreviewSize,
-                                      sizeMin: 10,
-                                      sizeMax: 24,
-                                      colorValue: () => _lyricPreviewColor,
-                                      onColorChanged: (v) =>
-                                          _lyricPreviewColor = v,
-                                      colorKey: 'lyricPreviewColor',
-                                      weightValue: () => _lyricPreviewWeight,
-                                      onWeightChanged: (v) =>
-                                          _lyricPreviewWeight = v,
-                                      weightKey: 'lyricPreviewWeight',
-                                      weightDefault:
-                                          _defaults.lyricPreviewWeight,
+                                      sampleStyle: _coverOtherStyle(),
+                                      onTap: () => _editTextPosition(
+                                        icon: Icons.album_outlined,
+                                        title: '封面歌词其他行',
+                                        sample: kFontSampleText,
+                                        fallback: scheme.onSurface
+                                            .withValues(alpha: 0.55),
+                                        previewStyle: _coverOtherStyle,
+                                        sizeValue: () => _lyricPreviewSize,
+                                        onSizeChanged: (v) =>
+                                            _lyricPreviewSize = v,
+                                        sizeKey: 'lyricPreviewSize',
+                                        sizeDefault: _defaults.lyricPreviewSize,
+                                        sizeMin: 10,
+                                        sizeMax: 24,
+                                        colorValue: () => _lyricPreviewColor,
+                                        onColorChanged: (v) =>
+                                            _lyricPreviewColor = v,
+                                        colorKey: 'lyricPreviewColor',
+                                        weightValue: () => _lyricPreviewWeight,
+                                        onWeightChanged: (v) =>
+                                            _lyricPreviewWeight = v,
+                                        weightKey: 'lyricPreviewWeight',
+                                        weightDefault:
+                                            _defaults.lyricPreviewWeight,
+                                      ),
                                     ),
-                                  ),
                                   ],
                                 ],
                               ],
@@ -1466,15 +1464,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         fontSize: _panelTitleSize,
         fontWeight: fontWeightFor(_panelTitleWeight),
         color: _panelTitleColor?.resolve(
-                Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.75),
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75),
                 _themeHueSource()) ??
-            Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.75),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.75),
       );
 
   TextStyle _progressTimeStyle() => TextStyle(
@@ -1505,15 +1497,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         fontSize: _lyricSize,
         fontWeight: fontWeightFor(_lyricWeight),
         color: _lyricColor?.resolve(
-                Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.55),
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                 _themeHueSource()) ??
-            Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.55),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
       );
 
   TextStyle _coverCurrentStyle() => TextStyle(
@@ -1528,15 +1514,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         fontSize: _lyricPreviewSize,
         fontWeight: fontWeightFor(_lyricPreviewWeight),
         color: _lyricPreviewColor?.resolve(
-                Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.55),
+                Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
                 _themeHueSource()) ??
-            Theme.of(context)
-                .colorScheme
-                .onSurface
-                .withValues(alpha: 0.55),
+            Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.55),
       );
 
   /// 打开文字位置编辑面板: 效果预览 (实时) + 颜色/字号/字重 三项设置。
@@ -1592,8 +1572,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 ),
                 const SizedBox(width: 8),
                 Flexible(
-                  child: Text(title,
-                      maxLines: 1, overflow: TextOverflow.ellipsis),
+                  child:
+                      Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
                 ),
               ],
             ),
@@ -1622,17 +1602,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _textColorTile('颜色', colorValue(), colorKey, fallback,
-                      onColorChanged,
+                  _textColorTile(
+                      '颜色', colorValue(), colorKey, fallback, onColorChanged,
                       onRefresh: refresh),
-                  _textSizeTile('字号', sizeValue(), sizeKey, sizeDefault,
-                      onSizeChanged,
+                  _textSizeTile(
+                      '字号', sizeValue(), sizeKey, sizeDefault, onSizeChanged,
                       min: sizeMin,
                       max: sizeMax,
                       refreshAppearance: sizeRefreshAppearance,
                       onRefresh: refresh),
-                  _textWeightTile('字重', weightValue(), weightKey,
-                      weightDefault, onWeightChanged,
+                  _textWeightTile('字重', weightValue(), weightKey, weightDefault,
+                      onWeightChanged,
                       onRefresh: refresh),
                 ],
               ),
@@ -1705,8 +1685,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       color: dialogScheme.onSurface.withValues(alpha: 0.6),
                     ),
                     title: const Text('显示歌词起始时间'),
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: isNarrow ? 8 : 16),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: isNarrow ? 8 : 16),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -1720,8 +1700,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           },
                         ),
                         _resetButton(() {
-                          _resetToDefault(['showHoverTime'],
-                              () => _showHoverTime = true);
+                          _resetToDefault(
+                              ['showHoverTime'], () => _showHoverTime = true);
                           refresh();
                         }),
                       ],
@@ -1729,13 +1709,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   ),
                   // 起始时间颜色/字号/字重: 子设置, 关闭时隐藏
                   if (_showHoverTime)
-                    _textColorTile('颜色', _hoverTimeColor, 'hoverTimeColor',
+                    _textColorTile(
+                        '颜色',
+                        _hoverTimeColor,
+                        'hoverTimeColor',
                         Colors.white.withValues(alpha: 0.45),
                         (v) => _hoverTimeColor = v,
                         onRefresh: refresh),
                   if (_showHoverTime)
-                    _textSizeTile('歌词起始时间字号', _hoverTimeSize,
-                        'hoverTimeSize', 14, (v) {
+                    _textSizeTile(
+                        '歌词起始时间字号', _hoverTimeSize, 'hoverTimeSize', 14, (v) {
                       _hoverTimeSize = v;
                     },
                         icon: Icons.timer_outlined,
@@ -1744,11 +1727,10 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         refreshAppearance: true,
                         onRefresh: refresh),
                   if (_showHoverTime)
-                    _textWeightTile('字重', _hoverTimeWeight,
-                        'hoverTimeWeight', 400, (v) {
+                    _textWeightTile(
+                        '字重', _hoverTimeWeight, 'hoverTimeWeight', 400, (v) {
                       _hoverTimeWeight = v;
-                    },
-                        onRefresh: refresh, refreshAppearance: true),
+                    }, onRefresh: refresh, refreshAppearance: true),
                 ],
               ),
             ),
@@ -1866,13 +1848,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       },
       onSave: (updated) async {
         // 先写完整配置 (含清除旧的 Theme/Sat/Val 或 hex 键) 再刷新
-        final config = await ref.read(configJsonProvider).read();
-        for (final key in ColorSetting.keys(baseKey)) {
-          config.remove(key);
-        }
-        await ref
-            .read(configJsonProvider)
-            .write({...config, ...updated.toConfig(baseKey)});
+        await ref.read(configJsonProvider).mutate((config) {
+          for (final key in ColorSetting.keys(baseKey)) {
+            config.remove(key);
+          }
+          return {...config, ...updated.toConfig(baseKey)};
+        });
         ref.invalidate(textSettingsProvider);
         onRefresh?.call();
       },
