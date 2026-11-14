@@ -9,6 +9,7 @@ import 'dart:typed_data';
 import 'package:again/services/audio/audio_engine.dart';
 import 'package:again/services/audio/audio_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 final List<String> _lines = <String>[];
@@ -123,7 +124,8 @@ Future<void> _runProbe() async {
   await Future<void>.delayed(const Duration(milliseconds: 600));
   status = await engine.status();
   final seekPosition = status?.position.inMilliseconds ?? 0;
-  _check(seekPosition > 2400 && seekPosition < 5200, 'seek 后位置 ${seekPosition}ms');
+  _check(
+      seekPosition > 2400 && seekPosition < 5200, 'seek 后位置 ${seekPosition}ms');
 
   await engine.pause();
   final pausedPosition = (await engine.status())?.position ?? Duration.zero;
@@ -202,5 +204,5 @@ class _ProbePageState extends State<ProbePage> {
 }
 
 void main() {
-  runApp(const ProbePage());
+  runApp(const ProviderScope(child: ProbePage()));
 }

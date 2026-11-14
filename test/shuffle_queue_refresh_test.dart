@@ -71,8 +71,7 @@ void main() {
     final dbOrder = ['a', 'b', 'c', 'd', 'e', 'f'].map(vi).toList();
     restoreStartupState(container,
         dbValues: dbOrder, selectedIndex: 2, mode: PlaybackMode.shufflePlay);
-    final shuffled =
-        titlesOf(container.read(voiceItemProvider).playingValues);
+    final shuffled = titlesOf(container.read(voiceItemProvider).playingValues);
     expect(shuffled.toSet(), {'a', 'b', 'c', 'd', 'e', 'f'});
 
     // 静默刷新: 音轨未变, 数据库按当前排序返回 (顺序) 列表
@@ -82,10 +81,8 @@ void main() {
     container
         .read(voiceItemProvider.notifier)
         .setRefreshedPlayingValues(sortedRefreshed);
-    container
-        .read(voiceItemProvider.notifier)
-        .setPlayingIndexByValue(
-            container.read(voiceItemProvider).cachedPlayingItem);
+    container.read(voiceItemProvider.notifier).setPlayingIndexByValue(
+        container.read(voiceItemProvider).cachedPlayingItem);
 
     final state = container.read(voiceItemProvider);
     final queue = titlesOf(state.playingValues);
@@ -144,10 +141,10 @@ void main() {
 }
 
 class _StubAudioNotifier extends AudioNotifier {
-  _StubAudioNotifier(this.mode);
+  _StubAudioNotifier(this._mode);
 
-  final PlaybackMode mode;
+  final PlaybackMode _mode;
 
   @override
-  AudioState build() => AudioState(playbackMode: mode);
+  AudioState build() => AudioState(playbackMode: _mode);
 }
