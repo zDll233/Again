@@ -121,7 +121,9 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     reflection: isNarrow
                         ? false
                         : (appearance?.coverReflection ?? true),
-                    allowPreview: !isNarrow,
+                    // 宽屏点击看大图; 窄屏长按看大图 (点击留给翻页手势)
+                    allowTapPreview: !isNarrow,
+                    allowLongPressPreview: isNarrow,
                   ),
                 );
               },
@@ -293,18 +295,32 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
   }
 
   /// 封面 (+ 可选倒影/3D 倾斜);
-  /// 无封面时显示占位图标块。Android 只负责展示, Windows 保留预览入口。
-  Widget _buildCover(String coverPath, double size,
-      {bool tilt = true, bool reflection = true, bool allowPreview = true}) {
+  /// 无封面时显示占位图标块。
+  /// [allowTapPreview] 桌面点击查看大图; [allowLongPressPreview] 移动端长按
+  /// 查看大图 (窄屏点击用于左右翻页, 不占用单击手势)。
+  Widget _buildCover(
+    String coverPath,
+    double size, {
+    bool tilt = true,
+    bool reflection = true,
+    bool allowTapPreview = true,
+    bool allowLongPressPreview = false,
+  }) {
     final hasCover = coverPath.isNotEmpty && File(coverPath).existsSync();
-    final imageProvider =
-        allowPreview && hasCover ? FileImage(File(coverPath)) : null;
+    // 大图用原始 FileImage (不经过 ResizeImage), 查看时保留完整分辨率。
+    final previewProvider = hasCover ? FileImage(File(coverPath)) : null;
 
-    void onCoverTap() {
-      if (imageProvider != null) {
-        openImageDialog(context, imageProvider);
+    void showPreview() {
+      final provider = previewProvider;
+      if (provider != null) {
+        openImageDialog(context, provider);
       }
     }
+
+    final onTap =
+        allowTapPreview && previewProvider != null ? showPreview : null;
+    final onLongPress =
+        allowLongPressPreview && previewProvider != null ? showPreview : null;
 
     final dpr = MediaQuery.devicePixelRatioOf(context);
     final cacheHeight = (size * dpr * 2).round();
@@ -367,13 +383,15 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
     if (!tilt) {
       // 关闭倾斜: 直接显示封面
       return GestureDetector(
-        onTap: allowPreview ? onCoverTap : null,
+        onTap: onTap,
+        onLongPress: onLongPress,
         child: coverBody,
       );
     }
     return _TiltCover(
       coverSize: size,
-      onTap: allowPreview ? onCoverTap : null,
+      onTap: onTap,
+      onLongPress: onLongPress,
       child: coverBody,
     );
   }
@@ -463,8 +481,8 @@ class _LrcBuilderState extends ConsumerState<LyricBuilder> {
                     ?.hoverTimeColor
                     ?.resolve(
                         Colors.white.withValues(alpha: 0.45),
-                        resolveThemeHueSource(
-                            Theme.of(context).colorScheme, kDefaultThemeSeed)) ??
+                        resolveThemeHueSource(Theme.of(context).colorScheme,
+                            kDefaultThemeSeed)) ??
                 Colors.white.withValues(alpha: 0.45)
             : null;
         final reader = LyricsReader(
@@ -613,11 +631,13 @@ class _TiltCover extends StatefulWidget {
   final Widget child;
   final double coverSize;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
 
   const _TiltCover({
     required this.child,
     required this.coverSize,
     this.onTap,
+    this.onLongPress,
   });
 
   @override
@@ -712,6 +732,7 @@ class _TiltCoverState extends State<_TiltCover> {
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
               onTap: widget.onTap,
+              onLongPress: widget.onLongPress,
               child: const SizedBox.expand(),
             ),
           ),
