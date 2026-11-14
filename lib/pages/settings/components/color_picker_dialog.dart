@@ -104,17 +104,18 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
 
   /// 确定时把颜色记入最近使用 (去重, 最新在前, 最多 10 个)。
   Future<void> _saveRecent(Color color) async {
-    final config = await ref.read(configJsonProvider).read();
     final hex =
         '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
-    final list = <String>[hex];
-    for (final e in (config['recentColors'] as List?) ?? const <dynamic>[]) {
-      final s = e.toString().toUpperCase();
-      if (s != hex && list.length < 10) {
-        list.add(s);
+    await ref.read(configJsonProvider).mutate((config) {
+      final list = <String>[hex];
+      for (final e in (config['recentColors'] as List?) ?? const <dynamic>[]) {
+        final s = e.toString().toUpperCase();
+        if (s != hex && list.length < 10) {
+          list.add(s);
+        }
       }
-    }
-    await ref.read(configJsonProvider).write({...config, 'recentColors': list});
+      return {...config, 'recentColors': list};
+    });
   }
 
   void _apply(Color c) {
@@ -188,8 +189,7 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
                   for (var h = 0.0; h <= 360; h += 60)
                     HSVColor.fromAHSV(1, h, 1, 1).toColor(),
                 ],
-                onChanged: (v) =>
-                    setState(() => _hsv = _hsv.withHue(v * 360)),
+                onChanged: (v) => setState(() => _hsv = _hsv.withHue(v * 360)),
               ),
             _SliderBar(
               label: '饱和度',
@@ -197,10 +197,16 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
               colors: _themeHue
                   ? [
                       HSVColor.fromAHSV(
-                              1, HSVColor.fromColor(widget.themeHueColor!).hue, 0, 1)
+                              1,
+                              HSVColor.fromColor(widget.themeHueColor!).hue,
+                              0,
+                              1)
                           .toColor(),
                       HSVColor.fromAHSV(
-                              1, HSVColor.fromColor(widget.themeHueColor!).hue, 1, 1)
+                              1,
+                              HSVColor.fromColor(widget.themeHueColor!).hue,
+                              1,
+                              1)
                           .toColor(),
                     ]
                   : [
@@ -215,10 +221,16 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
               colors: _themeHue
                   ? [
                       HSVColor.fromAHSV(
-                              1, HSVColor.fromColor(widget.themeHueColor!).hue, 1, 0)
+                              1,
+                              HSVColor.fromColor(widget.themeHueColor!).hue,
+                              1,
+                              0)
                           .toColor(),
                       HSVColor.fromAHSV(
-                              1, HSVColor.fromColor(widget.themeHueColor!).hue, 1, 1)
+                              1,
+                              HSVColor.fromColor(widget.themeHueColor!).hue,
+                              1,
+                              1)
                           .toColor(),
                     ]
                   : [
@@ -268,8 +280,7 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
                       ),
                     ),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9a-fA-F]')),
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9a-fA-F]')),
                       LengthLimitingTextInputFormatter(6),
                     ],
                   ),
@@ -307,7 +318,8 @@ class _ColorPickerDialogState extends ConsumerState<ColorPickerDialog> {
 }
 
 class _Swatch extends StatelessWidget {
-  const _Swatch({required this.color, required this.selected, required this.onTap});
+  const _Swatch(
+      {required this.color, required this.selected, required this.onTap});
 
   final Color color;
   final bool selected;
@@ -333,9 +345,11 @@ class _Swatch extends StatelessWidget {
           ),
         ),
         child: selected
-            ? Icon(Icons.check, size: 18, color: color.computeLuminance() > 0.5
-                ? Colors.black87
-                : Colors.white)
+            ? Icon(Icons.check,
+                size: 18,
+                color: color.computeLuminance() > 0.5
+                    ? Colors.black87
+                    : Colors.white)
             : null,
       ),
     );
@@ -379,10 +393,8 @@ class _SliderBar extends StatelessWidget {
                 activeTrackColor: Colors.transparent,
                 inactiveTrackColor: Colors.transparent,
                 thumbColor: Colors.white,
-                overlayShape:
-                    const RoundSliderOverlayShape(overlayRadius: 14),
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 7),
+                overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
                 trackShape: _GradientTrackShape(colors),
               ),
               child: Slider(
@@ -440,8 +452,7 @@ class _GradientTrackShape extends SliderTrackShape {
         trackRect,
         Radius.circular(trackRect.height / 2),
       ),
-      Paint()
-        ..shader = LinearGradient(colors: colors).createShader(trackRect),
+      Paint()..shader = LinearGradient(colors: colors).createShader(trackRect),
     );
   }
 }
