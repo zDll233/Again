@@ -117,6 +117,12 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
         .read(voiceItemProvider.notifier)
         .setSortOrder(VoiceItemSortExtension.fromString(voiceItemSort));
   }
+  // 恢复筛选面板展开状态 (config.json, 缺失视为收起)。只在宽屏恢复:
+  // 宽屏时筛选是左侧一列, 窄屏时是抽屉 (启动就展开会直接盖住列表)。
+  ref.read(miscUIProvider.notifier).setFilterExpanded(
+        _isWideLayout() && config['filterExpanded'] == true,
+        persist: false,
+      );
   // 恢复左右声道互换开关 (config.json, 缺失视为关): 引擎会记住该状态,
   // 之后每次换音源都会沿用。
   ref
@@ -134,6 +140,15 @@ final _initProvider = FutureProvider.autoDispose((ref) async {
   // 启动完成后再静默增量刷新, 不阻塞初始化
   unawaited(ref.read(dbNotifierProvider).silentRefresh());
 });
+
+/// 宽屏判定, 与 ListsView 的窄屏断点 (<600 用抽屉) 保持一致。
+/// 初始化阶段在 MaterialApp 之外, 拿不到 MediaQuery, 用 View 尺寸换算。
+bool _isWideLayout() {
+  final views = WidgetsBinding.instance.platformDispatcher.views;
+  if (views.isEmpty) return true;
+  final view = views.first;
+  return view.physicalSize.width / view.devicePixelRatio >= 600;
+}
 
 /// Android: 初始化 audio_service 前台服务并桥接到现有播放器状态。
 Future<void> initAudioServiceAndroid(Ref ref) async {

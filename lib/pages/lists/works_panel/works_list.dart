@@ -25,6 +25,9 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
   static const _doubleTapWindow = Duration(milliseconds: 300);
   static const _tapMoveSlop = 18.0;
 
+  /// 宽屏左右拖拽开关筛选面板的最小横向位移 (逻辑像素)。
+  static const _filterDragThreshold = 48.0;
+
   String _query = '';
   int? _activePointer;
   Offset? _pointerDownPosition;
@@ -32,8 +35,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
   DateTime? _lastTapTime;
   int? _lastTapIndex;
   Offset? _lastTapPosition;
-  double _panelSwipeDx = 0;
-  double _panelSwipeDy = 0;
+  Offset? _panelSwipeStart;
+  Offset? _panelSwipeEnd;
 
   void _handlePointerDown(PointerDownEvent event) {
     _activePointer = event.pointer;
@@ -110,37 +113,56 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
   }
 
   Widget _withPanelSwipe(Widget child) {
-    // 左右划屏切页/筛选仅窄屏移动端手势; 桌面宽屏 (Windows 等) 禁用,
-    // 避免鼠标左右拖拽误触筛选面板/音轨面板。
-    if (MediaQuery.sizeOf(context).width >= 600) return child;
+    // 窄屏 (移动端): 右划开筛选抽屉, 左划切到音轨面板。
+    // 宽屏 (桌面): 音轨面板已并排显示, 左右拖拽只用来开关筛选面板 ——
+    // 筛选面板从左侧展开, 所以右拖展开、左拖收起。
+    final isWide = MediaQuery.sizeOf(context).width >= 600;
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
-      onHorizontalDragStart: (_) {
-        _panelSwipeDx = 0;
-        _panelSwipeDy = 0;
+      onHorizontalDragStart: (details) {
+        _panelSwipeStart = details.globalPosition;
+        _panelSwipeEnd = details.globalPosition;
       },
       onHorizontalDragUpdate: (details) {
-        _panelSwipeDx += details.delta.dx;
-        _panelSwipeDy += details.delta.dy;
+        _panelSwipeEnd = details.globalPosition;
       },
-      onHorizontalDragEnd: (_) {
-        // 斜划不切页, 避免轻微偏斜被误判为相反方向。
-        if (_panelSwipeDx.abs() <= _panelSwipeDy.abs() * 1.3) return;
-        if (_panelSwipeDx > 0) {
-          ref.read(miscUIProvider.notifier).toggleFilterExpanded();
-        } else {
-          ref.read(listsPanelPageProvider.notifier).state = 1;
-        }
-      },
+      onHorizontalDragEnd: (_) => _onPanelSwipeEnd(isWide),
       child: child,
     );
+  }
+
+  /// 拖拽结束: 按「起点 → 终点」的真实位移判断方向。
+  ///
+  /// 不能累加 onHorizontalDragUpdate 的 delta: 水平拖拽识别器只上报 dx
+  /// (`_getDeltaForDetails` 把 dy 置 0), 纵向分量恒为 0, 斜向判定永远不会
+  /// 成立 —— 斜着拖一点都会被误判成横向手势。
+  void _onPanelSwipeEnd(bool isWide) {
+    final start = _panelSwipeStart;
+    final end = _panelSwipeEnd;
+    _panelSwipeStart = null;
+    _panelSwipeEnd = null;
+    if (start == null || end == null) return;
+    final delta = end - start;
+    // 斜拖不触发, 避免轻微偏斜被误判为相反方向。
+    if (delta.dx.abs() <= delta.dy.abs() * 1.3) return;
+    if (isWide) {
+      if (delta.dx.abs() < _filterDragThreshold) return;
+      ref.read(miscUIProvider.notifier).setFilterExpanded(delta.dx > 0);
+      return;
+    }
+    if (delta.dx > 0) {
+      ref.read(miscUIProvider.notifier).toggleFilterExpanded();
+    } else {
+      ref.read(listsPanelPageProvider.notifier).state = 1;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final values = ref.watch(voiceWorkProvider.select((state) => state.values));
     if (values.isEmpty) {
-      return const EmptyState();
+      // 空列表也挂拖拽层, 保证面板空白时同样能拉出筛选
+      return _withPanelSwipe(const EmptyState());
     }
     // 搜索关闭时直接显示全量列表 (与开启时共用条目构建)
     final searchEnabled = searchEnabledFor(ref, searchWorksEnabledProvider);
@@ -160,18 +182,20 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
     }
     final filtered = _filteredIndices(values);
 
-    return _withPanelSwipe(
-      Column(
-        children: [
-          SearchableHeader(
-            title: '作品',
-            query: _query,
-            onQueryChanged: (value) => setState(() => _query = value),
-            onClear: () => setState(() => _query = ''),
-            compact: true,
-          ),
-          Expanded(
-            child: filtered.isEmpty
+    // 拖拽层只包列表本体, 不包搜索框: 在搜索框里横向拖动是在选文字,
+    // 不能被当成开关筛选面板的手势。
+    return Column(
+      children: [
+        SearchableHeader(
+          title: '作品',
+          query: _query,
+          onQueryChanged: (value) => setState(() => _query = value),
+          onClear: () => setState(() => _query = ''),
+          compact: true,
+        ),
+        Expanded(
+          child: _withPanelSwipe(
+            filtered.isEmpty
                 ? const EmptyState(
                     icon: Icons.search_off_outlined,
                     message: '没有匹配的作品',
@@ -185,8 +209,8 @@ class _WorksListViewState extends ConsumerState<WorksListView> {
                     padding: EdgeInsets.only(bottom: bottomPad),
                   ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
